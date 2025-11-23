@@ -1,5 +1,6 @@
 import ImageLogo from "@/assets/images/buka-smart-hub-logo.svg";
 import { LoginForm } from "@/components/login-form";
+import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
 export default function LoginPage() {
@@ -7,12 +8,12 @@ export default function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
+          <Link href="/" className="flex items-center gap-2 font-medium">
             <div className="flex size-6 items-center justify-center rounded-md text-primary-foreground">
               <img src={ImageLogo.src} alt="Buka Smart Hub Logo" />
             </div>
             Buka Smart Hub
-          </a>
+          </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
