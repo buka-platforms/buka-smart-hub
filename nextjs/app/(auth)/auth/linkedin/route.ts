@@ -93,7 +93,7 @@ export async function GET(request: Request) {
 
   // Get user with filter
   const user = await client.request(
-    readItems("users" as any, {
+    readItems("users", {
       filter: {
         _and: [
           {
@@ -107,7 +107,7 @@ export async function GET(request: Request) {
             },
           },
         ],
-      } as any,
+      },
     }),
   );
 
@@ -168,7 +168,7 @@ export async function GET(request: Request) {
 
   // Check if the user session exists
   userSession = await client.request(
-    readItems("user_sessions" as any, {
+    readItems("user_sessions", {
       filter: {
         _and: [
           {
@@ -182,7 +182,7 @@ export async function GET(request: Request) {
             },
           },
         ],
-      } as any,
+      },
     }),
   );
 

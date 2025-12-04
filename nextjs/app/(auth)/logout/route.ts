@@ -29,7 +29,7 @@ export async function GET() {
 
   // Get user session to delete
   const userSession = await client.request(
-    readItems("user_sessions" as any, {
+    readItems("user_sessions", {
       filter: {
         _and: [
           {
@@ -48,7 +48,7 @@ export async function GET() {
             },
           },
         ],
-      } as any,
+      },
     }),
   );
 

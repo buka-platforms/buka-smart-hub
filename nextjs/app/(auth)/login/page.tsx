@@ -37,14 +37,14 @@ export const metadata: Metadata = {
 
 /* eslint-disable @next/next/no-img-element */
 export default function LoginPage() {
-  let xCodeChallenge = generateRandomString(43);
+  const xCodeChallenge = generateRandomString(43);
 
-  let authGoogleUrl = `https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_REDIRECT_URI}&client_id=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_CLIENT_ID}`;
-  let authGitHubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_GITHUB_CLIENT_ID}&scope=user:email user&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GITHUB_REDIRECT_URI}&response_type=code`;
-  let authLinkedInUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_REDIRECT_URI}&scope=openid%20profile%20email`;
-  let authXUrl = `https://twitter.com/i/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_X_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_X_REDIRECT_URI}&response_type=code&scope=users.read tweet.read&code_challenge=${xCodeChallenge}&code_challenge_method=plain&state=${xCodeChallenge}`;
-  let authDiscordUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_DISCORD_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20email`;
-  let authMicrosoftUrl = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_MICROSOFT_CLIENT_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_MICROSOFT_REDIRECT_URI}&scope=openid%20profile%20email%20User.Read`;
+  const authGoogleUrl = `https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_REDIRECT_URI}&client_id=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_CLIENT_ID}`;
+  const authGitHubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_GITHUB_CLIENT_ID}&scope=user:email user&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GITHUB_REDIRECT_URI}&response_type=code`;
+  const authLinkedInUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_REDIRECT_URI}&scope=openid%20profile%20email`;
+  const authXUrl = `https://twitter.com/i/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_X_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_X_REDIRECT_URI}&response_type=code&scope=users.read tweet.read&code_challenge=${xCodeChallenge}&code_challenge_method=plain&state=${xCodeChallenge}`;
+  const authDiscordUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_DISCORD_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20email`;
+  const authMicrosoftUrl = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_MICROSOFT_CLIENT_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_MICROSOFT_REDIRECT_URI}&scope=openid%20profile%20email%20User.Read`;
 
   return (
     <>
