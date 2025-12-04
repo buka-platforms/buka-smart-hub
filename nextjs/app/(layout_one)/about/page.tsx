@@ -47,7 +47,7 @@ export default async function AboutPage() {
       {/* <main className="mt-9 md:px-0"> */}
       <main className="mt-9 w-full">
         <p className="leading-7 not-first:mt-6">
-          {process.env.NEXT_PUBLIC_BUKA_APP_TITLE} is a web service with several
+          {process.env.NEXT_PUBLIC_BUKA_APP_TITLE} is a platform with several
           features or apps that you can use to make your day more enjoyable.{" "}
           {process.env.NEXT_PUBLIC_BUKA_APP_TITLE} is always improving, add new
           features and we will make it better.
@@ -64,9 +64,9 @@ export default async function AboutPage() {
           >
             Sony AK
           </a>{" "}
-          and to make your day a little more enjoyable. Buka is part of Jakarta
-          Industries. We are always open to feedback and suggestions. Made with
-          love & passion in Jakarta, Indonesia 🇮🇩 🌎 Enjoyed everywhere.
+          and to make your day a little more enjoyable. Buka is part of Buka
+          Platforms, Inc. Made with love & passion in Jakarta, Indonesia 🇮🇩 🌎
+          Enjoyed everywhere. Feedback and suggestions are always welcome.
         </p>
         <h2 className="mt-7 text-base font-medium tracking-tighter md:text-lg">
           Contact {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}
