@@ -20,16 +20,11 @@ const fetcher = async (
   return res.json();
 };
 
-interface RequestHeaders {
-  "x-vercel-ip-latitude": string;
-  "x-vercel-ip-longitude": string;
-}
-
 /* eslint-disable @next/next/no-img-element */
 export default function Weather({
   requestHeaders,
 }: {
-  requestHeaders: RequestHeaders;
+  requestHeaders: Record<string, string>;
 }) {
   const appId = process.env.NEXT_PUBLIC_OPENWEATHERMAP_APP_ID;
   const { data, error, isLoading } = useSWR(
