@@ -1,0 +1,166 @@
+"use client";
+
+import {
+  isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
+  isBackgroundImageLoaded as isBackgroundImageLoadedStore,
+  isBackgroundImageLoading as isBackgroundImageLoadingStore,
+  randomBackgroundImage as randomBackgroundImageStore,
+  requestHeaders as requestHeadersStore,
+  tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
+} from "@/data/store";
+import { useReadable } from "@/lib/react_use_svelte_store";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { get } from "svelte/store";
+
+interface RequestHeaders {
+  "cf-region"?: string; // The question mark indicates that the property is optional
+}
+
+const loadRandomBackgroundImage = async () => {
+  isBackgroundImageLoadedStore.set(false);
+  isBackgroundImageLoadingStore.set(true);
+
+  const requestHeaders = get(requestHeadersStore) as unknown as RequestHeaders;
+  const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
+
+  let apiUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?random=true`;
+
+  // Check if randomBackgroundImageId is not set, then include ?query
+  if (!localStorage.getItem("randomBackgroundImageId")) {
+    apiUrl += `?query=${backgroundImageQuery}`;
+  }
+
+  // Fetch data in parallel
+  const [unsplashResult] = await Promise.all([
+    fetch(apiUrl, {
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }),
+  ]);
+
+  const unsplash = await unsplashResult.json();
+
+  const { id, urls, alt_description, links, user } = unsplash.data;
+
+  randomBackgroundImageStore.set({
+    id,
+    urls,
+    alt_description,
+    links,
+    user,
+  });
+
+  localStorage.setItem("randomBackgroundImageId", id);
+};
+
+const loadBackgroundImage = async (dataId: string) => {
+  isBackgroundImageLoadedStore.set(false);
+  isBackgroundImageLoadingStore.set(true);
+
+  // Fetch data in parallel
+  const [unsplashResult] = await Promise.all([
+    fetch(
+      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?id=${dataId}`,
+      {
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    ),
+  ]);
+
+  const unsplash = await unsplashResult.json();
+
+  // Check if the image is not found, on Unsplash it will return an object with errors key
+  if (unsplash.data.errors) {
+    loadRandomBackgroundImage();
+    return;
+  }
+
+  const { id, urls, alt_description, links, user } = unsplash.data;
+
+  randomBackgroundImageStore.set({
+    id,
+    urls,
+    alt_description,
+    links,
+    user,
+  });
+};
+
+/* eslint-disable @next/next/no-img-element */
+export default function BackgroundImageContainerClient({
+  requestHeaders,
+}: {
+  requestHeaders: any;
+}) {
+  const randomBackgroundImage = useReadable(randomBackgroundImageStore);
+  const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
+  const searchParams = useSearchParams();
+  const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
+  const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
+  const styleBackgroundColor = searchParams.get("bgcolsty") || ""; // bgcolsty = Background Color Style
+  const isBackgroundImageFollowsCoverArt = searchParams.get("bgimgcov") === "1"; // bgimgcov = Background Image Follows Cover Art
+
+  isBackgroundImageFollowsCoverArtStore.set(isBackgroundImageFollowsCoverArt);
+  tmpRandomBackgroundImageStore.set(randomBackgroundImage);
+
+  useEffect(() => {
+    requestHeadersStore.set(requestHeaders);
+  }, [requestHeaders]);
+
+  useEffect(() => {
+    if (get(randomBackgroundImageStore)) {
+      return;
+    }
+    if (!localStorage.getItem("randomBackgroundImageId")) {
+      loadBackgroundImage("joxXZhefnhk"); // Set default image, because I like this image
+    } else {
+      loadBackgroundImage(
+        localStorage.getItem("randomBackgroundImageId") as string,
+      );
+    }
+  }, []);
+
+  const handleBackgroundImageLoad = () => {
+    isBackgroundImageLoadedStore.set(true);
+    isBackgroundImageLoadingStore.set(false);
+  };
+
+  return (
+    <>
+      {randomBackgroundImage &&
+        (!isNoBackgroundImage && !isBackgroundImageFollowsCoverArt ? (
+          <img
+            className={`h-full w-full object-cover ${isBackgroundImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+            src={randomBackgroundImage?.urls?.full}
+            srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
+            sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
+            alt=""
+            loading="lazy"
+            onLoad={handleBackgroundImageLoad}
+          />
+        ) : isNoBackgroundImage &&
+          isBackgroundImageFollowsCoverArt &&
+          randomBackgroundImage.id == "cover-art" ? (
+          <img
+            className={`h-full w-full object-cover ${isBackgroundImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+            src={randomBackgroundImage?.urls?.full}
+            srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
+            sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
+            alt=""
+            loading="lazy"
+            onLoad={handleBackgroundImageLoad}
+          />
+        ) : null)}
+      <div
+        className={`absolute inset-0 ${styleBackgroundColor == "" && "bg-black"} ${isBackgroundImageLoaded ? "opacity-50" : `${!isNoBackgroundPattern ? "wave-bg" : ""}`}`}
+        style={{ backgroundColor: `#${styleBackgroundColor}` }}
+      ></div>
+    </>
+  );
+}

@@ -1,0 +1,157 @@
+"use client";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+// import {
+//   isBackgroundImageLoaded as isBackgroundImageLoadedStore,
+//   isBackgroundImageLoading as isBackgroundImageLoadingStore,
+//   randomBackgroundImage as randomBackgroundImageStore,
+// } from "@/data/store";
+// import { useReadable } from "@/lib/react_use_svelte_store";
+import {
+  Book,
+  FlaskConical,
+  Info as InfoIcon,
+  MailQuestion,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+
+// import { get } from "svelte/store";
+
+// export const changeBackgroundImage = async () => {
+//   if (get(isBackgroundImageLoadingStore)) {
+//     return;
+//   }
+
+//   isBackgroundImageLoadedStore.set(false);
+//   isBackgroundImageLoadingStore.set(true);
+
+//   const request = await fetch(
+//     `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?random=true`,
+//     {
+//       cache: "no-cache",
+//     },
+//   );
+
+//   const unsplash = await request.json();
+
+//   const { id, urls, alt_description, links, user } = unsplash.data;
+
+//   randomBackgroundImageStore.set({
+//     id,
+//     urls,
+//     alt_description,
+//     links,
+//     user,
+//   });
+
+//   localStorage.setItem("randomBackgroundImageId", id);
+
+//   // Send virtual page view event to Google Analytics
+//   if (window && window.gtag) {
+//     window.gtag("event", "page_view", {
+//       page_title: `User change background image`,
+//       page_location: window.location.href,
+//       page_path: window.location.pathname,
+//     });
+//   }
+// };
+
+export default function Info() {
+  // const randomBackgroundImage = useReadable(randomBackgroundImageStore);
+  // const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
+  // const isBackgroundImageLoading = useReadable(isBackgroundImageLoadingStore);
+
+  return (
+    <>
+      <Popover>
+        <PopoverTrigger>
+          <div
+            className="cursor-pointer"
+            title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} information`}
+          >
+            <InfoIcon className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="mr-4 max-w-56 bg-slate-50 p-0 shadow-md">
+          <ul className="no-bullet no-padding">
+            {/* {isBackgroundImageLoaded || isBackgroundImageLoading ? (
+              <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2 hover:bg-slate-200">
+                <div>
+                  Photo by{" "}
+                  <a
+                    href={`${
+                      randomBackgroundImage?.user?.links?.html
+                    }?utm_source=Buka&utm_medium=referral`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    {randomBackgroundImage?.user?.name}
+                  </a>{" "}
+                  on{" "}
+                  <a
+                    href={`${
+                      randomBackgroundImage?.links?.html
+                    }?utm_source=Buka&utm_medium=referral`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    Unsplash
+                  </a>
+                </div>
+              </li>
+            ) : null}
+            <li className="px-3 py-2 hover:bg-slate-200">
+              <div
+                className="flex cursor-pointer items-center gap-x-2"
+                onClick={changeBackgroundImage}
+              >
+                <RefreshCw
+                  className={`w-4 ${!isBackgroundImageLoaded ? `animate-spin` : ``}`}
+                  color="#808080"
+                />
+                Change image
+              </div>
+            </li>
+            <li>
+              <hr className="my-1 border-b-0 border-slate-300" />
+            </li> */}
+            <li className="px-3 py-2 hover:bg-slate-200">
+              <Link href="/about" className="flex items-center gap-x-2">
+                <Book className="w-4" color="#808080" />
+                About
+              </Link>
+            </li>
+            <li className="px-3 py-2 hover:bg-slate-200">
+              <Link href="/credits" className="flex items-center gap-x-2">
+                <Users className="w-4" color="#808080" />
+                Credits
+              </Link>
+            </li>
+            <li className="px-3 py-2 hover:bg-slate-200">
+              <Link href="/contact" className="flex items-center gap-x-2">
+                <MailQuestion className="w-4" color="#808080" />
+                Contact us
+              </Link>
+            </li>
+            {process.env.NODE_ENV === "development" ? (
+              <li className="px-3 py-2 hover:bg-slate-200">
+                <Link
+                  href="/apps/radio?q=buka"
+                  className="flex items-center gap-x-2"
+                >
+                  <FlaskConical className="w-4" color="#808080" />
+                  Experiment
+                </Link>
+              </li>
+            ) : null}
+          </ul>
+        </PopoverContent>
+      </Popover>
+    </>
+  );
+}

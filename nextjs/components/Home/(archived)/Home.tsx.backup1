@@ -1,0 +1,102 @@
+import Search from "@/components/General/Search";
+import UserAvatar from "@/components/General/UserAvatar";
+import AppsLink from "@/components/Home/AppsLink";
+import BukaInfo from "@/components/Home/BukaInfo";
+import Canvas from "@/components/Home/Canvas";
+import DayMonthYear from "@/components/Home/DayMonthYear";
+// import Discord from "@/components/Home/Discord";
+import Fullscreen from "@/components/Home/Fullscreen";
+import Greeting from "@/components/Home/Greeting";
+import RadioCoverArt from "@/components/Home/RadioCoverArt";
+import RadioPanel from "@/components/Home/RadioPanel";
+import RandomBackgroundImage from "@/components/Home/RandomBackgroundImage";
+import Time from "@/components/Home/Time";
+import Weather from "@/components/Home/Weather";
+import { getRequestHeaders } from "@/lib/header";
+import Link from "next/link";
+
+/* eslint-disable @next/next/no-img-element */
+export default async function Home({ userSession }: { userSession: any }) {
+  const requestHeaders = await getRequestHeaders();
+
+  if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
+    // Set the IP latitude and longitude for localhost as Jakarta, Indonesia and the country as Indonesia
+    // requestHeaders["cf-iplongitude"] = "106.8446";
+    requestHeaders["x-vercel-ip-latitude"] = "-6.2114";
+    requestHeaders["x-vercel-ip-longitude"] = "106.8451";
+    // requestHeaders["cf-iplatitude"] = "-6.2114";
+    // requestHeaders["cf-ipcountry"] = "ID";
+    requestHeaders["x-vercel-ip-country"] = "ID";
+  }
+
+  return (
+    <>
+      <div>
+        <h1 className="hidden">
+          {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}, something that you open
+          everyday.
+        </h1>
+        <div className="fixed left-0 top-0 z-0 flex h-full w-full items-center justify-center">
+          <RandomBackgroundImage />
+          <div
+            className="absolute left-3 top-5 flex"
+            title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}, something that you open everyday.`}
+          >
+            <img
+              src="/assets/images/buka.svg"
+              alt={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`}
+              className="isolate h-12 w-12 md:h-14 md:w-14"
+            />
+          </div>
+          <div className="absolute right-3 top-5 z-20 flex cursor-pointer items-center gap-x-3 md:z-auto">
+            <div title="Search" className="flex items-center">
+              <Search
+                className="h-6 w-6 cursor-pointer opacity-80 hover:opacity-100 md:h-8 md:w-8"
+                color="#f5f5f5"
+              />
+            </div>
+            <div className="flex items-center">
+              <Weather requestHeaders={requestHeaders} />
+            </div>
+            <UserAvatar userSession={userSession} />
+          </div>
+          <div className="absolute bottom-0 left-0 w-full">
+            <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
+              <RadioCoverArt />
+              <div className="z-10 flex flex-col">
+                <Greeting />
+                <DayMonthYear />
+                <Time />
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-0 right-0">
+            <div className="absolute bottom-[6.3rem] right-0 z-10 rounded-l-full bg-gradient-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-[8.2rem] md:pl-3">
+              <div className="flex items-center">
+                <Link
+                  href="/apps"
+                  title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} Apps`}
+                >
+                  <AppsLink />
+                </Link>
+              </div>
+            </div>
+            <div className="absolute bottom-11 right-0 z-10 rounded-l-full bg-gradient-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
+              <div className="flex items-center gap-2">
+                <RadioPanel requestHeaders={requestHeaders} />
+              </div>
+            </div>
+            <div className="absolute bottom-3 right-3 z-10 md:bottom-3 md:right-3">
+              <div className="flex gap-x-2">
+                {/* <Discord /> */}
+                <Fullscreen />
+                <BukaInfo />
+              </div>
+            </div>
+          </div>
+          <Canvas />
+        </div>
+      </div>
+    </>
+  );
+}

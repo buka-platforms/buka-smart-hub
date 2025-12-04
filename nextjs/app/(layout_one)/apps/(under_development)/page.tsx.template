@@ -1,0 +1,61 @@
+import Link from "next/link";
+import { Metadata } from "next";
+import PageHeaderInfo from "@/components/General/PageHeaderInfo";
+import UnderDevelopment from "@/components/General/UnderDevelopment";
+
+const moduleName = `Public Holidays`;
+const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
+const pageDescription = `Check the public holidays schedule.`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/public-holidays`;
+
+export const metadata: Metadata = {
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+  title: `${pageTitle}`,
+  description: `${pageDescription}`,
+  openGraph: {
+    url: `${pageUrl}`,
+    type: "website",
+    title: `${pageTitle}`,
+    description: `${pageDescription}`,
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+        width: 1200,
+        height: 630,
+        alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+    title: `${pageTitle}`,
+    description: `${pageDescription}`,
+    creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+    site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+  },
+};
+
+export default async function PublicHolidaysPage() {
+  return (
+    <>
+      <PageHeaderInfo
+        moduleName={moduleName}
+        pageDescription={pageDescription}
+        isWorkInProgress={true}
+      >
+        {" "}
+        /{" "}
+        <Link href="/apps" className="underline">
+          Apps
+        </Link>{" "}
+        /{" "}
+      </PageHeaderInfo>
+      <h1 className="hidden">{pageDescription}</h1>
+      {/* <div className="mt-9 flex w-full flex-col"> */}
+      <div className="mt-9 w-full">
+        <UnderDevelopment title={moduleName} />
+      </div>
+    </>
+  );
+}

@@ -1,0 +1,196 @@
+import GoHomeLink from "./GoHomeLink";
+import { generateRandomString } from "@/lib/app";
+import type { Metadata } from "next";
+
+const moduleName = `Login`;
+const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
+const pageDescription = `Login to ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}. Easy sign-in with Google, X (previously Twitter), GitHub or LinkedIn.`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/login`;
+
+export const metadata: Metadata = {
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+  title: `${pageTitle}`,
+  description: `${pageDescription}`,
+  openGraph: {
+    url: `${pageUrl}`,
+    type: "website",
+    title: `${pageTitle}`,
+    description: `${pageDescription}`,
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+        width: 1200,
+        height: 630,
+        alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+    title: `${pageTitle}`,
+    description: `${pageDescription}`,
+    creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+    site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+  },
+};
+
+/* eslint-disable @next/next/no-img-element */
+export default function LoginPage() {
+  let xCodeChallenge = generateRandomString(43);
+
+  let authGoogleUrl = `https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_REDIRECT_URI}&client_id=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_CLIENT_ID}`;
+  let authGitHubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_GITHUB_CLIENT_ID}&scope=user:email user&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GITHUB_REDIRECT_URI}&response_type=code`;
+  let authLinkedInUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_REDIRECT_URI}&scope=openid%20profile%20email`;
+  let authXUrl = `https://twitter.com/i/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_X_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_X_REDIRECT_URI}&response_type=code&scope=users.read tweet.read&code_challenge=${xCodeChallenge}&code_challenge_method=plain&state=${xCodeChallenge}`;
+  let authDiscordUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_DISCORD_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20email`;
+  let authMicrosoftUrl = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_MICROSOFT_CLIENT_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_MICROSOFT_REDIRECT_URI}&scope=openid%20profile%20email%20User.Read`;
+
+  return (
+    <>
+      <h1 className="hidden">
+        Login to {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}
+      </h1>
+      <section className="body-font relative h-screen text-gray-600">
+        <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
+        <div className="container z-10 mx-auto flex h-screen max-w-lg flex-wrap items-center px-5">
+          <div className="flex w-full flex-col rounded-lg bg-slate-50 bg-clip-padding p-10">
+            <div className="mb-5 flex items-center justify-center">
+              <img
+                src="/assets/images/buka.svg"
+                alt="Buka"
+                // className="text-shadow-1 isolate h-9 w-9 md:h-14 md:w-14"
+                className="text-shadow-1 isolate h-12 w-12 md:h-14 md:w-14"
+              />
+            </div>
+            <div className="flex flex-col gap-y-2">
+              <a
+                href={authGoogleUrl}
+                className="flex w-full transform items-center justify-center rounded-md bg-blue-500 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 focus:bg-blue-400 focus:outline-none"
+              >
+                <svg className="mx-2 h-4 w-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"></path>
+                </svg>
+                <span className="mx-2 sm:inline">Sign in with Google</span>
+              </a>
+              <a
+                href={authGitHubUrl}
+                className="flex w-full transform items-center justify-center rounded-md bg-slate-950 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 focus:bg-slate-600 focus:outline-none"
+              >
+                <svg viewBox="0 0 24 24" className="mx-2 h-4 w-4 fill-current">
+                  <g>
+                    <path
+                      d="M12 .5C5.37.5 0 5.78 0 12.292c0 5.211 3.438 9.63 8.205 11.188.6.111.82-.254.82-.567 0-.28-.01-1.022-.015-2.005-3.338.711-4.042-1.582-4.042-1.582-.546-1.361-1.335-1.725-1.335-1.725-1.087-.731.084-.716.084-.716 1.205.082 1.838 1.215 1.838 1.215 1.07 1.803 2.809 1.282 3.495.981.108-.763.417-1.282.76-1.577-2.665-.295-5.466-1.309-5.466-5.827 0-1.287.465-2.339 1.235-3.164-.135-.298-.54-1.497.105-3.121 0 0 1.005-.316 3.3 1.209.96-.262 1.98-.392 3-.398 1.02.006 2.04.136 3 .398 2.28-1.525 3.285-1.209 3.285-1.209.645 1.624.24 2.823.12 3.121.765.825 1.23 1.877 1.23 3.164 0 4.53-2.805 5.527-5.475 5.817.42.354.81 1.077.81 2.182 0 1.578-.015 2.846-.015 3.229 0 .309.21.678.825.56C20.565 21.917 24 17.495 24 12.292 24 5.78 18.627.5 12 .5z"
+                      fill="#ffffff"
+                      opacity="1"
+                      data-original="#000000"
+                      className=""
+                    ></path>
+                  </g>
+                </svg>
+                <span className="mx-2 sm:inline">Sign in with GitHub</span>
+              </a>
+              <a
+                href={authLinkedInUrl}
+                className="flex w-full transform items-center justify-center rounded-md bg-[#0077B5] px-6 py-2 text-sm font-medium text-white transition-colors duration-200 focus:bg-[#0077DD] focus:outline-none"
+              >
+                <svg
+                  width="512"
+                  height="512"
+                  x="0"
+                  y="0"
+                  viewBox="0 0 510 510"
+                  xmlSpace="preserve"
+                  className="mx-2 h-4 w-4 fill-current"
+                >
+                  <g>
+                    <path
+                      d="M459 0H51C22.95 0 0 22.95 0 51v408c0 28.05 22.95 51 51 51h408c28.05 0 51-22.95 51-51V51c0-28.05-22.95-51-51-51zM153 433.5H76.5V204H153v229.5zm-38.25-272.85c-25.5 0-45.9-20.4-45.9-45.9s20.4-45.9 45.9-45.9 45.9 20.4 45.9 45.9-20.4 45.9-45.9 45.9zM433.5 433.5H357V298.35c0-20.399-17.85-38.25-38.25-38.25s-38.25 17.851-38.25 38.25V433.5H204V204h76.5v30.6c12.75-20.4 40.8-35.7 63.75-35.7 48.45 0 89.25 40.8 89.25 89.25V433.5z"
+                      fill="#ffffff"
+                      opacity="1"
+                    ></path>
+                  </g>
+                </svg>
+                <span className="mx-2 sm:inline">Sign in with LinkedIn</span>
+              </a>
+              <a
+                href={authXUrl}
+                className="flex w-full transform items-center justify-center rounded-md bg-slate-950 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 focus:bg-slate-600 focus:outline-none"
+              >
+                <svg
+                  width="512"
+                  height="512"
+                  x="0"
+                  y="0"
+                  viewBox="0 0 1226.37 1226.37"
+                  xmlSpace="preserve"
+                  className="mx-2 h-4 w-4 fill-current"
+                >
+                  <g>
+                    <path
+                      d="M727.348 519.284 1174.075 0h-105.86L680.322 450.887 370.513 0H13.185l468.492 681.821L13.185 1226.37h105.866l409.625-476.152 327.181 476.152h357.328L727.322 519.284zM582.35 687.828l-47.468-67.894-377.686-540.24H319.8l304.797 435.991 47.468 67.894 396.2 566.721H905.661L582.35 687.854z"
+                      fill="#ffffff"
+                      opacity="1"
+                    ></path>
+                  </g>
+                </svg>
+                <span className="mx-2 sm:inline">Sign in with X</span>
+              </a>
+              <a
+                href={authDiscordUrl}
+                className="flex w-full transform items-center justify-center rounded-md bg-[#5468ff] px-6 py-2 text-sm font-medium text-white transition-colors duration-200 focus:bg-[#5488ff] focus:outline-none"
+              >
+                <svg
+                  width="512"
+                  height="512"
+                  x="0"
+                  y="0"
+                  viewBox="0 0 512 512"
+                  xmlSpace="preserve"
+                  className="mx-2 h-4 w-4 fill-current"
+                >
+                  <g>
+                    <path
+                      fill="#ffffff"
+                      d="M433.43 93.222a422.256 422.256 0 0 0-104.216-32.324 1.582 1.582 0 0 0-1.675.792c-4.501 8.005-9.486 18.447-12.977 26.655-39.353-5.892-78.505-5.892-117.051 0-3.492-8.39-8.658-18.65-13.179-26.655a1.643 1.643 0 0 0-1.675-.792c-36.568 6.298-71.562 17.33-104.216 32.324a1.49 1.49 0 0 0-.686.589c-66.376 99.165-84.56 195.893-75.64 291.421.04.467.303.914.666 1.199 43.793 32.161 86.215 51.685 127.848 64.627a1.656 1.656 0 0 0 1.796-.589c9.848-13.449 18.627-27.63 26.154-42.543.444-.873.02-1.91-.888-2.255-13.925-5.282-27.184-11.723-39.939-19.036-1.009-.589-1.09-2.032-.161-2.723a218.562 218.562 0 0 0 7.932-6.217 1.585 1.585 0 0 1 1.655-.224c83.792 38.257 174.507 38.257 257.31 0a1.578 1.578 0 0 1 1.675.203 204.307 204.307 0 0 0 7.952 6.237c.928.691.867 2.134-.141 2.723-12.755 7.456-26.014 13.754-39.959 19.016a1.633 1.633 0 0 0-.867 2.275c7.689 14.892 16.468 29.073 26.134 42.523.404.569 1.13.813 1.796.609 41.835-12.941 84.257-32.466 128.05-64.627a1.64 1.64 0 0 0 .666-1.178c10.676-110.441-17.881-206.376-75.7-291.421a1.297 1.297 0 0 0-.664-.609zM171.094 327.065c-25.227 0-46.014-23.16-46.014-51.604 0-28.443 20.383-51.604 46.014-51.604 25.831 0 46.417 23.364 46.013 51.604 0 28.444-20.384 51.604-46.013 51.604zm170.127 0c-25.226 0-46.013-23.16-46.013-51.604 0-28.443 20.383-51.604 46.013-51.604 25.832 0 46.417 23.364 46.014 51.604 0 28.444-20.181 51.604-46.014 51.604z"
+                      opacity="1"
+                      data-original="#5865f2"
+                    ></path>
+                  </g>
+                </svg>
+                <span className="mx-2 sm:inline">Sign in with Discord</span>
+              </a>
+              {/* <a
+                href={authMicrosoftUrl}
+                className="flex w-full transform items-center justify-center rounded-md bg-slate-950 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 focus:bg-slate-600 focus:outline-none"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  version="1.1"
+                  width="512"
+                  height="512"
+                  x="0"
+                  y="0"
+                  viewBox="0 0 512 512"
+                  xmlSpace="preserve"
+                  className="mx-2 h-4 w-4 fill-current"
+                >
+                  <g>
+                    <path
+                      d="M496 0H272v240h240V16c0-8.832-7.168-16-16-16zM16 0C7.168 0 0 7.168 0 16v224h240V0H16zM0 272v224c0 8.832 7.168 16 16 16h224V272H0zM272 272v240h224c8.832 0 16-7.168 16-16V272H272z"
+                      fill="#ffffff"
+                      opacity="1"
+                      data-original="#000000"
+                    ></path>
+                  </g>
+                </svg>
+                <span className="mx-2 sm:inline">Sign in with Microsoft</span>
+              </a> */}
+            </div>
+            <GoHomeLink />
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

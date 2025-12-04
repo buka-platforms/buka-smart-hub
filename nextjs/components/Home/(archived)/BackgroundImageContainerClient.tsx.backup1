@@ -1,0 +1,224 @@
+"use client";
+
+// import { changeBackgroundImage } from "@/components/Home/BukaInfo";
+// import {
+//   ContextMenu,
+//   ContextMenuContent,
+//   ContextMenuTrigger,
+// } from "@/components/ui/context-menu";
+import {
+  isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
+  isBackgroundImageLoaded as isBackgroundImageLoadedStore,
+  isBackgroundImageLoading as isBackgroundImageLoadingStore,
+  randomBackgroundImage as randomBackgroundImageStore,
+  requestHeaders as requestHeadersStore,
+  tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
+} from "@/data/store";
+import { useReadable } from "@/lib/react_use_svelte_store";
+// import { RefreshCw } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { get } from "svelte/store";
+
+interface RequestHeaders {
+  "cf-region"?: string; // The question mark indicates that the property is optional
+}
+
+const loadRandomBackgroundImage = async () => {
+  isBackgroundImageLoadedStore.set(false);
+  isBackgroundImageLoadingStore.set(true);
+
+  const requestHeaders = get(requestHeadersStore) as unknown as RequestHeaders;
+  const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
+
+  let apiUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?random=true`;
+
+  // Check if randomBackgroundImageId is not set, then include ?query
+  if (!localStorage.getItem("randomBackgroundImageId")) {
+    apiUrl += `?query=${backgroundImageQuery}`;
+  }
+
+  // Fetch data in parallel
+  const [unsplashResult] = await Promise.all([
+    fetch(apiUrl, {
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }),
+  ]);
+
+  const unsplash = await unsplashResult.json();
+
+  const { id, urls, alt_description, links, user } = unsplash.data;
+
+  randomBackgroundImageStore.set({
+    id,
+    urls,
+    alt_description,
+    links,
+    user,
+  });
+
+  localStorage.setItem("randomBackgroundImageId", id);
+};
+
+const loadBackgroundImage = async (dataId: string) => {
+  isBackgroundImageLoadedStore.set(false);
+  isBackgroundImageLoadingStore.set(true);
+
+  // Fetch data in parallel
+  const [unsplashResult] = await Promise.all([
+    fetch(
+      // `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image/${dataId}`,
+      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?id=${dataId}`,
+      {
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    ),
+  ]);
+
+  const unsplash = await unsplashResult.json();
+
+  // Check if the image is not found, on Unsplash it will return an object with errors key
+  if (unsplash.data.errors) {
+    loadRandomBackgroundImage();
+    return;
+  }
+
+  const { id, urls, alt_description, links, user } = unsplash.data;
+
+  randomBackgroundImageStore.set({
+    id,
+    urls,
+    alt_description,
+    links,
+    user,
+  });
+};
+
+/* eslint-disable @next/next/no-img-element */
+export default function BackgroundImageContainerClient({
+  requestHeaders,
+}: {
+  requestHeaders: any;
+}) {
+  const randomBackgroundImage = useReadable(randomBackgroundImageStore);
+  const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
+  // const isBackgroundImageLoading = useReadable(isBackgroundImageLoadingStore);
+  const searchParams = useSearchParams();
+  const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
+  const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
+  const styleBackgroundColor = searchParams.get("bgcolsty") || ""; // bgcolsty = Background Color Style
+  const isBackgroundImageFollowsCoverArt = searchParams.get("bgimgcov") === "1"; // bgimgcov = Background Image Follows Cover Art
+
+  isBackgroundImageFollowsCoverArtStore.set(isBackgroundImageFollowsCoverArt);
+  tmpRandomBackgroundImageStore.set(randomBackgroundImage);
+
+  useEffect(() => {
+    requestHeadersStore.set(requestHeaders);
+  }, [requestHeaders]);
+
+  useEffect(() => {
+    if (get(randomBackgroundImageStore)) {
+      return;
+    }
+    if (!localStorage.getItem("randomBackgroundImageId")) {
+      // loadRandomBackgroundImage();
+      loadBackgroundImage("joxXZhefnhk"); // Set default image, because I like this image
+    } else {
+      loadBackgroundImage(
+        localStorage.getItem("randomBackgroundImageId") as string,
+      );
+    }
+  }, []);
+
+  const handleBackgroundImageLoad = () => {
+    isBackgroundImageLoadedStore.set(true);
+    isBackgroundImageLoadingStore.set(false);
+  };
+
+  return (
+    <>
+      {/* <ContextMenu> */}
+      {/* <ContextMenuTrigger
+          disabled={isNoBackgroundImage || isBackgroundImageFollowsCoverArt}
+        > */}
+      {randomBackgroundImage &&
+        (!isNoBackgroundImage && !isBackgroundImageFollowsCoverArt ? (
+          <img
+            className={`h-full w-full object-cover ${isBackgroundImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+            src={randomBackgroundImage?.urls?.full}
+            srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
+            sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
+            alt=""
+            loading="lazy"
+            onLoad={handleBackgroundImageLoad}
+          />
+        ) : isNoBackgroundImage &&
+          isBackgroundImageFollowsCoverArt &&
+          randomBackgroundImage.id == "cover-art" ? (
+          <img
+            className={`h-full w-full object-cover ${isBackgroundImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+            src={randomBackgroundImage?.urls?.full}
+            srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
+            sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
+            alt=""
+            loading="lazy"
+            onLoad={handleBackgroundImageLoad}
+          />
+        ) : null)}
+      <div
+        className={`absolute inset-0 ${styleBackgroundColor == "" && "bg-black"} ${isBackgroundImageLoaded ? "opacity-50" : `${!isNoBackgroundPattern ? "wave-bg" : ""}`}`}
+        style={{ backgroundColor: `#${styleBackgroundColor}` }}
+      ></div>
+      {/* </ContextMenuTrigger> */}
+      {/* <ContextMenuContent className="mr-4 max-w-48 bg-slate-50 p-0 shadow-md">
+          <ul className="no-bullet no-padding">
+            {isBackgroundImageLoaded || isBackgroundImageLoading ? (
+              <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2 hover:bg-slate-200">
+                <div>
+                  Photo by{" "}
+                  <a
+                    href={`${
+                      randomBackgroundImage?.user?.links?.html
+                    }?utm_source=Buka&utm_medium=referral`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    {randomBackgroundImage?.user?.name}
+                  </a>{" "}
+                  on{" "}
+                  <a
+                    href={`${
+                      randomBackgroundImage?.links?.html
+                    }?utm_source=Buka&utm_medium=referral`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    Unsplash
+                  </a>
+                </div>
+              </li>
+            ) : null}
+            <li className="px-3 py-2 hover:bg-slate-200">
+              <div
+                className="flex cursor-pointer items-center gap-x-2"
+                onClick={changeBackgroundImage}
+              >
+                <RefreshCw
+                  className={`w-3 md:w-4 ${!isBackgroundImageLoaded ? `animate-spin` : null}`}
+                  color="#808080"
+                />
+                Change image
+              </div>
+            </li>
+          </ul>
+        </ContextMenuContent> */}
+      {/* </ContextMenu> */}
+    </>
+  );
+}

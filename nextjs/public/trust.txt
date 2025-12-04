@@ -1,0 +1,11 @@
+#Buka trust.txt file
+belongto=https://buka.sh
+
+social=https://instagram.com/bukaspace
+social=https://x.com/bukaspace
+social=https://linkedin.com/company/99122757
+social=https://youtube.com/@bukaspace
+
+control=https://buka.sh
+
+contact=https://buka.sh

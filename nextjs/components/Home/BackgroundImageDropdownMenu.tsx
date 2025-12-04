@@ -1,0 +1,436 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  isBackgroundImageLoaded as isBackgroundImageLoadedStore,
+  isBackgroundImageLoading as isBackgroundImageLoadingStore,
+  randomBackgroundImage as randomBackgroundImageStore,
+} from "@/data/store";
+import { useReadable } from "@/lib/react_use_svelte_store";
+import { Image as ImageIcon, Images, Loader2, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { get } from "svelte/store";
+
+export const changeBackgroundImage = async () => {
+  if (get(isBackgroundImageLoadingStore)) {
+    return;
+  }
+
+  isBackgroundImageLoadedStore.set(false);
+  isBackgroundImageLoadingStore.set(true);
+
+  const request = await fetch(
+    `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?random=true`,
+    {
+      cache: "no-cache",
+    },
+  );
+
+  const unsplash = await request.json();
+
+  const { id, urls, alt_description, links, user } = unsplash.data;
+
+  randomBackgroundImageStore.set({
+    id,
+    urls,
+    alt_description,
+    links,
+    user,
+  });
+
+  localStorage.setItem("randomBackgroundImageId", id);
+
+  // Send virtual page view event to Google Analytics
+  if (window && window.gtag) {
+    window.gtag("event", "page_view", {
+      page_title: `User change background image`,
+      page_location: window.location.href,
+      page_path: window.location.pathname,
+    });
+  }
+};
+
+/* eslint-disable @next/next/no-img-element */
+export default function BackgroundImageDropdownMenu() {
+  const randomBackgroundImage = useReadable(randomBackgroundImageStore);
+  const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
+  const isBackgroundImageLoading = useReadable(isBackgroundImageLoadingStore);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [images, setImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState<{ [key: number]: boolean }>(
+    {},
+  );
+
+  // Fetch images when dialog opens
+  useEffect(() => {
+    if (dialogOpen) {
+      setLoading(true);
+      fetch("https://api1.buka.sh/background-image?randoms=true")
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.status === 0 && Array.isArray(json.data)) {
+            setImages(json.data);
+          } else {
+            setImages([]);
+          }
+        })
+        .catch(() => setImages([]))
+        .finally(() => setLoading(false));
+    } else {
+      setImages([]);
+      setLoading(false);
+    }
+  }, [dialogOpen]);
+
+  return (
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="flex h-[90vh] max-h-none w-[90vw] max-w-none flex-col items-stretch p-0">
+          <DialogHeader className="gap-3 pt-6 pr-6 pl-6">
+            <DialogTitle>
+              <span className="flex items-center gap-2">
+                <svg
+                  className="h-4 w-4"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <title>Unsplash</title>
+                  <path d="M7.5 6.75V0h9v6.75h-9zm9 3.75H24V24H0V10.5h7.5v6.75h9V10.5z" />
+                </svg>
+                Unsplash
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+          <div>
+            <div className="flex w-full flex-col items-center justify-center gap-2 pr-6 pl-6 lg:flex-row">
+              <Input
+                type="text"
+                placeholder="Search free high-resolution photos"
+                id="search-images"
+                className="w-full"
+                // Add onChange handler later
+              />
+              <Button
+                type="button"
+                className="cursor-pointer"
+                onClick={() => {}}
+              >
+                Search
+              </Button>
+              <Button
+                type="button"
+                className="cursor-pointer"
+                aria-label="Re-randomize images"
+                onClick={() => {
+                  setLoading(true);
+                  fetch("https://api1.buka.sh/background-image?randoms=true")
+                    .then((res) => res.json())
+                    .then((json) => {
+                      if (json.status === 0 && Array.isArray(json.data)) {
+                        setImages(json.data);
+                        setImagesLoaded({});
+                      } else {
+                        setImages([]);
+                      }
+                    })
+                    .catch(() => setImages([]))
+                    .finally(() => setLoading(false));
+                }}
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                />
+              </Button>
+            </div>
+            <div
+              className="mt-6 overflow-y-auto pr-6 pb-6 pl-6"
+              style={{ maxHeight: "calc(90vh - 160px)" }}
+            >
+              {loading ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                  <span className="ml-3 text-gray-500">Loading images…</span>
+                </div>
+              ) : (
+                <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+                  {images.map((img, idx) => {
+                    const aspectRatio =
+                      img.width && img.height
+                        ? (img.height / img.width) * 100
+                        : (180 / 320) * 100; // fallback aspect ratio
+                    return (
+                      <div
+                        key={img.id || idx}
+                        className="group relative mb-4 w-full overflow-hidden rounded-md"
+                        style={{ minHeight: 180 }}
+                      >
+                        <div
+                          style={{
+                            width: "100%",
+                            paddingBottom: `${aspectRatio}%`,
+                            position: "relative",
+                          }}
+                        >
+                          {!imagesLoaded[idx] && (
+                            <div className="absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-gray-200">
+                              <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                            </div>
+                          )}
+                          <img
+                            src={
+                              img.urls?.regular ||
+                              img.urls?.full ||
+                              img.urls?.small
+                            }
+                            className={`absolute top-0 left-0 h-full w-full rounded-md object-cover transition-opacity duration-300 ${imagesLoaded[idx] ? "opacity-100" : "opacity-0"}`}
+                            alt={img.alt_description || ""}
+                            onLoad={() =>
+                              setImagesLoaded((prev) => ({
+                                ...prev,
+                                [idx]: true,
+                              }))
+                            }
+                          />
+                          <div className="absolute bottom-3 left-3 z-10 hidden items-center gap-2 group-hover:flex">
+                            <img
+                              src={img.user?.profile_image?.medium}
+                              alt={img.user?.name}
+                              className="h-8 w-8 rounded-full object-cover"
+                            />
+                            <span className="text-sm font-medium text-white">
+                              {img.user?.first_name || img.user?.name}
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            className="absolute right-3 bottom-3 z-10 hidden cursor-pointer rounded bg-gray-200 px-3 py-1 text-sm text-gray-500 shadow transition group-hover:block hover:bg-white"
+                          >
+                            Use image
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {/* <div className="group relative mb-4 w-full overflow-hidden rounded-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1726137569971-cdfa45c3138e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+                    // className="mb-4 w-full rounded-md"
+                    className="w-full rounded-md"
+                    alt=""
+                  />
+                  <div className="absolute bottom-3 left-3 z-10 hidden group-hover:block">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src="https://randomuser.me/api/portraits/men/32.jpg" // Replace with user's image URL
+                        alt="User"
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                      <span className="text-sm font-medium text-white">
+                        John
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    className="absolute bottom-3 right-3 z-10 hidden cursor-pointer rounded bg-gray-200 px-3 py-1 text-sm text-gray-500 shadow transition hover:bg-white group-hover:block"
+                  >
+                    Use image
+                  </Button>
+                </div> */}
+                  {/* <img
+                  src="https://images.unsplash.com/photo-1744195467963-7d73a219a277?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMTc3M3wwfDF8YWxsfDh8fHx8fHx8fDE3NDY4NTY5MzR8&ixlib=rb-4.1.0&q=80&w=1200"
+                  className="mb-4 w-full rounded-md"
+                  alt=""
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1746730243531-3764978fcc6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMTc3M3wwfDF8YWxsfDIwfHx8fHx8fHwxNzQ2ODU2OTM0fA&ixlib=rb-4.1.0&q=80&w=1200"
+                  className="mb-4 w-full rounded-md"
+                  alt=""
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1746699484949-869986068267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMTc3M3wwfDF8YWxsfDEyfHx8fHx8fHwxNzQ2ODU2OTM0fA&ixlib=rb-4.1.0&q=80&w=1200"
+                  className="mb-4 w-full rounded-md"
+                  alt=""
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1746311473391-0c0bf08ad9b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMTc3M3wwfDF8YWxsfDE2fHx8fHx8fHwxNzQ2ODU2OTM0fA&ixlib=rb-4.1.0&q=80&w=1200"
+                  className="mb-4 w-full rounded-md"
+                  alt=""
+                /> */}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {defaultImages.map((img, idx) => (
+              <a
+                key={idx}
+                href={img.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block overflow-hidden rounded shadow transition hover:shadow-lg"
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  width={400}
+                  height={250}
+                  className="h-48 w-full object-cover"
+                />
+              </a>
+            ))}
+          </div> */}
+        </DialogContent>
+      </Dialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          className="cursor-pointer"
+          title={`Change background image`}
+        >
+          <ImageIcon className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel className="font-normal">
+            {isBackgroundImageLoaded || isBackgroundImageLoading ? (
+              <>
+                Photo by{" "}
+                <a
+                  href={`${
+                    randomBackgroundImage?.user?.links?.html
+                  }?utm_source=Buka&utm_medium=referral`}
+                  target="_blank"
+                  className="underline"
+                >
+                  {randomBackgroundImage?.user?.name}
+                </a>{" "}
+                on{" "}
+                <a
+                  href={`${
+                    randomBackgroundImage?.links?.html
+                  }?utm_source=Buka&utm_medium=referral`}
+                  target="_blank"
+                  className="underline"
+                >
+                  Unsplash
+                </a>
+              </>
+            ) : null}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-slate-200" />
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              changeBackgroundImage();
+            }}
+            className="flex cursor-pointer gap-x-2"
+          >
+            <RefreshCw
+              className={`w-4 ${!isBackgroundImageLoaded ? `animate-spin` : ``}`}
+              color="#808080"
+            />
+            Random image
+          </DropdownMenuItem>
+          {process.env.NODE_ENV === "development" ? (
+            <>
+              <DropdownMenuItem>
+                <Link href="/apps/radio?q=buka" className="flex w-full gap-x-2">
+                  <Images className="w-4" color="#808080" />
+                  Browse images
+                </Link>
+              </DropdownMenuItem>
+            </>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {/* <Popover>
+        <PopoverTrigger>
+          <div className="cursor-pointer" title={`Change background image`}>
+            <ImageIcon className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="mr-4 max-w-56 overflow-hidden bg-slate-50 p-0 shadow-md">
+          <ul className="no-bullet no-padding">
+            {isBackgroundImageLoaded || isBackgroundImageLoading ? (
+              <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2 hover:bg-slate-200">
+                <div>
+                  Photo by{" "}
+                  <a
+                    href={`${
+                      randomBackgroundImage?.user?.links?.html
+                    }?utm_source=Buka&utm_medium=referral`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    {randomBackgroundImage?.user?.name}
+                  </a>{" "}
+                  on{" "}
+                  <a
+                    href={`${
+                      randomBackgroundImage?.links?.html
+                    }?utm_source=Buka&utm_medium=referral`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    Unsplash
+                  </a>
+                </div>
+              </li>
+            ) : null}
+            <li>
+              <hr className="my-1 border-b-0 border-slate-300" />
+            </li>
+            <li
+              className="flex cursor-pointer items-center gap-x-2 px-3 py-2 hover:bg-slate-200"
+              onClick={changeBackgroundImage}
+            >
+              <RefreshCw
+                className={`w-4 ${!isBackgroundImageLoaded ? `animate-spin` : ``}`}
+                color="#808080"
+              />
+              Random image
+            </li>
+            {process.env.NODE_ENV === "development" ? (
+              <li
+                className="flex cursor-pointer items-center gap-x-2 px-3 py-2 hover:bg-slate-200"
+                onClick={() => setDialogOpen(true)}
+              >
+                <Images className="w-4" color="#808080" />
+                Browse images{" "}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Construction className="w-4 text-orange-600" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>This feature still under development</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </li>
+            ) : null}
+          </ul>
+        </PopoverContent>
+      </Popover> */}
+    </>
+  );
+}
