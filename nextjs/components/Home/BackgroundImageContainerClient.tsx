@@ -24,7 +24,7 @@ const loadRandomBackgroundImage = async () => {
   const requestHeaders = get(requestHeadersStore) as unknown as RequestHeaders;
   const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
 
-  let apiUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?random=true`;
+  let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`;
 
   // Check if randomBackgroundImageId is not set, then include ?query
   if (!localStorage.getItem("randomBackgroundImageId")) {
@@ -63,7 +63,7 @@ const loadBackgroundImage = async (dataId: string) => {
   // Fetch data in parallel
   const [unsplashResult] = await Promise.all([
     fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?id=${dataId}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?id=${dataId}`,
       {
         cache: "no-cache",
         headers: {

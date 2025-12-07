@@ -26,9 +26,9 @@ export async function GET(request: Request) {
   }
 
   // Check all data against identity provider token endpoint
-  const clientId = process.env.NEXT_PUBLIC_BUKA_X_CLIENT_ID;
-  const clientSecret = process.env.SECRET_BUKA_X_CLIENT_SECRET;
-  const redirectUri = process.env.NEXT_PUBLIC_BUKA_X_REDIRECT_URI;
+  const clientId = process.env.NEXT_PUBLIC_X_CLIENT_ID;
+  const clientSecret = process.env.SECRET_X_CLIENT_SECRET;
+  const redirectUri = process.env.NEXT_PUBLIC_X_REDIRECT_URI;
 
   if (!clientId || !clientSecret || !redirectUri) {
     return redirect("/");
@@ -94,10 +94,8 @@ export async function GET(request: Request) {
     .join("");
 
   // Create a new Directus client
-  const client = createDirectus(
-    process.env.SECRET_BUKA_DIRECTUS_BASE_URL as string,
-  )
-    .with(staticToken(process.env.SECRET_BUKA_DIRECTUS_ACCESS_TOKEN as string))
+  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
+    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
     .with(rest());
 
   // Get user with filter
@@ -185,7 +183,7 @@ export async function GET(request: Request) {
       identity_provider_code: identityProviderCode,
     };
 
-    const secret = new TextEncoder().encode(process.env.SECRET_BUKA_JWT_SECRET);
+    const secret = new TextEncoder().encode(process.env.SECRET_JWT_SECRET);
 
     // Generate the JWT token
     const jwt = await new SignJWT(payload)
@@ -249,7 +247,7 @@ export async function GET(request: Request) {
     last_name: lastName,
     picture: userInfo.data.profile_image_url
       ? userInfo.data.profile_image_url
-      : `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/assets/images/user.png`,
+      : `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/user.png`,
     provider_name: identityProviderName,
   };
 

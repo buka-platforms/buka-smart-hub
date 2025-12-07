@@ -6,7 +6,7 @@ export default function AppsLink() {
   return (
     <>
       <div
-        title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} Apps`}
+        title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
         className="group flex"
       >
         <Grip

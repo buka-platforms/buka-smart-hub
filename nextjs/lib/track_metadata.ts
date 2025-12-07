@@ -40,7 +40,7 @@ const getExternalTrackDetails = async () => {
   if (get(radioStationPlayingStore)) {
     const request = await fetch(
       `${
-        process.env.NEXT_PUBLIC_BUKA_API_URL_V1
+        process.env.NEXT_PUBLIC_API_URL_V1
       }/music-track?q=${encodeURIComponent(get(currentTrackTitleStore))}`,
     );
 

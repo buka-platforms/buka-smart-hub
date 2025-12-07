@@ -29,10 +29,8 @@ export const checkUserSession = async () => {
   const userId = cookieStore.get("_b_uid")?.value;
 
   // Create a new Directus client
-  const client = createDirectus(
-    process.env.SECRET_BUKA_DIRECTUS_BASE_URL as string,
-  )
-    .with(staticToken(process.env.SECRET_BUKA_DIRECTUS_ACCESS_TOKEN as string))
+  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
+    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
     .with(rest());
 
   // Get user session data

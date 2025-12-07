@@ -7,16 +7,16 @@ export const sendMail = (
   htmlMessage: string,
 ) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.SECRET_BUKA_MAIL_HOST,
-    port: process.env.SECRET_BUKA_MAIL_PORT,
+    host: process.env.SECRET_MAIL_HOST,
+    port: process.env.SECRET_MAIL_PORT,
     auth: {
-      user: process.env.SECRET_BUKA_MAIL_USERNAME,
-      pass: process.env.SECRET_BUKA_MAIL_PASSWORD,
+      user: process.env.SECRET_MAIL_USERNAME,
+      pass: process.env.SECRET_MAIL_PASSWORD,
     },
   } as nodemailer.TransportOptions);
 
   const mailOptions = {
-    from: `"${process.env.SECRET_BUKA_MAIL_FROM_NAME}" <${process.env.SECRET_BUKA_MAIL_FROM_ADDRESS}>`,
+    from: `"${process.env.SECRET_MAIL_FROM_NAME}" <${process.env.SECRET_MAIL_FROM_ADDRESS}>`,
     to: email,
     subject: subject,
     text: plainMessage,

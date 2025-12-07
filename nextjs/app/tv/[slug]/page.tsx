@@ -27,17 +27,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
-    title: `${selectedTv?.name} from ${selectedTv?.country} - TV - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+    metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
+    title: `${selectedTv?.name} from ${selectedTv?.country} - TV - ${process.env.NEXT_PUBLIC_APP_TITLE}`,
     description: `Watch ${selectedTv?.name} from ${selectedTv?.country}.`,
     openGraph: {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/tv/${selectedTv?.slug}`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/tv/${selectedTv?.slug}`,
       type: "website",
-      title: `${selectedTv?.name} - TV - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+      title: `${selectedTv?.name} - TV - ${process.env.NEXT_PUBLIC_APP_TITLE}`,
       description: `Watch ${selectedTv?.name} from ${selectedTv?.country}.`,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+          url: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
           width: 1200,
           height: 630,
           alt: "Buka",
@@ -46,11 +46,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
-      title: `${selectedTv?.name} - TV - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+      images: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
+      title: `${selectedTv?.name} - TV - ${process.env.NEXT_PUBLIC_APP_TITLE}`,
       description: `Watch ${selectedTv?.name} from ${selectedTv?.country}.`,
-      creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
-      site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+      creator: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
+      site: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
     },
   };
 }

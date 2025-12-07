@@ -12,12 +12,12 @@ import type { Metadata } from "next";
 import { GoBackButton } from "./go-back-button";
 
 const moduleName = `Login`;
-const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
-const pageDescription = `Login to ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}. Easy sign-in with Google, X (previously Twitter), GitHub, LinkedIn or Discord.`;
-const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/login`;
+const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
+const pageDescription = `Login to ${process.env.NEXT_PUBLIC_APP_TITLE}. Easy sign-in with Google, X (previously Twitter), GitHub, LinkedIn or Discord.`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/login`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
   title: `${pageTitle}`,
   description: `${pageDescription}`,
   openGraph: {
@@ -27,27 +27,27 @@ export const metadata: Metadata = {
     description: `${pageDescription}`,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+        url: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
         width: 1200,
         height: 630,
-        alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+        alt: `${process.env.NEXT_PUBLIC_APP_TITLE}`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+    images: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
     title: `${pageTitle}`,
     description: `${pageDescription}`,
-    creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
-    site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+    creator: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
+    site: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
   },
 };
 
-const authGoogleUrl = `https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_REDIRECT_URI}&client_id=${process.env.NEXT_PUBLIC_BUKA_GOOGLE_CLIENT_ID}`;
-const authGitHubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_GITHUB_CLIENT_ID}&scope=user:email user&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_GITHUB_REDIRECT_URI}&response_type=code`;
-const authLinkedInUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_LINKEDIN_REDIRECT_URI}&scope=openid%20profile%20email`;
-const authDiscordUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_DISCORD_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20email`;
+const authGoogleUrl = `https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&redirect_uri=${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}&client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`;
+const authGitHubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user:email user&redirect_uri=${process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI}&response_type=code`;
+const authLinkedInUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI}&scope=openid%20profile%20email`;
+const authDiscordUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20email`;
 
 export function Login({
   className,
@@ -55,7 +55,7 @@ export function Login({
 }: React.ComponentPropsWithoutRef<"div">) {
   const xCodeChallenge = generateRandomString(43);
 
-  const authXUrl = `https://twitter.com/i/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_BUKA_X_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BUKA_X_REDIRECT_URI}&response_type=code&scope=users.read tweet.read&code_challenge=${xCodeChallenge}&code_challenge_method=plain&state=${xCodeChallenge}`;
+  const authXUrl = `https://twitter.com/i/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_X_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_X_REDIRECT_URI}&response_type=code&scope=users.read tweet.read&code_challenge=${xCodeChallenge}&code_challenge_method=plain&state=${xCodeChallenge}`;
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

@@ -24,7 +24,7 @@ export default function InfoDropdownMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger
           className="cursor-pointer"
-          title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} information`}
+          title={`${process.env.NEXT_PUBLIC_APP_TITLE} information`}
         >
           <InfoIcon className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
         </DropdownMenuTrigger>

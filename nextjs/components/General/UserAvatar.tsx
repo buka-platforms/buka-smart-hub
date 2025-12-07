@@ -30,7 +30,7 @@ const NotAuthenticated = () => {
             <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2">
               <div>
                 <div className="font-medium">
-                  Hi you! Welcome to {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}.
+                  Hi you! Welcome to {process.env.NEXT_PUBLIC_APP_TITLE}.
                 </div>
                 <div className="text-xs text-gray-600">
                   Login and be part of us.

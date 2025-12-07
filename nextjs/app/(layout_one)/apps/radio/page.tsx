@@ -4,12 +4,12 @@ import Link from "next/link";
 import RadioStations from "./RadioStations";
 
 const moduleName = `Radio`;
-const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
+const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
 const pageDescription = `Listen to many great radio stations around the world.`;
-const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/radio`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apps/radio`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
   title: `${pageTitle}`,
   description: `${pageDescription}`,
   openGraph: {
@@ -19,20 +19,20 @@ export const metadata: Metadata = {
     description: `${pageDescription}`,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+        url: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
         width: 1200,
         height: 630,
-        alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+        alt: `${process.env.NEXT_PUBLIC_APP_TITLE}`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+    images: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
     title: `${pageTitle}`,
     description: `${pageDescription}`,
-    creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
-    site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+    creator: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
+    site: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
   },
 };
 

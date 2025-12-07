@@ -33,7 +33,7 @@ const getInitialRadioStations = async (query: string) => {
   isLoadingStore.set(true);
   isNotFoundStore.set(false);
 
-  let queryUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-stations`;
+  let queryUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-stations`;
 
   if (query.trim().length > 0) {
     queryUrl += `?q=${query}`;
@@ -272,7 +272,7 @@ const LoadMore = () => {
     // Increment the page number
     pageStore.set(get(pageStore) + 1);
 
-    let queryUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-stations?page=${get(pageStore)}`;
+    let queryUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-stations?page=${get(pageStore)}`;
 
     if (get(searchQueryStore).trim().length > 0) {
       queryUrl += `&q=${get(searchQueryStore)}`;

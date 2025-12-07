@@ -32,18 +32,17 @@ export default async function Home({ userSession }: { userSession: any }) {
     <>
       <div>
         <h1 className="hidden">
-          {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}, something that you open
-          everyday.
+          {process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.
         </h1>
         <div className="fixed top-0 left-0 z-0 flex h-full w-full items-center justify-center">
           <RandomBackgroundImage />
           <div
             className="absolute top-5 left-3 flex"
-            title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}, something that you open everyday.`}
+            title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}
           >
             <img
               src="/assets/images/logo-white.svg"
-              alt={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`}
+              alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
               className="isolate h-12 w-12 md:h-14 md:w-14"
             />
           </div>
@@ -74,7 +73,7 @@ export default async function Home({ userSession }: { userSession: any }) {
               <div className="flex items-center">
                 <Link
                   href="/apps"
-                  title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} Apps`}
+                  title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
                 >
                   <AppsLink />
                 </Link>

@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 const moduleName = `About`;
-const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
-const pageDescription = `About ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}. Something that you open everyday.`;
-const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/about`;
+const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
+const pageDescription = `About ${process.env.NEXT_PUBLIC_APP_TITLE}. Something that you open everyday.`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/about`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
   title: `${pageTitle}`,
   description: `${pageDescription}`,
   openGraph: {
@@ -18,20 +18,20 @@ export const metadata: Metadata = {
     description: `${pageDescription}`,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+        url: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
         width: 1200,
         height: 630,
-        alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+        alt: `${process.env.NEXT_PUBLIC_APP_TITLE}`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+    images: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
     title: `${pageTitle}`,
     description: `${pageDescription}`,
-    creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
-    site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+    creator: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
+    site: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
   },
 };
 
@@ -47,13 +47,13 @@ export default async function AboutPage() {
       {/* <main className="mt-9 md:px-0"> */}
       <main className="mt-9 w-full">
         <p className="leading-7 not-first:mt-6">
-          {process.env.NEXT_PUBLIC_BUKA_APP_TITLE} is a platform with several
+          {process.env.NEXT_PUBLIC_APP_TITLE} is a platform with several
           features or apps that you can use to make your day more enjoyable.{" "}
-          {process.env.NEXT_PUBLIC_BUKA_APP_TITLE} is always improving, add new
+          {process.env.NEXT_PUBLIC_APP_TITLE} is always improving, add new
           features and we will make it better.
         </p>
         <h2 className="mt-7 text-base font-medium tracking-tighter md:text-lg">
-          Who created {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}?
+          Who created {process.env.NEXT_PUBLIC_APP_TITLE}?
         </h2>
         <p className="leading-7 not-first:mt-6">
           Initiated and run by{" "}
@@ -69,7 +69,7 @@ export default async function AboutPage() {
           Enjoyed everywhere. Feedback and suggestions are always welcome.
         </p>
         <h2 className="mt-7 text-base font-medium tracking-tighter md:text-lg">
-          Contact {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}
+          Contact {process.env.NEXT_PUBLIC_APP_TITLE}
         </h2>
         <p className="leading-7 not-first:mt-6">
           Just{" "}

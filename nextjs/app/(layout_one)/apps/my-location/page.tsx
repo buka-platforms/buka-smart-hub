@@ -6,12 +6,12 @@ import Link from "next/link";
 import Map from "./Map";
 
 const moduleName = `My Location`;
-const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
+const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
 const pageDescription = `Get my location detail and see it in the map.`;
-const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/my-location`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apps/my-location`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
   title: `${pageTitle}`,
   description: `${pageDescription}`,
   openGraph: {
@@ -21,20 +21,20 @@ export const metadata: Metadata = {
     description: `${pageDescription}`,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+        url: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
         width: 1200,
         height: 630,
-        alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+        alt: `${process.env.NEXT_PUBLIC_APP_TITLE}`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+    images: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
     title: `${pageTitle}`,
     description: `${pageDescription}`,
-    creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
-    site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+    creator: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
+    site: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
   },
 };
 
@@ -58,7 +58,7 @@ export default async function MyLocationPage() {
     requestHeaders["x-vercel-real-ip"] = "localhost";
   }
 
-  const styleUrl = `https://api.maptiler.com/maps/streets-v2/style.json?key=${process.env.SECRET_BUKA_MAPTILER_API_KEY}`;
+  const styleUrl = `https://api.maptiler.com/maps/streets-v2/style.json?key=${process.env.SECRET_MAPTILER_API_KEY}`;
 
   return (
     <>

@@ -32,7 +32,7 @@ export default function NewsList({
     setIsLoadMoreLoading(true);
 
     const newNewsStories = await fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V8}/news-stories?page=${page + 1}&q=${searchQuery}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V8}/news-stories?page=${page + 1}&q=${searchQuery}`,
       {
         cache: "no-cache",
         headers: {
@@ -70,7 +70,7 @@ export default function NewsList({
 
     if (query.length === 0) {
       const resultNewStories = await fetch(
-        `${process.env.NEXT_PUBLIC_BUKA_API_URL_V8}/news-stories`,
+        `${process.env.NEXT_PUBLIC_API_URL_V8}/news-stories`,
         {
           cache: "no-cache",
           headers: {
@@ -85,7 +85,7 @@ export default function NewsList({
 
   const searchNewsStories = async (query: string) => {
     const resultNewStories = await fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V8}/news-stories?q=${query}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V8}/news-stories?q=${query}`,
       {
         cache: "no-cache",
         headers: {

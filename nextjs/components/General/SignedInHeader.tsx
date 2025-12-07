@@ -90,7 +90,7 @@ const NotAuthenticated = () => {
             <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2">
               <div>
                 <div className="font-medium">
-                  Hi you! Welcome to {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}.
+                  Hi you! Welcome to {process.env.NEXT_PUBLIC_APP_TITLE}.
                 </div>
                 <div className="text-xs text-gray-600">
                   Login and be part of us.
@@ -141,10 +141,7 @@ export default function SignedInHeader({ userSession }: { userSession: any }) {
       <header className="sticky top-0 z-10 bg-white shadow-[0_1px_#0000001f]">
         <nav className="flex h-16 items-center px-5 py-3">
           <div className="flex gap-x-1">
-            <Link
-              href="/"
-              title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} home`}
-            >
+            <Link href="/" title={`${process.env.NEXT_PUBLIC_APP_TITLE} home`}>
               <img
                 src="/assets/images/logo-black.svg"
                 alt="Buka"

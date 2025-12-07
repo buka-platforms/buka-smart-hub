@@ -36,7 +36,7 @@ export const changeBackgroundImage = async () => {
   isBackgroundImageLoadingStore.set(true);
 
   const request = await fetch(
-    `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/background-image?random=true`,
+    `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`,
     {
       cache: "no-cache",
     },

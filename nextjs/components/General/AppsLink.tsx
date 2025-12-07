@@ -8,7 +8,7 @@ export default function AppsLink() {
         <div className="flex items-center">
           <Link
             href="/apps"
-            title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} Apps`}
+            title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
           >
             <AppsLinkHome />
           </Link>

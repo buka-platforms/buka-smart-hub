@@ -1066,7 +1066,7 @@ const welcomeEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Trans
 																				>
 																					<a
 																						target="_blank"
-																						href="https://x.com/${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}"
+																						href="https://x.com/${process.env.NEXT_PUBLIC_X_HANDLE}"
 																						style="
 																							-webkit-text-size-adjust: none;
 																							-ms-text-size-adjust: none;
@@ -1096,7 +1096,7 @@ const welcomeEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Trans
 																				>
 																					<a
 																						target="_blank"
-																						href="https://instagram.com/${process.env.NEXT_PUBLIC_BUKA_INSTAGRAM_HANDLE}"
+																						href="https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE}"
 																						style="
 																							-webkit-text-size-adjust: none;
 																							-ms-text-size-adjust: none;
@@ -1126,7 +1126,7 @@ const welcomeEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Trans
 																				>
 																					<a
 																						target="_blank"
-																						href="https://youtube.com/@${process.env.NEXT_PUBLIC_BUKA_YOUTUBE_HANDLE}"
+																						href="https://youtube.com/@${process.env.NEXT_PUBLIC_YOUTUBE_HANDLE}"
 																						style="
 																							-webkit-text-size-adjust: none;
 																							-ms-text-size-adjust: none;

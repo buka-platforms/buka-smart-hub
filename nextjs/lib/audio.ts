@@ -107,7 +107,7 @@ const resetStateWhenStop = () => {
 const getBukaRadioStream = async () => {
   // Fetch data in parallel
   const [results] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/radio/stream-detail`, {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/radio/stream-detail`, {
       cache: "no-cache",
       headers: {
         "Content-Type": "application/json",
@@ -347,10 +347,10 @@ export const detachMediaAudioListeners = () => {
 };
 
 export const loadRandomRadioStation = async (countryAlpha2: string = "") => {
-  let baseUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-station?random=true`;
+  let baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true`;
 
   if (countryAlpha2 !== "") {
-    baseUrl = `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-station?random=true&cca2=${countryAlpha2}`;
+    baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true&cca2=${countryAlpha2}`;
   }
 
   // Fetch data in parallel
@@ -371,15 +371,12 @@ export const loadRandomRadioStation = async (countryAlpha2: string = "") => {
 export const loadRadioStationById = async (dataId: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
-    fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-station?id=${dataId}`,
-      {
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    fetch(`${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?id=${dataId}`, {
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
       },
-    ),
+    }),
   ]);
 
   const radioStation = await radioStationResult.json();
@@ -397,7 +394,7 @@ export const loadRadioStationBySlug = async (dataSlug: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
     fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-station?slug=${dataSlug}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?slug=${dataSlug}`,
       {
         cache: "no-cache",
         headers: {

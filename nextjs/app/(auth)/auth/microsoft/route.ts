@@ -22,9 +22,9 @@ export async function GET(request: Request) {
   }
 
   // Check all data against identity provider token endpoint
-  const clientId = process.env.NEXT_PUBLIC_BUKA_MICROSOFT_CLIENT_ID;
-  const clientSecret = process.env.SECRET_BUKA_MICROSOFT_CLIENT_SECRET;
-  const redirectUri = process.env.NEXT_PUBLIC_BUKA_MICROSOFT_REDIRECT_URI;
+  const clientId = process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID;
+  const clientSecret = process.env.SECRET_MICROSOFT_CLIENT_SECRET;
+  const redirectUri = process.env.NEXT_PUBLIC_MICROSOFT_REDIRECT_URI;
 
   if (!clientId || !clientSecret || !redirectUri) {
     return redirect("/");
@@ -88,10 +88,8 @@ export async function GET(request: Request) {
     .join("");
 
   // Create a new Directus client
-  const client = createDirectus(
-    process.env.SECRET_BUKA_DIRECTUS_BASE_URL as string,
-  )
-    .with(staticToken(process.env.SECRET_BUKA_DIRECTUS_ACCESS_TOKEN as string))
+  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
+    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
     .with(rest());
 
   // Get user with filter
@@ -124,7 +122,7 @@ export async function GET(request: Request) {
         first_name: userInfo.givenname ? userInfo.givenname : null,
         last_name: userInfo.familyname ? userInfo.familyname : null,
         name: `${userInfo.givenname} ${userInfo.familyname}`.trim(),
-        picture_url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/assets/images/user.png`,
+        picture_url: `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/user.png`,
         source_identity_id: userInfo.sub,
         user_data_details: JSON.stringify(userInfo),
         last_login_at: new Date().toISOString(),
@@ -160,7 +158,7 @@ export async function GET(request: Request) {
         identity_provider_code: identityProviderCode,
         first_name: userInfo.givenname ? userInfo.givenname : null,
         last_name: userInfo.familyname ? userInfo.familyname : null,
-        picture_url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/assets/images/user.png`,
+        picture_url: `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/user.png`,
         source_identity_id: userInfo.sub,
         user_data_details: JSON.stringify(userInfo),
         last_login_at: new Date().toISOString(),
@@ -196,7 +194,7 @@ export async function GET(request: Request) {
       identity_provider_code: identityProviderCode,
     };
 
-    const secret = new TextEncoder().encode(process.env.SECRET_BUKA_JWT_SECRET);
+    const secret = new TextEncoder().encode(process.env.SECRET_JWT_SECRET);
 
     // Generate the JWT token
     const jwt = await new SignJWT(payload)
@@ -248,7 +246,7 @@ export async function GET(request: Request) {
     name: `${userInfo.givenname} ${userInfo.familyname}`.trim(),
     first_name: userInfo.givenname ? userInfo.givenname : null,
     last_name: userInfo.familyname ? userInfo.familyname : null,
-    picture: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/assets/images/user.png`,
+    picture: `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/user.png`,
     provider_name: identityProviderName,
   };
 

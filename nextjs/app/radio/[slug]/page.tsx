@@ -24,15 +24,12 @@ type Props = {
 const getRadioStationBySlug = cache(async (slug: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
-    fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/radio-station?slug=${slug}`,
-      {
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    fetch(`${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?slug=${slug}`, {
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
       },
-    ),
+    }),
   ]);
 
   const radioStation = await radioStationResult.json();
@@ -50,12 +47,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let radioStation = await getRadioStationBySlug(paramsData.slug);
 
   const moduleName = `Radio`;
-  const pageTitle = `${radioStation?.name} from ${radioStation?.country?.name} - ${moduleName} - ${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`;
+  const pageTitle = `${radioStation?.name} from ${radioStation?.country?.name} - ${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
   const pageDescription = `Listen to ${radioStation?.name} from ${radioStation?.country?.name}.`;
-  const pageUrl = `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/radio/${`${radioStation?.slug}`}`;
+  const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/radio/${`${radioStation?.slug}`}`;
 
   return {
-    metadataBase: new URL(`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`),
+    metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
     title: `${pageTitle}`,
     description: `${pageDescription}`,
     openGraph: {
@@ -65,20 +62,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: `${pageDescription}`,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+          url: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
           width: 1200,
           height: 630,
-          alt: `${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`,
+          alt: `${process.env.NEXT_PUBLIC_APP_TITLE}`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      images: `${process.env.NEXT_PUBLIC_BUKA_SOCIAL_MEDIA_IMAGE_1}`,
+      images: `${process.env.NEXT_PUBLIC_SOCIAL_MEDIA_IMAGE_1}`,
       title: `${pageTitle}`,
       description: `${pageDescription}`,
-      creator: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
-      site: `@${process.env.NEXT_PUBLIC_BUKA_X_HANDLE}`,
+      creator: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
+      site: `@${process.env.NEXT_PUBLIC_X_HANDLE}`,
     },
   };
 }
@@ -108,11 +105,11 @@ export default async function RadioDetailPage({
             <Link href="/">
               <div
                 className="absolute top-5 left-3 flex"
-                title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}, something that you open everyday.`}
+                title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}
               >
                 <img
-                  src="/assets/images/buka-white-v2.svg"
-                  alt={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`}
+                  src="/assets/images/logo-white.svg"
+                  alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
                   className="isolate h-12 w-12 md:h-14 md:w-14"
                 />
               </div>
@@ -143,7 +140,7 @@ export default async function RadioDetailPage({
                 <div className="flex items-center">
                   <Link
                     href="/apps"
-                    title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} Apps`}
+                    title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
                   >
                     <AppsLink />
                   </Link>
@@ -160,10 +157,10 @@ export default async function RadioDetailPage({
                 {isInIframe && (
                   <span className="text-xs font-light text-slate-300">
                     <a
-                      href={`${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`}
+                      href={`${process.env.NEXT_PUBLIC_BASE_URL}`}
                       target="_blank"
                     >
-                      Powered by {process.env.NEXT_PUBLIC_BUKA_APP_TITLE}
+                      Powered by {process.env.NEXT_PUBLIC_APP_TITLE}
                     </a>
                   </span>
                 )}

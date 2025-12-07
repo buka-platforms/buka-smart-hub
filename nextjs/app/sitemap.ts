@@ -7,17 +7,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const tvChannels = tv.filter((channel) => !channel.external);
 
   const sitemapTvStationRoutes = tvChannels.map((channel) => ({
-    url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/tv/${channel.slug}`,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/tv/${channel.slug}`,
     lastModified: new Date(),
     changeFrequency: "daily",
     priority: 1,
   }));
 
   // Create a new Directus client
-  const client = createDirectus(
-    process.env.SECRET_BUKA_DIRECTUS_BASE_URL as string,
-  )
-    .with(staticToken(process.env.SECRET_BUKA_DIRECTUS_ACCESS_TOKEN as string))
+  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
+    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
     .with(rest());
 
   // Get all radio stations, by page, starting from page 1 until the last page (when results is empty)
@@ -38,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } while (radioStations.length > 0);
 
   const sitemapRadioStationRoutes = allRadioStations.map((station: any) => ({
-    url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/radio/${station.slug}`,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/radio/${station.slug}`,
     lastModified: new Date(),
     changeFrequency: "daily",
     priority: 1,
@@ -47,91 +45,91 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Define static routes
   const sitemapStaticRoutes = [
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/login`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/login`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/my-location`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/my-location`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     // {
-    //   url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/live-currency-rates`,
+    //   url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/live-currency-rates`,
     //   lastModified: new Date(),
     //   changeFrequency: "daily",
     //   priority: 1,
     // },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/currency-converter`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/currency-converter`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/weather`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/weather`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/market-chart`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/market-chart`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/tv`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/tv`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/radio`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/radio`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     // {
-    //   url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/news`,
+    //   url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/news`,
     //   lastModified: new Date(),
     //   changeFrequency: "daily",
     //   priority: 1,
     // },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/music-preview`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/music-preview`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/book-preview`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/book-preview`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     // {
-    //   url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/movie-preview`,
+    //   url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/movie-preview`,
     //   lastModified: new Date(),
     //   changeFrequency: "daily",
     //   priority: 1,
     // },
     {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/public-holidays`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/public-holidays`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,

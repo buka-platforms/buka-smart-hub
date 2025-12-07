@@ -81,7 +81,7 @@ export default function MoviePreview() {
     searchQueryStore.set(query);
 
     const resultMovieTracks = await fetch(
-      `${process.env.NEXT_PUBLIC_BUKA_API_URL_V1}/movie-track?q=${query}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/movie-track?q=${query}`,
       {
         cache: "no-cache",
         headers: {
