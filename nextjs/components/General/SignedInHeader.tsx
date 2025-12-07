@@ -146,7 +146,7 @@ export default function SignedInHeader({ userSession }: { userSession: any }) {
               title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE} home`}
             >
               <img
-                src="/assets/images/buka-black-v2.svg"
+                src="/assets/images/logo-black.svg"
                 alt="Buka"
                 className="h-8 w-8"
               />

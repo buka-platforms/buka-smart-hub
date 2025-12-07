@@ -66,15 +66,15 @@ export default async function CreditsPage() {
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
                 <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
-                  Buka logo
+                  Buka Smart Hub logo
                 </td>
                 <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
                   <a
                     rel="noopener"
                     target="_blank"
-                    href="https://www.flaticon.com/free-icon/day-and-night_8724688?related_id=8724688&origin=pack"
+                    href="https://www.flaticon.com/free-icon/layers_16967606"
                   >
-                    Day And Night from laterunlabs
+                    Layers from ekays.dsgn
                   </a>{" "}
                   at{" "}
                   <a rel="noopener" target="_blank" href="https://flaticon.com">

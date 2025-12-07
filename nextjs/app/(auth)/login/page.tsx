@@ -57,7 +57,7 @@ export default function LoginPage() {
           <div className="flex w-full flex-col rounded-lg bg-slate-50 bg-clip-padding p-10">
             <div className="mb-5 flex items-center justify-center">
               <img
-                src="/assets/images/buka-black-v2.svg"
+                src="/assets/images/logo-black.svg"
                 alt="Buka"
                 // className="text-shadow-1 isolate h-9 w-9 md:h-14 md:w-14"
                 className="text-shadow-1 isolate h-12 w-12 md:h-14 md:w-14"

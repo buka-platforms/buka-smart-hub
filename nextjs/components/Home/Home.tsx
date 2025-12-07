@@ -42,7 +42,7 @@ export default async function Home({ userSession }: { userSession: any }) {
             title={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}, something that you open everyday.`}
           >
             <img
-              src="/assets/images/buka-white-v2.svg"
+              src="/assets/images/logo-white.svg"
               alt={`${process.env.NEXT_PUBLIC_BUKA_APP_TITLE}`}
               className="isolate h-12 w-12 md:h-14 md:w-14"
             />
