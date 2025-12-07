@@ -84,14 +84,14 @@ export const apps = [
     image_url: "/assets/images/apps_icon_market_chart.svg",
     type: "",
   },
-  {
-    path: "/apps/movie-preview",
-    id: "movie-preview",
-    name: "Movie Preview",
-    description: "Quick movie preview and trailer.",
-    image_url: "/assets/images/apps_icon_movie_preview.svg",
-    type: "",
-  },
+  // {
+  //   path: "/apps/movie-preview",
+  //   id: "movie-preview",
+  //   name: "Movie Preview",
+  //   description: "Quick movie preview and trailer.",
+  //   image_url: "/assets/images/apps_icon_movie_preview.svg",
+  //   type: "",
+  // },
   {
     path: "/apps/music-preview",
     id: "music-preview",

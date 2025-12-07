@@ -124,12 +124,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 1,
     },
-    {
-      url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/movie-preview`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
+    // {
+    //   url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/movie-preview`,
+    //   lastModified: new Date(),
+    //   changeFrequency: "daily",
+    //   priority: 1,
+    // },
     {
       url: `${process.env.NEXT_PUBLIC_BUKA_BASE_URL}/apps/public-holidays`,
       lastModified: new Date(),
