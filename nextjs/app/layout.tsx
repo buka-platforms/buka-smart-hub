@@ -2,7 +2,6 @@ import { cn } from "../lib/utils";
 import "./globals.css";
 import Audio from "@/components/General/Audio";
 import ClientSideOperationOnPage from "@/components/General/ClientSideOperationOnPage";
-// import { GoogleAdSense } from "@/components/General/GoogleAdSense";
 import { GoogleAnalytics } from "@/components/General/GoogleAnalytics";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
@@ -60,7 +59,6 @@ const jsonLd = {
   url: `${pageUrl}`,
 };
 
-/* eslint-disable @next/next/no-img-element */
 export default async function RootLayout({
   children,
 }: {
@@ -72,7 +70,6 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_HOSTNAME === "buka.sh" ? (
           <>
             <GoogleAnalytics />
-            {/* <GoogleAdSense /> */}
           </>
         ) : null}
       </head>
