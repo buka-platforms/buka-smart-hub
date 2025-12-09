@@ -67,7 +67,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        {process.env.NEXT_PUBLIC_HOSTNAME === "buka.sh" ? (
+        {process.env.NEXT_PUBLIC_HOSTNAME === process.env.NEXT_PUBLIC_FINAL_HOSTNAME ? (
           <>
             <GoogleAnalytics />
           </>
@@ -80,7 +80,7 @@ export default async function RootLayout({
           color="#cb3837"
           shadow={false}
           showSpinner={false}
-          height={5}
+          height={3}
         />
         <script
           type="application/ld+json"
