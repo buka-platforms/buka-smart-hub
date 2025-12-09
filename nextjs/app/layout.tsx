@@ -67,7 +67,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        {process.env.NEXT_PUBLIC_HOSTNAME === process.env.NEXT_PUBLIC_FINAL_HOSTNAME ? (
+        {process.env.NEXT_PUBLIC_HOSTNAME ===
+        process.env.NEXT_PUBLIC_FINAL_HOSTNAME ? (
           <>
             <GoogleAnalytics />
           </>
