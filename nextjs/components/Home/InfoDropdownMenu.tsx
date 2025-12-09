@@ -54,7 +54,7 @@ export default function InfoDropdownMenu() {
               Contact us
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-slate-200" />
+          {/* <DropdownMenuSeparator className="bg-slate-200" />
           <DropdownMenuItem>
             <Link
               href="https://discord.com/channels/1207390258275295313/1398561039926296577"
@@ -73,7 +73,7 @@ export default function InfoDropdownMenu() {
               </svg>
               Discord
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           {process.env.NODE_ENV === "development" ? (
             <>
               <DropdownMenuSeparator className="bg-slate-200" />
