@@ -136,7 +136,7 @@ export default async function RadioDetailPage({
           </div>
           <div className="absolute right-0 bottom-0">
             {!isInIframe && (
-              <div className="absolute right-0 bottom-[6.3rem] z-10 rounded-l-full bg-gradient-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-[8.2rem] md:pl-3">
+              <div className="absolute right-0 bottom-[6.3rem] z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-[8.2rem] md:pl-3">
                 <div className="flex items-center">
                   <Link
                     href="/apps"
@@ -147,7 +147,7 @@ export default async function RadioDetailPage({
                 </div>
               </div>
             )}
-            <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-gradient-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
+            <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
               <div className="flex items-center gap-1 md:gap-2">
                 <RadioPanel radioStationData={radioStation} />
               </div>
