@@ -154,7 +154,7 @@ export default async function RadioDetailPage({
             </div>
             <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
               <div className="flex items-center gap-x-2">
-                {isInIframe && (
+                {/* {isInIframe && (
                   <span className="text-xs font-light text-slate-300">
                     <a
                       href={`${process.env.NEXT_PUBLIC_BASE_URL}`}
@@ -163,7 +163,7 @@ export default async function RadioDetailPage({
                       Powered by {process.env.NEXT_PUBLIC_APP_TITLE}
                     </a>
                   </span>
-                )}
+                )} */}
                 <BackgroundImageDropdownMenu />
                 {!isInIframe && <Fullscreen />}
                 <InfoDropdownMenu />
