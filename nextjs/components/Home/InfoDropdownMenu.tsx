@@ -30,7 +30,7 @@ export default function InfoDropdownMenu() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel className="flex items-center justify-between">
-            {process.env.NEXT_PUBLIC_APP_TITLE}
+            {process.env.NEXT_PUBLIC_APP_TITLE}{" "}
             <span className="rounded-sm bg-gray-900 p-1 px-2 text-xs text-slate-300">
               v{pkg.version}
             </span>
