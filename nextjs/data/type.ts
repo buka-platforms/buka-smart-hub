@@ -75,3 +75,7 @@ export interface AudioVisualizationOptions {
   hideIfZero: boolean;
   consecutiveZeroesLimit: number;
 }
+
+export interface RequestHeaders {
+  [key: string]: string | undefined | null;
+}

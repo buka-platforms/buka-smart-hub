@@ -8,6 +8,7 @@ import {
   requestHeaders as requestHeadersStore,
   tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
 } from "@/data/store";
+import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import { useReadable } from "@/lib/react_use_svelte_store";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -96,7 +97,7 @@ const loadBackgroundImage = async (dataId: string) => {
 export default function BackgroundImageContainerClient({
   requestHeaders,
 }: {
-  requestHeaders: any;
+  requestHeaders: RequestHeadersType;
 }) {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
@@ -118,7 +119,9 @@ export default function BackgroundImageContainerClient({
       return;
     }
     if (!localStorage.getItem("randomBackgroundImageId")) {
-      loadBackgroundImage("joxXZhefnhk"); // Set default image, because I like this image
+      loadBackgroundImage(
+        process.env.NEXT_PUBLIC_DEFAULT_UNSPLASH_BACKGROUND_IMAGE_ID as string,
+      );
     } else {
       loadBackgroundImage(
         localStorage.getItem("randomBackgroundImageId") as string,
