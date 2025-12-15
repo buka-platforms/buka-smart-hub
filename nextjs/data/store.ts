@@ -3,6 +3,7 @@ import type {
   RadioStation,
   UnsplashType,
 } from "@/data/type";
+import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import type Hls from "hls.js";
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
@@ -17,7 +18,9 @@ export const hls = writable(undefined as Hls | null | undefined);
 export const mediaAudioContext = writable(
   undefined as AudioContext | null | undefined,
 );
-export const requestHeaders = writable(undefined as null | undefined);
+export const requestHeaders = writable(
+  undefined as RequestHeadersType | null | undefined,
+);
 export const isBackgroundImageLoading = writable(false);
 export const isBackgroundImageLoaded = writable(false);
 export const isMediaAudioContextCreated = writable(false);
