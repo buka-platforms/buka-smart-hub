@@ -47,7 +47,7 @@ export default async function Home({
             <img
               src="/assets/images/logo-white.svg"
               alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
-              className="isolate h-12 w-12 md:h-14 md:w-14"
+              className="isolate h-8 w-8 md:h-10 md:w-10"
             />
           </div>
           <div className="absolute top-5 right-3 z-20 flex cursor-pointer items-center gap-x-3 md:z-auto">

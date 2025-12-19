@@ -20,7 +20,7 @@ const NotAuthenticated = () => {
         <PopoverTrigger>
           <div>
             <CircleUserRound
-              className="h-12 w-12 cursor-pointer opacity-80 hover:opacity-100 md:h-14 md:w-14"
+              className="h-8 w-8 cursor-pointer opacity-80 hover:opacity-100 md:h-10 md:w-10"
               color="#f5f5f5"
             />
           </div>
@@ -71,8 +71,15 @@ const NotAuthenticated = () => {
   );
 };
 
+interface UserDetails {
+  picture: string;
+  name: string;
+  provider_id: string;
+  provider_name: string;
+}
+
 /* eslint-disable @next/next/no-img-element */
-const Authenticated = ({ userDetails }: { userDetails: any }) => {
+const Authenticated = ({ userDetails }: { userDetails: UserDetails }) => {
   return (
     <>
       <Popover>
@@ -82,7 +89,7 @@ const Authenticated = ({ userDetails }: { userDetails: any }) => {
               src={userDetails.picture}
               alt={userDetails.name}
               title={userDetails.name}
-              className="h-12 w-12 cursor-pointer rounded-full border-2 border-slate-600 opacity-100 shadow-xs md:h-14 md:w-14"
+              className="h-8 w-8 cursor-pointer rounded-full border-2 border-slate-600 opacity-100 shadow-xs md:h-10 md:w-10"
               referrerPolicy="no-referrer"
             />
           </div>
@@ -133,7 +140,11 @@ const Authenticated = ({ userDetails }: { userDetails: any }) => {
   );
 };
 
-export default function UserAvatar({ userSession }: { userSession: any }) {
+export default function UserAvatar({
+  userSession,
+}: {
+  userSession: { [key: string]: unknown };
+}) {
   const { is_authenticated, user_details } = userSession;
 
   return (
@@ -141,7 +152,7 @@ export default function UserAvatar({ userSession }: { userSession: any }) {
       {!is_authenticated ? (
         <NotAuthenticated />
       ) : (
-        <Authenticated userDetails={user_details} />
+        <Authenticated userDetails={user_details as UserDetails} />
       )}
     </>
   );
