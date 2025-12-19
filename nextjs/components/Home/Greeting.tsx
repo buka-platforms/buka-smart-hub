@@ -53,7 +53,7 @@ export default function Greeting() {
   }, []);
 
   return (
-    <div className="text-shadow-1 mb-[0.625rem] font-rubik text-3xl leading-tight text-whitesmoke md:mb-5 md:text-4xl">
+    <div className="text-shadow-1 mb-2.5 font-rubik text-3xl leading-tight text-whitesmoke md:mb-5 md:text-4xl">
       {greetingMessage}
     </div>
   );
