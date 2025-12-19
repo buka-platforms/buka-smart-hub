@@ -4,9 +4,9 @@ import AppsLink from "@/components/Home/AppsLink";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Canvas from "@/components/Home/Canvas";
-import DayMonthYear from "@/components/Home/DayMonthYear";
+import DayMonth from "@/components/Home/DayMonth";
 import Fullscreen from "@/components/Home/Fullscreen";
-import Greeting from "@/components/Home/Greeting";
+// import Greeting from "@/components/Home/Greeting";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import RadioCoverArt from "@/components/Home/RadioCoverArt";
 import RadioPanel from "@/components/Home/RadioPanel";
@@ -18,7 +18,11 @@ import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
-export default async function Home({ userSession }: { userSession: any }) {
+export default async function Home({
+  userSession,
+}: {
+  userSession: { [key: string]: unknown };
+}) {
   const requestHeaders = await getRequestHeaders();
 
   if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
@@ -62,8 +66,8 @@ export default async function Home({ userSession }: { userSession: any }) {
             <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
               <RadioCoverArt />
               <div className="z-10 flex flex-col">
-                <Greeting />
-                <DayMonthYear />
+                {/* <Greeting /> */}
+                <DayMonth />
                 <Time />
               </div>
             </div>

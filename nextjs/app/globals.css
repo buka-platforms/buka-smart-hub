@@ -189,6 +189,7 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3; /* Number of lines to show */
+  line-clamp: 3;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.5em; /* Adjust this based on your font size */

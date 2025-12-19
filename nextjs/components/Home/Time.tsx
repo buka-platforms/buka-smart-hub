@@ -1,7 +1,7 @@
 "use client";
 
 import { T } from "@/lib/app";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const updateTime = (
   previousTime: Date | null,
@@ -45,11 +45,11 @@ export default function Time() {
 
   return (
     <div className="flex w-max max-w-fit">
-      <div className="text-shadow-1 flex font-rubik text-6xl leading-none text-whitesmoke md:text-8xl">
+      <div className="text-shadow-1 flex font-rubik text-6xl leading-none text-whitesmoke md:text-9xl">
         {previousTime ? T.format(previousTime) : ""}
       </div>
-      <div className="ml-[0.125rem] flex flex-col justify-between py-[2px] md:ml-1 md:py-2">
-        <div className="text-shadow-1 font-rubik text-whitesmoke">
+      <div className="ml-0.5 flex flex-col justify-between py-1 md:ml-1 md:py-3.5">
+        <div className="text-shadow-1 font-rubik text-2xl leading-none text-whitesmoke md:text-4xl">
           {meridiem}
         </div>
       </div>

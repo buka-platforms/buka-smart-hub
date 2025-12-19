@@ -13,7 +13,7 @@ const updateDayMonthYear = (setDayMonthYear: (value: string) => void) => {
   setDayMonthYear(`${day}, ${month} ${date}`);
 };
 
-export default function DayMonthYear() {
+export default function DayMonth() {
   const [dayMonthYear, setDayMonthYear] = useState<string>("");
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function DayMonthYear() {
 
   return (
     <>
-      <div className="text-shadow-1 mb-1 font-rubik leading-none text-whitesmoke">
+      <div className="text-shadow-1 mb-1 font-rubik leading-none font-light text-whitesmoke">
         {dayMonthYear}
       </div>
     </>
