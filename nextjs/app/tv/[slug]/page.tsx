@@ -6,10 +6,10 @@ import ClientSideOperationOnPage from "@/components/General/ClientSideOperationO
 import RadioPanelFooter from "@/components/General/RadioPanelFooter";
 import SignedInHeader from "@/components/General/SignedInHeader";
 import { tv } from "@/data/tv";
+import type { UserSession } from "@/data/type";
 import { getRequestHeaders } from "@/lib/header";
 import { checkUserSession } from "@/lib/user";
 import type { Metadata } from "next";
-import { ResolvingMetadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -61,7 +61,7 @@ export default async function TvDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const userSession = await checkUserSession();
+  const userSession: UserSession | null = await checkUserSession();
   const requestHeaders = await getRequestHeaders();
 
   if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
@@ -80,11 +80,13 @@ export default async function TvDetailPage({
     groups[category] = groups[category] || [];
     groups[category].push(item);
     return groups;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, {} as any);
 
   // Sort the categorizedTvs object by category
   const sortedCategorizedTvs = Object.keys(categorizedTvs)
     .sort()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .reduce((obj: any, key: any) => {
       obj[key] = categorizedTvs[key];
       return obj;
@@ -172,17 +174,21 @@ export default async function TvDetailPage({
           <h2 className="mt-12 self-start text-lg font-medium">TV Channels</h2>
           <section className="mt-7 flex flex-col flex-wrap gap-3 md:flex-row md:gap-5 md:px-0">
             {Object.entries(sortedCategorizedTvs).map(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ([category, apps]: [any, any]) => (
                 <section key={category} className="flex w-full flex-col">
                   <h3 className="py-2 text-lg font-medium">{category}</h3>
                   <div className="flex w-full flex-col flex-wrap gap-3 md:flex-row md:gap-5">
-                    {apps.map((app: any) =>
-                      !app.external === true ? (
-                        <InternalTvLink app={app} key={app.id} />
-                      ) : app.external === true ? (
-                        <ExternalTvLink app={app} key={app.id} />
-                      ) : null,
-                    )}
+                    {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      apps.map((app: any) =>
+                        !app.external === true ? (
+                          <InternalTvLink app={app} key={app.id} />
+                        ) : app.external === true ? (
+                          <ExternalTvLink app={app} key={app.id} />
+                        ) : null,
+                      )
+                    }
                   </div>
                 </section>
               ),
@@ -193,7 +199,7 @@ export default async function TvDetailPage({
           <img
             src="/assets/images/illustration_tv.svg"
             alt="TV"
-            className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+            className="h-50 w-50 md:h-87.5 md:w-87.5"
           />
         </div>
         <div className="h-64"></div>
