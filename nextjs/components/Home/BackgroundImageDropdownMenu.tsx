@@ -18,70 +18,72 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   isBackgroundImageLoaded as isBackgroundImageLoadedStore,
-  isBackgroundImageLoading as isBackgroundImageLoadingStore,
+  isBackgroundImageLoadingAtom,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
+import type { UnsplashType } from "@/data/type";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Image as ImageIcon, Images, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { get } from "svelte/store";
-
-export const changeBackgroundImage = async () => {
-  if (get(isBackgroundImageLoadingStore)) {
-    return;
-  }
-
-  isBackgroundImageLoadedStore.set(false);
-  isBackgroundImageLoadingStore.set(true);
-
-  const request = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`,
-    {
-      cache: "no-cache",
-    },
-  );
-
-  const unsplash = await request.json();
-
-  const { id, urls, alt_description, links, user } = unsplash.data;
-
-  randomBackgroundImageStore.set({
-    id,
-    urls,
-    alt_description,
-    links,
-    user,
-  });
-
-  localStorage.setItem("randomBackgroundImageId", id);
-
-  // Send virtual page view event to Google Analytics
-  if (window && window.gtag) {
-    window.gtag("event", "page_view", {
-      page_title: `User change background image`,
-      page_location: window.location.href,
-      page_path: window.location.pathname,
-    });
-  }
-};
 
 /* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageDropdownMenu() {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
-  const isBackgroundImageLoading = useReadable(isBackgroundImageLoadingStore);
+  const isBackgroundImageLoading = useAtomValue(isBackgroundImageLoadingAtom);
+  const setIsBackgroundImageLoading = useSetAtom(isBackgroundImageLoadingAtom);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [images, setImages] = useState<any[]>([]);
+  const [images, setImages] = useState<UnsplashType[]>([]);
   const [loading, setLoading] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState<{ [key: number]: boolean }>(
     {},
   );
 
+  const changeBackgroundImage = async () => {
+    if (isBackgroundImageLoading) {
+      return;
+    }
+
+    isBackgroundImageLoadedStore.set(false);
+    setIsBackgroundImageLoading(true);
+
+    const request = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`,
+      {
+        cache: "no-cache",
+      },
+    );
+
+    const unsplash = await request.json();
+
+    const { id, urls, alt_description, links, user } = unsplash.data;
+
+    randomBackgroundImageStore.set({
+      id,
+      urls,
+      alt_description,
+      links,
+      user,
+    });
+
+    localStorage.setItem("randomBackgroundImageId", id);
+
+    // Send virtual page view event to Google Analytics
+    if (window && window.gtag) {
+      window.gtag("event", "page_view", {
+        page_title: `User change background image`,
+        page_location: window.location.href,
+        page_path: window.location.pathname,
+      });
+    }
+  };
+
   // Fetch images when dialog opens
   useEffect(() => {
     if (dialogOpen) {
-      setLoading(true);
+      Promise.resolve().then(() => setLoading(true));
       fetch("https://api1.buka.sh/background-image?randoms=true")
         .then((res) => res.json())
         .then((json) => {
@@ -94,8 +96,10 @@ export default function BackgroundImageDropdownMenu() {
         .catch(() => setImages([]))
         .finally(() => setLoading(false));
     } else {
-      setImages([]);
-      setLoading(false);
+      Promise.resolve().then(() => {
+        setImages([]);
+        setLoading(false);
+      });
     }
   }, [dialogOpen]);
 

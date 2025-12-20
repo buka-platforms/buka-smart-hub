@@ -3,13 +3,14 @@
 import {
   isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
   isBackgroundImageLoaded as isBackgroundImageLoadedStore,
-  isBackgroundImageLoading as isBackgroundImageLoadingStore,
+  isBackgroundImageLoadingAtom,
   randomBackgroundImage as randomBackgroundImageStore,
   requestHeaders as requestHeadersStore,
   tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
 } from "@/data/store";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useSetAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { get } from "svelte/store";
@@ -17,81 +18,6 @@ import { get } from "svelte/store";
 interface RequestHeaders {
   "cf-region"?: string; // The question mark indicates that the property is optional
 }
-
-const loadRandomBackgroundImage = async () => {
-  isBackgroundImageLoadedStore.set(false);
-  isBackgroundImageLoadingStore.set(true);
-
-  const requestHeaders = get(requestHeadersStore) as unknown as RequestHeaders;
-  const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
-
-  let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`;
-
-  // Check if randomBackgroundImageId is not set, then include ?query
-  if (!localStorage.getItem("randomBackgroundImageId")) {
-    apiUrl += `?query=${backgroundImageQuery}`;
-  }
-
-  // Fetch data in parallel
-  const [unsplashResult] = await Promise.all([
-    fetch(apiUrl, {
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }),
-  ]);
-
-  const unsplash = await unsplashResult.json();
-
-  const { id, urls, alt_description, links, user } = unsplash.data;
-
-  randomBackgroundImageStore.set({
-    id,
-    urls,
-    alt_description,
-    links,
-    user,
-  });
-
-  localStorage.setItem("randomBackgroundImageId", id);
-};
-
-const loadBackgroundImage = async (dataId: string) => {
-  isBackgroundImageLoadedStore.set(false);
-  isBackgroundImageLoadingStore.set(true);
-
-  // Fetch data in parallel
-  const [unsplashResult] = await Promise.all([
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?id=${dataId}`,
-      {
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    ),
-  ]);
-
-  const unsplash = await unsplashResult.json();
-
-  // Check if the image is not found, on Unsplash it will return an object with errors key
-  if (unsplash.data.errors) {
-    loadRandomBackgroundImage();
-    return;
-  }
-
-  const { id, urls, alt_description, links, user } = unsplash.data;
-
-  randomBackgroundImageStore.set({
-    id,
-    urls,
-    alt_description,
-    links,
-    user,
-  });
-};
 
 /* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageContainerClient({
@@ -101,6 +27,7 @@ export default function BackgroundImageContainerClient({
 }) {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
+  const setIsBackgroundImageLoading = useSetAtom(isBackgroundImageLoadingAtom);
   const searchParams = useSearchParams();
   const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
   const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
@@ -109,6 +36,83 @@ export default function BackgroundImageContainerClient({
 
   isBackgroundImageFollowsCoverArtStore.set(isBackgroundImageFollowsCoverArt);
   tmpRandomBackgroundImageStore.set(randomBackgroundImage);
+
+  const loadBackgroundImage = async (dataId: string) => {
+    isBackgroundImageLoadedStore.set(false);
+    setIsBackgroundImageLoading(true);
+
+    // Fetch data in parallel
+    const [unsplashResult] = await Promise.all([
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?id=${dataId}`,
+        {
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      ),
+    ]);
+
+    const unsplash = await unsplashResult.json();
+
+    // Check if the image is not found, on Unsplash it will return an object with errors key
+    if (unsplash.data.errors) {
+      loadRandomBackgroundImage();
+      return;
+    }
+
+    const { id, urls, alt_description, links, user } = unsplash.data;
+
+    randomBackgroundImageStore.set({
+      id,
+      urls,
+      alt_description,
+      links,
+      user,
+    });
+  };
+
+  const loadRandomBackgroundImage = async () => {
+    isBackgroundImageLoadedStore.set(false);
+    setIsBackgroundImageLoading(true);
+
+    const requestHeaders = get(
+      requestHeadersStore,
+    ) as unknown as RequestHeaders;
+    const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
+
+    let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`;
+
+    // Check if randomBackgroundImageId is not set, then include ?query
+    if (!localStorage.getItem("randomBackgroundImageId")) {
+      apiUrl += `?query=${backgroundImageQuery}`;
+    }
+
+    // Fetch data in parallel
+    const [unsplashResult] = await Promise.all([
+      fetch(apiUrl, {
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }),
+    ]);
+
+    const unsplash = await unsplashResult.json();
+
+    const { id, urls, alt_description, links, user } = unsplash.data;
+
+    randomBackgroundImageStore.set({
+      id,
+      urls,
+      alt_description,
+      links,
+      user,
+    });
+
+    localStorage.setItem("randomBackgroundImageId", id);
+  };
 
   useEffect(() => {
     requestHeadersStore.set(requestHeaders);
@@ -127,11 +131,12 @@ export default function BackgroundImageContainerClient({
         localStorage.getItem("randomBackgroundImageId") as string,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBackgroundImageLoad = () => {
     isBackgroundImageLoadedStore.set(true);
-    isBackgroundImageLoadingStore.set(false);
+    setIsBackgroundImageLoading(false);
   };
 
   return (

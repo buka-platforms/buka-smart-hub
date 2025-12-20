@@ -5,12 +5,14 @@ import type {
 } from "@/data/type";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import type Hls from "hls.js";
+import { atom } from "jotai";
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
 
 export const mediaAudio = writable(
   undefined as HTMLAudioElement | null | undefined,
 );
+
 export const mediaAudioCORS = writable(
   undefined as HTMLAudioElement | null | undefined,
 );
@@ -21,7 +23,8 @@ export const mediaAudioContext = writable(
 export const requestHeaders = writable(
   undefined as RequestHeadersType | null | undefined,
 );
-export const isBackgroundImageLoading = writable(false);
+// export const isBackgroundImageLoading = writable(false);
+export const isBackgroundImageLoadingAtom = atom(false);
 export const isBackgroundImageLoaded = writable(false);
 export const isMediaAudioContextCreated = writable(false);
 export const isMediaAudioLoading = writable(false);

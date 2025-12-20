@@ -48,8 +48,9 @@ export interface UnsplashType {
     regular: string;
     full: string;
     raw: string;
+    small?: string;
   };
-  alt_description: unknown;
+  alt_description?: string;
   links: {
     html: string;
   };
@@ -59,7 +60,13 @@ export interface UnsplashType {
     links: {
       html: string;
     };
+    first_name?: string;
+    profile_image?: {
+      medium?: string;
+    };
   };
+  width?: number;
+  height?: number;
 }
 
 export interface AudioVisualizationOptions {
