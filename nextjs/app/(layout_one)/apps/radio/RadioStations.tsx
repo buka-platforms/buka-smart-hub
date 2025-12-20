@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  isMediaAudioLoading as isMediaAudioLoadingStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
+  mediaAudioStateAtom,
   radioStation as radioStationStore,
 } from "@/data/store";
+import type { RadioStation } from "@/data/type";
 import { play, stop } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue } from "jotai";
 import {
   CirclePlay,
   CircleStop,
@@ -26,7 +27,7 @@ const searchQueryStore = writable("");
 const pageStore = writable(1);
 const isLoadingStore = writable(false);
 const isReachingEndPageStore = writable(false);
-const radioStationsStore = writable([] as any[]);
+const radioStationsStore = writable([] as RadioStation[]);
 const isNotFoundStore = writable(false);
 
 const getInitialRadioStations = async (query: string) => {
@@ -66,16 +67,19 @@ const getInitialRadioStations = async (query: string) => {
 };
 
 /* eslint-disable @next/next/no-img-element */
-const Item = ({ item }: any) => {
-  const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
-  const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
+const Item = ({ item }: { item: RadioStation }) => {
+  // const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
+  // const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+
   const selectedRadioStation = useReadable(radioStationStore);
 
   const [isRadioStationLogoLoaded, setIsRadioStationLogoLoaded] =
     useState(false);
 
-  const playSelected = async (radioStation: any) => {
-    if (get(isMediaAudioLoadingStore)) {
+  const playSelected = async (radioStation: RadioStation) => {
+    // if (get(isMediaAudioLoadingStore)) {
+    if (mediaAudioState.isLoading) {
       return;
     } else {
       stop();
@@ -103,20 +107,25 @@ const Item = ({ item }: any) => {
             onLoad={handleRadioStationImageLoad}
           />
           <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${item.id === selectedRadioStation?.id && (isMediaAudioPlaying || isMediaAudioLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
+            // className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${item.id === selectedRadioStation?.id && (isMediaAudioPlaying || isMediaAudioLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
+            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${item.id === selectedRadioStation?.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
           ></div>
           <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${item.id === selectedRadioStation?.id && (isMediaAudioPlaying || isMediaAudioLoading) ? "flex" : "hidden group-hover:flex"}`}
+            // className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${item.id === selectedRadioStation?.id && (isMediaAudioPlaying || isMediaAudioLoading) ? "flex" : "hidden group-hover:flex"}`}
+            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${item.id === selectedRadioStation?.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
           >
             {selectedRadioStation?.id === item.id ? (
-              !isMediaAudioPlaying && !isMediaAudioLoading ? (
+              // !isMediaAudioPlaying && !isMediaAudioLoading ? (
+              !mediaAudioState.isPlaying && !mediaAudioState.isLoading ? (
                 <CirclePlay
                   className="absolute h-10 w-10 text-slate-50"
                   onClick={() => playSelected(item)}
                 />
-              ) : isMediaAudioLoading ? (
+              ) : // ) : isMediaAudioLoading ? (
+              mediaAudioState.isLoading ? (
                 <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
-              ) : isMediaAudioPlaying ? (
+              ) : // ) : isMediaAudioPlaying ? (
+              mediaAudioState.isPlaying ? (
                 <CircleStop
                   className="absolute h-10 w-10 text-slate-50"
                   onClick={stop}
@@ -178,7 +187,7 @@ const List = () => {
 
   return (
     <>
-      {radioStations?.map((item: any) => (
+      {radioStations?.map((item: RadioStation) => (
         <Item item={item} key={item.id} />
       ))}
       <ItemSkeleton />
@@ -235,7 +244,7 @@ const Search = () => {
             }
           }}
         />
-        <Button className="cursor-pointer" onClick={(e) => search(searchQuery)}>
+        <Button className="cursor-pointer" onClick={() => search(searchQuery)}>
           Search
         </Button>
       </div>
