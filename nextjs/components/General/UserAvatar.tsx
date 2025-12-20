@@ -3,6 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { User } from "@/data/type";
 import {
   Book,
   CircleUserRound,
@@ -71,15 +72,8 @@ const NotAuthenticated = () => {
   );
 };
 
-interface UserDetails {
-  picture: string;
-  name: string;
-  provider_id: string;
-  provider_name: string;
-}
-
 /* eslint-disable @next/next/no-img-element */
-const Authenticated = ({ userDetails }: { userDetails: UserDetails }) => {
+const Authenticated = ({ userDetails }: { userDetails: User }) => {
   return (
     <>
       <Popover>
@@ -152,7 +146,7 @@ export default function UserAvatar({
       {!is_authenticated ? (
         <NotAuthenticated />
       ) : (
-        <Authenticated userDetails={user_details as UserDetails} />
+        <Authenticated userDetails={user_details as User} />
       )}
     </>
   );

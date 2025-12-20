@@ -96,5 +96,5 @@ export interface User {
 
 export interface UserSession {
   is_authenticated?: boolean;
-  user_details?: User;
+  user_details?: User | null | undefined;
 }

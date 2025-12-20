@@ -162,7 +162,7 @@ export default function SignedInHeader({
             {!is_authenticated ? (
               <NotAuthenticated />
             ) : (
-              <Authenticated userDetails={user_details} />
+              <Authenticated userDetails={user_details as User} />
             )}
           </div>
         </nav>
