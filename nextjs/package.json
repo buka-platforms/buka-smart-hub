@@ -44,7 +44,7 @@
     "nodemailer": "^7.0.11",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-hook-form": "^7.68.0",
+    "react-hook-form": "^7.69.0",
     "react-use-svelte-store": "^1.3.0",
     "sonner": "^2.0.7",
     "svelte": "^5.46.0",
