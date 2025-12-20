@@ -1,17 +1,8 @@
 import {
+  audioTrackStateAtom,
   backgroundImageStateAtom,
-  currentTrackMetadata as currentTrackMetadataStore,
-  currentTrackTitle as currentTrackTitleStore,
-  exposedTrackAlbum as exposedTrackAlbumStore,
-  exposedTrackArtist as exposedTrackArtistStore,
-  exposedTrackArtwork as exposedTrackArtworkStore,
-  exposedTrackTitleOnly as exposedTrackTitleOnlyStore,
-  exposedTrackTitle as exposedTrackTitleStore,
   intervalIdTrackMetadata as intervalIdTrackMetadataStore,
-  isMediaAudioMetadataExists as isMediaAudioMetadataExistsStore,
-  isMediaAudioMetadataImageLoaded as isMediaAudioMetadataImageLoadedStore,
   jotaiStore,
-  previousTrackTitle as previousTrackTitleStore,
   radioStationPlaying as radioStationPlayingStore,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
@@ -43,27 +34,30 @@ const getExternalTrackDetails = async () => {
     const request = await fetch(
       `${
         process.env.NEXT_PUBLIC_API_URL_V1
-      }/music-track?q=${encodeURIComponent(get(currentTrackTitleStore))}`,
+      }/music-track?q=${encodeURIComponent(jotaiStore.get(audioTrackStateAtom).currentTitle)}`,
     );
 
     const currentExternalTrackDetails = await request.json();
 
-    currentTrackMetadataStore.set(currentExternalTrackDetails.data);
+    jotaiStore.set(audioTrackStateAtom, (prev) => ({
+      ...prev,
+      currentExternalDetails: currentExternalTrackDetails.data,
+    }));
 
     if (
       currentExternalTrackDetails?.status === 0 &&
       currentExternalTrackDetails?.data?.resultCount !== undefined
     ) {
       if (currentExternalTrackDetails?.data?.resultCount > 0) {
-        exposedTrackTitleStore.set(
-          currentExternalTrackDetails?.data?.results[0]?.trackName,
-        );
-        exposedTrackArtistStore.set(
-          currentExternalTrackDetails?.data?.results[0]?.artistName,
-        );
-        exposedTrackAlbumStore.set(
-          currentExternalTrackDetails?.data?.results[0]?.collectionName,
-        );
+        jotaiStore.set(audioTrackStateAtom, (prev) => ({
+          ...prev,
+          exposedTitle:
+            currentExternalTrackDetails?.data?.results[0]?.trackName,
+          exposedArtist:
+            currentExternalTrackDetails?.data?.results[0]?.artistName,
+          exposedAlbum:
+            currentExternalTrackDetails?.data?.results[0]?.collectionName,
+        }));
 
         let artworkUrl =
           currentExternalTrackDetails?.data?.results[0]?.artworkUrl100;
@@ -71,21 +65,23 @@ const getExternalTrackDetails = async () => {
 
         const largeArtworkUrl = artworkUrl.replace("600x600", "1200x1200");
 
-        exposedTrackArtworkStore.set(artworkUrl);
-
-        isMediaAudioMetadataExistsStore.set(true);
+        jotaiStore.set(audioTrackStateAtom, (prev) => ({
+          ...prev,
+          exposedArtwork: artworkUrl,
+          metadataExists: true,
+        }));
 
         // Only if $exposedTrackTitle and $exposedTrackArtist are not ""
         if (
-          get(exposedTrackTitleStore) !== "" &&
-          get(exposedTrackArtistStore) !== ""
+          jotaiStore.get(audioTrackStateAtom).exposedTitle !== "" &&
+          jotaiStore.get(audioTrackStateAtom).exposedArtist !== ""
         ) {
           // Send virtual page view event to Google Analytics
           if (window && window.gtag) {
             window.gtag("event", "page_view", {
-              page_title: `Now playing ${get(
-                exposedTrackTitleStore,
-              )} - ${get(exposedTrackArtistStore)} on ${
+              page_title: `Now playing ${jotaiStore.get(audioTrackStateAtom).exposedTitle} - ${
+                jotaiStore.get(audioTrackStateAtom).exposedArtist
+              } on ${
                 get(radioStationPlayingStore)?.name
               } from ${get(radioStationPlayingStore)?.country?.name_alias}`,
               page_location: window.location.href,
@@ -97,15 +93,15 @@ const getExternalTrackDetails = async () => {
         // Set mediaSession metadata
         if ("mediaSession" in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
-            title: get(exposedTrackTitleStore),
-            artist: get(exposedTrackArtistStore),
+            title: jotaiStore.get(audioTrackStateAtom).exposedTitle,
+            artist: jotaiStore.get(audioTrackStateAtom).exposedArtist,
             album:
-              get(exposedTrackAlbumStore) !== ""
-                ? get(exposedTrackAlbumStore)
+              jotaiStore.get(audioTrackStateAtom).exposedAlbum !== ""
+                ? jotaiStore.get(audioTrackStateAtom).exposedAlbum
                 : "",
             artwork: [
               {
-                src: get(exposedTrackArtworkStore),
+                src: jotaiStore.get(audioTrackStateAtom).exposedArtwork,
                 sizes: "600x600",
                 type: "image/png",
               },
@@ -136,12 +132,18 @@ const getExternalTrackDetails = async () => {
           randomBackgroundImageStore.set(backgroundCoverArt);
         }
       } else {
-        isMediaAudioMetadataExistsStore.set(false);
-        exposedTrackTitleOnlyStore.set(get(currentTrackTitleStore));
+        jotaiStore.set(audioTrackStateAtom, (prev) => ({
+          ...prev,
+          metadataExists: false,
+          exposedTitleOnly: jotaiStore.get(audioTrackStateAtom).currentTitle,
+        }));
       }
     } else {
-      isMediaAudioMetadataExistsStore.set(false);
-      exposedTrackTitleOnlyStore.set(get(currentTrackTitleStore));
+      jotaiStore.set(audioTrackStateAtom, (prev) => ({
+        ...prev,
+        metadataExists: false,
+        exposedTitleOnly: jotaiStore.get(audioTrackStateAtom).currentTitle,
+      }));
     }
   }
 };
@@ -154,7 +156,10 @@ const getTrackMetadata = async () => {
     );
     const currentTrackMetadata = await request.json();
 
-    currentTrackMetadataStore.set(currentTrackMetadata?.data);
+    jotaiStore.set(audioTrackStateAtom, (prev) => ({
+      ...prev,
+      currentMetadata: currentTrackMetadata?.data,
+    }));
 
     if (
       currentTrackMetadata?.data?.title &&
@@ -162,35 +167,45 @@ const getTrackMetadata = async () => {
       currentTrackMetadata?.data?.iImg &&
       currentTrackMetadata?.data?.iName
     ) {
-      currentTrackTitleStore.set(currentTrackMetadata?.data?.title);
-      exposedTrackTitleStore.set(currentTrackMetadata?.data?.iName);
-      exposedTrackArtistStore.set(currentTrackMetadata?.data?.iArtist);
+      jotaiStore.set(audioTrackStateAtom, (prev) => ({
+        ...prev,
+        currentTitle: currentTrackMetadata?.data?.title,
+        exposedTitle: currentTrackMetadata?.data?.iName,
+        exposedArtist: currentTrackMetadata?.data?.iArtist,
+      }));
 
       let artworkUrl = currentTrackMetadata?.data?.iImg;
       artworkUrl = replaceArtworkSizes(artworkUrl);
 
       const largeArtworkUrl = artworkUrl.replace("600x600", "1200x1200");
 
-      exposedTrackArtworkStore.set(artworkUrl);
+      jotaiStore.set(audioTrackStateAtom, (prev) => ({
+        ...prev,
+        exposedArtwork: artworkUrl,
+        metadataExists: true,
+      }));
 
-      isMediaAudioMetadataExistsStore.set(true);
-
-      if (get(currentTrackTitleStore) !== get(previousTrackTitleStore)) {
-        isMediaAudioMetadataImageLoadedStore.set(false);
-
-        previousTrackTitleStore.set(get(currentTrackTitleStore));
+      if (
+        jotaiStore.get(audioTrackStateAtom).currentTitle !==
+        jotaiStore.get(audioTrackStateAtom).previousTitle
+      ) {
+        jotaiStore.set(audioTrackStateAtom, (prev) => ({
+          ...prev,
+          metadataImageLoaded: false,
+          previousTitle: jotaiStore.get(audioTrackStateAtom).currentTitle,
+        }));
 
         // Only if $exposedTrackTitle and $exposedTrackArtist are not ""
         if (
-          get(exposedTrackTitleStore) !== "" &&
-          get(exposedTrackArtistStore) !== ""
+          jotaiStore.get(audioTrackStateAtom).exposedTitle !== "" &&
+          jotaiStore.get(audioTrackStateAtom).exposedArtist !== ""
         ) {
           // Send virtual page view event to Google Analytics
           if (window && window.gtag) {
             window.gtag("event", "page_view", {
-              page_title: `Now playing ${get(exposedTrackTitleStore)} - ${get(
-                exposedTrackArtistStore,
-              )} on ${get(radioStationPlayingStore)?.name} from ${
+              page_title: `Now playing ${jotaiStore.get(audioTrackStateAtom).exposedTitle} - ${
+                jotaiStore.get(audioTrackStateAtom).exposedArtist
+              } on ${get(radioStationPlayingStore)?.name} from ${
                 get(radioStationPlayingStore)?.country?.name_alias
               }`,
               page_location: window.location.href,
@@ -202,15 +217,15 @@ const getTrackMetadata = async () => {
         // Set mediaSession metadata
         if ("mediaSession" in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
-            title: get(exposedTrackTitleStore),
-            artist: get(exposedTrackArtistStore),
+            title: jotaiStore.get(audioTrackStateAtom).exposedTitle,
+            artist: jotaiStore.get(audioTrackStateAtom).exposedArtist,
             album:
-              get(exposedTrackAlbumStore) !== ""
-                ? get(exposedTrackAlbumStore)
+              jotaiStore.get(audioTrackStateAtom).exposedAlbum !== ""
+                ? jotaiStore.get(audioTrackStateAtom).exposedAlbum
                 : "",
             artwork: [
               {
-                src: get(exposedTrackArtworkStore),
+                src: jotaiStore.get(audioTrackStateAtom).exposedArtwork,
                 sizes: "600x600",
                 type: "image/png",
               },
@@ -242,17 +257,32 @@ const getTrackMetadata = async () => {
         }
       }
     } else if (currentTrackMetadata?.data?.title) {
-      currentTrackTitleStore.set(currentTrackMetadata?.data?.title);
+      jotaiStore.set(audioTrackStateAtom, (prev) => ({
+        ...prev,
+        currentTitle: currentTrackMetadata?.data?.title,
+      }));
 
-      if (get(currentTrackTitleStore) !== get(previousTrackTitleStore)) {
-        isMediaAudioMetadataImageLoadedStore.set(false);
+      if (
+        jotaiStore.get(audioTrackStateAtom).currentTitle !==
+        jotaiStore.get(audioTrackStateAtom).previousTitle
+      ) {
+        jotaiStore.set(audioTrackStateAtom, (prev) => ({
+          ...prev,
+          metadataImageLoaded: false,
+        }));
 
         await getExternalTrackDetails();
 
-        previousTrackTitleStore.set(get(currentTrackTitleStore));
+        jotaiStore.set(audioTrackStateAtom, (prev) => ({
+          ...prev,
+          previousTitle: jotaiStore.get(audioTrackStateAtom).currentTitle,
+        }));
       }
     } else {
-      isMediaAudioMetadataExistsStore.set(false);
+      jotaiStore.set(audioTrackStateAtom, (prev) => ({
+        ...prev,
+        metadataExists: false,
+      }));
     }
   }
 };

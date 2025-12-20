@@ -9,15 +9,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import {
-  exposedTrackArtist as exposedTrackArtistStore,
-  exposedTrackArtwork as exposedTrackArtworkStore,
-  exposedTrackTitleOnly as exposedTrackTitleOnlyStore,
-  exposedTrackTitle as exposedTrackTitleStore,
-  isMediaAudioLoading as isMediaAudioLoadingStore,
-  isMediaAudioMetadataExists as isMediaAudioMetadataExistsStore,
-  isMediaAudioMetadataImageLoaded as isMediaAudioMetadataImageLoadedStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
+  audioTrackStateAtom,
   isRadioStationLogoLoaded as isRadioStationLogoLoadedStore,
+  mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
   radioStationPlaying as radioStationPlayingStore,
   radioStation as radioStationStore,
@@ -30,6 +24,7 @@ import {
   stop,
 } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Loader2,
   PlayCircle,
@@ -95,7 +90,9 @@ const Volume = () => {
 
     // Adjust the volume of the audio on mediaAudioStore
     mediaAudioStore.update((ma) => {
-      ma && (ma.volume = value[0] / 100);
+      if (ma) {
+        ma.volume = value[0] / 100;
+      }
       return ma;
     });
 
@@ -141,22 +138,16 @@ const Volume = () => {
 const RadioThumbnail = () => {
   const radioStation = useReadable(radioStationStore);
   const radioStationPlaying = useReadable(radioStationPlayingStore);
-  const isMediaAudioMetadataImageLoaded = useReadable(
-    isMediaAudioMetadataImageLoadedStore,
-  );
   const isRadioStationLogoLoaded = useReadable(isRadioStationLogoLoadedStore);
-  const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
-  const exposedTrackArtwork = useReadable(exposedTrackArtworkStore);
-  const exposedTrackTitle = useReadable(exposedTrackTitleStore);
-  const exposedTrackArtist = useReadable(exposedTrackArtistStore);
-  const isMediaAudioMetadataExists = useReadable(
-    isMediaAudioMetadataExistsStore,
-  );
-  const exposedTrackTitleOnly = useReadable(exposedTrackTitleOnlyStore);
-  const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const audioTrackState = useAtomValue(audioTrackStateAtom);
+  const setAudioTrackState = useSetAtom(audioTrackStateAtom);
 
   const handleMediaAudioMetadataImageLoad = () => {
-    isMediaAudioMetadataImageLoadedStore.set(true);
+    setAudioTrackState((prev) => ({
+      ...prev,
+      metadataImageLoaded: true,
+    }));
   };
 
   const handleRadioStationImageLoad = () => {
@@ -165,20 +156,20 @@ const RadioThumbnail = () => {
 
   return (
     <>
-      {!isMediaAudioLoading && (
+      {!mediaAudioState.isLoading && (
         <>
           <div className="h-16 w-16 shrink-0 p-1">
             <Link
               href={`/radio/${radioStationPlaying?.slug || radioStation?.slug}`}
             >
-              {isMediaAudioPlaying && isMediaAudioMetadataExists ? (
+              {mediaAudioState.isPlaying && audioTrackState.metadataExists ? (
                 <img
                   className={`h-full w-full overflow-hidden rounded-md object-scale-down ${
-                    isMediaAudioMetadataImageLoaded
+                    audioTrackState.metadataImageLoaded
                       ? "opacity-100 transition-opacity duration-500 ease-in-out"
                       : "opacity-0"
                   }`}
-                  src={exposedTrackArtwork}
+                  src={audioTrackState.exposedArtwork}
                   onLoad={handleMediaAudioMetadataImageLoad}
                   alt=""
                 />
@@ -217,7 +208,7 @@ const RadioThumbnail = () => {
         </>
       )}
 
-      {isMediaAudioLoading && (
+      {mediaAudioState.isLoading && (
         <>
           <div className="h-16 w-16 shrink-0 p-1">
             <Skeleton className="h-full w-full overflow-hidden rounded-md" />
@@ -232,14 +223,14 @@ const RadioThumbnail = () => {
 
   // Helper function to determine flex class
   function getFlexClass() {
-    if (isMediaAudioPlaying && isMediaAudioMetadataExists) {
+    if (mediaAudioState.isPlaying && audioTrackState.metadataExists) {
       return "justify-between";
     }
 
     if (
-      isMediaAudioPlaying &&
-      !isMediaAudioMetadataExists &&
-      exposedTrackTitleOnly !== ""
+      mediaAudioState.isPlaying &&
+      !audioTrackState.metadataExists &&
+      audioTrackState.exposedTitleOnly !== ""
     ) {
       return "justify-between";
     }
@@ -249,37 +240,47 @@ const RadioThumbnail = () => {
 
   // Helper function to render track details
   function renderTrackDetails() {
-    if (isMediaAudioPlaying && isMediaAudioMetadataExists) {
+    if (mediaAudioState.isPlaying && audioTrackState.metadataExists) {
       return (
         <div>
           <div
-            title={exposedTrackTitle !== "" ? exposedTrackTitle : ""}
+            title={
+              audioTrackState.exposedTitle !== ""
+                ? audioTrackState.exposedTitle
+                : ""
+            }
             className="w-36 overflow-hidden font-medium text-ellipsis whitespace-nowrap md:w-full"
           >
-            {exposedTrackTitle !== "" && exposedTrackTitle}
+            {audioTrackState.exposedTitle !== "" &&
+              audioTrackState.exposedTitle}
           </div>
           <div
-            title={exposedTrackArtist !== "" ? exposedTrackArtist : ""}
+            title={
+              audioTrackState.exposedArtist !== ""
+                ? audioTrackState.exposedArtist
+                : ""
+            }
             className="w-36 overflow-hidden text-ellipsis whitespace-nowrap md:w-full"
           >
-            {exposedTrackArtist !== "" && exposedTrackArtist}
+            {audioTrackState.exposedArtist !== "" &&
+              audioTrackState.exposedArtist}
           </div>
         </div>
       );
     }
 
     if (
-      isMediaAudioPlaying &&
-      !isMediaAudioMetadataExists &&
-      exposedTrackTitleOnly !== ""
+      mediaAudioState.isPlaying &&
+      !audioTrackState.metadataExists &&
+      audioTrackState.exposedTitleOnly !== ""
     ) {
       return (
         <div>
           <div
-            title={exposedTrackTitleOnly as string}
+            title={audioTrackState.exposedTitleOnly as string}
             className="w-36 overflow-hidden text-ellipsis whitespace-nowrap md:w-full"
           >
-            {exposedTrackTitleOnly}
+            {audioTrackState.exposedTitleOnly}
           </div>
         </div>
       );
@@ -291,23 +292,22 @@ const RadioThumbnail = () => {
 
 const RadioPanel = () => {
   const radioStation = useReadable(radioStationStore);
-  const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
-  const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
   return (
     <>
       <div className="mr-2 flex shrink-0 gap-1 md:gap-2">
-        {!isMediaAudioPlaying &&
-          !isMediaAudioLoading &&
+        {!mediaAudioState.isPlaying &&
+          !mediaAudioState.isLoading &&
           (!radioStation ? (
             <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
           ) : (
             <Play />
           ))}
 
-        {isMediaAudioPlaying && !isMediaAudioLoading && <Stop />}
+        {mediaAudioState.isPlaying && !mediaAudioState.isLoading && <Stop />}
 
-        {isMediaAudioLoading && (
+        {mediaAudioState.isLoading && (
           <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
         )}
 
@@ -325,7 +325,7 @@ const RadioPanel = () => {
 export default function RadioPanelFooter({
   requestHeaders,
 }: {
-  requestHeaders: any;
+  requestHeaders: { [key: string]: string };
 }) {
   const radioStation = useReadable(radioStationStore);
   const ipCountry = requestHeaders.hasOwnProperty("x-vercel-ip-country")
@@ -341,9 +341,11 @@ export default function RadioPanelFooter({
             localStorage.getItem("radioStationSlug") as string,
           );
         } else {
-          ipCountry
-            ? await loadRandomRadioStation(ipCountry)
-            : await loadRandomRadioStation();
+          if (ipCountry) {
+            await loadRandomRadioStation(ipCountry);
+          } else {
+            await loadRandomRadioStation();
+          }
         }
       }
     };

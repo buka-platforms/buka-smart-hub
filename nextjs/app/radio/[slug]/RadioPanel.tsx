@@ -8,13 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import {
-  isMediaAudioLoading as isMediaAudioLoadingStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
+  mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
   radioStation as radioStationStore,
 } from "@/data/store";
+import type { RadioStation } from "@/data/type";
 import { play, playRandom, stop } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue } from "jotai";
 import {
   Loader2,
   PlayCircle,
@@ -83,16 +84,27 @@ const Random = () => {
 const Volume = () => {
   const searchParams = useSearchParams();
   const mediaAudio = useReadable(mediaAudioStore);
+  const initialVolume = (() => {
+    const vol = Number(searchParams.get("vol"));
+    if (isNaN(vol)) return (mediaAudio?.volume as number) * 100 || 0;
+    if (vol > 100) return 100;
+    if (vol < 0) return 0;
+    return vol;
+  })();
 
-  const [volume, setVolume] = useState([
-    (mediaAudio?.volume as number) * 100 || 0,
-  ]);
+  const [volume, setVolume] = useState([initialVolume]);
+
+  // const [volume, setVolume] = useState([
+  //   (mediaAudio?.volume as number) * 100 || 0,
+  // ]);
 
   const adjustVolume = (value: number[]) => {
     setVolume(value);
 
     mediaAudioStore.update((ma) => {
-      ma && (ma.volume = value[0] / 100);
+      if (ma) {
+        ma.volume = value[0] / 100;
+      }
       return ma;
     });
 
@@ -115,11 +127,11 @@ const Volume = () => {
       }
 
       mediaAudioStore.update((ma) => {
-        ma && (ma.volume = definedVolume / 100);
+        if (ma) {
+          ma.volume = definedVolume / 100;
+        }
         return ma;
       });
-
-      setVolume([definedVolume]);
 
       // Save the volume to local storage
       if (localStorage) {
@@ -172,11 +184,10 @@ const Volume = () => {
 export default function RadioPanel({
   radioStationData,
 }: {
-  radioStationData: any;
+  radioStationData: RadioStation;
 }) {
   const radioStation = useReadable(radioStationStore);
-  const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
-  const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
   const searchParams = useSearchParams();
   const isInIframe = searchParams.get("if") === "1";
 
@@ -186,8 +197,8 @@ export default function RadioPanel({
 
   return (
     <>
-      {!isMediaAudioPlaying &&
-        !isMediaAudioLoading &&
+      {!mediaAudioState.isPlaying &&
+        !mediaAudioState.isLoading &&
         (!radioStation ? (
           <Loader2
             className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
@@ -197,9 +208,9 @@ export default function RadioPanel({
           <Play />
         ))}
 
-      {isMediaAudioPlaying && !isMediaAudioLoading && <Stop />}
+      {mediaAudioState.isPlaying && !mediaAudioState.isLoading && <Stop />}
 
-      {isMediaAudioLoading && (
+      {mediaAudioState.isLoading && (
         <Loading
           className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
           color="#f5f5f5"

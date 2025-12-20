@@ -3,6 +3,7 @@ import "./globals.css";
 import Audio from "@/components/General/Audio";
 import ClientSideOperationOnPage from "@/components/General/ClientSideOperationOnPage";
 import { GoogleAnalytics } from "@/components/General/GoogleAnalytics";
+import JotaiProvider from "@/components/JotaiProvider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
@@ -87,10 +88,13 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
+        <JotaiProvider>
+          {children}
+          <Audio />
+        </JotaiProvider>
       </body>
       <ClientSideOperationOnPage />
-      <Audio />
+      {/* <Audio /> */}
     </html>
   );
 }

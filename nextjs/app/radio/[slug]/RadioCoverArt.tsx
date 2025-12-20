@@ -1,21 +1,14 @@
 "use client";
 
 import {
-  exposedTrackArtist as exposedTrackArtistStore,
-  exposedTrackArtwork as exposedTrackArtworkStore,
-  exposedTrackTitleOnly as exposedTrackTitleOnlyStore,
-  exposedTrackTitle as exposedTrackTitleStore,
-  isMediaAudioLoading as isMediaAudioLoadingStore,
-  isMediaAudioMetadataExists as isMediaAudioMetadataExistsStore,
-  isMediaAudioMetadataImageLoaded as isMediaAudioMetadataImageLoadedStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
+  audioTrackStateAtom,
   isRadioStationLogoLoaded as isRadioStationLogoLoadedStore,
-  radioStationPlaying,
-  radioStationPlaying as radioStationPlayingStore,
+  mediaAudioStateAtom,
   radioStation as radioStationStore,
 } from "@/data/store";
 import { transparent1x1Pixel } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue, useSetAtom } from "jotai";
 
 /* eslint-disable @next/next/no-img-element */
 const RadioStation = () => {
@@ -48,27 +41,26 @@ const RadioStation = () => {
 
 /* eslint-disable @next/next/no-img-element */
 const RadioStationPlayingWithCompleteMetadata = () => {
-  const exposedTrackTitle = useReadable(exposedTrackTitleStore);
-  const exposedTrackArtist = useReadable(exposedTrackArtistStore);
-  const exposedTrackArtwork = useReadable(exposedTrackArtworkStore);
-  const isMediaAudioMetadataImageLoaded = useReadable(
-    isMediaAudioMetadataImageLoadedStore,
-  );
+  const audioTrackState = useAtomValue(audioTrackStateAtom);
+  const setAudioTrackState = useSetAtom(audioTrackStateAtom);
 
   const handleMediaAudioMetadataImageLoad = () => {
-    isMediaAudioMetadataImageLoadedStore.set(true);
+    setAudioTrackState((prevState) => ({
+      ...prevState,
+      metadataImageLoaded: true,
+    }));
   };
 
   return (
     <div
-      className={`fixed inset-0 z-10 m-auto flex w-fit max-w-[60%] min-w-fit flex-col items-center justify-center gap-y-1 text-whitesmoke md:relative md:inset-auto md:m-0 md:max-w-full md:items-start md:justify-start ${isMediaAudioMetadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+      className={`fixed inset-0 z-10 m-auto flex w-fit max-w-[60%] min-w-fit flex-col items-center justify-center gap-y-1 text-whitesmoke md:relative md:inset-auto md:m-0 md:max-w-full md:items-start md:justify-start ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
     >
       <div
-        className={`h-52 w-52 overflow-hidden rounded-md ${isMediaAudioMetadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+        className={`h-52 w-52 overflow-hidden rounded-md ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
       >
         <img
-          className={`h-full w-full object-scale-down ${isMediaAudioMetadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-          src={exposedTrackArtwork}
+          className={`h-full w-full object-scale-down ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          src={audioTrackState.exposedArtwork}
           alt=""
           loading="lazy"
           onLoad={handleMediaAudioMetadataImageLoad}
@@ -76,14 +68,14 @@ const RadioStationPlayingWithCompleteMetadata = () => {
       </div>
       <div className="flex flex-col items-center md:items-start">
         <div
-          className={`text-shadow-1 text-center font-rubik text-lg font-light md:text-left ${isMediaAudioMetadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          className={`text-shadow-1 text-center font-rubik text-lg font-light md:text-left ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
         >
-          {exposedTrackTitle != "" && exposedTrackTitle}
+          {audioTrackState.exposedTitle != "" && audioTrackState.exposedTitle}
         </div>
         <div
-          className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${isMediaAudioMetadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
         >
-          {exposedTrackArtist != "" && exposedTrackArtist}
+          {audioTrackState.exposedArtist != "" && audioTrackState.exposedArtist}
         </div>
       </div>
       <div className="mt-3 mb-3 hidden w-full border-b border-b-[#f5f5f5] md:block"></div>
@@ -94,12 +86,15 @@ const RadioStationPlayingWithCompleteMetadata = () => {
 /* eslint-disable @next/next/no-img-element */
 const RadioStationPlayingWithTitleMetadata = () => {
   const radioStation = useReadable(radioStationStore);
-  const radioStationPlaying = useReadable(radioStationPlayingStore);
   const isRadioStationLogoLoaded = useReadable(isRadioStationLogoLoadedStore);
-  const exposedTrackTitleOnly = useReadable(exposedTrackTitleOnlyStore);
+  const audioTrackState = useAtomValue(audioTrackStateAtom);
+  const setAudioTrackState = useSetAtom(audioTrackStateAtom);
 
   const handleRadioStationImageLoad = () => {
-    isRadioStationLogoLoadedStore.set(true);
+    setAudioTrackState((prevState) => ({
+      ...prevState,
+      metadataImageLoaded: true,
+    }));
   };
 
   return (
@@ -121,7 +116,7 @@ const RadioStationPlayingWithTitleMetadata = () => {
         <div
           className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
         >
-          {exposedTrackTitleOnly}
+          {audioTrackState.exposedTitleOnly}
         </div>
       </div>
       <div className="mt-3 mb-3 hidden w-full border-b border-b-[#f5f5f5] md:block"></div>
@@ -130,59 +125,30 @@ const RadioStationPlayingWithTitleMetadata = () => {
 };
 
 export default function RadioCoverArt() {
-  const isMediaAudioMetadataExists = useReadable(
-    isMediaAudioMetadataExistsStore,
-  );
-  const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
   const radioStation = useReadable(radioStationStore);
-  const radioStationPlaying = useReadable(radioStationPlayingStore);
-  const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
-  const exposedTrackTitleOnly = useReadable(exposedTrackTitleOnlyStore);
-
-  // return (
-  //   <>
-  //     {radioStation ? (
-  //       !isMediaAudioLoading && !isMediaAudioPlaying ? (
-  //         <RadioStation />
-  //       ) : isMediaAudioLoading ? (
-  //         <RadioStation />
-  //       ) : isMediaAudioPlaying ? (
-  //         isMediaAudioMetadataExists ? (
-  //           <RadioStationPlayingWithCompleteMetadata />
-  //         ) : exposedTrackTitleOnly !== "" ? (
-  //           <RadioStationPlayingWithTitleMetadata />
-  //         ) : (
-  //           <RadioStation />
-  //         )
-  //       ) : null
-  //     ) : null}
-  //   </>
-  // );
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const audioTrackState = useAtomValue(audioTrackStateAtom);
 
   return (
     <>
       {radioStation &&
         (() => {
-          if (!isMediaAudioLoading && !isMediaAudioPlaying) {
+          if (!mediaAudioState.isLoading && !mediaAudioState.isPlaying) {
             return <RadioStation />;
           }
 
-          if (isMediaAudioLoading) {
+          if (mediaAudioState.isLoading) {
             return <RadioStation />;
           }
 
-          if (isMediaAudioPlaying) {
-            if (isMediaAudioMetadataExists) {
+          if (mediaAudioState.isPlaying) {
+            if (audioTrackState.metadataExists) {
               return <RadioStationPlayingWithCompleteMetadata />;
             }
 
-            if (exposedTrackTitleOnly !== "") {
+            if (audioTrackState.exposedTitleOnly !== "") {
               return <RadioStationPlayingWithTitleMetadata />;
             }
-
-            // if (radioStation !== radioStationPlaying) {
-            //   return <RadioStation />;
-            // }
 
             return <RadioStation />;
           }

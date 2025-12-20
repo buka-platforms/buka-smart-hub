@@ -3,26 +3,16 @@ import {
   audioAnalyserNode as audioAnalyserNodeStore,
   audioFrequencyData as audioFrequencyDataStore,
   audioSourceNode as audioSourceNodeStore,
+  audioTrackStateAtom,
   audioVisualizationOptions as audioVisualizationOptionsStore,
-  currentTrackMetadata as currentTrackMetadataStore,
-  currentTrackTitle as currentTrackTitleStore,
-  exposedTrackAlbum as exposedTrackAlbumStore,
-  exposedTrackArtist as exposedTrackArtistStore,
-  exposedTrackArtwork as exposedTrackArtworkStore,
-  exposedTrackTitleOnly as exposedTrackTitleOnlyStore,
-  exposedTrackTitle as exposedTrackTitleStore,
   hls as hlsStore,
-  isMediaAudioContextCreated as isMediaAudioContextCreatedStore,
-  isMediaAudioLoading as isMediaAudioLoadingStore,
-  isMediaAudioMetadataExists as isMediaAudioMetadataExistsStore,
-  isMediaAudioMetadataImageLoaded as isMediaAudioMetadataImageLoadedStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
   isRadioStationCORSProblem as isRadioStationCORSProblemStore,
   isRadioStationLogoLoaded as isRadioStationLogoLoadedStore,
+  jotaiStore,
   mediaAudioContext as mediaAudioContextStore,
   mediaAudioCORS as mediaAudioCORSStore,
+  mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
-  previousTrackTitle as previousTrackTitleStore,
   radioStationPlaying as radioStationPlayingStore,
   radioStation as radioStationStore,
 } from "@/data/store";
@@ -33,10 +23,10 @@ import {
 import Hls from "hls.js";
 import { get } from "svelte/store";
 
-const barColors: any = [];
+const barColors: string[] = [];
 let canvasElement: HTMLCanvasElement;
-let numBars: any;
-let barWidth: any;
+let numBars: number;
+let barWidth: number;
 let canvasContext: CanvasRenderingContext2D | null;
 let consZ = 0;
 let usableLength = 250;
@@ -83,19 +73,27 @@ export const setupMediaAudio = () => {
 };
 
 const resetStateWhenStop = () => {
-  isMediaAudioPlayingStore.set(false);
-  isMediaAudioLoadingStore.set(false);
-  isMediaAudioMetadataExistsStore.set(false);
-  exposedTrackArtworkStore.set(transparent1x1Pixel);
-  exposedTrackTitleStore.set("");
-  exposedTrackArtistStore.set("");
-  exposedTrackAlbumStore.set("");
-  exposedTrackTitleOnlyStore.set("");
-  currentTrackTitleStore.set("");
-  previousTrackTitleStore.set("");
-  currentTrackMetadataStore.set(undefined);
+  // isMediaAudioPlayingStore.set(false);
+  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    ...prev,
+    isPlaying: false,
+    isLoading: false,
+  }));
+  jotaiStore.set(audioTrackStateAtom, (prev) => ({
+    ...prev,
+    metadataExists: false,
+    exposedArtwork: transparent1x1Pixel,
+    exposedAlbum: "",
+    exposedArtist: "",
+    exposedTitle: "",
+    exposedTitleOnly: "",
+    currentTitle: "",
+    previousTitle: "",
+    currentMetadata: undefined,
+    metadataImageLoaded: false,
+  }));
+
   isRadioStationLogoLoadedStore.set(false);
-  isMediaAudioMetadataImageLoadedStore.set(false);
 
   // Reset the radio station that is currently playing become active
   radioStationStore.set(get(radioStationPlayingStore));
@@ -121,7 +119,10 @@ const getBukaRadioStream = async () => {
 };
 
 export const play = async (isChangeAddressBar = false) => {
-  isMediaAudioLoadingStore.set(true);
+  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    ...prev,
+    isLoading: true,
+  }));
 
   const radioStation = get(radioStationStore);
   const mediaAudio = get(mediaAudioStore);
@@ -129,7 +130,7 @@ export const play = async (isChangeAddressBar = false) => {
 
   // Override the url if the radio station is https://buka.sh/radio/stream, call https://buka.sh/radio/streams to get the random stream with its metadata
   if (radioStation?.slug === "buka") {
-    let originalRadioStation = radioStation;
+    const originalRadioStation = radioStation;
 
     const station = await getBukaRadioStream();
 
@@ -145,20 +146,28 @@ export const play = async (isChangeAddressBar = false) => {
 
   if (radioStation?.radio_stations_radio_streams[0]?.radio_stream?.type === 2) {
     // Set mediaAudio to empty src
-    mediaAudio && (mediaAudio.src = "");
+    if (mediaAudio) {
+      mediaAudio.removeAttribute("src");
+    }
 
     // Load the source to hls
     hls?.loadSource(url as string);
-    mediaAudio && hls?.attachMedia(mediaAudio);
+    if (mediaAudio) {
+      hls?.attachMedia(mediaAudio);
+    }
   } else if (
     get(radioStationStore)?.radio_stations_radio_streams[0]?.radio_stream
       ?.type === 1
   ) {
     // Set hls source to null
-    hls && hls.stopLoad();
-    hls && hls.detachMedia();
+    if (hls) {
+      hls.stopLoad();
+      hls.detachMedia();
+    }
 
-    mediaAudio && (mediaAudio.src = url as string);
+    if (mediaAudio) {
+      mediaAudio.src = url as string;
+    }
   }
 
   await checkRadioStationCORS(
@@ -187,9 +196,12 @@ export const play = async (isChangeAddressBar = false) => {
   if (playPromise !== undefined) {
     playPromise
       .then(() => {
-        // Set the state
-        isMediaAudioLoadingStore.set(false);
-        isMediaAudioPlayingStore.set(true);
+        // Set the state, isPlaying = true and isLoading = false
+        jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+          ...prev,
+          isLoading: false,
+          isPlaying: true,
+        }));
 
         // Set the radio station that is currently playing
         radioStationPlayingStore.set(radioStation);
@@ -199,7 +211,6 @@ export const play = async (isChangeAddressBar = false) => {
 
         // Set radioStationSlug to localStorage
         if (localStorage) {
-          // localStorage.setItem("radioStationId", radioStation?.id as string); // TODO: Will be removed
           localStorage.setItem(
             "radioStationSlug",
             radioStation?.slug as string,
@@ -220,21 +231,30 @@ export const play = async (isChangeAddressBar = false) => {
           });
         }
       })
-      .catch((error: any) => {
-        isMediaAudioLoadingStore.set(false);
+      .catch(() => {
+        jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+          ...prev,
+          isLoading: false,
+        }));
 
         playRandom(isChangeAddressBar);
       });
   } else {
-    isMediaAudioLoadingStore.set(false);
+    jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+      ...prev,
+      isLoading: false,
+    }));
   }
 };
 
 export const playRandom = async (isChangeAddressBar = false) => {
-  if (!get(isMediaAudioLoadingStore)) {
+  if (!jotaiStore.get(mediaAudioStateAtom).isLoading) {
     await stop();
 
-    isMediaAudioLoadingStore.set(true);
+    jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+      ...prev,
+      isLoading: true,
+    }));
 
     // This is needed to reset the radio station name and logo, do not reset if path is not starts with /apps/radio
     if (!window.location.pathname.startsWith("/apps/radio")) {
@@ -316,8 +336,13 @@ const handleEventAudioError = () => {
 };
 
 export const handleEventAudioPlaying = () => {
-  isMediaAudioPlayingStore.set(true);
-  isMediaAudioLoadingStore.set(false);
+  // isMediaAudioPlayingStore.set(true);
+  // isMediaAudioLoadingStore.set(false);
+  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    ...prev,
+    isPlaying: true,
+    isLoading: false,
+  }));
 };
 
 export const attachMediaAudioListeners = () => {
@@ -419,7 +444,7 @@ export const checkRadioStationCORS = async (
   streamUrl: string,
   type: number,
 ): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const audio = new Audio();
     audio.crossOrigin = "anonymous";
 
@@ -450,7 +475,11 @@ export const setupMediaAudioContext = () => {
   const audioAnalyserNode = audioContext.createAnalyser();
 
   mediaAudioContextStore.set(audioContext);
-  isMediaAudioContextCreatedStore.set(true);
+  // isMediaAudioContextCreatedStore.set(true);
+  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    ...prev,
+    contextCreated: true,
+  }));
   audioSourceNodeStore.set(audioSourceNode);
   audioAnalyserNodeStore.set(audioAnalyserNode);
 
@@ -468,9 +497,9 @@ export const setupMediaAudioContext = () => {
 };
 
 export const initAudioVisualization = () => {
-  let options: any;
+  // let options: any;
 
-  options = get(audioVisualizationOptionsStore);
+  const options = get(audioVisualizationOptionsStore);
   canvasElement = document.getElementById("vis-canvas") as HTMLCanvasElement;
 
   if (!canvasElement) return;
@@ -503,8 +532,8 @@ export const initAudioVisualization = () => {
 
   if (barWidth < 4) barWidth = 4;
 
-  for (var i = 0; i < numBars; i++) {
-    var frequency = 5 / numBars;
+  for (let i = 0; i < numBars; i++) {
+    const frequency = 5 / numBars;
 
     if (options.color == "rainbow1") {
       const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
@@ -545,32 +574,28 @@ export const initAudioVisualization = () => {
 export const renderAudioVisualization = () => {
   animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
 
-  const audioFrequencyData = get(audioFrequencyDataStore) as Uint8Array<any>;
+  const audioFrequencyData = get(audioFrequencyDataStore);
 
-  get(audioAnalyserNodeStore)?.getByteFrequencyData(audioFrequencyData);
+  get(audioAnalyserNodeStore)?.getByteFrequencyData(
+    audioFrequencyData as Uint8Array<ArrayBuffer>,
+  );
 
-  let options: any;
-
-  // if (canvasElement.id === "vis-canvas") {
-  //   options = get(audioVisualizationOptionsStore);
-  // } else if (canvasElement.id === "vis-canvas-2") {
-  //   options = get(audioVisualizationOptions2Store);
-  // }
-
-  options = get(audioVisualizationOptionsStore);
+  const options = get(audioVisualizationOptionsStore);
 
   const consZLim = options.consecutiveZeroesLimit;
 
-  for (let i = 0; i < audioFrequencyData?.length; i++) {
-    if (audioFrequencyData?.[i] == 0) {
-      consZ++;
-    } else {
-      consZ = 0;
-    }
+  if (audioFrequencyData) {
+    for (let i = 0; i < audioFrequencyData?.length; i++) {
+      if (audioFrequencyData?.[i] == 0) {
+        consZ++;
+      } else {
+        consZ = 0;
+      }
 
-    if (consZ >= consZLim) {
-      setUsableLength(i - consZLim + 1);
-      break;
+      if (consZ >= consZLim) {
+        setUsableLength(i - consZLim + 1);
+        break;
+      }
     }
   }
 
@@ -591,7 +616,7 @@ export const renderAudioVisualization = () => {
         canvasContext.translate(i, 0);
       }
 
-      if (options.height !== null) {
+      if (options.height !== null && audioFrequencyData) {
         if (!options.hideIfZero) {
           canvasContext?.fillRect(
             0,

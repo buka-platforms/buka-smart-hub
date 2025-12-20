@@ -30,15 +30,25 @@ export const backgroundImageStateAtom = atom({
   isLoaded: false,
   isFollowsCoverArt: false,
 });
-export const isMediaAudioContextCreated = writable(false);
-export const isMediaAudioLoading = writable(false);
-export const isMediaAudioPlaying = writable(false);
-export const isMediaAudioMetadataExists = writable(false); // Means title, artist, album, artwork exists
-export const isMediaAudioMetadataImageLoaded = writable(false);
-export const currentTrackMetadata = writable(undefined);
-export const currentExternalTrackDetails = writable(undefined);
-export const previousTrackTitle = writable("");
-export const currentTrackTitle = writable("");
+export const mediaAudioStateAtom = atom({
+  isLoading: false,
+  isPlaying: false,
+  contextCreated: false,
+});
+export const audioTrackStateAtom = atom({
+  metadataExists: false,
+  metadataImageLoaded: false,
+  currentMetadata: undefined,
+  currentExternalDetails: undefined,
+  previousTitle: "",
+  currentTitle: "",
+  exposedTitle: "",
+  exposedArtist: "",
+  exposedAlbum: "",
+  exposedArtwork: "",
+  exposedTitleOnly: "", // This is the track title to be displayed when title exists, but artist, album, artwork doesn't exist
+});
+
 export const animationId = writable<number | null | undefined>(undefined);
 export const canvasAudioVisualization = writable<HTMLCanvasElement | null>(
   null,
@@ -52,11 +62,6 @@ export const radioStationPlaying: Writable<RadioStation | null | undefined> =
   writable(undefined); // Radio station that is currently playing
 export const isRadioStationCORSProblem = writable(false);
 export const isRadioStationLogoLoaded = writable(false);
-export const exposedTrackTitle = writable("");
-export const exposedTrackArtist = writable("");
-export const exposedTrackAlbum = writable("");
-export const exposedTrackArtwork = writable("");
-export const exposedTrackTitleOnly = writable(""); // This is the track title to be displayed when title exists, but artist, album, artwork doesn't exist
 export const randomBackgroundImage: Writable<Unsplash | null | undefined> =
   writable(undefined);
 export const tmpRandomBackgroundImage: Writable<Unsplash | null | undefined> =
@@ -81,6 +86,4 @@ export const audioSourceNode = writable(
 export const audioAnalyserNode = writable(
   undefined as AnalyserNode | null | undefined,
 );
-export const audioFrequencyData = writable(
-  undefined as Uint8Array | null | undefined,
-);
+export const audioFrequencyData: Writable<Uint8Array | null> = writable(null);

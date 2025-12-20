@@ -2,9 +2,7 @@
 
 import { Loading } from "@/components/General/AudioUI";
 import {
-  isMediaAudioLoading as isMediaAudioLoadingStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
-  mediaAudio as mediaAudioStore,
+  mediaAudioStateAtom,
   radioStation as radioStationStore,
 } from "@/data/store";
 import {
@@ -15,8 +13,9 @@ import {
   stop,
 } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue } from "jotai";
 import { Loader2, PlayCircle, Shuffle, StopCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { get } from "svelte/store";
 
 const Play = () => {
@@ -75,11 +74,10 @@ const Random = () => {
 export default function RadioPanel({
   requestHeaders,
 }: {
-  requestHeaders: any;
+  requestHeaders: { [key: string]: string };
 }) {
   const radioStation = useReadable(radioStationStore);
-  const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
-  const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
   const ipCountry = requestHeaders.hasOwnProperty("x-vercel-ip-country")
     ? requestHeaders["x-vercel-ip-country"]
     : null;
@@ -103,8 +101,8 @@ export default function RadioPanel({
 
   return (
     <>
-      {!isMediaAudioPlaying &&
-        !isMediaAudioLoading &&
+      {!mediaAudioState.isPlaying &&
+        !mediaAudioState.isLoading &&
         (!radioStation ? (
           <Loader2
             className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
@@ -114,9 +112,9 @@ export default function RadioPanel({
           <Play />
         ))}
 
-      {isMediaAudioPlaying && !isMediaAudioLoading && <Stop />}
+      {mediaAudioState.isPlaying && !mediaAudioState.isLoading && <Stop />}
 
-      {isMediaAudioLoading && (
+      {mediaAudioState.isLoading && (
         <Loading
           className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
           color="#f5f5f5"

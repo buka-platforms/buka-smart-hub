@@ -3,8 +3,7 @@
 import {
   animationId as animationIdStore,
   canvasAudioVisualization as canvasAudioVisualizationStore,
-  isMediaAudioContextCreated as isMediaAudioContextCreatedStore,
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
+  mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
   radioStation as radioStationStore,
 } from "@/data/store";
@@ -14,30 +13,19 @@ import {
   setupMediaAudio,
   setupMediaAudioContext,
 } from "@/lib/audio";
+import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { get } from "svelte/store";
-
-const sendGoogleAnalyticsEvent = () => {
-  if (get(isMediaAudioPlayingStore) && get(radioStationStore)) {
-    // Send virtual page view event to Google Analytics
-    if (window && window.gtag) {
-      window.gtag("event", "page_view", {
-        page_title: `Still listening to ${get(radioStationStore)?.name} from ${get(radioStationStore)?.country?.name_alias}`,
-        page_location: window.location.href,
-        page_path: window.location.pathname,
-      });
-    }
-  }
-};
 
 const AudioContext = () => {
   const pathname = usePathname();
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
   // Handle user gesture to create audio context
   useEffect(() => {
     const handleUserGesture = () => {
-      if (!get(isMediaAudioContextCreatedStore) && get(mediaAudioStore)) {
+      if (!mediaAudioState.contextCreated && get(mediaAudioStore)) {
         setupMediaAudioContext();
       }
     };
@@ -47,7 +35,7 @@ const AudioContext = () => {
     return () => {
       window.removeEventListener("click", handleUserGesture);
     };
-  }, []);
+  }, [mediaAudioState.contextCreated]);
 
   useEffect(() => {
     if (pathname === "/login") {
@@ -55,9 +43,9 @@ const AudioContext = () => {
       animationIdStore.set(undefined);
     } else {
       if (
-        get(isMediaAudioContextCreatedStore) &&
+        mediaAudioState.contextCreated &&
         get(canvasAudioVisualizationStore) &&
-        get(isMediaAudioPlayingStore)
+        mediaAudioState.isPlaying
       ) {
         initAudioVisualization();
         animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
@@ -68,12 +56,40 @@ const AudioContext = () => {
       cancelAnimationFrame(get(animationIdStore) as number);
       animationIdStore.set(undefined);
     };
-  }, [pathname]);
+  }, [pathname, mediaAudioState.contextCreated, mediaAudioState.isPlaying]);
 
   return <></>;
 };
 
 export default function Audio() {
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+
+  // const sendGoogleAnalyticsEvent = () => {
+  //   // if (get(isMediaAudioPlayingStore) && get(radioStationStore)) {
+  //   if (mediaAudioState.isPlaying && get(radioStationStore)) {
+  //     // Send virtual page view event to Google Analytics
+  //     if (window && window.gtag) {
+  //       window.gtag("event", "page_view", {
+  //         page_title: `Still listening to ${get(radioStationStore)?.name} from ${get(radioStationStore)?.country?.name_alias}`,
+  //         page_location: window.location.href,
+  //         page_path: window.location.pathname,
+  //       });
+  //     }
+  //   }
+  // };
+
+  const sendGoogleAnalyticsEvent = useCallback(() => {
+    if (mediaAudioState.isPlaying && get(radioStationStore)) {
+      if (window && window.gtag) {
+        window.gtag("event", "page_view", {
+          page_title: `Still listening to ${get(radioStationStore)?.name} from ${get(radioStationStore)?.country?.name_alias}`,
+          page_location: window.location.href,
+          page_path: window.location.pathname,
+        });
+      }
+    }
+  }, [mediaAudioState.isPlaying]);
+
   // Handle setup of media audio
   useEffect(() => {
     setupMediaAudio();
@@ -86,7 +102,7 @@ export default function Audio() {
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [sendGoogleAnalyticsEvent]);
 
   return (
     <>

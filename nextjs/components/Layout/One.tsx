@@ -4,7 +4,6 @@ import SignedInHeader from "@/components/General/SignedInHeader";
 import { getRequestHeaders } from "@/lib/header";
 import { checkUserSession } from "@/lib/user";
 
-/* eslint-disable @next/next/no-img-element */
 export default async function LayoutOne({
   children,
 }: {
