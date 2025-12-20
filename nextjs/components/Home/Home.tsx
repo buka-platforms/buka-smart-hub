@@ -6,7 +6,6 @@ import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdo
 import Canvas from "@/components/Home/Canvas";
 import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
-// import Greeting from "@/components/Home/Greeting";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import RadioCoverArt from "@/components/Home/RadioCoverArt";
 import RadioPanel from "@/components/Home/RadioPanel";
