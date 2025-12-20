@@ -1,8 +1,4 @@
-import type {
-  AudioVisualizationOptions,
-  RadioStation,
-  Unsplash,
-} from "@/data/type";
+import type { RadioStation, Unsplash } from "@/data/type";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import type Hls from "hls.js";
 import { atom, createStore } from "jotai";
@@ -59,17 +55,3 @@ export const randomBackgroundImage: Writable<Unsplash | null | undefined> =
   writable(undefined);
 export const tmpRandomBackgroundImage: Writable<Unsplash | null | undefined> =
   writable(undefined);
-export const audioVisualizationOptions: Writable<AudioVisualizationOptions> =
-  writable({
-    preferredBarWidth: 32,
-    forcePreferredBarWidth: false,
-    barSpacing: 1,
-    color: `rainbow${Math.floor(Math.random() * 4) + 1}`,
-    rainbowOpacity: 0.4,
-    element: `canvas#vis-canvas`,
-    height: null,
-    width: null, // If set, will use, else will use parent width
-    numBars: null, // If set, will use, else will calculate from bar width
-    hideIfZero: true,
-    consecutiveZeroesLimit: 0,
-  });

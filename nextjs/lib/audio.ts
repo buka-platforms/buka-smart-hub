@@ -1,6 +1,5 @@
 import {
   audioTrackStateAtom,
-  audioVisualizationOptions as audioVisualizationOptionsStore,
   hls as hlsStore,
   isRadioStationCORSProblem as isRadioStationCORSProblemStore,
   isRadioStationLogoLoaded as isRadioStationLogoLoadedStore,
@@ -12,6 +11,7 @@ import {
   radioStationPlaying as radioStationPlayingStore,
   radioStation as radioStationStore,
 } from "@/data/store";
+import type { AudioVisualizationOptions } from "@/data/type";
 import {
   startPeriodicGetTrackMetadata,
   stopPeriodicGetTrackMetadata,
@@ -29,6 +29,19 @@ let usableLength = 250;
 let animationFrameId: number | undefined;
 let audioAnalyserNode: AnalyserNode | null = null;
 let audioFrequencyData: Uint8Array | null = null;
+const audioVisualizationOptions: AudioVisualizationOptions = {
+  preferredBarWidth: 32,
+  forcePreferredBarWidth: false,
+  barSpacing: 1,
+  color: `rainbow${Math.floor(Math.random() * 4) + 1}`,
+  rainbowOpacity: 0.4,
+  element: `canvas#vis-canvas`,
+  height: null,
+  width: null, // If set, will use, else will use parent width
+  numBars: null, // If set, will use, else will calculate from bar width
+  hideIfZero: true,
+  consecutiveZeroesLimit: 0,
+};
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -485,9 +498,7 @@ export const setupMediaAudioContext = () => {
 };
 
 export const initAudioVisualization = () => {
-  // let options: any;
-
-  const options = get(audioVisualizationOptionsStore);
+  const options = audioVisualizationOptions;
   canvasElement = document.getElementById("vis-canvas") as HTMLCanvasElement;
 
   if (!canvasElement) return;
@@ -566,7 +577,7 @@ export const renderAudioVisualization = () => {
     audioFrequencyData as Uint8Array<ArrayBuffer>,
   );
 
-  const options = get(audioVisualizationOptionsStore);
+  const options = audioVisualizationOptions;
 
   const consZLim = options.consecutiveZeroesLimit;
 
