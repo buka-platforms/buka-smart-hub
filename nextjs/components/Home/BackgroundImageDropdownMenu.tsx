@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
+  backgroundImageStateAtom,
   isBackgroundImageLoaded as isBackgroundImageLoadedStore,
-  isBackgroundImageLoadingAtom,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
 import type { UnsplashType } from "@/data/type";
@@ -32,8 +32,10 @@ import { useEffect, useState } from "react";
 export default function BackgroundImageDropdownMenu() {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
-  const isBackgroundImageLoading = useAtomValue(isBackgroundImageLoadingAtom);
-  const setIsBackgroundImageLoading = useSetAtom(isBackgroundImageLoadingAtom);
+  const isBackgroundImageLoading = useAtomValue(
+    backgroundImageStateAtom,
+  ).isLoading;
+  const setIsBackgroundImageLoading = useSetAtom(backgroundImageStateAtom);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [images, setImages] = useState<UnsplashType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,7 +49,7 @@ export default function BackgroundImageDropdownMenu() {
     }
 
     isBackgroundImageLoadedStore.set(false);
-    setIsBackgroundImageLoading(true);
+    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: true }));
 
     const request = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`,

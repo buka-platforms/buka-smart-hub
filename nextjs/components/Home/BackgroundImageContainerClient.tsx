@@ -1,9 +1,9 @@
 "use client";
 
 import {
+  backgroundImageStateAtom,
   isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
   isBackgroundImageLoaded as isBackgroundImageLoadedStore,
-  isBackgroundImageLoadingAtom,
   randomBackgroundImage as randomBackgroundImageStore,
   requestHeaders as requestHeadersStore,
   tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
@@ -27,7 +27,7 @@ export default function BackgroundImageContainerClient({
 }) {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
-  const setIsBackgroundImageLoading = useSetAtom(isBackgroundImageLoadingAtom);
+  const setIsBackgroundImageLoading = useSetAtom(backgroundImageStateAtom);
   const searchParams = useSearchParams();
   const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
   const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
@@ -39,7 +39,7 @@ export default function BackgroundImageContainerClient({
 
   const loadBackgroundImage = async (dataId: string) => {
     isBackgroundImageLoadedStore.set(false);
-    setIsBackgroundImageLoading(true);
+    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: true }));
 
     // Fetch data in parallel
     const [unsplashResult] = await Promise.all([
@@ -75,7 +75,7 @@ export default function BackgroundImageContainerClient({
 
   const loadRandomBackgroundImage = async () => {
     isBackgroundImageLoadedStore.set(false);
-    setIsBackgroundImageLoading(true);
+    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: true }));
 
     const requestHeaders = get(
       requestHeadersStore,
@@ -136,7 +136,7 @@ export default function BackgroundImageContainerClient({
 
   const handleBackgroundImageLoad = () => {
     isBackgroundImageLoadedStore.set(true);
-    setIsBackgroundImageLoading(false);
+    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: false }));
   };
 
   return (
