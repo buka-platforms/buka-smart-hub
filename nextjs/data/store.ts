@@ -23,7 +23,6 @@ export const mediaAudioContext = writable(
 export const requestHeaders = writable(
   undefined as RequestHeadersType | null | undefined,
 );
-// export const isBackgroundImageLoading = writable(false);
 export const isBackgroundImageLoadingAtom = atom(false);
 export const isBackgroundImageLoaded = writable(false);
 export const isMediaAudioContextCreated = writable(false);
