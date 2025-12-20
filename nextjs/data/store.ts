@@ -73,4 +73,3 @@ export const audioVisualizationOptions: Writable<AudioVisualizationOptions> =
     hideIfZero: true,
     consecutiveZeroesLimit: 0,
   });
-export const audioFrequencyData: Writable<Uint8Array | null> = writable(null);

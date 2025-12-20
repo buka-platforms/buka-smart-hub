@@ -1,5 +1,4 @@
 import {
-  audioFrequencyData as audioFrequencyDataStore,
   audioTrackStateAtom,
   audioVisualizationOptions as audioVisualizationOptionsStore,
   hls as hlsStore,
@@ -29,6 +28,7 @@ let consZ = 0;
 let usableLength = 250;
 let animationFrameId: number | undefined;
 let audioAnalyserNode: AnalyserNode | null = null;
+let audioFrequencyData: Uint8Array | null = null;
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -481,9 +481,7 @@ export const setupMediaAudioContext = () => {
   audioAnalyserNode.minDecibels = -100;
   audioAnalyserNode.maxDecibels = -30;
 
-  audioFrequencyDataStore.set(
-    new Uint8Array(audioAnalyserNode.frequencyBinCount),
-  );
+  audioFrequencyData = new Uint8Array(audioAnalyserNode.frequencyBinCount);
 };
 
 export const initAudioVisualization = () => {
@@ -563,8 +561,6 @@ export const initAudioVisualization = () => {
 
 export const renderAudioVisualization = () => {
   animationFrameId = requestAnimationFrame(renderAudioVisualization);
-
-  const audioFrequencyData = get(audioFrequencyDataStore);
 
   audioAnalyserNode?.getByteFrequencyData(
     audioFrequencyData as Uint8Array<ArrayBuffer>,
