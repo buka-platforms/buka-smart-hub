@@ -10,12 +10,12 @@ import { Slider } from "@/components/ui/slider";
 import {
   mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
-  radioStation as radioStationStore,
+  radioStationStateAtom,
 } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, playRandom, stop } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Loader2,
   PlayCircle,
@@ -29,7 +29,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const Play = () => {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   return (
     <>
@@ -37,8 +37,8 @@ const Play = () => {
         onClick={() => play(false)}
         className="cursor-pointer"
         title={
-          radioStation
-            ? `Play ${radioStation?.name} from ${radioStation?.country?.name_alias}`
+          radioStationState.radioStation
+            ? `Play ${radioStationState.radioStation?.name} from ${radioStationState.radioStation?.country?.name_alias}`
             : "Play"
         }
       >
@@ -186,20 +186,24 @@ export default function RadioPanel({
 }: {
   radioStationData: RadioStation;
 }) {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
+  const setRadioStationStore = useSetAtom(radioStationStateAtom);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
   const searchParams = useSearchParams();
   const isInIframe = searchParams.get("if") === "1";
 
   useEffect(() => {
-    radioStationStore.set(radioStationData);
-  }, [radioStationData]);
+    setRadioStationStore((prev) => ({
+      ...prev,
+      radioStation: radioStationData,
+    }));
+  }, [radioStationData, setRadioStationStore]);
 
   return (
     <>
       {!mediaAudioState.isPlaying &&
         !mediaAudioState.isLoading &&
-        (!radioStation ? (
+        (!radioStationState.radioStation ? (
           <Loader2
             className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
             color="#f5f5f5"
@@ -217,7 +221,7 @@ export default function RadioPanel({
         />
       )}
 
-      {radioStation && (
+      {radioStationState.radioStation && (
         <>
           {!isInIframe && <Random />}
           <Volume />

@@ -4,6 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { User, UserSession } from "@/data/type";
 import {
   Book,
   CircleUserRound,
@@ -15,7 +16,7 @@ import {
 import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
-const Authenticated = ({ userDetails }: { userDetails: any }) => {
+const Authenticated = ({ userDetails }: { userDetails: User }) => {
   return (
     <>
       <Popover>
@@ -133,7 +134,11 @@ const NotAuthenticated = () => {
 };
 
 /* eslint-disable @next/next/no-img-element */
-export default function SignedInHeader({ userSession }: { userSession: any }) {
+export default function SignedInHeader({
+  userSession,
+}: {
+  userSession: UserSession;
+}) {
   const { is_authenticated, user_details } = userSession;
 
   return (

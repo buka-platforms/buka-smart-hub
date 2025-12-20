@@ -3,7 +3,7 @@
 import {
   mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
-  radioStation as radioStationStore,
+  radioStationStateAtom,
 } from "@/data/store";
 import {
   initAudioVisualization,
@@ -53,18 +53,19 @@ const AudioContext = () => {
 
 export default function Audio() {
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   const sendGoogleAnalyticsEvent = useCallback(() => {
-    if (mediaAudioState.isPlaying && get(radioStationStore)) {
+    if (mediaAudioState.isPlaying && radioStationState.radioStation) {
       if (window && window.gtag) {
         window.gtag("event", "page_view", {
-          page_title: `Still listening to ${get(radioStationStore)?.name} from ${get(radioStationStore)?.country?.name_alias}`,
+          page_title: `Still listening to ${radioStationState.radioStation.name} from ${radioStationState.radioStation.country?.name_alias}`,
           page_location: window.location.href,
           page_path: window.location.pathname,
         });
       }
     }
-  }, [mediaAudioState.isPlaying]);
+  }, [mediaAudioState.isPlaying, radioStationState.radioStation]);
 
   // Handle setup of media audio
   useEffect(() => {

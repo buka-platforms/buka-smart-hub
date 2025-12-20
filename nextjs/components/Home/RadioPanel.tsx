@@ -1,10 +1,7 @@
 "use client";
 
 import { Loading } from "@/components/General/AudioUI";
-import {
-  mediaAudioStateAtom,
-  radioStation as radioStationStore,
-} from "@/data/store";
+import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug as loadRadioStation,
   loadRadioStationBySlug,
@@ -12,14 +9,12 @@ import {
   playRandom,
   stop,
 } from "@/lib/audio";
-import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue } from "jotai";
 import { Loader2, PlayCircle, Shuffle, StopCircle } from "lucide-react";
 import { useEffect } from "react";
-import { get } from "svelte/store";
 
 const Play = () => {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   return (
     <>
@@ -27,8 +22,8 @@ const Play = () => {
         onClick={() => play(false)}
         className="cursor-pointer"
         title={
-          radioStation
-            ? `Play ${radioStation?.name} from ${radioStation?.country?.name_alias}`
+          radioStationState.radioStation
+            ? `Play ${radioStationState.radioStation?.name} from ${radioStationState.radioStation?.country?.name_alias}`
             : "Play"
         }
       >
@@ -76,7 +71,7 @@ export default function RadioPanel({
 }: {
   requestHeaders: { [key: string]: string };
 }) {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
   const ipCountry = requestHeaders.hasOwnProperty("x-vercel-ip-country")
     ? requestHeaders["x-vercel-ip-country"]
@@ -84,7 +79,7 @@ export default function RadioPanel({
 
   useEffect(() => {
     const handleUseEffect = async () => {
-      if (!get(radioStationStore)) {
+      if (!radioStationState.radioStation) {
         // Check if localStorage has radioStationSlug
         if (localStorage.getItem("radioStationSlug")) {
           await loadRadioStation(
@@ -97,13 +92,13 @@ export default function RadioPanel({
     };
 
     handleUseEffect();
-  }, [ipCountry]);
+  }, [ipCountry, radioStationState.radioStation]);
 
   return (
     <>
       {!mediaAudioState.isPlaying &&
         !mediaAudioState.isLoading &&
-        (!radioStation ? (
+        (!radioStationState.radioStation ? (
           <Loader2
             className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
             color="#f5f5f5"
@@ -121,7 +116,7 @@ export default function RadioPanel({
         />
       )}
 
-      {radioStation && (
+      {radioStationState.radioStation && (
         <>
           <Random />
           <div className="w-0"></div>

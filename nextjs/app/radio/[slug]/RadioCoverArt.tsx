@@ -1,34 +1,35 @@
 "use client";
 
-import {
-  audioTrackStateAtom,
-  isRadioStationLogoLoaded as isRadioStationLogoLoadedStore,
-  mediaAudioStateAtom,
-  radioStation as radioStationStore,
-} from "@/data/store";
+import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import { transparent1x1Pixel } from "@/lib/audio";
-import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue, useSetAtom } from "jotai";
 
 /* eslint-disable @next/next/no-img-element */
 const RadioStation = () => {
-  const radioStation = useReadable(radioStationStore);
-  const isRadioStationLogoLoaded = useReadable(isRadioStationLogoLoadedStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
+  const setRadioStationState = useSetAtom(radioStationStateAtom);
 
   const handleRadioStationImageLoad = () => {
-    isRadioStationLogoLoadedStore.set(true);
+    setRadioStationState((prev) => ({
+      ...prev,
+      isRadioStationLogoLoaded: true,
+    }));
   };
 
   return (
     <div
-      className={`fixed inset-0 z-10 m-auto flex w-max max-w-fit flex-col items-center justify-center text-whitesmoke md:relative md:inset-auto md:m-0 md:items-start md:justify-start ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+      className={`fixed inset-0 z-10 m-auto flex w-max max-w-fit flex-col items-center justify-center text-whitesmoke md:relative md:inset-auto md:m-0 md:items-start md:justify-start ${radioStationState.isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
     >
       <div
-        className={`flex h-52 w-52 min-w-52 items-center justify-center overflow-hidden rounded-md bg-white ${radioStation && radioStation?.logo === "" ? "hidden" : ""}`}
+        className={`flex h-52 w-52 min-w-52 items-center justify-center overflow-hidden rounded-md bg-white ${radioStationState.radioStation && radioStationState.radioStation?.logo === "" ? "hidden" : ""}`}
       >
         <img
-          className={`h-full w-full object-scale-down p-2 ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-          src={radioStation ? radioStation?.logo : transparent1x1Pixel}
+          className={`h-full w-full object-scale-down p-2 ${radioStationState.isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          src={
+            radioStationState.radioStation
+              ? radioStationState.radioStation?.logo
+              : transparent1x1Pixel
+          }
           alt=""
           loading="lazy"
           onLoad={handleRadioStationImageLoad}
@@ -41,26 +42,26 @@ const RadioStation = () => {
 
 /* eslint-disable @next/next/no-img-element */
 const RadioStationPlayingWithCompleteMetadata = () => {
-  const audioTrackState = useAtomValue(audioTrackStateAtom);
-  const setAudioTrackState = useSetAtom(audioTrackStateAtom);
+  const radioStationState = useAtomValue(radioStationStateAtom);
+  const setRadioStationState = useSetAtom(radioStationStateAtom);
 
   const handleMediaAudioMetadataImageLoad = () => {
-    setAudioTrackState((prevState) => ({
-      ...prevState,
+    setRadioStationState((prev) => ({
+      ...prev,
       metadataImageLoaded: true,
     }));
   };
 
   return (
     <div
-      className={`fixed inset-0 z-10 m-auto flex w-fit max-w-[60%] min-w-fit flex-col items-center justify-center gap-y-1 text-whitesmoke md:relative md:inset-auto md:m-0 md:max-w-full md:items-start md:justify-start ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+      className={`fixed inset-0 z-10 m-auto flex w-fit max-w-[60%] min-w-fit flex-col items-center justify-center gap-y-1 text-whitesmoke md:relative md:inset-auto md:m-0 md:max-w-full md:items-start md:justify-start ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
     >
       <div
-        className={`h-52 w-52 overflow-hidden rounded-md ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+        className={`h-52 w-52 overflow-hidden rounded-md ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
       >
         <img
-          className={`h-full w-full object-scale-down ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-          src={audioTrackState.exposedArtwork}
+          className={`h-full w-full object-scale-down ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          src={radioStationState.exposedArtwork}
           alt=""
           loading="lazy"
           onLoad={handleMediaAudioMetadataImageLoad}
@@ -68,14 +69,16 @@ const RadioStationPlayingWithCompleteMetadata = () => {
       </div>
       <div className="flex flex-col items-center md:items-start">
         <div
-          className={`text-shadow-1 text-center font-rubik text-lg font-light md:text-left ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          className={`text-shadow-1 text-center font-rubik text-lg font-light md:text-left ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
         >
-          {audioTrackState.exposedTitle != "" && audioTrackState.exposedTitle}
+          {radioStationState.exposedTitle != "" &&
+            radioStationState.exposedTitle}
         </div>
         <div
-          className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${audioTrackState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
         >
-          {audioTrackState.exposedArtist != "" && audioTrackState.exposedArtist}
+          {radioStationState.exposedArtist != "" &&
+            radioStationState.exposedArtist}
         </div>
       </div>
       <div className="mt-3 mb-3 hidden w-full border-b border-b-[#f5f5f5] md:block"></div>
@@ -85,28 +88,30 @@ const RadioStationPlayingWithCompleteMetadata = () => {
 
 /* eslint-disable @next/next/no-img-element */
 const RadioStationPlayingWithTitleMetadata = () => {
-  const radioStation = useReadable(radioStationStore);
-  const isRadioStationLogoLoaded = useReadable(isRadioStationLogoLoadedStore);
-  const audioTrackState = useAtomValue(audioTrackStateAtom);
-  const setAudioTrackState = useSetAtom(audioTrackStateAtom);
+  const radioStationState = useAtomValue(radioStationStateAtom);
+  const setRadioStationState = useSetAtom(radioStationStateAtom);
 
   const handleRadioStationImageLoad = () => {
-    setAudioTrackState((prevState) => ({
-      ...prevState,
+    setRadioStationState((prev) => ({
+      ...prev,
       metadataImageLoaded: true,
     }));
   };
 
   return (
     <div
-      className={`fixed inset-0 z-10 m-auto flex w-max max-w-fit flex-col items-center justify-center gap-y-1 text-whitesmoke md:relative md:inset-auto md:m-0 md:items-start md:justify-start ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+      className={`fixed inset-0 z-10 m-auto flex w-max max-w-fit flex-col items-center justify-center gap-y-1 text-whitesmoke md:relative md:inset-auto md:m-0 md:items-start md:justify-start ${radioStationState.isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
     >
       <div
-        className={`flex h-52 w-52 min-w-52 items-center justify-center rounded-md bg-white ${radioStation && radioStation?.logo === "" ? "hidden" : null}`}
+        className={`flex h-52 w-52 min-w-52 items-center justify-center rounded-md bg-white ${radioStationState.radioStation && radioStationState.radioStation?.logo === "" ? "hidden" : null}`}
       >
         <img
-          className={`h-full w-full object-scale-down p-2 ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-          src={radioStation ? radioStation?.logo : transparent1x1Pixel}
+          className={`h-full w-full object-scale-down p-2 ${radioStationState.isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          src={
+            radioStationState.radioStation
+              ? radioStationState.radioStation?.logo
+              : transparent1x1Pixel
+          }
           alt=""
           loading="lazy"
           onLoad={handleRadioStationImageLoad}
@@ -114,9 +119,9 @@ const RadioStationPlayingWithTitleMetadata = () => {
       </div>
       <div className="mt-1 flex flex-col items-center md:items-start">
         <div
-          className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          className={`text-shadow-1 text-center font-rubik text-sm font-light md:text-left ${radioStationState.isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
         >
-          {audioTrackState.exposedTitleOnly}
+          {radioStationState.exposedTitleOnly}
         </div>
       </div>
       <div className="mt-3 mb-3 hidden w-full border-b border-b-[#f5f5f5] md:block"></div>
@@ -125,13 +130,12 @@ const RadioStationPlayingWithTitleMetadata = () => {
 };
 
 export default function RadioCoverArt() {
-  const radioStation = useReadable(radioStationStore);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-  const audioTrackState = useAtomValue(audioTrackStateAtom);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   return (
     <>
-      {radioStation &&
+      {radioStationState.radioStation &&
         (() => {
           if (!mediaAudioState.isLoading && !mediaAudioState.isPlaying) {
             return <RadioStation />;
@@ -142,11 +146,11 @@ export default function RadioCoverArt() {
           }
 
           if (mediaAudioState.isPlaying) {
-            if (audioTrackState.metadataExists) {
+            if (radioStationState.metadataExists) {
               return <RadioStationPlayingWithCompleteMetadata />;
             }
 
-            if (audioTrackState.exposedTitleOnly !== "") {
+            if (radioStationState.exposedTitleOnly !== "") {
               return <RadioStationPlayingWithTitleMetadata />;
             }
 

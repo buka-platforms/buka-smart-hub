@@ -9,12 +9,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import {
-  audioTrackStateAtom,
-  isRadioStationLogoLoaded as isRadioStationLogoLoadedStore,
   mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
-  radioStationPlaying as radioStationPlayingStore,
-  radioStation as radioStationStore,
+  radioStationStateAtom,
 } from "@/data/store";
 import {
   loadRadioStationBySlug as loadRadioStation,
@@ -36,17 +33,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { get } from "svelte/store";
 
 const Play = () => {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   return (
     <>
       <div
         onClick={() => play(false)}
         className="cursor-pointer"
-        title={`Play ${radioStation?.name} from ${radioStation?.country?.name_alias}`}
+        title={
+          radioStationState.radioStation
+            ? `Play ${radioStationState.radioStation?.name} from ${radioStationState.radioStation?.country?.name_alias}`
+            : "Play"
+        }
       >
         <PlayCircle className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
       </div>
@@ -136,22 +136,22 @@ const Volume = () => {
 
 /* eslint-disable @next/next/no-img-element */
 const RadioThumbnail = () => {
-  const radioStation = useReadable(radioStationStore);
-  const radioStationPlaying = useReadable(radioStationPlayingStore);
-  const isRadioStationLogoLoaded = useReadable(isRadioStationLogoLoadedStore);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-  const audioTrackState = useAtomValue(audioTrackStateAtom);
-  const setAudioTrackState = useSetAtom(audioTrackStateAtom);
+  const radioStationState = useAtomValue(radioStationStateAtom);
+  const setRadioStationState = useSetAtom(radioStationStateAtom);
 
   const handleMediaAudioMetadataImageLoad = () => {
-    setAudioTrackState((prev) => ({
+    setRadioStationState((prev) => ({
       ...prev,
       metadataImageLoaded: true,
     }));
   };
 
   const handleRadioStationImageLoad = () => {
-    isRadioStationLogoLoadedStore.set(true);
+    setRadioStationState((prev) => ({
+      ...prev,
+      isRadioStationLogoLoaded: true,
+    }));
   };
 
   return (
@@ -159,28 +159,26 @@ const RadioThumbnail = () => {
       {!mediaAudioState.isLoading && (
         <>
           <div className="h-16 w-16 shrink-0 p-1">
-            <Link
-              href={`/radio/${radioStationPlaying?.slug || radioStation?.slug}`}
-            >
-              {mediaAudioState.isPlaying && audioTrackState.metadataExists ? (
+            <Link href={`/radio/${radioStationState.radioStation?.slug}`}>
+              {mediaAudioState.isPlaying && radioStationState.metadataExists ? (
                 <img
                   className={`h-full w-full overflow-hidden rounded-md object-scale-down ${
-                    audioTrackState.metadataImageLoaded
+                    radioStationState.metadataImageLoaded
                       ? "opacity-100 transition-opacity duration-500 ease-in-out"
                       : "opacity-0"
                   }`}
-                  src={audioTrackState.exposedArtwork}
+                  src={radioStationState.exposedArtwork}
                   onLoad={handleMediaAudioMetadataImageLoad}
                   alt=""
                 />
               ) : (
                 <img
                   className={`h-full w-full overflow-hidden rounded-md border border-slate-200 object-scale-down ${
-                    isRadioStationLogoLoaded
+                    radioStationState.isRadioStationLogoLoaded
                       ? "opacity-100 transition-opacity duration-500 ease-in-out"
                       : "opacity-0"
                   }`}
-                  src={radioStation?.logo}
+                  src={radioStationState.radioStation?.logo}
                   onLoad={handleRadioStationImageLoad}
                   alt=""
                 />
@@ -192,15 +190,12 @@ const RadioThumbnail = () => {
           >
             <div
               title={
-                (radioStationPlaying?.country?.name_alias ||
-                  radioStation?.country?.name_alias) as string
+                radioStationState.radioStation?.country?.name_alias as string
               }
               className="w-36 overflow-hidden text-ellipsis whitespace-nowrap md:w-full"
             >
-              <Link
-                href={`/radio/${radioStationPlaying?.slug || radioStation?.slug}`}
-              >
-                {radioStationPlaying?.name || radioStation?.name}
+              <Link href={`/radio/${radioStationState.radioStation?.slug}`}>
+                {radioStationState.radioStation?.name}
               </Link>
             </div>
             {renderTrackDetails()}
@@ -223,14 +218,14 @@ const RadioThumbnail = () => {
 
   // Helper function to determine flex class
   function getFlexClass() {
-    if (mediaAudioState.isPlaying && audioTrackState.metadataExists) {
+    if (mediaAudioState.isPlaying && radioStationState.metadataExists) {
       return "justify-between";
     }
 
     if (
       mediaAudioState.isPlaying &&
-      !audioTrackState.metadataExists &&
-      audioTrackState.exposedTitleOnly !== ""
+      !radioStationState.metadataExists &&
+      radioStationState.exposedTitleOnly !== ""
     ) {
       return "justify-between";
     }
@@ -240,30 +235,30 @@ const RadioThumbnail = () => {
 
   // Helper function to render track details
   function renderTrackDetails() {
-    if (mediaAudioState.isPlaying && audioTrackState.metadataExists) {
+    if (mediaAudioState.isPlaying && radioStationState.metadataExists) {
       return (
         <div>
           <div
             title={
-              audioTrackState.exposedTitle !== ""
-                ? audioTrackState.exposedTitle
+              radioStationState.exposedTitle !== ""
+                ? radioStationState.exposedTitle
                 : ""
             }
             className="w-36 overflow-hidden font-medium text-ellipsis whitespace-nowrap md:w-full"
           >
-            {audioTrackState.exposedTitle !== "" &&
-              audioTrackState.exposedTitle}
+            {radioStationState.exposedTitle !== "" &&
+              radioStationState.exposedTitle}
           </div>
           <div
             title={
-              audioTrackState.exposedArtist !== ""
-                ? audioTrackState.exposedArtist
+              radioStationState.exposedArtist !== ""
+                ? radioStationState.exposedArtist
                 : ""
             }
             className="w-36 overflow-hidden text-ellipsis whitespace-nowrap md:w-full"
           >
-            {audioTrackState.exposedArtist !== "" &&
-              audioTrackState.exposedArtist}
+            {radioStationState.exposedArtist !== "" &&
+              radioStationState.exposedArtist}
           </div>
         </div>
       );
@@ -271,16 +266,16 @@ const RadioThumbnail = () => {
 
     if (
       mediaAudioState.isPlaying &&
-      !audioTrackState.metadataExists &&
-      audioTrackState.exposedTitleOnly !== ""
+      !radioStationState.metadataExists &&
+      radioStationState.exposedTitleOnly !== ""
     ) {
       return (
         <div>
           <div
-            title={audioTrackState.exposedTitleOnly as string}
+            title={radioStationState.exposedTitleOnly as string}
             className="w-36 overflow-hidden text-ellipsis whitespace-nowrap md:w-full"
           >
-            {audioTrackState.exposedTitleOnly}
+            {radioStationState.exposedTitleOnly}
           </div>
         </div>
       );
@@ -291,7 +286,7 @@ const RadioThumbnail = () => {
 };
 
 const RadioPanel = () => {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
   return (
@@ -299,7 +294,7 @@ const RadioPanel = () => {
       <div className="mr-2 flex shrink-0 gap-1 md:gap-2">
         {!mediaAudioState.isPlaying &&
           !mediaAudioState.isLoading &&
-          (!radioStation ? (
+          (!radioStationState.radioStation ? (
             <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
           ) : (
             <Play />
@@ -311,7 +306,7 @@ const RadioPanel = () => {
           <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
         )}
 
-        {radioStation && (
+        {radioStationState.radioStation && (
           <>
             <Random />
             <Volume />
@@ -327,14 +322,14 @@ export default function RadioPanelFooter({
 }: {
   requestHeaders: { [key: string]: string };
 }) {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
   const ipCountry = requestHeaders.hasOwnProperty("x-vercel-ip-country")
     ? requestHeaders["x-vercel-ip-country"]
     : null;
 
   useEffect(() => {
     const handleUseEffect = async () => {
-      if (!get(radioStationStore)) {
+      if (!radioStationState.radioStation) {
         // Check if localStorage has radioStationSlug
         if (localStorage.getItem("radioStationSlug")) {
           await loadRadioStation(
@@ -351,9 +346,9 @@ export default function RadioPanelFooter({
     };
 
     handleUseEffect();
-  }, [ipCountry]);
+  }, [ipCountry, radioStationState.radioStation]);
 
-  if (!radioStation) {
+  if (!radioStationState.radioStation) {
     return null;
   }
 

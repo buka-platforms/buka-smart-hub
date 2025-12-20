@@ -3,14 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  mediaAudioStateAtom,
-  radioStation as radioStationStore,
-} from "@/data/store";
+import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, stop } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   CirclePlay,
   CircleStop,
@@ -70,7 +67,8 @@ const getInitialRadioStations = async (query: string) => {
 const Item = ({ item }: { item: RadioStation }) => {
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
-  const selectedRadioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
+  const setRadioStationState = useSetAtom(radioStationStateAtom);
 
   const [isRadioStationLogoLoaded, setIsRadioStationLogoLoaded] =
     useState(false);
@@ -79,12 +77,15 @@ const Item = ({ item }: { item: RadioStation }) => {
     if (mediaAudioState.isLoading) {
       return;
     } else {
-      stop();
+      await stop();
     }
 
-    radioStationStore.set(radioStation);
+    setRadioStationState((prev) => ({
+      ...prev,
+      radioStation: radioStation,
+    }));
 
-    play(false);
+    await play(false);
   };
 
   const handleRadioStationImageLoad = () => {
@@ -104,12 +105,12 @@ const Item = ({ item }: { item: RadioStation }) => {
             onLoad={handleRadioStationImageLoad}
           />
           <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${item.id === selectedRadioStation?.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
+            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${radioStationState.radioStation?.id === item.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
           ></div>
           <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${item.id === selectedRadioStation?.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
+            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${radioStationState.radioStation?.id === item.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
           >
-            {selectedRadioStation?.id === item.id ? (
+            {radioStationState.radioStation?.id === item.id ? (
               !mediaAudioState.isPlaying && !mediaAudioState.isLoading ? (
                 <CirclePlay
                   className="absolute h-10 w-10 text-slate-50"

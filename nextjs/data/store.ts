@@ -31,7 +31,7 @@ export const mediaAudioStateAtom = atom({
   isPlaying: false,
   contextCreated: false,
 });
-export const audioTrackStateAtom = atom({
+export const radioStationStateAtom = atom({
   metadataExists: false,
   metadataImageLoaded: false,
   currentMetadata: undefined,
@@ -43,14 +43,10 @@ export const audioTrackStateAtom = atom({
   exposedAlbum: "",
   exposedArtwork: "",
   exposedTitleOnly: "", // This is the track title to be displayed when title exists, but artist, album, artwork doesn't exist
+  radioStation: <RadioStation | null | undefined>undefined, // Selected (or randomly selected) radio station, but can be currently playing or not
+  isRadioStationLogoLoaded: false,
 });
 
-export const radioStation: Writable<RadioStation | null | undefined> =
-  writable(undefined); // Selected (or randomly selected) radio station, but can be currently playing or not
-export const radioStationPlaying: Writable<RadioStation | null | undefined> =
-  writable(undefined); // Radio station that is currently playing
-export const isRadioStationCORSProblem = writable(false);
-export const isRadioStationLogoLoaded = writable(false);
 export const randomBackgroundImage: Writable<Unsplash | null | undefined> =
   writable(undefined);
 export const tmpRandomBackgroundImage: Writable<Unsplash | null | undefined> =

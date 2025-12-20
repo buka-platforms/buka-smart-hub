@@ -1,26 +1,28 @@
 "use client";
 
-import { radioStation as radioStationStore } from "@/data/store";
-import { useReadable } from "@/lib/react_use_svelte_store";
+import { radioStationStateAtom } from "@/data/store";
+import { useAtomValue } from "jotai";
 
-/* eslint-disable @next/next/no-img-element */
 export default function RadioMetadata() {
-  const radioStation = useReadable(radioStationStore);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   return (
     <>
-      {radioStation ? (
-        <div className="text-shadow-1 mb-[0.625rem] font-rubik text-3xl leading-tight text-whitesmoke md:mb-5 md:text-4xl">
-          {radioStation?.name}
-          {radioStation?.city ? (
-            radioStation?.city !== radioStation?.country?.name_alias ? (
-              <div className="text-sm font-thin">{`${radioStation?.city}, ${radioStation?.country?.name_alias}`}</div>
+      {radioStationState.radioStation ? (
+        <div className="text-shadow-1 mb-2.5 font-rubik text-3xl leading-tight text-whitesmoke md:mb-5 md:text-4xl">
+          {radioStationState.radioStation?.name}
+          {radioStationState.radioStation?.city ? (
+            radioStationState.radioStation?.city !==
+            radioStationState.radioStation?.country?.name_alias ? (
+              <div className="text-sm font-thin">{`${radioStationState.radioStation?.city}, ${radioStationState.radioStation?.country?.name_alias}`}</div>
             ) : (
-              <div className="text-sm font-thin">{radioStation?.city}</div>
+              <div className="text-sm font-thin">
+                {radioStationState.radioStation?.city}
+              </div>
             )
           ) : (
             <div className="text-sm font-thin">
-              {radioStation?.country?.name_alias}
+              {radioStationState.radioStation?.country?.name_alias}
             </div>
           )}
         </div>

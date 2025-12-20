@@ -86,3 +86,15 @@ export interface AudioVisualizationOptions {
 export interface RequestHeaders {
   [key: string]: string | undefined | null;
 }
+
+export interface User {
+  picture?: string;
+  name?: string;
+  provider_id?: string;
+  provider_name?: string;
+}
+
+export interface UserSession {
+  is_authenticated: boolean;
+  user_details: User;
+}
