@@ -1,5 +1,5 @@
-# Buka (website)
+# Buka Smart Hub (website)
 
-Buka website repository.
+Buka Smart Hub website repository.
 
 `nextjs` directory contains current website implementation using Next.js.
