@@ -66,7 +66,6 @@ export default async function Home({
             <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
               <RadioCoverArt />
               <div className="z-10 flex flex-col">
-                {/* <Greeting /> */}
                 <Date />
                 <Time />
               </div>

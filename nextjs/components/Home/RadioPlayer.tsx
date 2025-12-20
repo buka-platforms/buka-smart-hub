@@ -4,8 +4,8 @@ import { useDraggable } from "@neodrag/react";
 import { useRef } from "react";
 
 export default function RadioPlayer() {
-  const draggableRef = useRef(null);
-  useDraggable(draggableRef as any);
+  const draggableRef = useRef<HTMLDivElement>(null);
+  useDraggable(draggableRef as React.RefObject<HTMLElement>);
 
   return (
     <div
