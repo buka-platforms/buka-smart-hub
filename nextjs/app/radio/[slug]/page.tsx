@@ -44,7 +44,7 @@ const getRadioStationBySlug = cache(async (slug: string) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const paramsData = await params;
-  let radioStation = await getRadioStationBySlug(paramsData.slug);
+  const radioStation = await getRadioStationBySlug(paramsData.slug);
 
   const moduleName = `Radio`;
   const pageTitle = `${radioStation?.name} from ${radioStation?.country?.name} - ${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
@@ -92,7 +92,7 @@ export default async function RadioDetailPage({
   const paramsData = await params;
   const searchParamsData = await searchParams;
 
-  let radioStation = await getRadioStationBySlug(paramsData.slug);
+  const radioStation = await getRadioStationBySlug(paramsData.slug);
   const isInIframe = searchParamsData?.if == "1";
 
   return (
