@@ -73,10 +73,4 @@ export const audioVisualizationOptions: Writable<AudioVisualizationOptions> =
     hideIfZero: true,
     consecutiveZeroesLimit: 0,
   });
-export const audioSourceNode = writable(
-  undefined as MediaElementAudioSourceNode | null | undefined,
-);
-export const audioAnalyserNode = writable(
-  undefined as AnalyserNode | null | undefined,
-);
 export const audioFrequencyData: Writable<Uint8Array | null> = writable(null);

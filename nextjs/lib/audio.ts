@@ -1,7 +1,5 @@
 import {
-  audioAnalyserNode as audioAnalyserNodeStore,
   audioFrequencyData as audioFrequencyDataStore,
-  audioSourceNode as audioSourceNodeStore,
   audioTrackStateAtom,
   audioVisualizationOptions as audioVisualizationOptionsStore,
   hls as hlsStore,
@@ -30,6 +28,7 @@ let canvasContext: CanvasRenderingContext2D | null;
 let consZ = 0;
 let usableLength = 250;
 let animationFrameId: number | undefined;
+let audioAnalyserNode: AnalyserNode | null = null;
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -466,16 +465,13 @@ export const setupMediaAudioContext = () => {
   const mediaAudio = get(mediaAudioStore) as HTMLAudioElement;
   const audioContext = new AudioContext();
   const audioSourceNode = audioContext.createMediaElementSource(mediaAudio);
-  const audioAnalyserNode = audioContext.createAnalyser();
+  audioAnalyserNode = audioContext.createAnalyser();
 
   mediaAudioContextStore.set(audioContext);
-  // isMediaAudioContextCreatedStore.set(true);
   jotaiStore.set(mediaAudioStateAtom, (prev) => ({
     ...prev,
     contextCreated: true,
   }));
-  audioSourceNodeStore.set(audioSourceNode);
-  audioAnalyserNodeStore.set(audioAnalyserNode);
 
   audioSourceNode.connect(audioAnalyserNode);
   audioAnalyserNode.connect(audioContext.destination);
@@ -566,16 +562,11 @@ export const initAudioVisualization = () => {
 };
 
 export const renderAudioVisualization = () => {
-  // animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
-  // jotaiStore.set(audioVisualizationAtom, (prev) => ({
-  //   ...prev,
-  //   animationId: requestAnimationFrame(renderAudioVisualization),
-  // }));
   animationFrameId = requestAnimationFrame(renderAudioVisualization);
 
   const audioFrequencyData = get(audioFrequencyDataStore);
 
-  get(audioAnalyserNodeStore)?.getByteFrequencyData(
+  audioAnalyserNode?.getByteFrequencyData(
     audioFrequencyData as Uint8Array<ArrayBuffer>,
   );
 
