@@ -49,9 +49,6 @@ export const audioTrackStateAtom = atom({
   exposedTitleOnly: "", // This is the track title to be displayed when title exists, but artist, album, artwork doesn't exist
 });
 
-export const intervalIdTrackMetadata: Writable<
-  NodeJS.Timeout | null | undefined
-> = writable(undefined);
 export const radioStation: Writable<RadioStation | null | undefined> =
   writable(undefined); // Selected (or randomly selected) radio station, but can be currently playing or not
 export const radioStationPlaying: Writable<RadioStation | null | undefined> =

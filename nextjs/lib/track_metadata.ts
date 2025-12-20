@@ -1,7 +1,6 @@
 import {
   audioTrackStateAtom,
   backgroundImageStateAtom,
-  intervalIdTrackMetadata as intervalIdTrackMetadataStore,
   jotaiStore,
   radioStationPlaying as radioStationPlayingStore,
   randomBackgroundImage as randomBackgroundImageStore,
@@ -10,15 +9,17 @@ import type { RadioStation } from "@/data/type";
 import { get } from "svelte/store";
 import { replaceArtworkSizes } from "./utils";
 
+let intervalIdTrackMetadata: NodeJS.Timeout | null = null;
+
 export const stopPeriodicGetTrackMetadata = () => {
-  if (get(intervalIdTrackMetadataStore)) {
-    const intervalIdGetTrackMetadata = get(intervalIdTrackMetadataStore);
+  if (intervalIdTrackMetadata) {
+    const intervalIdGetTrackMetadata = intervalIdTrackMetadata;
     clearInterval(intervalIdGetTrackMetadata as NodeJS.Timeout);
   }
 };
 
 export const startPeriodicGetTrackMetadata = async () => {
-  if (get(intervalIdTrackMetadataStore)) {
+  if (intervalIdTrackMetadata) {
     stopPeriodicGetTrackMetadata();
   }
 
@@ -26,7 +27,7 @@ export const startPeriodicGetTrackMetadata = async () => {
   const intervalIdGetTrackMetadata = setInterval(async () => {
     await getTrackMetadata();
   }, 7000);
-  intervalIdTrackMetadataStore.set(intervalIdGetTrackMetadata);
+  intervalIdTrackMetadata = intervalIdGetTrackMetadata;
 };
 
 const getExternalTrackDetails = async () => {
