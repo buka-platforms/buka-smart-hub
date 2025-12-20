@@ -2,7 +2,6 @@
 
 import {
   backgroundImageStateAtom,
-  isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
   randomBackgroundImage as randomBackgroundImageStore,
   requestHeaders as requestHeadersStore,
   tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
@@ -33,7 +32,6 @@ export default function BackgroundImageContainerClient({
   const styleBackgroundColor = searchParams.get("bgcolsty") || ""; // bgcolsty = Background Color Style
   const isBackgroundImageFollowsCoverArt = searchParams.get("bgimgcov") === "1"; // bgimgcov = Background Image Follows Cover Art
 
-  isBackgroundImageFollowsCoverArtStore.set(isBackgroundImageFollowsCoverArt);
   tmpRandomBackgroundImageStore.set(randomBackgroundImage);
 
   const loadBackgroundImage = async (dataId: string) => {
@@ -139,6 +137,13 @@ export default function BackgroundImageContainerClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      isFollowsCoverArt: isBackgroundImageFollowsCoverArt,
+    }));
+  }, [isBackgroundImageFollowsCoverArt, setBackgroundImageState]);
+
   const handleBackgroundImageLoad = () => {
     setBackgroundImageState((prev) => ({
       ...prev,
@@ -150,7 +155,7 @@ export default function BackgroundImageContainerClient({
   return (
     <>
       {randomBackgroundImage &&
-        (!isNoBackgroundImage && !isBackgroundImageFollowsCoverArt ? (
+        (!isNoBackgroundImage && !backgroundImageState.isFollowsCoverArt ? (
           <img
             className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
             src={randomBackgroundImage?.urls?.full}
@@ -161,7 +166,7 @@ export default function BackgroundImageContainerClient({
             onLoad={handleBackgroundImageLoad}
           />
         ) : isNoBackgroundImage &&
-          isBackgroundImageFollowsCoverArt &&
+          backgroundImageState.isFollowsCoverArt &&
           randomBackgroundImage.id == "cover-art" ? (
           <img
             className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}

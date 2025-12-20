@@ -20,7 +20,7 @@ import {
   backgroundImageStateAtom,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
-import type { UnsplashType } from "@/data/type";
+import type { Unsplash } from "@/data/type";
 import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Image as ImageIcon, Images, Loader2, RefreshCw } from "lucide-react";
@@ -33,7 +33,7 @@ export default function BackgroundImageDropdownMenu() {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [images, setImages] = useState<UnsplashType[]>([]);
+  const [images, setImages] = useState<Unsplash[]>([]);
   const [loading, setLoading] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState<{ [key: number]: boolean }>(
     {},

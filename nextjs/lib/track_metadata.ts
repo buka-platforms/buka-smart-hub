@@ -1,4 +1,5 @@
 import {
+  backgroundImageStateAtom,
   currentTrackMetadata as currentTrackMetadataStore,
   currentTrackTitle as currentTrackTitleStore,
   exposedTrackAlbum as exposedTrackAlbumStore,
@@ -7,13 +8,14 @@ import {
   exposedTrackTitleOnly as exposedTrackTitleOnlyStore,
   exposedTrackTitle as exposedTrackTitleStore,
   intervalIdTrackMetadata as intervalIdTrackMetadataStore,
-  isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
   isMediaAudioMetadataExists as isMediaAudioMetadataExistsStore,
   isMediaAudioMetadataImageLoaded as isMediaAudioMetadataImageLoadedStore,
+  jotaiStore,
   previousTrackTitle as previousTrackTitleStore,
   radioStationPlaying as radioStationPlayingStore,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
+import type { RadioStation } from "@/data/type";
 import { get } from "svelte/store";
 import { replaceArtworkSizes } from "./utils";
 
@@ -111,7 +113,7 @@ const getExternalTrackDetails = async () => {
           });
         }
 
-        if (get(isBackgroundImageFollowsCoverArtStore)) {
+        if (jotaiStore.get(backgroundImageStateAtom).isFollowsCoverArt) {
           const backgroundCoverArt = {
             id: "cover-art",
             urls: {
@@ -147,8 +149,8 @@ const getExternalTrackDetails = async () => {
 const getTrackMetadata = async () => {
   if (get(radioStationPlayingStore)) {
     const request = await fetch(
-      (get(radioStationPlayingStore) as any).radio_stations_radio_streams[0]
-        ?.radio_stream?.metadata_url,
+      (get(radioStationPlayingStore) as RadioStation)
+        .radio_stations_radio_streams[0]?.radio_stream?.metadata_url,
     );
     const currentTrackMetadata = await request.json();
 
@@ -216,7 +218,7 @@ const getTrackMetadata = async () => {
           });
         }
 
-        if (get(isBackgroundImageFollowsCoverArtStore)) {
+        if (jotaiStore.get(backgroundImageStateAtom).isFollowsCoverArt) {
           const backgroundCoverArt = {
             id: "cover-art",
             urls: {

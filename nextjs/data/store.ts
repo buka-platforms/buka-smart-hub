@@ -1,13 +1,15 @@
 import type {
   AudioVisualizationOptions,
   RadioStation,
-  UnsplashType,
+  Unsplash,
 } from "@/data/type";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import type Hls from "hls.js";
-import { atom } from "jotai";
+import { atom, createStore } from "jotai";
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
+
+export const jotaiStore = createStore();
 
 export const mediaAudio = writable(
   undefined as HTMLAudioElement | null | undefined,
@@ -26,13 +28,13 @@ export const requestHeaders = writable(
 export const backgroundImageStateAtom = atom({
   isLoading: false,
   isLoaded: false,
+  isFollowsCoverArt: false,
 });
 export const isMediaAudioContextCreated = writable(false);
 export const isMediaAudioLoading = writable(false);
 export const isMediaAudioPlaying = writable(false);
 export const isMediaAudioMetadataExists = writable(false); // Means title, artist, album, artwork exists
 export const isMediaAudioMetadataImageLoaded = writable(false);
-export const isBackgroundImageFollowsCoverArt = writable(false);
 export const currentTrackMetadata = writable(undefined);
 export const currentExternalTrackDetails = writable(undefined);
 export const previousTrackTitle = writable("");
@@ -55,11 +57,10 @@ export const exposedTrackArtist = writable("");
 export const exposedTrackAlbum = writable("");
 export const exposedTrackArtwork = writable("");
 export const exposedTrackTitleOnly = writable(""); // This is the track title to be displayed when title exists, but artist, album, artwork doesn't exist
-export const randomBackgroundImage: Writable<UnsplashType | null | undefined> =
+export const randomBackgroundImage: Writable<Unsplash | null | undefined> =
   writable(undefined);
-export const tmpRandomBackgroundImage: Writable<
-  UnsplashType | null | undefined
-> = writable(undefined);
+export const tmpRandomBackgroundImage: Writable<Unsplash | null | undefined> =
+  writable(undefined);
 export const audioVisualizationOptions: Writable<AudioVisualizationOptions> =
   writable({
     preferredBarWidth: 32,

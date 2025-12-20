@@ -42,7 +42,7 @@ export interface RadioStation {
   slug: string;
 }
 
-export interface UnsplashType {
+export interface Unsplash {
   id: string;
   urls: {
     regular: string;
