@@ -1,18 +1,23 @@
 "use client";
 
 import {
-  exposedTrackArtwork as exposedTrackArtworkStore,
-  isBackgroundImageLoaded as isBackgroundImageLoadedStore,
+  audioTrackStateAtom,
+  // exposedTrackArtwork as exposedTrackArtworkStore,
+  // isBackgroundImageLoaded as isBackgroundImageLoadedStore,
+  backgroundImageStateAtom,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
 import { useReadable } from "@/lib/react_use_svelte_store";
+// import { get } from "svelte/store";
+import { useAtomValue } from "jotai";
 import { FlaskConical } from "lucide-react";
-import { get } from "svelte/store";
 
 export default function Experiment() {
-  const randomBackgroundImage = useReadable(randomBackgroundImageStore);
-  const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
-  const exposedTrackArtwork = useReadable(exposedTrackArtworkStore);
+  // const randomBackgroundImage = useReadable(randomBackgroundImageStore);
+  // const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
+  // const exposedTrackArtwork = useReadable(exposedTrackArtworkStore);
+  const audioTrackState = useAtomValue(audioTrackStateAtom);
+  const backgroundImageState = useAtomValue(backgroundImageStateAtom);
 
   const experiment = () => {
     // isBackgroundImageLoadedStore.set(false);
