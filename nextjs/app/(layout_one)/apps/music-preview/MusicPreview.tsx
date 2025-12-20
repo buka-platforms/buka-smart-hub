@@ -11,11 +11,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import {
-  isMediaAudioPlaying as isMediaAudioPlayingStore,
+  mediaAudioStateAtom,
+  // isMediaAudioPlaying as isMediaAudioPlayingStore,
   mediaAudio as mediaAudioStore,
 } from "@/data/store";
 import { stop as stopMediaAudio } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
+import { useAtomValue } from "jotai";
 import {
   CirclePlay,
   CircleStop,
@@ -29,15 +31,26 @@ import {
   VolumeX,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { get, writable } from "svelte/store";
 
-const selectedMusicTrackStore = writable(null as any);
+interface MusicTrack {
+  trackId: string;
+  trackName: string;
+  artistName: string;
+  collectionName: string;
+  previewUrl: string;
+  artworkUrl100: string;
+  releaseDate: string;
+  primaryGenreName: string;
+}
+
+const selectedMusicTrackStore = writable<MusicTrack | null>(null);
 const searchQueryStore = writable("");
 const isMediaAudioMusicPreviewPlayingStore = writable(false);
 const isMediaAudioMusicPreviewLoadingStore = writable(false);
 const musicTrackPlayingProgressStore = writable(0);
-const musicTracksStore = writable([] as any);
+const musicTracksStore = writable([]);
 const isLoadingStore = writable(false);
 const isNotFoundStore = writable(false);
 const mediaAudioMusicPreviewStore = writable(null as HTMLAudioElement | null);
@@ -62,6 +75,7 @@ export default function MusicPreview() {
 
   const searchParams = useSearchParams();
   const queryParam = searchParams.get("q") || randomTopic;
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
   const search = useCallback(async (query: string) => {
     if (query.trim().length === 0) {
@@ -120,14 +134,14 @@ export default function MusicPreview() {
     }
   }, []);
 
-  const play = async (item: any) => {
+  const play = async (item: MusicTrack) => {
     selectedMusicTrackStore.set(item);
     isMediaAudioMusicPreviewLoadingStore.set(true);
     isMediaAudioMusicPreviewPlayingStore.set(false);
     const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
 
     if (mediaAudioMusicPreview) {
-      if (get(isMediaAudioPlayingStore)) {
+      if (mediaAudioState.isPlaying) {
         await stopMediaAudio();
       }
 
@@ -153,11 +167,9 @@ export default function MusicPreview() {
               });
             }
           })
-          .catch((error: any) => {
+          .catch(() => {
             isMediaAudioMusicPreviewPlayingStore.set(false);
             isMediaAudioMusicPreviewLoadingStore.set(false);
-
-            console.error("Music Preview Error: ", error);
 
             // Send virtual page view event to Google Analytics
             if (window && window.gtag) {
@@ -224,13 +236,16 @@ export default function MusicPreview() {
 
         // Adjust the volume of the audio on mediaAudioStore
         mediaAudioStore.update((ma) => {
-          ma && (ma.volume = value[0] / 100);
+          if (ma) {
+            ma.volume = value[0] / 100;
+          }
           return ma;
         });
 
         // Adjust the volume of the audio on mediaAudioMusicPreview
-        mediaAudioMusicPreview &&
-          (mediaAudioMusicPreview.volume = value[0] / 100);
+        if (mediaAudioMusicPreview) {
+          mediaAudioMusicPreview.volume = value[0] / 100;
+        }
 
         // Save the volume to local storage
         localStorage.setItem("mediaAudioVolume", JSON.stringify(value[0]));
@@ -347,7 +362,7 @@ export default function MusicPreview() {
     );
   };
 
-  const Item = ({ item }: any) => {
+  const Item = ({ item }: { item: MusicTrack }) => {
     const selectedMusicTrack = useReadable(selectedMusicTrackStore);
     const isMediaAudioMusicPreviewPlaying = useReadable(
       isMediaAudioMusicPreviewPlayingStore,
@@ -455,7 +470,7 @@ export default function MusicPreview() {
 
     return (
       <>
-        {tracks.map((item: any) => (
+        {tracks.map((item: MusicTrack) => (
           <Item item={item} key={item.trackId} />
         ))}
         <ItemSkeleton />
@@ -492,7 +507,7 @@ export default function MusicPreview() {
           />
           <Button
             className="cursor-pointer"
-            onClick={(e) => search(searchQuery)}
+            onClick={() => search(searchQuery)}
           >
             Search
           </Button>
