@@ -49,10 +49,6 @@ export const audioTrackStateAtom = atom({
   exposedTitleOnly: "", // This is the track title to be displayed when title exists, but artist, album, artwork doesn't exist
 });
 
-export const animationId = writable<number | null | undefined>(undefined);
-export const canvasAudioVisualization = writable<HTMLCanvasElement | null>(
-  null,
-);
 export const intervalIdTrackMetadata: Writable<
   NodeJS.Timeout | null | undefined
 > = writable(undefined);

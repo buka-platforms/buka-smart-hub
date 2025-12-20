@@ -1,15 +1,12 @@
 "use client";
 
 import {
-  animationId as animationIdStore,
-  canvasAudioVisualization as canvasAudioVisualizationStore,
   mediaAudioStateAtom,
   mediaAudio as mediaAudioStore,
   radioStation as radioStationStore,
 } from "@/data/store";
 import {
   initAudioVisualization,
-  renderAudioVisualization,
   setupMediaAudio,
   setupMediaAudioContext,
 } from "@/lib/audio";
@@ -39,22 +36,15 @@ const AudioContext = () => {
 
   useEffect(() => {
     if (pathname === "/login") {
-      cancelAnimationFrame(get(animationIdStore) as number);
-      animationIdStore.set(undefined);
+      return;
     } else {
-      if (
-        mediaAudioState.contextCreated &&
-        get(canvasAudioVisualizationStore) &&
-        mediaAudioState.isPlaying
-      ) {
+      if (mediaAudioState.contextCreated && mediaAudioState.isPlaying) {
         initAudioVisualization();
-        animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
       }
     }
 
     return () => {
-      cancelAnimationFrame(get(animationIdStore) as number);
-      animationIdStore.set(undefined);
+      // Cleanup if needed
     };
   }, [pathname, mediaAudioState.contextCreated, mediaAudioState.isPlaying]);
 

@@ -1,5 +1,4 @@
 import {
-  animationId as animationIdStore,
   audioAnalyserNode as audioAnalyserNodeStore,
   audioFrequencyData as audioFrequencyDataStore,
   audioSourceNode as audioSourceNodeStore,
@@ -30,6 +29,7 @@ let barWidth: number;
 let canvasContext: CanvasRenderingContext2D | null;
 let consZ = 0;
 let usableLength = 250;
+let animationFrameId: number | undefined;
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -181,11 +181,9 @@ export const play = async (isChangeAddressBar = false) => {
     mediaAudioCORSStore.set(audio);
   }
 
-  if (!get(animationIdStore)) {
-    if (!get(isRadioStationCORSProblemStore)) {
-      initAudioVisualization();
-      animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
-    }
+  if (!get(isRadioStationCORSProblemStore)) {
+    initAudioVisualization();
+    renderAudioVisualization();
   }
 
   const playPromise = !get(isRadioStationCORSProblemStore)
@@ -300,9 +298,8 @@ export const stop = async () => {
 
   stopPeriodicGetTrackMetadata();
 
-  if (get(animationIdStore)) {
-    cancelAnimationFrame(get(animationIdStore) as number);
-    animationIdStore.set(undefined);
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
 
     if (canvasContext) {
       if (canvasElement) {
@@ -569,7 +566,12 @@ export const initAudioVisualization = () => {
 };
 
 export const renderAudioVisualization = () => {
-  animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
+  // animationIdStore.set(requestAnimationFrame(renderAudioVisualization));
+  // jotaiStore.set(audioVisualizationAtom, (prev) => ({
+  //   ...prev,
+  //   animationId: requestAnimationFrame(renderAudioVisualization),
+  // }));
+  animationFrameId = requestAnimationFrame(renderAudioVisualization);
 
   const audioFrequencyData = get(audioFrequencyDataStore);
 

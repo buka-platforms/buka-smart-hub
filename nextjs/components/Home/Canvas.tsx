@@ -1,13 +1,25 @@
 "use client";
 
-import { canvasAudioVisualization as canvasAudioVisualizationStore } from "@/data/store";
+import "@/data/store"; // canvasAudioVisualization as canvasAudioVisualizationStore,
+
+// audioVisualizationAtom,
 import { useEffect } from "react";
 
+// import { useSetAtom } from "jotai";
+
 export default function Canvas() {
+  // const setAudioVisualization = useSetAtom(audioVisualizationAtom);
+
   useEffect(() => {
-    canvasAudioVisualizationStore.set(
-      document.getElementById("vis-canvas") as HTMLCanvasElement,
-    );
+    // canvasAudioVisualizationStore.set(
+    //   document.getElementById("vis-canvas") as HTMLCanvasElement,
+    // );
+    // setAudioVisualization((prev) => ({
+    //   ...prev,
+    //   canvasElement: document.getElementById(
+    //     "vis-canvas",
+    //   ) as HTMLCanvasElement,
+    // }));
   }, []);
 
   return (
