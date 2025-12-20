@@ -3,7 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isMediaAudioPlaying as isMediaAudioPlayingStore } from "@/data/store";
+import { 
+  // isMediaAudioPlaying as isMediaAudioPlayingStore,
+  mediaAudioStateAtom,
+ } from "@/data/store";
 import { stop as stopMediaAudio } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
 import {

@@ -64,20 +64,6 @@ const AudioContext = () => {
 export default function Audio() {
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
-  // const sendGoogleAnalyticsEvent = () => {
-  //   // if (get(isMediaAudioPlayingStore) && get(radioStationStore)) {
-  //   if (mediaAudioState.isPlaying && get(radioStationStore)) {
-  //     // Send virtual page view event to Google Analytics
-  //     if (window && window.gtag) {
-  //       window.gtag("event", "page_view", {
-  //         page_title: `Still listening to ${get(radioStationStore)?.name} from ${get(radioStationStore)?.country?.name_alias}`,
-  //         page_location: window.location.href,
-  //         page_path: window.location.pathname,
-  //       });
-  //     }
-  //   }
-  // };
-
   const sendGoogleAnalyticsEvent = useCallback(() => {
     if (mediaAudioState.isPlaying && get(radioStationStore)) {
       if (window && window.gtag) {

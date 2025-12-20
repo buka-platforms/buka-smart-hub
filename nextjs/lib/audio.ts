@@ -73,7 +73,6 @@ export const setupMediaAudio = () => {
 };
 
 const resetStateWhenStop = () => {
-  // isMediaAudioPlayingStore.set(false);
   jotaiStore.set(mediaAudioStateAtom, (prev) => ({
     ...prev,
     isPlaying: false,
@@ -336,8 +335,6 @@ const handleEventAudioError = () => {
 };
 
 export const handleEventAudioPlaying = () => {
-  // isMediaAudioPlayingStore.set(true);
-  // isMediaAudioLoadingStore.set(false);
   jotaiStore.set(mediaAudioStateAtom, (prev) => ({
     ...prev,
     isPlaying: true,

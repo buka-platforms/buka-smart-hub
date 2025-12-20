@@ -68,8 +68,6 @@ const getInitialRadioStations = async (query: string) => {
 
 /* eslint-disable @next/next/no-img-element */
 const Item = ({ item }: { item: RadioStation }) => {
-  // const isMediaAudioPlaying = useReadable(isMediaAudioPlayingStore);
-  // const isMediaAudioLoading = useReadable(isMediaAudioLoadingStore);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
 
   const selectedRadioStation = useReadable(radioStationStore);
@@ -78,7 +76,6 @@ const Item = ({ item }: { item: RadioStation }) => {
     useState(false);
 
   const playSelected = async (radioStation: RadioStation) => {
-    // if (get(isMediaAudioLoadingStore)) {
     if (mediaAudioState.isLoading) {
       return;
     } else {
@@ -107,25 +104,20 @@ const Item = ({ item }: { item: RadioStation }) => {
             onLoad={handleRadioStationImageLoad}
           />
           <div
-            // className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${item.id === selectedRadioStation?.id && (isMediaAudioPlaying || isMediaAudioLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
             className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${item.id === selectedRadioStation?.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
           ></div>
           <div
-            // className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${item.id === selectedRadioStation?.id && (isMediaAudioPlaying || isMediaAudioLoading) ? "flex" : "hidden group-hover:flex"}`}
             className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${item.id === selectedRadioStation?.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
           >
             {selectedRadioStation?.id === item.id ? (
-              // !isMediaAudioPlaying && !isMediaAudioLoading ? (
               !mediaAudioState.isPlaying && !mediaAudioState.isLoading ? (
                 <CirclePlay
                   className="absolute h-10 w-10 text-slate-50"
                   onClick={() => playSelected(item)}
                 />
-              ) : // ) : isMediaAudioLoading ? (
-              mediaAudioState.isLoading ? (
+              ) : mediaAudioState.isLoading ? (
                 <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
-              ) : // ) : isMediaAudioPlaying ? (
-              mediaAudioState.isPlaying ? (
+              ) : mediaAudioState.isPlaying ? (
                 <CircleStop
                   className="absolute h-10 w-10 text-slate-50"
                   onClick={stop}
