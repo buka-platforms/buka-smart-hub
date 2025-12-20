@@ -1,13 +1,10 @@
 "use client";
 
-// import { isBackgroundImageLoading as isBackgroundImageLoadingStore } from "@/data/store";
 import { isBackgroundImageLoadingAtom } from "@/data/store";
 import { useAtomValue } from "jotai";
-// import { useReadable } from "@/lib/react_use_svelte_store";
 import { useSearchParams } from "next/navigation";
 
 export default function BackgroundImageLoading() {
-  // const isBackgroundImageLoading = useReadable(isBackgroundImageLoadingStore);
   const isBackgroundImageLoading = useAtomValue(isBackgroundImageLoadingAtom);
   const searchParams = useSearchParams();
   const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
