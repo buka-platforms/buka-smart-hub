@@ -27,7 +27,6 @@ export const backgroundImageStateAtom = atom({
   isLoading: false,
   isLoaded: false,
 });
-export const isBackgroundImageLoaded = writable(false);
 export const isMediaAudioContextCreated = writable(false);
 export const isMediaAudioLoading = writable(false);
 export const isMediaAudioPlaying = writable(false);

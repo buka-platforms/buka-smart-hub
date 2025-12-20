@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   backgroundImageStateAtom,
-  isBackgroundImageLoaded as isBackgroundImageLoadedStore,
   randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
 import type { UnsplashType } from "@/data/type";
@@ -31,11 +30,8 @@ import { useEffect, useState } from "react";
 /* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageDropdownMenu() {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
-  const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
-  const isBackgroundImageLoading = useAtomValue(
-    backgroundImageStateAtom,
-  ).isLoading;
-  const setIsBackgroundImageLoading = useSetAtom(backgroundImageStateAtom);
+  const backgroundImageState = useAtomValue(backgroundImageStateAtom);
+  const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [images, setImages] = useState<UnsplashType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,12 +40,15 @@ export default function BackgroundImageDropdownMenu() {
   );
 
   const changeBackgroundImage = async () => {
-    if (isBackgroundImageLoading) {
+    if (backgroundImageState.isLoading) {
       return;
     }
 
-    isBackgroundImageLoadedStore.set(false);
-    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: true }));
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      isLoaded: false,
+      isLoading: true,
+    }));
 
     const request = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`,
@@ -316,7 +315,7 @@ export default function BackgroundImageDropdownMenu() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel className="font-normal">
-            {isBackgroundImageLoaded || isBackgroundImageLoading ? (
+            {backgroundImageState.isLoaded || backgroundImageState.isLoading ? (
               <>
                 Photo by{" "}
                 <a
@@ -351,7 +350,7 @@ export default function BackgroundImageDropdownMenu() {
             className="flex cursor-pointer gap-x-2"
           >
             <RefreshCw
-              className={`w-4 ${!isBackgroundImageLoaded ? `animate-spin` : ``}`}
+              className={`w-4 ${!backgroundImageState.isLoaded ? `animate-spin` : ``}`}
               color="#808080"
             />
             Random image

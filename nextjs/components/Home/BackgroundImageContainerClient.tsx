@@ -3,14 +3,13 @@
 import {
   backgroundImageStateAtom,
   isBackgroundImageFollowsCoverArt as isBackgroundImageFollowsCoverArtStore,
-  isBackgroundImageLoaded as isBackgroundImageLoadedStore,
   randomBackgroundImage as randomBackgroundImageStore,
   requestHeaders as requestHeadersStore,
   tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
 } from "@/data/store";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import { useReadable } from "@/lib/react_use_svelte_store";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { get } from "svelte/store";
@@ -26,8 +25,8 @@ export default function BackgroundImageContainerClient({
   requestHeaders: RequestHeadersType;
 }) {
   const randomBackgroundImage = useReadable(randomBackgroundImageStore);
-  const isBackgroundImageLoaded = useReadable(isBackgroundImageLoadedStore);
-  const setIsBackgroundImageLoading = useSetAtom(backgroundImageStateAtom);
+  const backgroundImageState = useAtomValue(backgroundImageStateAtom);
+  const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
   const searchParams = useSearchParams();
   const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
   const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
@@ -38,8 +37,11 @@ export default function BackgroundImageContainerClient({
   tmpRandomBackgroundImageStore.set(randomBackgroundImage);
 
   const loadBackgroundImage = async (dataId: string) => {
-    isBackgroundImageLoadedStore.set(false);
-    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: true }));
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      isLoaded: false,
+      isLoading: true,
+    }));
 
     // Fetch data in parallel
     const [unsplashResult] = await Promise.all([
@@ -74,8 +76,11 @@ export default function BackgroundImageContainerClient({
   };
 
   const loadRandomBackgroundImage = async () => {
-    isBackgroundImageLoadedStore.set(false);
-    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: true }));
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      isLoaded: false,
+      isLoading: true,
+    }));
 
     const requestHeaders = get(
       requestHeadersStore,
@@ -135,8 +140,11 @@ export default function BackgroundImageContainerClient({
   }, []);
 
   const handleBackgroundImageLoad = () => {
-    isBackgroundImageLoadedStore.set(true);
-    setIsBackgroundImageLoading((prev) => ({ ...prev, isLoading: false }));
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      isLoaded: true,
+      isLoading: false,
+    }));
   };
 
   return (
@@ -144,7 +152,7 @@ export default function BackgroundImageContainerClient({
       {randomBackgroundImage &&
         (!isNoBackgroundImage && !isBackgroundImageFollowsCoverArt ? (
           <img
-            className={`h-full w-full object-cover ${isBackgroundImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+            className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
             src={randomBackgroundImage?.urls?.full}
             srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
             sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
@@ -156,7 +164,7 @@ export default function BackgroundImageContainerClient({
           isBackgroundImageFollowsCoverArt &&
           randomBackgroundImage.id == "cover-art" ? (
           <img
-            className={`h-full w-full object-cover ${isBackgroundImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+            className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
             src={randomBackgroundImage?.urls?.full}
             srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
             sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
@@ -166,7 +174,7 @@ export default function BackgroundImageContainerClient({
           />
         ) : null)}
       <div
-        className={`absolute inset-0 ${styleBackgroundColor == "" && "bg-black"} ${isBackgroundImageLoaded ? "opacity-50" : `${!isNoBackgroundPattern ? "wave-bg" : ""}`}`}
+        className={`absolute inset-0 ${styleBackgroundColor == "" && "bg-black"} ${backgroundImageState.isLoaded ? "opacity-50" : `${!isNoBackgroundPattern ? "wave-bg" : ""}`}`}
         style={{ backgroundColor: `#${styleBackgroundColor}` }}
       ></div>
     </>
