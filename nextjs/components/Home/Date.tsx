@@ -9,21 +9,22 @@ const updateDayMonthYear = (setDayMonthYear: (value: string) => void) => {
   const day = now.toLocaleString(userLocale, { weekday: "short" });
   const month = now.toLocaleString(userLocale, { month: "long" });
   const date = now.getDate();
+  const year = now.getFullYear();
 
-  setDayMonthYear(`${day}, ${month} ${date}`);
+  setDayMonthYear(`${day}, ${month} ${date}, ${year}`);
 };
 
-export default function DayMonth() {
+export default function DateComponent() {
   const [dayMonthYear, setDayMonthYear] = useState<string>("");
 
   useEffect(() => {
     // Initial update
     updateDayMonthYear(setDayMonthYear);
 
-    // Update every second
+    // Update every minute
     const intervalId = setInterval(() => {
       updateDayMonthYear(setDayMonthYear);
-    }, 1000); // 1 second in milliseconds
+    }, 60000); // 1 minute interval
 
     // Cleanup on unmount
     return () => clearInterval(intervalId);

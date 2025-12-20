@@ -4,7 +4,7 @@ import AppsLink from "@/components/Home/AppsLink";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Canvas from "@/components/Home/Canvas";
-import DayMonth from "@/components/Home/DayMonth";
+import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 // import Greeting from "@/components/Home/Greeting";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
@@ -67,7 +67,7 @@ export default async function Home({
               <RadioCoverArt />
               <div className="z-10 flex flex-col">
                 {/* <Greeting /> */}
-                <DayMonth />
+                <Date />
                 <Time />
               </div>
             </div>
