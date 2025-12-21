@@ -7,14 +7,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
-import {
-  mediaAudioStateAtom,
-  mediaAudio as mediaAudioStore,
-  radioStationStateAtom,
-} from "@/data/store";
+import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, playRandom, stop } from "@/lib/audio";
-import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   Loader2,
@@ -83,10 +78,12 @@ const Random = () => {
 
 const Volume = () => {
   const searchParams = useSearchParams();
-  const mediaAudio = useReadable(mediaAudioStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const setMediaAudioState = useSetAtom(mediaAudioStateAtom);
   const initialVolume = (() => {
     const vol = Number(searchParams.get("vol"));
-    if (isNaN(vol)) return (mediaAudio?.volume as number) * 100 || 0;
+    if (isNaN(vol))
+      return (mediaAudioState.mediaAudio?.volume as number) * 100 || 0;
     if (vol > 100) return 100;
     if (vol < 0) return 0;
     return vol;
@@ -94,18 +91,17 @@ const Volume = () => {
 
   const [volume, setVolume] = useState([initialVolume]);
 
-  // const [volume, setVolume] = useState([
-  //   (mediaAudio?.volume as number) * 100 || 0,
-  // ]);
-
   const adjustVolume = (value: number[]) => {
     setVolume(value);
 
-    mediaAudioStore.update((ma) => {
-      if (ma) {
-        ma.volume = value[0] / 100;
+    setMediaAudioState((prev) => {
+      if (prev.mediaAudio) {
+        prev.mediaAudio.volume = value[0] / 100;
       }
-      return ma;
+      return {
+        ...prev,
+        mediaAudio: prev.mediaAudio,
+      };
     });
 
     // Save the volume to local storage
@@ -126,11 +122,14 @@ const Volume = () => {
         definedVolume = 0;
       }
 
-      mediaAudioStore.update((ma) => {
-        if (ma) {
-          ma.volume = definedVolume / 100;
+      setMediaAudioState((prev) => {
+        if (prev.mediaAudio) {
+          prev.mediaAudio.volume = definedVolume / 100;
         }
-        return ma;
+        return {
+          ...prev,
+          mediaAudio: prev.mediaAudio,
+        };
       });
 
       // Save the volume to local storage
@@ -141,24 +140,24 @@ const Volume = () => {
         );
       }
     }
-  }, [searchParams]);
+  }, [searchParams, setMediaAudioState]);
 
   return (
     <>
       <Popover>
         <PopoverTrigger>
           <div id="volume" className="cursor-pointer" title="Volume">
-            {Number(mediaAudio?.volume) * 100 === 0 ? (
+            {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
               <VolumeX
                 className="h-10 w-10 opacity-80 hover:opacity-100 md:h-12 md:w-12"
                 color="#f5f5f5"
               />
-            ) : Number(mediaAudio?.volume) * 100 <= 50 ? (
+            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
               <Volume1
                 className="h-10 w-10 opacity-80 hover:opacity-100 md:h-12 md:w-12"
                 color="#f5f5f5"
               />
-            ) : Number(mediaAudio?.volume) * 100 > 50 ? (
+            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
               <Volume2
                 className="h-10 w-10 opacity-80 hover:opacity-100 md:h-12 md:w-12"
                 color="#f5f5f5"

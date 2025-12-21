@@ -8,11 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
-import {
-  mediaAudioStateAtom,
-  mediaAudio as mediaAudioStore,
-  radioStationStateAtom,
-} from "@/data/store";
+import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug as loadRadioStation,
   loadRandomRadioStation,
@@ -20,7 +16,6 @@ import {
   playRandom,
   stop,
 } from "@/lib/audio";
-import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   Loader2,
@@ -79,21 +74,25 @@ const Random = () => {
 };
 
 const Volume = () => {
-  const mediaAudio = useReadable(mediaAudioStore);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const setMediaAudioStore = useSetAtom(mediaAudioStateAtom);
 
   const [volume, setVolume] = useState([
-    (mediaAudio?.volume as number) * 100 || 0,
+    (mediaAudioState.mediaAudio?.volume as number) * 100 || 0,
   ]);
 
   const adjustVolume = (value: number[]) => {
     setVolume(value);
 
     // Adjust the volume of the audio on mediaAudioStore
-    mediaAudioStore.update((ma) => {
-      if (ma) {
-        ma.volume = value[0] / 100;
+    setMediaAudioStore((prev) => {
+      if (prev.mediaAudio) {
+        prev.mediaAudio.volume = value[0] / 100;
       }
-      return ma;
+      return {
+        ...prev,
+        mediaAudio: prev.mediaAudio,
+      };
     });
 
     // Save the volume to local storage
@@ -105,11 +104,11 @@ const Volume = () => {
       <Popover>
         <PopoverTrigger>
           <div id="volume" className="cursor-pointer" title="Volume">
-            {Number(mediaAudio?.volume) * 100 === 0 ? (
+            {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
               <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-            ) : Number(mediaAudio?.volume) * 100 <= 50 ? (
+            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
               <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-            ) : Number(mediaAudio?.volume) * 100 > 50 ? (
+            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
               <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
             ) : (
               <Loader2

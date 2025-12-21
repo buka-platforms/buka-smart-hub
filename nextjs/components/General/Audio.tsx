@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  mediaAudioStateAtom,
-  mediaAudio as mediaAudioStore,
-  radioStationStateAtom,
-} from "@/data/store";
+import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   initAudioVisualization,
   setupMediaAudio,
@@ -13,7 +9,6 @@ import {
 import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect } from "react";
-import { get } from "svelte/store";
 
 const AudioContext = () => {
   const pathname = usePathname();
@@ -22,7 +17,7 @@ const AudioContext = () => {
   // Handle user gesture to create audio context
   useEffect(() => {
     const handleUserGesture = () => {
-      if (!mediaAudioState.contextCreated && get(mediaAudioStore)) {
+      if (!mediaAudioState.contextCreated && mediaAudioState.mediaAudio) {
         setupMediaAudioContext();
       }
     };
@@ -32,7 +27,7 @@ const AudioContext = () => {
     return () => {
       window.removeEventListener("click", handleUserGesture);
     };
-  }, [mediaAudioState.contextCreated]);
+  }, [mediaAudioState.contextCreated, mediaAudioState.mediaAudio]);
 
   useEffect(() => {
     if (pathname === "/login") {

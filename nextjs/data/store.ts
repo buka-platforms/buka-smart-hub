@@ -1,22 +1,10 @@
 import type { RadioStation, Unsplash } from "@/data/type";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
-import type Hls from "hls.js";
 import { atom, createStore } from "jotai";
 import { writable } from "svelte/store";
 
 export const jotaiStore = createStore();
 
-export const mediaAudio = writable(
-  undefined as HTMLAudioElement | null | undefined,
-);
-
-export const mediaAudioCORS = writable(
-  undefined as HTMLAudioElement | null | undefined,
-);
-export const hls = writable(undefined as Hls | null | undefined);
-export const mediaAudioContext = writable(
-  undefined as AudioContext | null | undefined,
-);
 export const requestHeaders = writable(
   undefined as RequestHeadersType | null | undefined,
 );
@@ -31,6 +19,7 @@ export const mediaAudioStateAtom = atom({
   isLoading: false,
   isPlaying: false,
   contextCreated: false,
+  mediaAudio: undefined as HTMLAudioElement | null | undefined,
 });
 export const radioStationStateAtom = atom({
   metadataExists: false,

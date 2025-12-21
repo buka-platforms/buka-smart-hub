@@ -1,10 +1,6 @@
 import {
-  hls as hlsStore,
   jotaiStore,
-  mediaAudioContext as mediaAudioContextStore,
-  mediaAudioCORS as mediaAudioCORSStore,
   mediaAudioStateAtom,
-  mediaAudio as mediaAudioStore,
   radioStationStateAtom,
 } from "@/data/store";
 import type { AudioVisualizationOptions } from "@/data/type";
@@ -13,7 +9,6 @@ import {
   stopPeriodicGetTrackMetadata,
 } from "@/lib/track_metadata";
 import Hls from "hls.js";
-import { get } from "svelte/store";
 
 const barColors: string[] = [];
 let canvasElement: HTMLCanvasElement;
@@ -39,6 +34,8 @@ const audioVisualizationOptions: AudioVisualizationOptions = {
   consecutiveZeroesLimit: 0,
 };
 let isRadioStationCORSProblem: boolean = false;
+let mediaAudioCors: HTMLAudioElement | null | undefined = undefined;
+let hls: Hls | null | undefined = undefined;
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -49,17 +46,18 @@ export {
 };
 
 export const setupMediaAudio = () => {
-  if (!get(mediaAudioStore)) {
+  if (!jotaiStore.get(mediaAudioStateAtom).mediaAudio) {
     const mediaAudio = new Audio();
     mediaAudio.crossOrigin = "anonymous";
 
-    mediaAudioStore.set(mediaAudio);
+    jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+      ...prev,
+      mediaAudio: mediaAudio,
+    }));
 
     if (Hls.isSupported()) {
-      const hls = new Hls();
+      hls = new Hls();
       hls.attachMedia(mediaAudio);
-
-      hlsStore.set(hls);
     }
 
     if (localStorage) {
@@ -126,8 +124,7 @@ export const play = async (isChangeAddressBar = false) => {
   }));
 
   const radioStation = jotaiStore.get(radioStationStateAtom).radioStation;
-  const mediaAudio = get(mediaAudioStore);
-  const hls = get(hlsStore);
+  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
 
   // Override the url if the radio station is https://buka.sh/radio/stream, call https://buka.sh/radio/streams to get the random stream with its metadata
   if (radioStation?.slug === "buka") {
@@ -183,7 +180,7 @@ export const play = async (isChangeAddressBar = false) => {
     const audio = new Audio();
     audio.src = url as string;
 
-    mediaAudioCORSStore.set(audio);
+    mediaAudioCors = audio;
   }
 
   if (!isRadioStationCORSProblem) {
@@ -193,7 +190,7 @@ export const play = async (isChangeAddressBar = false) => {
 
   const playPromise = !isRadioStationCORSProblem
     ? mediaAudio?.play()
-    : get(mediaAudioCORSStore)?.play();
+    : mediaAudioCors?.play();
 
   if (playPromise !== undefined) {
     playPromise
@@ -293,15 +290,13 @@ export const stop = async () => {
   // Reset the state
   resetStateWhenStop();
 
-  const mediaAudio = get(mediaAudioStore);
+  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
 
   mediaAudio?.pause();
   mediaAudio?.removeAttribute("src");
 
-  const mediaAudioCORS = get(mediaAudioCORSStore);
-
-  mediaAudioCORS?.pause();
-  mediaAudioCORS?.removeAttribute("src");
+  mediaAudioCors?.pause();
+  mediaAudioCors?.removeAttribute("src");
 
   stopPeriodicGetTrackMetadata();
 
@@ -347,7 +342,7 @@ export const handleEventAudioPlaying = () => {
 };
 
 export const attachMediaAudioListeners = () => {
-  const mediaAudio = get(mediaAudioStore);
+  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
 
   if (mediaAudio) {
     mediaAudio.addEventListener(
@@ -360,7 +355,7 @@ export const attachMediaAudioListeners = () => {
 };
 
 export const detachMediaAudioListeners = () => {
-  const mediaAudio = get(mediaAudioStore);
+  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
 
   if (mediaAudio) {
     mediaAudio.removeEventListener(
@@ -479,12 +474,12 @@ export const checkRadioStationCORS = async (
 };
 
 export const setupMediaAudioContext = () => {
-  const mediaAudio = get(mediaAudioStore) as HTMLAudioElement;
+  const mediaAudio = jotaiStore.get(mediaAudioStateAtom)
+    .mediaAudio as HTMLAudioElement;
   const audioContext = new AudioContext();
   const audioSourceNode = audioContext.createMediaElementSource(mediaAudio);
   audioAnalyserNode = audioContext.createAnalyser();
 
-  mediaAudioContextStore.set(audioContext);
   jotaiStore.set(mediaAudioStateAtom, (prev) => ({
     ...prev,
     contextCreated: true,
