@@ -89,7 +89,7 @@ const RadioStationPlayingWithCompleteMetadata = () => {
         className={`h-52 w-52 overflow-hidden rounded-md bg-white ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
       >
         <img
-          className={`h-full w-full object-scale-down p-2 ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          className={`h-full w-full object-scale-down ${radioStationState.metadataImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
           // Set src to null to prevent the browser from loading the image if exposedTrackArtwork is empty
           src={
             radioStationState.metadataImageLoaded
