@@ -10,14 +10,10 @@ import {
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
-import {
-  mediaAudioStateAtom,
-  // isMediaAudioPlaying as isMediaAudioPlayingStore,
-  mediaAudio as mediaAudioStore,
-} from "@/data/store";
+import { mediaAudioStateAtom } from "@/data/store";
 import { stop as stopMediaAudio } from "@/lib/audio";
 import { useReadable } from "@/lib/react_use_svelte_store";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   CirclePlay,
   CircleStop,
@@ -223,43 +219,53 @@ export default function MusicPreview() {
     );
 
     const Volume = () => {
-      const mediaAudio = useReadable(mediaAudioStore);
+      const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+      const setMediaAudioState = useSetAtom(mediaAudioStateAtom);
 
       const [volume, setVolume] = useState([
-        (mediaAudio?.volume as number) * 100 || 0,
+        (mediaAudioState.mediaAudio?.volume as number) * 100 || 0,
       ]);
 
-      const adjustVolume = useCallback((value: number[]) => {
-        const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
+      const adjustVolume = useCallback(
+        (value: number[]) => {
+          const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
 
-        setVolume(value);
+          setVolume(value);
 
-        // Adjust the volume of the audio on mediaAudioStore
-        mediaAudioStore.update((ma) => {
-          if (ma) {
-            ma.volume = value[0] / 100;
+          // Adjust the volume of the audio on mediaAudioStore
+          setMediaAudioState((prev) => {
+            if (prev.mediaAudio) {
+              prev.mediaAudio.volume = value[0] / 100;
+            }
+            return {
+              ...prev,
+              mediaAudio: prev.mediaAudio,
+            };
+          });
+
+          // Adjust the volume of the audio on mediaAudioMusicPreview
+          if (mediaAudioMusicPreview) {
+            mediaAudioMusicPreview.volume = value[0] / 100;
           }
-          return ma;
-        });
 
-        // Adjust the volume of the audio on mediaAudioMusicPreview
-        if (mediaAudioMusicPreview) {
-          mediaAudioMusicPreview.volume = value[0] / 100;
-        }
-
-        // Save the volume to local storage
-        localStorage.setItem("mediaAudioVolume", JSON.stringify(value[0]));
-      }, []);
+          // Save the volume to local storage
+          localStorage.setItem("mediaAudioVolume", JSON.stringify(value[0]));
+        },
+        [setMediaAudioState],
+      );
 
       return (
         <Popover>
           <PopoverTrigger>
             <div id="volume" className="cursor-pointer" title="Volume">
-              {Number(mediaAudio?.volume) * 100 === 0 ? (
+              {/* {Number(mediaAudio?.volume) * 100 === 0 ? ( */}
+              {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
                 <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : Number(mediaAudio?.volume) * 100 <= 50 ? (
+              ) : // ) : Number(mediaAudio?.volume) * 100 <= 50 ? (
+              Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
                 <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : Number(mediaAudio?.volume) * 100 > 50 ? (
+              ) : // ) : Number(mediaAudio?.volume) * 100 > 50 ? (
+              Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
                 <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
               ) : (
                 <Loader2
@@ -566,7 +572,7 @@ export default function MusicPreview() {
 
     if (!mediaAudioMusicPreview) {
       const audio = new Audio();
-      audio.volume = get(mediaAudioStore)?.volume ?? 1.0;
+      audio.volume = mediaAudioState.mediaAudio?.volume ?? 1.0;
       mediaAudioMusicPreviewStore.set(audio);
 
       get(mediaAudioMusicPreviewStore)?.addEventListener(
@@ -575,7 +581,7 @@ export default function MusicPreview() {
       );
       get(mediaAudioMusicPreviewStore)?.addEventListener("ended", handleEnded);
     } else {
-      mediaAudioMusicPreview.volume = get(mediaAudioStore)?.volume ?? 1.0;
+      mediaAudioMusicPreview.volume = mediaAudioState.mediaAudio?.volume ?? 1.0;
     }
 
     return () => {
@@ -591,7 +597,7 @@ export default function MusicPreview() {
         );
       }
     };
-  }, []);
+  }, [mediaAudioState.mediaAudio?.volume]);
 
   useEffect(() => {
     if (
