@@ -1,12 +1,10 @@
-import type { RadioStation, Unsplash } from "@/data/type";
-import { RequestHeaders as RequestHeadersType } from "@/data/type";
+import type { RadioStation, RequestHeaders, Unsplash } from "@/data/type";
 import { atom, createStore } from "jotai";
-import { writable } from "svelte/store";
 
 export const jotaiStore = createStore();
 
-export const requestHeaders = writable(
-  undefined as RequestHeadersType | null | undefined,
+export const requestHeadersStateAtom = atom(
+  undefined as RequestHeaders | null | undefined,
 );
 export const backgroundImageStateAtom = atom({
   isLoading: false,

@@ -2,13 +2,12 @@
 
 import {
   backgroundImageStateAtom,
-  requestHeaders as requestHeadersStore,
+  requestHeadersStateAtom,
 } from "@/data/store";
-import { RequestHeaders as RequestHeadersType } from "@/data/type";
+import type { RequestHeaders as RequestHeadersType } from "@/data/type";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { get } from "svelte/store";
 
 interface RequestHeaders {
   "cf-region"?: string; // The question mark indicates that the property is optional
@@ -18,10 +17,12 @@ interface RequestHeaders {
 export default function BackgroundImageContainerClient({
   requestHeaders,
 }: {
-  requestHeaders: RequestHeadersType;
+  requestHeaders: RequestHeadersType | null | undefined;
 }) {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
+  const requestHeadersState = useAtomValue(requestHeadersStateAtom);
+  const setRequestHeadersState = useSetAtom(requestHeadersStateAtom);
   const searchParams = useSearchParams();
   const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
   const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
@@ -92,9 +93,7 @@ export default function BackgroundImageContainerClient({
       isLoading: true,
     }));
 
-    const requestHeaders = get(
-      requestHeadersStore,
-    ) as unknown as RequestHeaders;
+    const requestHeaders = requestHeadersState as unknown as RequestHeaders;
     const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
 
     let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`;
@@ -133,8 +132,8 @@ export default function BackgroundImageContainerClient({
   };
 
   useEffect(() => {
-    requestHeadersStore.set(requestHeaders);
-  }, [requestHeaders]);
+    setRequestHeadersState(requestHeaders);
+  }, [requestHeaders, setRequestHeadersState]);
 
   useEffect(() => {
     if (backgroundImageState.randomBackgroundImage) {
