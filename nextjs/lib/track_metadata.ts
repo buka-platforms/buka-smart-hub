@@ -4,7 +4,7 @@ import {
   radioStationStateAtom,
 } from "@/data/store";
 import type { RadioStation } from "@/data/type";
-import { randomizeRainbowColor } from "@/lib/audio";
+import { randomizeRainbowColor, initAudioVisualization } from "@/lib/audio";
 import { replaceArtworkSizes } from "./utils";
 
 let intervalIdTrackMetadata: NodeJS.Timeout | null = null;
@@ -203,6 +203,9 @@ const getTrackMetadata = async () => {
         // Randomize the rainbow color for the audio visualization
         randomizeRainbowColor();
 
+        // Initialize the audio visualization again
+        initAudioVisualization();
+
         // Only if $exposedTrackTitle and $exposedTrackArtist are not ""
         if (
           jotaiStore.get(radioStationStateAtom).exposedTitle !== "" &&
@@ -291,6 +294,12 @@ const getTrackMetadata = async () => {
           ...prev,
           previousTitle: jotaiStore.get(radioStationStateAtom).currentTitle,
         }));
+
+        // Randomize the rainbow color for the audio visualization
+        randomizeRainbowColor();
+
+        // Initialize the audio visualization again
+        initAudioVisualization();
       }
     } else {
       jotaiStore.set(radioStationStateAtom, (prev) => ({
