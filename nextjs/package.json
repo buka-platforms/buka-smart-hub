@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint",
     "format": "prettier --check . --plugin=@ianvs/prettier-plugin-sort-imports --plugin=prettier-plugin-tailwindcss --tailwind-stylesheet=./app/globals.css",
     "format:fix": "prettier --write . --plugin=@ianvs/prettier-plugin-sort-imports --plugin=prettier-plugin-tailwindcss --tailwind-stylesheet=./app/globals.css",
     "version:patch": "npm version patch --no-git-tag-version && git add package.json && git commit -m \"chore: update app version\"",
