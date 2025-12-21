@@ -2,7 +2,6 @@ import {
   backgroundImageStateAtom,
   jotaiStore,
   radioStationStateAtom,
-  randomBackgroundImage as randomBackgroundImageStore,
 } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { replaceArtworkSizes } from "./utils";
@@ -131,7 +130,10 @@ const getExternalTrackDetails = async () => {
               },
             },
           };
-          randomBackgroundImageStore.set(backgroundCoverArt);
+          jotaiStore.set(backgroundImageStateAtom, (prev) => ({
+            ...prev,
+            randomBackgroundImage: backgroundCoverArt,
+          }));
         }
       } else {
         jotaiStore.set(radioStationStateAtom, (prev) => ({
@@ -258,7 +260,10 @@ const getTrackMetadata = async () => {
               },
             },
           };
-          randomBackgroundImageStore.set(backgroundCoverArt);
+          jotaiStore.set(backgroundImageStateAtom, (prev) => ({
+            ...prev,
+            randomBackgroundImage: backgroundCoverArt,
+          }));
         }
       }
     } else if (currentTrackMetadata?.data?.title) {

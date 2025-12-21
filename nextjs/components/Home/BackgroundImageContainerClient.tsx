@@ -2,12 +2,9 @@
 
 import {
   backgroundImageStateAtom,
-  randomBackgroundImage as randomBackgroundImageStore,
   requestHeaders as requestHeadersStore,
-  tmpRandomBackgroundImage as tmpRandomBackgroundImageStore,
 } from "@/data/store";
 import { RequestHeaders as RequestHeadersType } from "@/data/type";
-import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -23,7 +20,6 @@ export default function BackgroundImageContainerClient({
 }: {
   requestHeaders: RequestHeadersType;
 }) {
-  const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
   const searchParams = useSearchParams();
@@ -32,7 +28,20 @@ export default function BackgroundImageContainerClient({
   const styleBackgroundColor = searchParams.get("bgcolsty") || ""; // bgcolsty = Background Color Style
   const isBackgroundImageFollowsCoverArt = searchParams.get("bgimgcov") === "1"; // bgimgcov = Background Image Follows Cover Art
 
-  tmpRandomBackgroundImageStore.set(randomBackgroundImage);
+  useEffect(() => {
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      tmpRandomBackgroundImage: backgroundImageState.randomBackgroundImage,
+    }));
+
+    // Clear tmpRandomBackgroundImage when unmount
+    return () => {
+      setBackgroundImageState((prev) => ({
+        ...prev,
+        tmpRandomBackgroundImage: undefined,
+      }));
+    };
+  }, [backgroundImageState.randomBackgroundImage, setBackgroundImageState]);
 
   const loadBackgroundImage = async (dataId: string) => {
     setBackgroundImageState((prev) => ({
@@ -64,13 +73,16 @@ export default function BackgroundImageContainerClient({
 
     const { id, urls, alt_description, links, user } = unsplash.data;
 
-    randomBackgroundImageStore.set({
-      id,
-      urls,
-      alt_description,
-      links,
-      user,
-    });
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      randomBackgroundImage: {
+        id,
+        urls,
+        alt_description,
+        links,
+        user,
+      },
+    }));
   };
 
   const loadRandomBackgroundImage = async () => {
@@ -106,13 +118,16 @@ export default function BackgroundImageContainerClient({
 
     const { id, urls, alt_description, links, user } = unsplash.data;
 
-    randomBackgroundImageStore.set({
-      id,
-      urls,
-      alt_description,
-      links,
-      user,
-    });
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      randomBackgroundImage: {
+        id,
+        urls,
+        alt_description,
+        links,
+        user,
+      },
+    }));
 
     localStorage.setItem("randomBackgroundImageId", id);
   };
@@ -122,7 +137,7 @@ export default function BackgroundImageContainerClient({
   }, [requestHeaders]);
 
   useEffect(() => {
-    if (get(randomBackgroundImageStore)) {
+    if (backgroundImageState.randomBackgroundImage) {
       return;
     }
     if (!localStorage.getItem("randomBackgroundImageId")) {
@@ -154,12 +169,12 @@ export default function BackgroundImageContainerClient({
 
   return (
     <>
-      {randomBackgroundImage &&
+      {backgroundImageState.randomBackgroundImage &&
         (!isNoBackgroundImage && !backgroundImageState.isFollowsCoverArt ? (
           <img
             className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-            src={randomBackgroundImage?.urls?.full}
-            srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
+            src={backgroundImageState.randomBackgroundImage?.urls?.full}
+            srcSet={`${backgroundImageState.randomBackgroundImage?.urls?.full} 1080w, ${backgroundImageState.randomBackgroundImage?.urls?.raw} 2048w`}
             sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
             alt=""
             loading="lazy"
@@ -167,11 +182,11 @@ export default function BackgroundImageContainerClient({
           />
         ) : isNoBackgroundImage &&
           backgroundImageState.isFollowsCoverArt &&
-          randomBackgroundImage.id == "cover-art" ? (
+          backgroundImageState.randomBackgroundImage?.id == "cover-art" ? (
           <img
             className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-            src={randomBackgroundImage?.urls?.full}
-            srcSet={`${randomBackgroundImage?.urls?.full} 1080w, ${randomBackgroundImage?.urls?.raw} 2048w`}
+            src={backgroundImageState.randomBackgroundImage?.urls?.full}
+            srcSet={`${backgroundImageState.randomBackgroundImage?.urls?.full} 1080w, ${backgroundImageState.randomBackgroundImage?.urls?.raw} 2048w`}
             sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
             alt=""
             loading="lazy"

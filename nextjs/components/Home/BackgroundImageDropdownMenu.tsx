@@ -16,12 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  backgroundImageStateAtom,
-  randomBackgroundImage as randomBackgroundImageStore,
-} from "@/data/store";
+import { backgroundImageStateAtom } from "@/data/store";
 import type { Unsplash } from "@/data/type";
-import { useReadable } from "@/lib/react_use_svelte_store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Image as ImageIcon, Images, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +25,6 @@ import { useEffect, useState } from "react";
 
 /* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageDropdownMenu() {
-  const randomBackgroundImage = useReadable(randomBackgroundImageStore);
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -61,13 +56,16 @@ export default function BackgroundImageDropdownMenu() {
 
     const { id, urls, alt_description, links, user } = unsplash.data;
 
-    randomBackgroundImageStore.set({
-      id,
-      urls,
-      alt_description,
-      links,
-      user,
-    });
+    setBackgroundImageState((prev) => ({
+      ...prev,
+      randomBackgroundImage: {
+        id,
+        urls,
+        alt_description,
+        links,
+        user,
+      },
+    }));
 
     localStorage.setItem("randomBackgroundImageId", id);
 
@@ -320,17 +318,18 @@ export default function BackgroundImageDropdownMenu() {
                 Photo by{" "}
                 <a
                   href={`${
-                    randomBackgroundImage?.user?.links?.html
+                    backgroundImageState.randomBackgroundImage?.user?.links
+                      ?.html
                   }?utm_source=Buka&utm_medium=referral`}
                   target="_blank"
                   className="underline"
                 >
-                  {randomBackgroundImage?.user?.name}
+                  {backgroundImageState.randomBackgroundImage?.user?.name}
                 </a>{" "}
                 on{" "}
                 <a
                   href={`${
-                    randomBackgroundImage?.links?.html
+                    backgroundImageState.randomBackgroundImage?.links?.html
                   }?utm_source=Buka&utm_medium=referral`}
                   target="_blank"
                   className="underline"

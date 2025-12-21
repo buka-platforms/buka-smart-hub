@@ -25,6 +25,8 @@ export const backgroundImageStateAtom = atom({
   isLoading: false,
   isLoaded: false,
   isFollowsCoverArt: false,
+  randomBackgroundImage: undefined as Unsplash | null | undefined,
+  tmpRandomBackgroundImage: undefined as Unsplash | null | undefined,
 });
 export const mediaAudioStateAtom = atom({
   isLoading: false,
@@ -46,8 +48,3 @@ export const radioStationStateAtom = atom({
   radioStation: <RadioStation | null | undefined>undefined, // Selected (or randomly selected) radio station, but can be currently playing or not
   isRadioStationLogoLoaded: false,
 });
-
-export const randomBackgroundImage: Writable<Unsplash | null | undefined> =
-  writable(undefined);
-export const tmpRandomBackgroundImage: Writable<Unsplash | null | undefined> =
-  writable(undefined);
