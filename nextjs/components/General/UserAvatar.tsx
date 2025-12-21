@@ -94,7 +94,7 @@ const Authenticated = ({ userDetails }: { userDetails: User }) => {
               <div>
                 <div className="font-medium">{userDetails.name}</div>
                 <div className="text-xs">{userDetails.provider_id}</div>
-                <div className="mt-1 text-xs text-gray-400">
+                <div className="mt-1 inline-block rounded-xl bg-gray-600 px-2 py-1 text-xs font-light text-whitesmoke">
                   Signed-in with {userDetails.provider_name}
                 </div>
               </div>
