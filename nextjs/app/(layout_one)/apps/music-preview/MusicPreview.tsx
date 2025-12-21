@@ -258,14 +258,11 @@ export default function MusicPreview() {
         <Popover>
           <PopoverTrigger>
             <div id="volume" className="cursor-pointer" title="Volume">
-              {/* {Number(mediaAudio?.volume) * 100 === 0 ? ( */}
               {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
                 <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : // ) : Number(mediaAudio?.volume) * 100 <= 50 ? (
-              Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
+              ) : Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
                 <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : // ) : Number(mediaAudio?.volume) * 100 > 50 ? (
-              Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
+              ) : Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
                 <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
               ) : (
                 <Loader2
