@@ -20,11 +20,12 @@ let usableLength = 250;
 let animationFrameId: number | undefined;
 let audioAnalyserNode: AnalyserNode | null = null;
 let audioFrequencyData: Uint8Array | null = null;
+const rainbowMax = 7;
 const audioVisualizationOptions: AudioVisualizationOptions = {
   preferredBarWidth: 32,
   forcePreferredBarWidth: false,
   barSpacing: 1,
-  color: `rainbow${Math.floor(Math.random() * 8) + 1}`,
+  color: `rainbow${Math.floor(Math.random() * rainbowMax) + 1}`,
   rainbowOpacity: 0.4,
   element: `canvas#vis-canvas`,
   height: null,
@@ -43,6 +44,12 @@ export const transparent1x1Pixel: string =
 export {
   startPeriodicGetTrackMetadata as startIntervalGetTrackMetadata,
   stopPeriodicGetTrackMetadata as stopIntervalGetTrackMetadata,
+};
+
+export const randomizeRainbowColor = () => {
+  // There are 8 rainbow variants in your code
+  const n = Math.floor(Math.random() * rainbowMax) + 1;
+  audioVisualizationOptions.color = `rainbow${n}`;
 };
 
 export const setupMediaAudio = () => {
@@ -580,13 +587,14 @@ export const initAudioVisualization = () => {
       const red = Math.floor((i / numBars) * 255);
       const green = Math.floor(((numBars - i) / numBars) * 255);
       const blue = 150;
-      barColors[i] =
-        "rgba(" + red + "," + green + "," + blue + "," + 1 + ")";
-    } else if (options.color == "rainbow8") {
-      // Random color rainbow, or Chaotic rainbow, or Random spectrum rainbow
-      barColors[i] = "#" + Math.floor(Math.random() * 16777215).toString(16);
+      barColors[i] = "rgba(" + red + "," + green + "," + blue + "," + 1 + ")";
     } else {
-      barColors[i] = options.color;
+      // Sinusoidal RGB rainbow, or Classic RGB rainbow
+      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
+      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      barColors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
     }
   }
 

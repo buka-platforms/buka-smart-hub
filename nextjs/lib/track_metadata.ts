@@ -4,6 +4,7 @@ import {
   radioStationStateAtom,
 } from "@/data/store";
 import type { RadioStation } from "@/data/type";
+import { randomizeRainbowColor } from "@/lib/audio";
 import { replaceArtworkSizes } from "./utils";
 
 let intervalIdTrackMetadata: NodeJS.Timeout | null = null;
@@ -198,6 +199,9 @@ const getTrackMetadata = async () => {
           metadataImageLoaded: false,
           previousTitle: jotaiStore.get(radioStationStateAtom).currentTitle,
         }));
+
+        // Randomize the rainbow color for the audio visualization
+        randomizeRainbowColor();
 
         // Only if $exposedTrackTitle and $exposedTrackArtist are not ""
         if (
