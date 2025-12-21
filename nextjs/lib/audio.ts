@@ -24,7 +24,7 @@ const audioVisualizationOptions: AudioVisualizationOptions = {
   preferredBarWidth: 32,
   forcePreferredBarWidth: false,
   barSpacing: 1,
-  color: `rainbow${Math.floor(Math.random() * 4) + 1}`,
+  color: `rainbow${Math.floor(Math.random() * 8) + 1}`,
   rainbowOpacity: 0.4,
   element: `canvas#vis-canvas`,
   height: null,
@@ -534,30 +534,56 @@ export const initAudioVisualization = () => {
     const frequency = 5 / numBars;
 
     if (options.color == "rainbow1") {
+      // Sinusoidal RGB rainbow, or Classic RGB rainbow
       const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
       const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
       const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
       barColors[i] =
         "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
     } else if (options.color == "rainbow2") {
+      // Shifted sinusoidal RGB rainbow, or Phase-shifted RGB rainbow, or Twisted RGB rainbow
       const b = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
       const g = Math.floor(Math.sin(frequency * i + 1) * 127 + 128);
       const r = Math.floor(Math.sin(frequency * i + 3) * 127 + 128);
       barColors[i] =
         "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
     } else if (options.color == "rainbow3") {
+      // Red-dominant sinusoidal RGB rainbow, or Red-lead RGB rainbow
       const r = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
       const g = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
       const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
       barColors[i] =
         "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
     } else if (options.color == "rainbow4") {
+      // Orange-lead sinusoidal RGB rainbow
       const r = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
       const g = Math.floor(Math.sin(frequency * i + 1) * 127 + 128);
       const b = Math.floor(Math.sin(frequency * i + 3) * 127 + 128);
       barColors[i] =
         "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else if (options.color == "random") {
+    } else if (options.color == "rainbow5") {
+      // Green-dominant sinusoidal RGB rainbow, or Green-lead RGB rainbow
+      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      barColors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow6") {
+      // Blue-dominant sinusoidal RGB rainbow, or Blue-lead RGB rainbow
+      const b = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const g = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const r = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      barColors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow7") {
+      // Linear gradient RGB rainbow, or Red-Green linear blend rainbow
+      const red = Math.floor((i / numBars) * 255);
+      const green = Math.floor(((numBars - i) / numBars) * 255);
+      const blue = 150;
+      barColors[i] =
+        "rgba(" + red + "," + green + "," + blue + "," + 1 + ")";
+    } else if (options.color == "rainbow8") {
+      // Random color rainbow, or Chaotic rainbow, or Random spectrum rainbow
       barColors[i] = "#" + Math.floor(Math.random() * 16777215).toString(16);
     } else {
       barColors[i] = options.color;
