@@ -3,7 +3,6 @@ import { RequestHeaders as RequestHeadersType } from "@/data/type";
 import type Hls from "hls.js";
 import { atom, createStore } from "jotai";
 import { writable } from "svelte/store";
-import type { Writable } from "svelte/store";
 
 export const jotaiStore = createStore();
 
