@@ -6,11 +6,11 @@ import {
   loadRadioStationBySlug as loadRadioStation,
   loadRadioStationBySlug,
   play,
-  playRandom,
   stop,
 } from "@/lib/audio";
 import { useAtomValue } from "jotai";
-import { Loader2, PlayCircle, Shuffle, StopCircle } from "lucide-react";
+import { ListMusic, Loader2, PlayCircle, StopCircle } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 const Play = () => {
@@ -49,19 +49,17 @@ const Stop = () => {
   );
 };
 
-const Random = () => {
+const RadioStationDirectory = () => {
   return (
     <>
-      <div
-        onClick={() => playRandom()}
-        className="cursor-pointer"
-        title="Random radio station"
-      >
-        <Shuffle
-          className="h-10 w-10 opacity-80 hover:opacity-100 md:h-12 md:w-12"
-          color="#f5f5f5"
-        />
-      </div>
+      <Link href="/apps/radio" title="Radio station directory">
+        <div className="cursor-pointer">
+          <ListMusic
+            className="h-10 w-10 opacity-80 hover:opacity-100 md:h-12 md:w-12"
+            color="#f5f5f5"
+          />
+        </div>
+      </Link>
     </>
   );
 };
@@ -118,7 +116,7 @@ export default function RadioPanel({
 
       {radioStationState.radioStation && (
         <>
-          <Random />
+          <RadioStationDirectory />
           <div className="w-0"></div>
         </>
       )}
