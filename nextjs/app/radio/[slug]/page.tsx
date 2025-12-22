@@ -11,6 +11,7 @@ import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import { checkUserSession } from "@/lib/user";
 import Canvas from "./Canvas";
 import "@fontsource-variable/rubik";
+import Volume from "@/components/Home/Volume";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -154,16 +155,7 @@ export default async function RadioDetailPage({
             </div>
             <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
               <div className="flex items-center gap-x-2">
-                {/* {isInIframe && (
-                  <span className="text-xs font-light text-slate-300">
-                    <a
-                      href={`${process.env.NEXT_PUBLIC_BASE_URL}`}
-                      target="_blank"
-                    >
-                      Powered by {process.env.NEXT_PUBLIC_APP_TITLE}
-                    </a>
-                  </span>
-                )} */}
+                <Volume />
                 <BackgroundImageDropdownMenu />
                 {!isInIframe && <Fullscreen />}
                 <InfoDropdownMenu />
