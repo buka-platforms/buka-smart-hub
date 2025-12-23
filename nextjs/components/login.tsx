@@ -175,8 +175,8 @@ export function Login({
           </form>
         </CardContent>
       </Card>
-      <div className="text-center text-xs text-balance text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+      <div className="text-center text-xs text-balance text-foreground/70 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-foreground/80">
+        By clicking sign-in, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
