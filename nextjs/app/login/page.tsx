@@ -4,7 +4,7 @@ import Link from "next/link";
 /* eslint-disable @next/next/no-img-element */
 export default function LoginPage() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10 bg-linear-to-r from-neutral-300 to-stone-400">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted bg-linear-to-r from-neutral-300 to-stone-400 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">
         <Link
           href="/"
