@@ -158,60 +158,70 @@ export default function WidgetDraggableRadioPlayer() {
   return (
     <div
       ref={draggableRef}
-      className={`pointer-events-auto fixed right-4 bottom-4 z-50 flex w-72 transform-gpu cursor-grab items-center gap-3 rounded-lg bg-black/80 p-3 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`pointer-events-auto fixed right-4 bottom-4 z-50 flex w-72 transform-gpu cursor-grab flex-col rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
-      {/* Cover Art */}
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
-        <img
-          className="pointer-events-none h-full w-full object-cover"
-          src={artworkSrc || transparent1x1Pixel}
-          alt={title}
-          loading="lazy"
-          draggable={false}
-        />
+      {/* Top Label */}
+      <div className="px-3 pt-2">
+        <span className="inline-block rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-light tracking-wider text-white/60 uppercase">
+          Radio Station
+        </span>
       </div>
 
-      {/* Track Info */}
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-        <Link
-          href={`/radio/${radioStationState.radioStation?.slug}`}
-          className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
-        >
-          <MarqueeText text={stationName} />
-        </Link>
-        <MarqueeText
-          text={title || "\u00A0"}
-          className="text-sm font-medium text-white"
-        />
-        {artist && (
-          <MarqueeText text={artist} className="text-xs text-white/70" />
-        )}
-      </div>
-
-      {/* Play/Stop Button */}
-      <div className="shrink-0">
-        {mediaAudioState.isLoading ? (
-          <Loading
-            className="h-10 w-10 animate-spin text-white/80"
-            color="#f5f5f5"
+      {/* Main Content */}
+      <div className="flex items-center gap-3 p-3">
+        {/* Cover Art */}
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
+          <img
+            className="pointer-events-none h-full w-full object-cover"
+            src={artworkSrc || transparent1x1Pixel}
+            alt={title}
+            loading="lazy"
+            draggable={false}
           />
-        ) : mediaAudioState.isPlaying ? (
-          <button
-            onClick={stop}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-            title="Stop"
+        </div>
+
+        {/* Track Info */}
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+          <Link
+            href={`/radio/${radioStationState.radioStation?.slug}`}
+            className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
           >
-            <Pause className="h-5 w-5" fill="currentColor" />
-          </button>
-        ) : (
-          <button
-            onClick={() => play(false)}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-            title="Play"
-          >
-            <PlayIcon className="h-5 w-5" fill="currentColor" />
-          </button>
-        )}
+            <MarqueeText text={stationName} />
+          </Link>
+          <MarqueeText
+            text={title || "\u00A0"}
+            className="text-sm font-medium text-white"
+          />
+          {artist && (
+            <MarqueeText text={artist} className="text-xs text-white/70" />
+          )}
+        </div>
+
+        {/* Play/Stop Button */}
+        <div className="shrink-0">
+          {mediaAudioState.isLoading ? (
+            <Loading
+              className="h-10 w-10 animate-spin text-white/80"
+              color="#f5f5f5"
+            />
+          ) : mediaAudioState.isPlaying ? (
+            <button
+              onClick={stop}
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+              title="Stop"
+            >
+              <Pause className="h-5 w-5" fill="currentColor" />
+            </button>
+          ) : (
+            <button
+              onClick={() => play(false)}
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+              title="Play"
+            >
+              <PlayIcon className="h-5 w-5" fill="currentColor" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
