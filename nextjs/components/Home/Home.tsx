@@ -39,28 +39,28 @@ export default async function Home({
         </h1>
         <div className="relative z-0 h-screen w-full overflow-hidden">
           <RandomBackgroundImage />
-          <div
-            className="absolute top-5 left-3 flex"
-            title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}
-          >
-            <img
-              src="/assets/images/logo-white.svg"
-              alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
-              className="isolate h-8 w-8 md:h-10 md:w-10"
-            />
-          </div>
-          <div className="absolute top-5 right-3 z-20 flex cursor-pointer items-center gap-x-3 md:z-auto">
-            <div title="Search" className="flex items-center">
-              <Search
-                className="h-6 w-6 cursor-pointer opacity-80 hover:opacity-100 md:h-8 md:w-8"
-                color="#f5f5f5"
+          {/* Header: logo left, controls right */}
+          <header className="flex justify-between items-start w-full p-4 absolute top-0 left-0 z-10">
+            <div className="flex items-center" title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}>
+              <img
+                src="/assets/images/logo-white.svg"
+                alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
+                className="isolate h-8 w-8 md:h-10 md:w-10"
               />
             </div>
-            <div className="flex items-center">
-              <Weather requestHeaders={requestHeaders} />
+            <div className="flex items-center gap-x-3">
+              <div title="Search" className="flex items-center">
+                <Search
+                  className="h-6 w-6 cursor-pointer opacity-80 hover:opacity-100 md:h-8 md:w-8"
+                  color="#f5f5f5"
+                />
+              </div>
+              <div className="flex items-center">
+                <Weather requestHeaders={requestHeaders} />
+              </div>
+              <UserAvatar userSession={userSession} />
             </div>
-            <UserAvatar userSession={userSession} />
-          </div>
+          </header>
           <div className="absolute bottom-0 left-0 w-full">
             <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
               <RadioCoverArt />
