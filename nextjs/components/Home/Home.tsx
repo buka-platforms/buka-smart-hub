@@ -7,13 +7,14 @@ import Canvas from "@/components/Home/Canvas";
 import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import RadioCoverArt from "@/components/Home/RadioCoverArt";
+// import RadioCoverArt from "@/components/Home/RadioCoverArt";
 import RadioPanel from "@/components/Home/RadioPanel";
 import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
 import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
 import { getRequestHeaders } from "@/lib/header";
+// import { Radio } from "lucide-react";
 import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
@@ -40,8 +41,11 @@ export default async function Home({
         <div className="relative z-0 h-screen w-full overflow-hidden">
           <RandomBackgroundImage />
           {/* Header: logo left, controls right */}
-          <header className="flex justify-between items-start w-full p-4 absolute top-0 left-0 z-10">
-            <div className="flex items-center" title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}>
+          <header className="absolute top-0 left-0 z-10 flex w-full items-start justify-between p-4">
+            <div
+              className="flex items-center"
+              title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}
+            >
               <img
                 src="/assets/images/logo-white.svg"
                 alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
@@ -61,16 +65,16 @@ export default async function Home({
               <UserAvatar userSession={userSession} />
             </div>
           </header>
-          <div className="absolute bottom-0 left-0 w-full">
-            <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
-              <RadioCoverArt />
-              <div className="z-10 flex flex-col">
-                <Date />
-                <Time />
-              </div>
-            </div>
+          {/* Bottom left: WidgetDraggableRadioPlayer above Date & Time */}
+          <div className="absolute bottom-46 left-3 z-20 md:bottom-68 md:left-6">
+            <WidgetDraggableRadioPlayer />
           </div>
-          <div className="absolute right-0 bottom-0">
+          <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
+            <Date />
+            <Time />
+          </div>
+          {/* Bottom right: Apps, RadioPanel, Controls (restored absolute edge attachment) */}
+          <>
             <div className="absolute right-0 bottom-[6.3rem] z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-[8.2rem] md:pl-3">
               <div className="flex items-center">
                 <Link
@@ -94,12 +98,12 @@ export default async function Home({
                 <InfoDropdownMenu />
               </div>
             </div>
-          </div>
+          </>
           <Canvas />
         </div>
-        {process.env.NODE_ENV === "development" ? (
+        {/* {process.env.NODE_ENV === "development" ? (
           <WidgetDraggableRadioPlayer />
-        ) : null}
+        ) : null} */}
       </div>
     </>
   );

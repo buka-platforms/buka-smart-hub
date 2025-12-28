@@ -173,7 +173,7 @@ export default function WidgetDraggableRadioPlayer() {
   return (
     <div
       ref={draggableRef}
-      className={`pointer-events-auto fixed right-4 bottom-4 z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       {/* Vertical "Radio" Label */}
       <div className="flex items-center justify-center border-r border-white/10 px-1">
@@ -187,7 +187,7 @@ export default function WidgetDraggableRadioPlayer() {
         {/* Cover Art */}
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
           <img
-            className="pointer-events-none h-full w-full object-cover"
+            className="pointer-events-none h-full w-full object-contain"
             src={artworkSrc || transparent1x1Pixel}
             alt={title}
             loading="lazy"
