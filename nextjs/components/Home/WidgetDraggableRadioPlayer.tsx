@@ -14,7 +14,13 @@ import {
 import { useAtomValue } from "jotai";
 import { Pause, Play as PlayIcon } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 const POSITION_STORAGE_KEY = "widgetDraggableRadioPlayerPosition";
 
@@ -54,28 +60,37 @@ function MarqueeText({
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLSpanElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const checkOverflow = () => {
-      if (containerRef.current && textRef.current) {
+      if (containerRef.current && measureRef.current) {
+        // Measure the hidden single-text span to get accurate width
         const isOverflowing =
-          textRef.current.scrollWidth > containerRef.current.clientWidth;
+          measureRef.current.scrollWidth > containerRef.current.clientWidth;
         setShouldAnimate(isOverflowing);
       }
     };
 
     checkOverflow();
-    // Recheck on resize
+
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
   }, [text]);
 
   return (
     <div ref={containerRef} className={`overflow-hidden ${className || ""}`}>
+      {/* Hidden measurement span - always contains just the text */}
       <span
-        ref={textRef}
+        ref={measureRef}
+        className="pointer-events-none absolute whitespace-nowrap opacity-0"
+        aria-hidden="true"
+      >
+        {text}
+      </span>
+      {/* Visible span with optional duplicate for marquee */}
+      <span
         className={`inline-block whitespace-nowrap ${shouldAnimate ? "animate-marquee" : ""}`}
         title={text}
       >
