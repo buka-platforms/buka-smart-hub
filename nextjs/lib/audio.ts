@@ -7,7 +7,7 @@ import type { AudioVisualizationOptions } from "@/data/type";
 import {
   startPeriodicGetTrackMetadata,
   stopPeriodicGetTrackMetadata,
-} from "@/lib/track_metadata";
+} from "@/lib/track-metadata";
 import Hls from "hls.js";
 
 // Visualization state
