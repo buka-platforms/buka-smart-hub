@@ -160,13 +160,6 @@ export default function WidgetDraggableRadioPlayer() {
       ref={draggableRef}
       className={`pointer-events-auto fixed right-4 bottom-4 z-50 flex w-72 transform-gpu cursor-grab flex-col rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
-      {/* Top Label */}
-      <div className="px-3 pt-2">
-        <span className="inline-block rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-light tracking-wider text-white/60 uppercase">
-          Radio Station
-        </span>
-      </div>
-
       {/* Main Content */}
       <div className="flex items-center gap-3 p-3">
         {/* Cover Art */}
