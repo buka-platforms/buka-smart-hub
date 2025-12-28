@@ -84,9 +84,6 @@ export default async function Home({
             <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
               <div className="flex items-center gap-2">
                 <RadioPanel requestHeaders={requestHeaders} />
-                {process.env.NODE_ENV === "development" ? (
-                  <WidgetDraggableRadioPlayer />
-                ) : null}
               </div>
             </div>
             <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
@@ -100,6 +97,9 @@ export default async function Home({
           </div>
           <Canvas />
         </div>
+        {process.env.NODE_ENV === "development" ? (
+          <WidgetDraggableRadioPlayer />
+        ) : null}
       </div>
     </>
   );
