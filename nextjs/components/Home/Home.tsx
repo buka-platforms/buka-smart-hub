@@ -9,10 +9,10 @@ import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import RadioCoverArt from "@/components/Home/RadioCoverArt";
 import RadioPanel from "@/components/Home/RadioPanel";
-import RadioPlayer from "@/components/Home/RadioPlayer";
 import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
+import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
 import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
 
@@ -85,7 +85,7 @@ export default async function Home({
               <div className="flex items-center gap-2">
                 <RadioPanel requestHeaders={requestHeaders} />
                 {process.env.NODE_ENV === "development" ? (
-                  <RadioPlayer />
+                  <WidgetDraggableRadioPlayer />
                 ) : null}
               </div>
             </div>
