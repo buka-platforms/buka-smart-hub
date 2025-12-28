@@ -1,4 +1,4 @@
-import { getWelcomeEmailTemplate } from "@/data/email_template";
+import { getWelcomeEmailTemplate } from "@/data/email-template";
 import { sendMail } from "@/lib/mailer";
 import {
   createDirectus,
