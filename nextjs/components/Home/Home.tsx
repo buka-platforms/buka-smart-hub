@@ -37,7 +37,7 @@ export default async function Home({
         <h1 className="hidden">
           {process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.
         </h1>
-        <div className="fixed top-0 left-0 z-0 flex h-full w-full items-center justify-center">
+        <div className="relative z-0 h-screen w-full overflow-hidden">
           <RandomBackgroundImage />
           <div
             className="absolute top-5 left-3 flex"
