@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { mediaAudioStateAtom } from "@/data/store";
 import { stop as stopMediaAudio } from "@/lib/audio";
-import { useReadable } from "@/lib/react_use_svelte_store";
+import { useReadable } from "@/lib/react-use-svelte-store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   CirclePlay,

@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useReadable } from "@/lib/react_use_svelte_store";
+import { useReadable } from "@/lib/react-use-svelte-store";
 import { cn } from "@/lib/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
@@ -41,6 +41,7 @@ import useSWR from "swr";
 const selectedYearStore = writable(new Date().getFullYear().toString());
 const selectedCountryStore = writable(null);
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const fetcher = async (...args: [RequestInfo, RequestInit?]): Promise<any> => {
   const res = await fetch(...args);
   return res.json();
@@ -74,7 +75,12 @@ export function SelectYear() {
   );
 }
 
-function SelectCountry({ selectedCountry }: { selectedCountry: any }) {
+function SelectCountry({
+  selectedCountry,
+}: {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  selectedCountry: any;
+}) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(selectedCountry?.value);
 

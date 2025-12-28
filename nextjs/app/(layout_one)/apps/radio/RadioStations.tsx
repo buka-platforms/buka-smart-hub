@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, stop } from "@/lib/audio";
-import { useReadable } from "@/lib/react_use_svelte_store";
+import { useReadable } from "@/lib/react-use-svelte-store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   CirclePlay,

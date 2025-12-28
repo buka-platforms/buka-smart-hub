@@ -3,13 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useReadable } from "@/lib/react_use_svelte_store";
+import { useReadable } from "@/lib/react-use-svelte-store";
 import { Frown, LoaderCircle, Search as SearchIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { get, writable } from "svelte/store";
 
 const searchQueryStore = writable("");
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const bookTracksStore = writable([] as any);
 const isLoadingStore = writable(false);
 const isNotFoundStore = writable(false);
@@ -207,7 +208,7 @@ export default function BookPreview() {
           />
           <Button
             className="cursor-pointer"
-            onClick={(e) => search(searchQuery)}
+            onClick={() => search(searchQuery)}
           >
             Search
           </Button>
