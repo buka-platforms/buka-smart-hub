@@ -37,6 +37,7 @@ const audioVisualizationOptions: AudioVisualizationOptions = {
 let isRadioStationCORSProblem: boolean = false;
 let mediaAudioCors: HTMLAudioElement | null | undefined = undefined;
 let hls: Hls | null | undefined = undefined;
+let visibilityHandlerAttached = false;
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -308,6 +309,7 @@ export const stop = async () => {
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
+    animationFrameId = undefined;
 
     if (canvasContext) {
       if (canvasElement) {
@@ -500,6 +502,8 @@ export const setupMediaAudioContext = () => {
   audioAnalyserNode.maxDecibels = -30;
 
   audioFrequencyData = new Uint8Array(audioAnalyserNode.frequencyBinCount);
+
+  setupVisibilityHandler();
 };
 
 export const initAudioVisualization = () => {
@@ -597,6 +601,11 @@ export const initAudioVisualization = () => {
 };
 
 export const renderAudioVisualization = () => {
+  if (document.visibilityState !== "visible") {
+    animationFrameId = undefined;
+    return;
+  }
+
   if (audioAnalyserNode && audioFrequencyData) {
     audioAnalyserNode.getByteFrequencyData(
       audioFrequencyData as Uint8Array<ArrayBuffer>,
@@ -652,4 +661,28 @@ const setUsableLength = (len: number) => {
   if (len < usableLength) return;
 
   usableLength = len;
+};
+
+export const setupVisibilityHandler = () => {
+  if (visibilityHandlerAttached) return;
+  visibilityHandlerAttached = true;
+
+  document.addEventListener("visibilitychange", async () => {
+    if (document.visibilityState === "hidden") {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = undefined;
+      }
+    }
+
+    if (document.visibilityState === "visible") {
+      // Reset visualization state
+      consZ = 0;
+      usableLength = 250;
+
+      if (jotaiStore.get(mediaAudioStateAtom).isPlaying && !animationFrameId) {
+        animationFrameId = requestAnimationFrame(renderAudioVisualization);
+      }
+    }
+  });
 };
