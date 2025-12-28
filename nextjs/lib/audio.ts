@@ -49,6 +49,8 @@ let isRadioStationCORSProblem: boolean = false;
 let mediaAudioCors: HTMLAudioElement | null | undefined = undefined;
 let hls: Hls | null | undefined = undefined;
 let visibilityHandlerAttached = false;
+let resizeHandlerAttached = false;
+let resizeDebounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
 // Check if OffscreenCanvas is supported (including Safari 16.4+ compatibility check)
 const isOffscreenCanvasSupported = (): boolean => {
@@ -546,6 +548,7 @@ export const setupMediaAudioContext = () => {
   audioFrequencyData = new Uint8Array(audioAnalyserNode.frequencyBinCount);
 
   setupVisibilityHandler();
+  setupResizeHandler();
 };
 
 // Helper function to generate bar colors
@@ -909,6 +912,81 @@ const setUsableLength = (len: number) => {
   if (len < usableLength) return;
 
   usableLength = len;
+};
+
+// Handle window resize events (e.g., when DevTools opens/closes)
+export const setupResizeHandler = () => {
+  if (resizeHandlerAttached) return;
+  resizeHandlerAttached = true;
+
+  window.addEventListener("resize", () => {
+    // Debounce resize events to avoid too many updates
+    if (resizeDebounceTimeout) {
+      clearTimeout(resizeDebounceTimeout);
+    }
+
+    resizeDebounceTimeout = setTimeout(() => {
+      if (!canvasElement || !canvasElement.parentElement) return;
+
+      // Get new dimensions from parent element
+      const newWidth = canvasElement.parentElement.clientWidth;
+      const newHeight = canvasElement.parentElement.clientHeight;
+
+      // Skip if dimensions haven't actually changed
+      if (
+        newWidth === audioVisualizationOptions.width &&
+        newHeight === audioVisualizationOptions.height
+      ) {
+        return;
+      }
+
+      // Update options with new dimensions
+      audioVisualizationOptions.width = newWidth;
+      audioVisualizationOptions.height = newHeight;
+
+      // Recalculate bar dimensions
+      const options = audioVisualizationOptions;
+      numBars = options.numBars
+        ? options.numBars
+        : Math.floor(
+            newWidth / (options.preferredBarWidth + options.barSpacing),
+          );
+      barWidth = newWidth / numBars - options.barSpacing;
+
+      if (options.forcePreferredBarWidth) {
+        barWidth = options.preferredBarWidth;
+      }
+
+      if (barWidth < 4) barWidth = 4;
+
+      // Regenerate bar colors for new number of bars
+      const generatedColors = generateBarColors(numBars, options);
+      barColors.length = 0;
+      barColors.push(...generatedColors);
+
+      if (
+        useOffscreenCanvas &&
+        visualizerWorker &&
+        offscreenCanvasTransferred
+      ) {
+        // Send resize message to worker
+        visualizerWorker.postMessage({
+          type: "resize",
+          data: {
+            width: newWidth,
+            height: newHeight,
+            numBars: numBars,
+            barWidth: barWidth,
+            barColors: barColors,
+          },
+        });
+      } else if (!useOffscreenCanvas && canvasElement) {
+        // For fallback mode, we can directly resize the canvas
+        canvasElement.width = newWidth;
+        canvasElement.height = newHeight;
+      }
+    }, 150); // 150ms debounce delay
+  });
 };
 
 export const setupVisibilityHandler = () => {
