@@ -3,7 +3,7 @@
 import { Fullscreen } from "lucide-react";
 
 const toggleFullscreen = () => {
-  let elem = document.documentElement;
+  const elem = document.documentElement;
 
   if (!document.fullscreenElement) {
     elem.requestFullscreen().catch((err) => {
