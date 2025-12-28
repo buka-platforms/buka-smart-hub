@@ -1,6 +1,6 @@
-import { streamUrls } from "../buka_radio_streams";
+import { streamUrls } from "../buka-radio-streams";
 
-export async function GET(request: Request) {
+export async function GET() {
   // Select a random stream URL
   const randomStreamUrl =
     streamUrls[Math.floor(Math.random() * streamUrls.length)];
