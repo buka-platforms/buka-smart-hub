@@ -597,24 +597,22 @@ export const initAudioVisualization = () => {
 };
 
 export const renderAudioVisualization = () => {
-  animationFrameId = requestAnimationFrame(renderAudioVisualization);
-
-  audioAnalyserNode?.getByteFrequencyData(
-    audioFrequencyData as Uint8Array<ArrayBuffer>,
-  );
+  if (audioAnalyserNode && audioFrequencyData) {
+    audioAnalyserNode.getByteFrequencyData(
+      audioFrequencyData as Uint8Array<ArrayBuffer>,
+    );
+  }
 
   const options = audioVisualizationOptions;
-
   const consZLim = options.consecutiveZeroesLimit;
 
-  if (audioFrequencyData) {
-    for (let i = 0; i < audioFrequencyData?.length; i++) {
-      if (audioFrequencyData?.[i] == 0) {
+  if (consZLim > 0 && audioFrequencyData) {
+    for (let i = 0; i < audioFrequencyData.length; i++) {
+      if (audioFrequencyData[i] === 0) {
         consZ++;
       } else {
         consZ = 0;
       }
-
       if (consZ >= consZLim) {
         setUsableLength(i - consZLim + 1);
         break;
@@ -622,49 +620,32 @@ export const renderAudioVisualization = () => {
     }
   }
 
-  canvasContext?.clearRect(0, 0, options.width ?? 0, options.height ?? 0);
+  if (
+    !canvasContext ||
+    !canvasElement ||
+    options.height === null ||
+    !audioFrequencyData
+  ) {
+    animationFrameId = requestAnimationFrame(renderAudioVisualization);
+    return;
+  }
+
+  canvasContext.clearRect(0, 0, options.width ?? 0, options.height);
 
   let ind = 0;
   let cInd = 0;
+  const step = Math.floor(usableLength / numBars);
 
-  if (canvasElement) {
-    for (
-      let i = 0;
-      i < canvasElement.width;
-      i += barWidth + options.barSpacing
-    ) {
-      canvasContext?.save();
-      if (canvasContext) {
-        canvasContext.fillStyle = barColors[cInd++];
-        canvasContext.translate(i, 0);
-      }
-
-      if (options.height !== null && audioFrequencyData) {
-        if (!options.hideIfZero) {
-          canvasContext?.fillRect(
-            0,
-            (options.height as number) -
-              (options.height as number) *
-                (audioFrequencyData[Math.floor(ind)] / 255) -
-              1,
-            barWidth,
-            options.height as number,
-          );
-        } else {
-          canvasContext?.fillRect(
-            0,
-            (options.height as number) -
-              (options.height as number) *
-                (audioFrequencyData[Math.floor(ind)] / 255),
-            barWidth,
-            options.height as number,
-          );
-        }
-      }
-      canvasContext?.restore();
-      ind += Math.floor(usableLength / numBars);
-    }
+  for (let i = 0; i < canvasElement.width; i += barWidth + options.barSpacing) {
+    canvasContext.fillStyle = barColors[cInd++];
+    const freqValue = audioFrequencyData[Math.floor(ind)];
+    const barHeight = (options.height as number) * (freqValue / 255);
+    const y = (options.height as number) - barHeight;
+    canvasContext.fillRect(i, y, barWidth, options.height as number);
+    ind += step;
   }
+
+  animationFrameId = requestAnimationFrame(renderAudioVisualization);
 };
 
 const setUsableLength = (len: number) => {
