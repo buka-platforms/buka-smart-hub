@@ -7,7 +7,48 @@ import { ControlFrom, controls, useDraggable } from "@neodrag/react";
 import { useAtomValue } from "jotai";
 import { Pause, Play as PlayIcon } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+// Marquee text component for long strings
+function MarqueeText({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (containerRef.current && textRef.current) {
+        const isOverflowing =
+          textRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShouldAnimate(isOverflowing);
+      }
+    };
+
+    checkOverflow();
+    // Recheck on resize
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [text]);
+
+  return (
+    <div ref={containerRef} className={`overflow-hidden ${className || ""}`}>
+      <span
+        ref={textRef}
+        className={`inline-block whitespace-nowrap ${shouldAnimate ? "animate-marquee" : ""}`}
+        title={text}
+      >
+        {text}
+        {shouldAnimate && <span className="mx-8">{text}</span>}
+      </span>
+    </div>
+  );
+}
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
@@ -46,7 +87,7 @@ export default function WidgetDraggableRadioPlayer() {
       className={`pointer-events-auto fixed right-4 bottom-4 z-50 flex w-72 transform-gpu cursor-grab items-center gap-3 rounded-lg bg-black/80 p-3 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       {/* Cover Art */}
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-white/10">
+      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
         <img
           className="pointer-events-none h-full w-full object-cover"
           src={artworkSrc || transparent1x1Pixel}
@@ -57,21 +98,19 @@ export default function WidgetDraggableRadioPlayer() {
       </div>
 
       {/* Track Info */}
-      <div className="flex min-w-0 flex-1 flex-col justify-center">
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
         <Link
           href={`/radio/${radioStationState.radioStation?.slug}`}
-          className="truncate text-xs text-white/60 hover:text-white/80"
-          title={stationName}
+          className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
         >
-          {stationName}
+          <MarqueeText text={stationName} />
         </Link>
-        <div className="truncate text-sm font-medium text-white" title={title}>
-          {title || "\u00A0"}
-        </div>
+        <MarqueeText
+          text={title || "\u00A0"}
+          className="text-sm font-medium text-white"
+        />
         {artist && (
-          <div className="truncate text-xs text-white/70" title={artist}>
-            {artist}
-          </div>
+          <MarqueeText text={artist} className="text-xs text-white/70" />
         )}
       </div>
 
