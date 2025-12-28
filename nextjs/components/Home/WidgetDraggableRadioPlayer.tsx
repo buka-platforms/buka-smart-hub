@@ -3,11 +3,47 @@
 import { Loading } from "@/components/General/AudioUI";
 import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import { play, stop, transparent1x1Pixel } from "@/lib/audio";
-import { ControlFrom, controls, useDraggable } from "@neodrag/react";
+import {
+  ControlFrom,
+  controls,
+  events,
+  position as positionPlugin,
+  useCompartment,
+  useDraggable,
+} from "@neodrag/react";
 import { useAtomValue } from "jotai";
 import { Pause, Play as PlayIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const POSITION_STORAGE_KEY = "widgetDraggableRadioPlayerPosition";
+
+// Helper to get saved position from localStorage
+function getSavedPosition(): { x: number; y: number } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem(POSITION_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed.x === "number" && typeof parsed.y === "number") {
+        return parsed;
+      }
+    }
+  } catch {
+    // Ignore parsing errors
+  }
+  return null;
+}
+
+// Helper to save position to localStorage
+function savePosition(x: number, y: number) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify({ x, y }));
+  } catch {
+    // Ignore storage errors
+  }
+}
 
 // Marquee text component for long strings
 function MarqueeText({
@@ -53,10 +89,48 @@ function MarqueeText({
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
   const draggableRef = useRef<HTMLDivElement>(null);
-  useDraggable(draggableRef, [
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+
+  // Load position from localStorage on mount
+  useEffect(() => {
+    const saved = getSavedPosition();
+    // Use queueMicrotask to avoid synchronous setState warning
+    queueMicrotask(() => {
+      if (saved) {
+        setPosition(saved);
+      }
+      setIsPositionLoaded(true);
+    });
+  }, []);
+
+  // Handle drag end to save position
+  const handleDragEnd = useCallback(
+    (data: { offset: { x: number; y: number } }) => {
+      const newPosition = { x: data.offset.x, y: data.offset.y };
+      setPosition(newPosition);
+      savePosition(newPosition.x, newPosition.y);
+    },
+    [],
+  );
+
+  // Reactive position plugin - updates when position state changes
+  const positionCompartment = useCompartment(
+    () => positionPlugin({ current: position }),
+    [position.x, position.y],
+  );
+
+  useDraggable(draggableRef, () => [
     controls({
       block: ControlFrom.selector("a, button"),
     }),
+    events({
+      onDragEnd: handleDragEnd,
+    }),
+    positionCompartment,
   ]);
 
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
@@ -78,8 +152,8 @@ export default function WidgetDraggableRadioPlayer() {
 
   const stationName = radioStationState.radioStation?.name || "";
 
-  // Always render the element so the ref is attached, but hide when no station
-  const isVisible = !!radioStationState.radioStation;
+  // Always render the element so the ref is attached, but hide when no station or position not loaded
+  const isVisible = !!radioStationState.radioStation && isPositionLoaded;
 
   return (
     <div
