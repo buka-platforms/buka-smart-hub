@@ -9,7 +9,7 @@ import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import RadioCoverArt from "@/components/Home/RadioCoverArt";
 import RadioPanel from "@/components/Home/RadioPanel";
-// import RadioPlayer from "@/components/Home/RadioPlayer";
+import RadioPlayer from "@/components/Home/RadioPlayer";
 import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
@@ -84,7 +84,9 @@ export default async function Home({
             <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
               <div className="flex items-center gap-2">
                 <RadioPanel requestHeaders={requestHeaders} />
-                {/* <RadioPlayer /> */}
+                {process.env.NODE_ENV === "development" ? (
+                  <RadioPlayer />
+                ) : null}
               </div>
             </div>
             <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">

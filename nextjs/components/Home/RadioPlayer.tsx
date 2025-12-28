@@ -10,7 +10,7 @@ export default function RadioPlayer() {
   return (
     <div
       ref={draggableRef}
-      className="h-2xs fixed right-4 bottom-4 z-50 flex w-2xs cursor-grab bg-white p-4 shadow-lg dark:bg-gray-800"
+      className="h-2xs pointer-events-auto fixed right-4 bottom-4 z-50 flex w-2xs transform-gpu cursor-grab bg-white p-4 shadow-md will-change-transform data-[neodrag-state=dragging]:shadow-none dark:bg-gray-800"
     >
       Hello, World!
     </div>
