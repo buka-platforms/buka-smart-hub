@@ -3,6 +3,7 @@
 import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   initAudioVisualization,
+  renderAudioVisualization,
   setupMediaAudio,
   setupMediaAudioContext,
 } from "@/lib/audio";
@@ -34,7 +35,9 @@ const AudioContext = () => {
       return;
     } else {
       if (mediaAudioState.contextCreated && mediaAudioState.isPlaying) {
+        // Re-initialize and start rendering when navigating between pages
         initAudioVisualization();
+        renderAudioVisualization();
       }
     }
 

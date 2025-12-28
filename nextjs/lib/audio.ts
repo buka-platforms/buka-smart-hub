@@ -10,16 +10,27 @@ import {
 } from "@/lib/track_metadata";
 import Hls from "hls.js";
 
+// Visualization state
 const barColors: string[] = [];
 let canvasElement: HTMLCanvasElement;
+let previousCanvasElement: HTMLCanvasElement | null = null; // Track previous canvas for navigation detection
 let numBars: number;
 let barWidth: number;
-let canvasContext: CanvasRenderingContext2D | null;
 let consZ = 0;
 let usableLength = 250;
-let animationFrameId: number | undefined;
 let audioAnalyserNode: AnalyserNode | null = null;
 let audioFrequencyData: Uint8Array | null = null;
+
+// OffscreenCanvas and Worker state
+let visualizerWorker: Worker | null = null;
+let useOffscreenCanvas = false;
+let offscreenCanvasTransferred = false;
+let frequencyDataIntervalId: ReturnType<typeof setInterval> | undefined;
+
+// Fallback for browsers without OffscreenCanvas support
+let canvasContext: CanvasRenderingContext2D | null = null;
+let animationFrameId: number | undefined;
+
 const rainbowMax = 6;
 const audioVisualizationOptions: AudioVisualizationOptions = {
   preferredBarWidth: 32,
@@ -38,6 +49,26 @@ let isRadioStationCORSProblem: boolean = false;
 let mediaAudioCors: HTMLAudioElement | null | undefined = undefined;
 let hls: Hls | null | undefined = undefined;
 let visibilityHandlerAttached = false;
+
+// Check if OffscreenCanvas is supported (including Safari 16.4+ compatibility check)
+const isOffscreenCanvasSupported = (): boolean => {
+  if (typeof OffscreenCanvas === "undefined" || typeof Worker === "undefined") {
+    return false;
+  }
+
+  // Additional check: verify transferControlToOffscreen is available
+  // Some older Safari versions may have partial OffscreenCanvas support
+  try {
+    const testCanvas = document.createElement("canvas");
+    if (typeof testCanvas.transferControlToOffscreen !== "function") {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+
+  return true;
+};
 
 export const transparent1x1Pixel: string =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -307,18 +338,29 @@ export const stop = async () => {
 
   stopPeriodicGetTrackMetadata();
 
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
-    animationFrameId = undefined;
+  // Stop frequency data sending
+  if (frequencyDataIntervalId) {
+    clearInterval(frequencyDataIntervalId);
+    frequencyDataIntervalId = undefined;
+  }
 
-    if (canvasContext) {
-      if (canvasElement) {
-        canvasContext.clearRect(
-          0,
-          0,
-          canvasElement.width,
-          canvasElement.height,
-        );
+  // Stop visualization - OffscreenCanvas or fallback
+  if (useOffscreenCanvas && visualizerWorker) {
+    visualizerWorker.postMessage({ type: "stop" });
+  } else {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = undefined;
+
+      if (canvasContext) {
+        if (canvasElement) {
+          canvasContext.clearRect(
+            0,
+            0,
+            canvasElement.width,
+            canvasElement.height,
+          );
+        }
       }
     }
   }
@@ -506,11 +548,193 @@ export const setupMediaAudioContext = () => {
   setupVisibilityHandler();
 };
 
+// Helper function to generate bar colors
+const generateBarColors = (
+  numBars: number,
+  options: AudioVisualizationOptions,
+): string[] => {
+  const colors: string[] = [];
+  for (let i = 0; i < numBars; i++) {
+    const frequency = 5 / numBars;
+
+    if (options.color == "rainbow1") {
+      // Sinusoidal RGB rainbow, or Classic RGB rainbow
+      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
+      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow2") {
+      // Shifted sinusoidal RGB rainbow, or Phase-shifted RGB rainbow, or Twisted RGB rainbow
+      const b = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const g = Math.floor(Math.sin(frequency * i + 1) * 127 + 128);
+      const r = Math.floor(Math.sin(frequency * i + 3) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow3") {
+      // Red-dominant sinusoidal RGB rainbow, or Red-lead RGB rainbow
+      const r = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const g = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow4") {
+      // Orange-lead sinusoidal RGB rainbow
+      const r = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const g = Math.floor(Math.sin(frequency * i + 1) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 3) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow5") {
+      // Green-dominant sinusoidal RGB rainbow, or Green-lead RGB rainbow
+      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else if (options.color == "rainbow6") {
+      // Blue-dominant sinusoidal RGB rainbow, or Blue-lead RGB rainbow
+      const b = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
+      const g = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const r = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    } else {
+      // Sinusoidal RGB rainbow, or Classic RGB rainbow
+      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
+      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
+      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
+      colors[i] =
+        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
+    }
+  }
+  return colors;
+};
+
+// Reset visualizer state when canvas element changes (e.g., Next.js navigation)
+const resetVisualizerForNewCanvas = () => {
+  // Stop frequency data transfer
+  stopFrequencyDataTransfer();
+
+  // Destroy the existing worker since it holds reference to old canvas
+  if (visualizerWorker) {
+    visualizerWorker.postMessage({ type: "destroy" });
+    visualizerWorker.terminate();
+    visualizerWorker = null;
+  }
+
+  // Reset state flags so a new transfer can happen
+  offscreenCanvasTransferred = false;
+  useOffscreenCanvas = false;
+  canvasContext = null;
+
+  // Cancel any pending animation frame (for fallback mode)
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = undefined;
+  }
+};
+
+// Initialize the worker for OffscreenCanvas rendering
+const initVisualizerWorker = () => {
+  if (visualizerWorker) return;
+
+  visualizerWorker = new Worker(
+    new URL("./audio-visualizer.worker.ts", import.meta.url),
+  );
+
+  visualizerWorker.onmessage = (event: MessageEvent) => {
+    const { type } = event.data;
+    if (type === "initialized") {
+      // Canvas transfer confirmed by worker
+    }
+  };
+
+  visualizerWorker.onerror = (error) => {
+    console.error("Visualizer worker error:", error);
+    // Fallback to regular canvas rendering
+    useOffscreenCanvas = false;
+    offscreenCanvasTransferred = false;
+  };
+};
+
+// Start sending frequency data to the worker
+const startFrequencyDataTransfer = () => {
+  if (frequencyDataIntervalId) return;
+
+  // Send frequency data at ~60fps (approximately 16ms interval)
+  frequencyDataIntervalId = setInterval(() => {
+    if (
+      audioAnalyserNode &&
+      audioFrequencyData &&
+      visualizerWorker &&
+      useOffscreenCanvas
+    ) {
+      audioAnalyserNode.getByteFrequencyData(
+        audioFrequencyData as Uint8Array<ArrayBuffer>,
+      );
+
+      // Calculate usable length based on consecutive zeroes
+      const options = audioVisualizationOptions;
+      const consZLim = options.consecutiveZeroesLimit;
+
+      if (consZLim > 0) {
+        for (let i = 0; i < audioFrequencyData.length; i++) {
+          if (audioFrequencyData[i] === 0) {
+            consZ++;
+          } else {
+            consZ = 0;
+          }
+          if (consZ >= consZLim) {
+            setUsableLength(i - consZLim + 1);
+            break;
+          }
+        }
+      }
+
+      // Send a copy of the frequency data to the worker
+      visualizerWorker.postMessage({
+        type: "frequencyData",
+        data: {
+          frequencyData: Array.from(audioFrequencyData),
+          usableLength: usableLength,
+        },
+      });
+    }
+  }, 16);
+};
+
+// Stop sending frequency data to the worker
+const stopFrequencyDataTransfer = () => {
+  if (frequencyDataIntervalId) {
+    clearInterval(frequencyDataIntervalId);
+    frequencyDataIntervalId = undefined;
+  }
+};
+
 export const initAudioVisualization = () => {
   const options = audioVisualizationOptions;
-  canvasElement = document.getElementById("vis-canvas") as HTMLCanvasElement;
+  const newCanvasElement = document.getElementById(
+    "vis-canvas",
+  ) as HTMLCanvasElement;
 
-  if (!canvasElement) return;
+  if (!newCanvasElement) return;
+
+  // Detect if canvas element changed (e.g., navigation in Next.js)
+  // If the canvas element is different from the previous one, we need to reset
+  const canvasChanged =
+    previousCanvasElement !== null &&
+    previousCanvasElement !== newCanvasElement;
+
+  if (canvasChanged) {
+    // Canvas element changed (navigation occurred)
+    // Reset the worker and offscreen state to use the new canvas
+    resetVisualizerForNewCanvas();
+  }
+
+  // Update the canvas element reference
+  canvasElement = newCanvasElement;
+  previousCanvasElement = newCanvasElement;
 
   if (canvasElement && canvasElement.parentElement) {
     if (!options.width) {
@@ -522,9 +746,13 @@ export const initAudioVisualization = () => {
     }
   }
 
-  if (canvasElement && options.width && options.height) {
-    canvasElement.width = options.width as number;
-    canvasElement.height = options.height as number;
+  // Only set canvas dimensions if NOT already transferred to OffscreenCanvas
+  // Once transferred, the canvas cannot be resized from main thread
+  if (!offscreenCanvasTransferred) {
+    if (canvasElement && options.width && options.height) {
+      canvasElement.width = options.width as number;
+      canvasElement.height = options.height as number;
+    }
   }
 
   numBars = options.numBars
@@ -540,67 +768,87 @@ export const initAudioVisualization = () => {
 
   if (barWidth < 4) barWidth = 4;
 
-  for (let i = 0; i < numBars; i++) {
-    const frequency = 5 / numBars;
-
-    if (options.color == "rainbow1") {
-      // Sinusoidal RGB rainbow, or Classic RGB rainbow
-      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
-      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
-      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else if (options.color == "rainbow2") {
-      // Shifted sinusoidal RGB rainbow, or Phase-shifted RGB rainbow, or Twisted RGB rainbow
-      const b = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
-      const g = Math.floor(Math.sin(frequency * i + 1) * 127 + 128);
-      const r = Math.floor(Math.sin(frequency * i + 3) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else if (options.color == "rainbow3") {
-      // Red-dominant sinusoidal RGB rainbow, or Red-lead RGB rainbow
-      const r = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
-      const g = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
-      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else if (options.color == "rainbow4") {
-      // Orange-lead sinusoidal RGB rainbow
-      const r = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
-      const g = Math.floor(Math.sin(frequency * i + 1) * 127 + 128);
-      const b = Math.floor(Math.sin(frequency * i + 3) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else if (options.color == "rainbow5") {
-      // Green-dominant sinusoidal RGB rainbow, or Green-lead RGB rainbow
-      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
-      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
-      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else if (options.color == "rainbow6") {
-      // Blue-dominant sinusoidal RGB rainbow, or Blue-lead RGB rainbow
-      const b = Math.floor(Math.sin(frequency * i + 0) * 127 + 128);
-      const g = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
-      const r = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    } else {
-      // Sinusoidal RGB rainbow, or Classic RGB rainbow
-      const g = Math.floor(Math.sin(frequency * i + 0) * 127 + 128); //actual rainbow
-      const r = Math.floor(Math.sin(frequency * i + 2) * 127 + 128);
-      const b = Math.floor(Math.sin(frequency * i + 4) * 127 + 128);
-      barColors[i] =
-        "rgba(" + r + "," + g + "," + b + "," + options.rainbowOpacity + ")";
-    }
-  }
-
-  canvasContext = canvasElement.getContext("2d");
+  // Generate bar colors
+  const generatedColors = generateBarColors(numBars, options);
+  barColors.length = 0;
+  barColors.push(...generatedColors);
 
   consZ = 0;
+
+  // Check if we should use OffscreenCanvas
+  useOffscreenCanvas = isOffscreenCanvasSupported();
+
+  // If already transferred, just update the worker with new config if needed
+  if (offscreenCanvasTransferred && visualizerWorker) {
+    visualizerWorker.postMessage({
+      type: "resize",
+      data: {
+        width: options.width,
+        height: options.height,
+        numBars: numBars,
+        barWidth: barWidth,
+        barColors: barColors,
+      },
+    });
+    return;
+  }
+
+  if (useOffscreenCanvas && !offscreenCanvasTransferred) {
+    try {
+      // Initialize the worker
+      initVisualizerWorker();
+
+      // Transfer the canvas to OffscreenCanvas
+      const offscreen = canvasElement.transferControlToOffscreen();
+
+      // Mark as transferred BEFORE sending to worker
+      offscreenCanvasTransferred = true;
+
+      // Send the OffscreenCanvas to the worker
+      visualizerWorker?.postMessage(
+        {
+          type: "init",
+          data: {
+            canvas: offscreen,
+            width: options.width,
+            height: options.height,
+            numBars: numBars,
+            barWidth: barWidth,
+            barSpacing: options.barSpacing,
+            barColors: barColors,
+          },
+        },
+        [offscreen],
+      );
+    } catch {
+      // Fallback to regular canvas if transfer fails
+      console.warn(
+        "OffscreenCanvas transfer failed, falling back to regular canvas",
+      );
+      useOffscreenCanvas = false;
+      offscreenCanvasTransferred = false;
+      canvasContext = canvasElement.getContext("2d");
+    }
+  } else if (!useOffscreenCanvas) {
+    // Fallback: use regular canvas context
+    canvasContext = canvasElement.getContext("2d");
+  }
 };
 
 export const renderAudioVisualization = () => {
+  // If using OffscreenCanvas, start the worker and frequency data transfer
+  if (useOffscreenCanvas && visualizerWorker) {
+    visualizerWorker.postMessage({ type: "start" });
+    startFrequencyDataTransfer();
+    return;
+  }
+
+  // Fallback: render on main thread
+  renderAudioVisualizationFallback();
+};
+
+// Fallback rendering for browsers without OffscreenCanvas support
+const renderAudioVisualizationFallback = () => {
   if (document.visibilityState !== "visible") {
     animationFrameId = undefined;
     return;
@@ -635,7 +883,7 @@ export const renderAudioVisualization = () => {
     options.height === null ||
     !audioFrequencyData
   ) {
-    animationFrameId = requestAnimationFrame(renderAudioVisualization);
+    animationFrameId = requestAnimationFrame(renderAudioVisualizationFallback);
     return;
   }
 
@@ -654,7 +902,7 @@ export const renderAudioVisualization = () => {
     ind += step;
   }
 
-  animationFrameId = requestAnimationFrame(renderAudioVisualization);
+  animationFrameId = requestAnimationFrame(renderAudioVisualizationFallback);
 };
 
 const setUsableLength = (len: number) => {
@@ -669,9 +917,15 @@ export const setupVisibilityHandler = () => {
 
   document.addEventListener("visibilitychange", async () => {
     if (document.visibilityState === "hidden") {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = undefined;
+      // Pause visualization when tab is hidden
+      if (useOffscreenCanvas && visualizerWorker) {
+        visualizerWorker.postMessage({ type: "pause" });
+        stopFrequencyDataTransfer();
+      } else {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = undefined;
+        }
       }
     }
 
@@ -680,9 +934,37 @@ export const setupVisibilityHandler = () => {
       consZ = 0;
       usableLength = 250;
 
-      if (jotaiStore.get(mediaAudioStateAtom).isPlaying && !animationFrameId) {
-        animationFrameId = requestAnimationFrame(renderAudioVisualization);
+      if (jotaiStore.get(mediaAudioStateAtom).isPlaying) {
+        if (useOffscreenCanvas && visualizerWorker) {
+          visualizerWorker.postMessage({ type: "resume" });
+          startFrequencyDataTransfer();
+        } else if (!animationFrameId) {
+          renderAudioVisualization();
+        }
       }
     }
   });
+};
+
+// Cleanup function to destroy the worker and reset state
+export const destroyAudioVisualization = () => {
+  // Stop frequency data transfer
+  stopFrequencyDataTransfer();
+
+  // Destroy worker
+  if (visualizerWorker) {
+    visualizerWorker.postMessage({ type: "destroy" });
+    visualizerWorker.terminate();
+    visualizerWorker = null;
+  }
+
+  // Reset state
+  useOffscreenCanvas = false;
+  offscreenCanvasTransferred = false;
+  canvasContext = null;
+
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = undefined;
+  }
 };
