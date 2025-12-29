@@ -59,7 +59,7 @@ export default async function Home() {
           </div>
         </header>
         {/* Bottom left: WidgetDraggableRadioPlayer and WidgetDraggableWeather above Date & Time */}
-        <div className="absolute bottom-86 left-3 z-20 md:bottom-106 md:left-6">
+        <div className="absolute bottom-98 left-3 z-20 md:bottom-120 md:left-6">
           <WidgetDraggableWeather />
         </div>
         <div className="absolute bottom-60 left-3 z-20 md:bottom-80 md:left-6">
