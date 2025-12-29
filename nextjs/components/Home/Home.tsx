@@ -10,7 +10,7 @@ import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import Volume from "@/components/Home/Volume";
 import WidgetDateTime from "@/components/Home/WidgetDateTime";
 import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
-import WidgetWeather from "@/components/Home/WidgetWeather";
+import WidgetDraggableWeather from "@/components/Home/WidgetDraggableWeather";
 import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
 
@@ -55,13 +55,13 @@ export default async function Home() {
                 color="#f5f5f5"
               />
             </div>
-            <div className="flex items-center">
-              <WidgetWeather />
-            </div>
             <UserAvatar />
           </div>
         </header>
-        {/* Bottom left: WidgetDraggableRadioPlayer above Date & Time */}
+        {/* Bottom left: WidgetDraggableRadioPlayer and WidgetDraggableWeather above Date & Time */}
+        <div className="absolute bottom-72 left-3 z-20 md:bottom-94 md:left-6">
+          <WidgetDraggableWeather />
+        </div>
         <div className="absolute bottom-46 left-3 z-20 md:bottom-68 md:left-6">
           <WidgetDraggableRadioPlayer />
         </div>
