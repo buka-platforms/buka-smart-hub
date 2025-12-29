@@ -1,3 +1,4 @@
+import RequestHeadersProvider from "@/components/General/RequestHeadersProvider";
 import Search from "@/components/General/Search";
 import UserAvatar from "@/components/General/UserAvatar";
 import AppsLink from "@/components/Home/AppsLink";
@@ -8,7 +9,6 @@ import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import RadioPanel from "@/components/Home/RadioPanel";
-import RequestHeadersProvider from "@/components/Home/RequestHeadersProvider";
 import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
