@@ -8,7 +8,7 @@ import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdo
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import Volume from "@/components/Home/Volume";
-import WidgetDateTime from "@/components/Home/WidgetDateTime";
+import WidgetDraggableDateTime from "@/components/Home/WidgetDraggableDateTime";
 import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
 import WidgetDraggableWeather from "@/components/Home/WidgetDraggableWeather";
 import { getRequestHeaders } from "@/lib/header";
@@ -59,14 +59,14 @@ export default async function Home() {
           </div>
         </header>
         {/* Bottom left: WidgetDraggableRadioPlayer and WidgetDraggableWeather above Date & Time */}
-        <div className="absolute bottom-98 left-3 z-20 md:bottom-120 md:left-6">
+        <div className="absolute bottom-111 left-3 z-20 md:bottom-113 md:left-6">
           <WidgetDraggableWeather />
         </div>
-        <div className="absolute bottom-60 left-3 z-20 md:bottom-80 md:left-6">
+        <div className="absolute bottom-72 left-3 z-20 md:bottom-74 md:left-6">
           <WidgetDraggableRadioPlayer />
         </div>
-        <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
-          <WidgetDateTime />
+        <div className="absolute bottom-36 left-3 z-20 md:bottom-38 md:left-6">
+          <WidgetDraggableDateTime />
         </div>
         {/* Bottom right: Apps CTA */}
         <>
