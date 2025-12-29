@@ -17,11 +17,7 @@ import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
-export default async function Home({
-  userSession,
-}: {
-  userSession: { [key: string]: unknown };
-}) {
+export default async function Home() {
   const requestHeaders = await getRequestHeaders();
 
   if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
@@ -61,7 +57,7 @@ export default async function Home({
             <div className="flex items-center">
               <Weather />
             </div>
-            <UserAvatar userSession={userSession} />
+            <UserAvatar />
           </div>
         </header>
         {/* Bottom left: WidgetDraggableRadioPlayer above Date & Time */}

@@ -4,6 +4,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { User } from "@/data/type";
+import { checkUserSession } from "@/lib/user";
 import {
   Book,
   CircleUserRound,
@@ -19,12 +20,10 @@ const NotAuthenticated = () => {
     <>
       <Popover>
         <PopoverTrigger>
-          <div>
-            <CircleUserRound
-              className="h-8 w-8 cursor-pointer opacity-80 hover:opacity-100 md:h-10 md:w-10"
-              color="#f5f5f5"
-            />
-          </div>
+          <CircleUserRound
+            className="h-8 w-8 cursor-pointer opacity-80 hover:opacity-100 md:h-10 md:w-10"
+            color="#f5f5f5"
+          />
         </PopoverTrigger>
         <PopoverContent className="mr-4 w-max overflow-hidden bg-slate-50 p-0 shadow-md">
           <ul className="no-bullet no-padding">
@@ -78,15 +77,13 @@ const Authenticated = ({ userDetails }: { userDetails: User }) => {
     <>
       <Popover>
         <PopoverTrigger>
-          <div>
-            <img
-              src={userDetails.picture}
-              alt={userDetails.name}
-              title={userDetails.name}
-              className="h-8 w-8 cursor-pointer rounded-full border-2 border-slate-600 opacity-100 shadow-xs md:h-10 md:w-10"
-              referrerPolicy="no-referrer"
-            />
-          </div>
+          <img
+            src={userDetails.picture}
+            alt={userDetails.name}
+            title={userDetails.name}
+            className="h-8 w-8 cursor-pointer rounded-full border-2 border-slate-600 opacity-100 shadow-xs md:h-10 md:w-10"
+            referrerPolicy="no-referrer"
+          />
         </PopoverTrigger>
         <PopoverContent className="mr-4 w-max bg-slate-50 p-0 shadow-md">
           <ul className="no-bullet no-padding">
@@ -134,12 +131,8 @@ const Authenticated = ({ userDetails }: { userDetails: User }) => {
   );
 };
 
-export default function UserAvatar({
-  userSession,
-}: {
-  userSession: { [key: string]: unknown };
-}) {
-  const { is_authenticated, user_details } = userSession;
+export default async function UserAvatar() {
+  const { is_authenticated, user_details } = await checkUserSession();
 
   return (
     <>

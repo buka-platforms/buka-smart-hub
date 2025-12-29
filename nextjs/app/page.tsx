@@ -1,5 +1,4 @@
 import Home from "@/components/Home/Home";
-import { checkUserSession } from "@/lib/user";
 import type { Metadata } from "next";
 
 const pageTitle = `${process.env.NEXT_PUBLIC_APP_TITLE}`;
@@ -11,7 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const userSession = await checkUserSession();
-
-  return <Home userSession={userSession} />;
+  return <Home />;
 }
