@@ -1,8 +1,16 @@
-import type { RadioStation, RequestHeaders, Unsplash } from "@/data/type";
+import type {
+  RadioStation,
+  RequestHeaders,
+  Unsplash,
+  UserSession,
+} from "@/data/type";
 import { atom, createStore } from "jotai";
 
 export const jotaiStore = createStore();
 
+export const userSessionStateAtom = atom(
+  undefined as UserSession | null | undefined,
+);
 export const requestHeadersStateAtom = atom(
   undefined as RequestHeaders | null | undefined,
 );
