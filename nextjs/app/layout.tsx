@@ -94,7 +94,6 @@ export default async function RootLayout({
         </JotaiProvider>
       </body>
       <ClientSideOperationOnPage />
-      {/* <Audio /> */}
     </html>
   );
 }
