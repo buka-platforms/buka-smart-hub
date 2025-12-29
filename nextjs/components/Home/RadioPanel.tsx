@@ -1,7 +1,11 @@
 "use client";
 
 import { Loading } from "@/components/General/AudioUI";
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import {
+  mediaAudioStateAtom,
+  radioStationStateAtom,
+  requestHeadersStateAtom,
+} from "@/data/store";
 import {
   loadRadioStationBySlug as loadRadioStation,
   loadRadioStationBySlug,
@@ -64,16 +68,14 @@ const RadioStationDirectory = () => {
   );
 };
 
-export default function RadioPanel({
-  requestHeaders,
-}: {
-  requestHeaders: { [key: string]: string };
-}) {
+export default function RadioPanel() {
+  const requestHeaders = useAtomValue(requestHeadersStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-  const ipCountry = requestHeaders.hasOwnProperty("x-vercel-ip-country")
-    ? requestHeaders["x-vercel-ip-country"]
-    : null;
+  const ipCountry =
+    requestHeaders && requestHeaders.hasOwnProperty("x-vercel-ip-country")
+      ? requestHeaders["x-vercel-ip-country"]
+      : null;
 
   useEffect(() => {
     const handleUseEffect = async () => {

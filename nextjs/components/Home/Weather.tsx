@@ -1,5 +1,7 @@
 "use client";
 
+import { requestHeadersStateAtom } from "@/data/store";
+import { useAtomValue } from "jotai";
 import Link from "next/link";
 import useSWR from "swr";
 
@@ -21,14 +23,15 @@ const fetcher = async (
 };
 
 /* eslint-disable @next/next/no-img-element */
-export default function Weather({
-  requestHeaders,
-}: {
-  requestHeaders: Record<string, string>;
-}) {
+export default function Weather() {
+  const requestHeaders = useAtomValue(requestHeadersStateAtom);
   const appId = process.env.NEXT_PUBLIC_OPENWEATHERMAP_APP_ID;
   const { data, error, isLoading } = useSWR(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${requestHeaders["x-vercel-ip-latitude"]}&lon=${requestHeaders["x-vercel-ip-longitude"]}&units=metric&appid=${appId}`,
+    requestHeaders &&
+      requestHeaders["x-vercel-ip-latitude"] &&
+      requestHeaders["x-vercel-ip-longitude"]
+      ? `https://api.openweathermap.org/data/2.5/weather?lat=${requestHeaders["x-vercel-ip-latitude"]}&lon=${requestHeaders["x-vercel-ip-longitude"]}&units=metric&appid=${appId}`
+      : null,
     fetcher,
     {
       revalidateOnFocus: true,

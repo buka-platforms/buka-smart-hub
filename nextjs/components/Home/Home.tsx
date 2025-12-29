@@ -8,6 +8,7 @@ import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import RadioPanel from "@/components/Home/RadioPanel";
+import RequestHeadersProvider from "@/components/Home/RequestHeadersProvider";
 import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
@@ -32,6 +33,7 @@ export default async function Home({
 
   return (
     <>
+      <RequestHeadersProvider requestHeaders={requestHeaders} />
       <h1 className="hidden">
         {process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.
       </h1>
@@ -57,7 +59,7 @@ export default async function Home({
               />
             </div>
             <div className="flex items-center">
-              <Weather requestHeaders={requestHeaders} />
+              <Weather />
             </div>
             <UserAvatar userSession={userSession} />
           </div>
@@ -84,7 +86,7 @@ export default async function Home({
           </div>
           <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
             <div className="flex items-center gap-2">
-              <RadioPanel requestHeaders={requestHeaders} />
+              <RadioPanel />
             </div>
           </div>
           <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
