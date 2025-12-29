@@ -19,11 +19,14 @@ import Link from "next/link";
 export default async function Home() {
   const requestHeaders = await getRequestHeaders();
 
+  // Use environment variables for localhost geolocation (fallback to Jakarta, Indonesia if not set)
   if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
-    // Set the IP latitude and longitude for localhost as Jakarta, Indonesia and the country as Indonesia
-    requestHeaders["x-vercel-ip-latitude"] = "-6.2114";
-    requestHeaders["x-vercel-ip-longitude"] = "106.8451";
-    requestHeaders["x-vercel-ip-country"] = "ID";
+    requestHeaders["x-vercel-ip-latitude"] =
+      process.env.NEXT_PUBLIC_LOCALHOST_LATITUDE || "-6.2114";
+    requestHeaders["x-vercel-ip-longitude"] =
+      process.env.NEXT_PUBLIC_LOCALHOST_LONGITUDE || "106.8451";
+    requestHeaders["x-vercel-ip-country"] =
+      process.env.NEXT_PUBLIC_LOCALHOST_COUNTRY || "ID";
   }
 
   return (
