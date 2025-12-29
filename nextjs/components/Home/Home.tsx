@@ -1,9 +1,9 @@
 import Search from "@/components/General/Search";
 import UserAvatar from "@/components/General/UserAvatar";
 import AppsLink from "@/components/Home/AppsLink";
+import AudioSpectrumCanvas from "@/components/Home/AudioSpectrumCanvas";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
-import Canvas from "@/components/Home/Canvas";
 import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
@@ -98,7 +98,7 @@ export default async function Home({
             </div>
           </div>
         </>
-        <Canvas />
+        <AudioSpectrumCanvas />
       </div>
     </>
   );

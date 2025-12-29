@@ -1,4 +1,4 @@
-export default function Canvas() {
+export default function AudioSpectrumCanvas() {
   return (
     <>
       <div
