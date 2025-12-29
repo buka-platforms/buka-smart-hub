@@ -1,6 +1,12 @@
 "use client";
 
 import { Loading } from "@/components/General/AudioUI";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug,
@@ -17,7 +23,13 @@ import {
   useDraggable,
 } from "@neodrag/react";
 import { useAtomValue } from "jotai";
-import { Pause, Play as PlayIcon } from "lucide-react";
+import {
+  Heart,
+  ListMusic,
+  MoreHorizontal,
+  Pause,
+  Play as PlayIcon,
+} from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
@@ -28,6 +40,7 @@ import {
 } from "react";
 
 const POSITION_STORAGE_KEY = "widgetDraggableRadioPlayerPosition";
+const INITIAL_POSITION = { x: 0, y: 0 } as const;
 
 // Helper to get saved position from localStorage
 function getSavedPosition(): { x: number; y: number } | null {
@@ -109,11 +122,11 @@ const MarqueeText = ({
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
   const draggableRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
+  const [position, setPosition] = useState<{ x: number; y: number }>(
+    INITIAL_POSITION,
+  );
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const mediaAudioState = useAtomValue(mediaAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
 
@@ -156,6 +169,49 @@ export default function WidgetDraggableRadioPlayer() {
     handleUseEffect();
   }, [radioStationState.radioStation]);
 
+  // Sync favorite flag with localStorage
+  useEffect(() => {
+    const slug = radioStationState.radioStation?.slug;
+    if (!slug || typeof window === "undefined") return;
+    let isMounted = true;
+
+    queueMicrotask(() => {
+      if (!isMounted) return;
+      try {
+        const saved = localStorage.getItem("favoriteRadioStations");
+        const parsed: string[] = saved ? JSON.parse(saved) : [];
+        setIsFavorite(parsed.includes(slug));
+      } catch {
+        setIsFavorite(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [radioStationState.radioStation?.slug]);
+
+  const toggleFavorite = useCallback(() => {
+    const slug = radioStationState.radioStation?.slug;
+    if (!slug || typeof window === "undefined") return;
+    try {
+      const saved = localStorage.getItem("favoriteRadioStations");
+      const parsed: string[] = saved ? JSON.parse(saved) : [];
+      const next = parsed.includes(slug)
+        ? parsed.filter((s) => s !== slug)
+        : [...parsed, slug];
+      localStorage.setItem("favoriteRadioStations", JSON.stringify(next));
+      setIsFavorite(next.includes(slug));
+    } catch {
+      /* noop */
+    }
+  }, [radioStationState.radioStation?.slug]);
+
+  const resetPosition = useCallback(() => {
+    setPosition(INITIAL_POSITION);
+    savePosition(INITIAL_POSITION.x, INITIAL_POSITION.y);
+  }, []);
+
   // Reactive position plugin - updates when position state changes
   const positionCompartment = useCompartment(
     () => positionPlugin({ current: position }),
@@ -192,73 +248,119 @@ export default function WidgetDraggableRadioPlayer() {
   const isVisible = !!radioStationState.radioStation && isPositionLoaded;
 
   return (
-    <div
-      ref={draggableRef}
-      className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-    >
-      {/* Vertical "Radio" Label */}
-      <div className="flex items-center justify-center border-r border-white/10 px-1">
-        <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-          Radio
-        </span>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex w-64 items-center gap-3 p-3">
-        {/* Cover Art */}
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
-          <img
-            className="pointer-events-none h-full w-full object-contain"
-            src={artworkSrc || transparent1x1Pixel}
-            alt={title}
-            loading="lazy"
-            draggable={false}
-          />
+    <DropdownMenu>
+      <div
+        ref={draggableRef}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      >
+        {/* Vertical "Radio" Label */}
+        <div className="flex items-center justify-center border-r border-white/10 px-1">
+          <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
+            Radio
+          </span>
         </div>
 
-        {/* Track Info */}
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-          <Link
-            href={`/radio/${radioStationState.radioStation?.slug}`}
-            className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
-          >
-            <MarqueeText text={stationName} />
-          </Link>
-          <MarqueeText
-            text={title || "\u00A0"}
-            className="text-sm font-medium text-white"
-          />
-          {artist && (
-            <MarqueeText text={artist} className="text-xs text-white/70" />
-          )}
-        </div>
+        {/* Main Column */}
+        <div className="flex w-80 flex-col">
+          {/* Player Row */}
+          <div className="flex items-center gap-3 p-3">
+            {/* Cover Art */}
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
+              <img
+                className="pointer-events-none h-full w-full object-contain"
+                src={artworkSrc || transparent1x1Pixel}
+                alt={title}
+                loading="lazy"
+                draggable={false}
+              />
+            </div>
 
-        {/* Play/Stop Button */}
-        <div className="shrink-0">
-          {mediaAudioState.isLoading ? (
-            <Loading
-              className="h-10 w-10 animate-spin text-white/80"
-              color="#f5f5f5"
-            />
-          ) : mediaAudioState.isPlaying ? (
+            {/* Track Info */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+              <Link
+                href={`/radio/${radioStationState.radioStation?.slug}`}
+                className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
+              >
+                <MarqueeText text={stationName} />
+              </Link>
+              <MarqueeText
+                text={title || "\u00A0"}
+                className="text-sm font-medium text-white"
+              />
+              {artist && (
+                <MarqueeText text={artist} className="text-xs text-white/70" />
+              )}
+            </div>
+
+            {/* Play/Stop Button */}
+            <div className="shrink-0">
+              {mediaAudioState.isLoading ? (
+                <Loading
+                  className="h-10 w-10 animate-spin text-white/80"
+                  color="#f5f5f5"
+                />
+              ) : mediaAudioState.isPlaying ? (
+                <button
+                  onClick={stop}
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="Stop"
+                >
+                  <Pause className="h-5 w-5" fill="currentColor" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => play(false)}
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="Play"
+                >
+                  <PlayIcon className="h-5 w-5" fill="currentColor" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Separator and action bar */}
+          <div className="border-t border-white/10" />
+          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
-              onClick={stop}
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-              title="Stop"
+              onClick={toggleFavorite}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
-              <Pause className="h-5 w-5" fill="currentColor" />
+              <Heart
+                className="h-3.5 w-3.5"
+                fill={isFavorite ? "currentColor" : "none"}
+              />
             </button>
-          ) : (
-            <button
-              onClick={() => play(false)}
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-              title="Play"
+
+            <Link
+              href="/radio"
+              className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              title="Browse more stations"
             >
-              <PlayIcon className="h-5 w-5" fill="currentColor" />
-            </button>
-          )}
+              <ListMusic className="mr-1 h-3 w-3" />
+              <span className="hidden sm:inline">More</span>
+            </Link>
+
+            <div className="ml-auto">
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="More options"
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+      <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+        <DropdownMenuItem onSelect={resetPosition}>
+          Reset position
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
