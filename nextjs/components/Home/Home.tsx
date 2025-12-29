@@ -1,18 +1,18 @@
+import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
 import RequestHeadersProvider from "@/components/General/RequestHeadersProvider";
 import Search from "@/components/General/Search";
 import UserAvatar from "@/components/General/UserAvatar";
 import AppsLink from "@/components/Home/AppsLink";
-import AudioSpectrumCanvas from "@/components/Home/AudioSpectrumCanvas";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
+import WidgetDateTime from "@/components/Home/WidgetDateTime";
 import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
 import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
-import WidgetDateTime from "@/components/Home/WidgetDateTime";
 
 /* eslint-disable @next/next/no-img-element */
 export default async function Home() {

@@ -1,6 +1,7 @@
 import RadioCoverArt from "@/app/radio/[slug]/RadioCoverArt";
 import RadioMetadata from "@/app/radio/[slug]/RadioMetadata";
 import RadioPanel from "@/app/radio/[slug]/RadioPanel";
+import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
 import Search from "@/components/General/Search";
 import UserAvatar from "@/components/General/UserAvatar";
 import AppsLink from "@/components/Home/AppsLink";
@@ -8,7 +9,6 @@ import BackgroundImageContainer from "@/components/Home/BackgroundImageContainer
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import Canvas from "./Canvas";
 import "@fontsource-variable/rubik";
 import Volume from "@/components/Home/Volume";
 import type { Metadata } from "next";
@@ -160,7 +160,7 @@ export default async function RadioDetailPage({
               </div>
             </div>
           </div>
-          <Canvas />
+          <AudioSpectrumCanvas />
         </div>
       </div>
     </>
