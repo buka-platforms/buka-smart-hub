@@ -2,12 +2,7 @@
 
 import { Loading } from "@/components/General/AudioUI";
 import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
-import {
-  loadRadioStationBySlug as loadRadioStation,
-  loadRadioStationBySlug,
-  play,
-  stop,
-} from "@/lib/audio";
+import { loadRadioStationBySlug, play, stop } from "@/lib/audio";
 import { useAtomValue } from "jotai";
 import { ListMusic, Loader2, PlayCircle, StopCircle } from "lucide-react";
 import Link from "next/link";
@@ -73,7 +68,7 @@ export default function RadioPanel() {
       if (!radioStationState.radioStation) {
         // Check if localStorage has radioStationSlug
         if (localStorage.getItem("radioStationSlug")) {
-          await loadRadioStation(
+          await loadRadioStationBySlug(
             localStorage.getItem("radioStationSlug") as string,
           );
         } else {
