@@ -5,15 +5,14 @@ import AppsLink from "@/components/Home/AppsLink";
 import AudioSpectrumCanvas from "@/components/Home/AudioSpectrumCanvas";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
-import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
 import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
 import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
+import WidgetDateTime from "@/components/Home/WidgetDateTime";
 
 /* eslint-disable @next/next/no-img-element */
 export default async function Home() {
@@ -67,8 +66,7 @@ export default async function Home() {
           <WidgetDraggableRadioPlayer />
         </div>
         <div className="absolute bottom-3 left-3 z-10 flex max-w-[60%] flex-col md:bottom-6 md:left-6 md:max-w-full">
-          <Date />
-          <Time />
+          <WidgetDateTime />
         </div>
         {/* Bottom right: Apps CTA */}
         <>
