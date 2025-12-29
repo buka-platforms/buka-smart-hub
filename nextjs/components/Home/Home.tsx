@@ -8,7 +8,6 @@ import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdo
 import Date from "@/components/Home/Date";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import RadioPanel from "@/components/Home/RadioPanel";
 import Time from "@/components/Home/Time";
 import Volume from "@/components/Home/Volume";
 import Weather from "@/components/Home/Weather";
@@ -70,7 +69,7 @@ export default async function Home() {
         </div>
         {/* Bottom right: Apps, RadioPanel, Controls (restored absolute edge attachment) */}
         <>
-          <div className="absolute right-0 bottom-[6.3rem] z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-[8.2rem] md:pl-3">
+          <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-16 md:pl-3">
             <div className="flex items-center">
               <Link
                 href="/apps"
@@ -78,11 +77,6 @@ export default async function Home() {
               >
                 <AppsLink />
               </Link>
-            </div>
-          </div>
-          <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-pink-600 p-1 shadow-md md:bottom-16">
-            <div className="flex items-center gap-2">
-              <RadioPanel />
             </div>
           </div>
           <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
