@@ -4,7 +4,6 @@ import {
   backgroundImageStateAtom,
   requestHeadersStateAtom,
 } from "@/data/store";
-import type { RequestHeaders as RequestHeadersType } from "@/data/type";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -14,15 +13,10 @@ interface RequestHeaders {
 }
 
 /* eslint-disable @next/next/no-img-element */
-export default function BackgroundImageContainerClient({
-  requestHeaders,
-}: {
-  requestHeaders: RequestHeadersType | null | undefined;
-}) {
+export default function BackgroundImageContainerClient() {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
   const requestHeadersState = useAtomValue(requestHeadersStateAtom);
-  const setRequestHeadersState = useSetAtom(requestHeadersStateAtom);
   const searchParams = useSearchParams();
   const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
   const isNoBackgroundPattern = searchParams.get("nobgp") === "1"; // nobgp = No Background Pattern
@@ -130,10 +124,6 @@ export default function BackgroundImageContainerClient({
 
     localStorage.setItem("randomBackgroundImageId", id);
   };
-
-  useEffect(() => {
-    setRequestHeadersState(requestHeaders);
-  }, [requestHeaders, setRequestHeadersState]);
 
   useEffect(() => {
     if (backgroundImageState.randomBackgroundImage) {
