@@ -23,9 +23,10 @@ const fetcher = async (
 };
 
 /* eslint-disable @next/next/no-img-element */
-export default function Weather() {
+export default function WidgetWeather() {
   const requestHeaders = useAtomValue(requestHeadersStateAtom);
   const appId = process.env.NEXT_PUBLIC_OPENWEATHERMAP_APP_ID;
+  console.log("WidgetWeather requestHeaders:", requestHeaders);
   const { data, error, isLoading } = useSWR(
     requestHeaders &&
       requestHeaders["x-vercel-ip-latitude"] &&

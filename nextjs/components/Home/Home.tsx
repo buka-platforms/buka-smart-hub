@@ -8,7 +8,7 @@ import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdo
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import Volume from "@/components/Home/Volume";
-import Weather from "@/components/Home/Weather";
+import WidgetWeather from "@/components/Home/WidgetWeather";
 import WidgetDateTime from "@/components/Home/WidgetDateTime";
 import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
 import { getRequestHeaders } from "@/lib/header";
@@ -56,7 +56,7 @@ export default async function Home() {
               />
             </div>
             <div className="flex items-center">
-              <Weather />
+              <WidgetWeather />
             </div>
             <UserAvatar />
           </div>
