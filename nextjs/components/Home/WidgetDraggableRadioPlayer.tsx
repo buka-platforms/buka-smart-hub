@@ -2,7 +2,12 @@
 
 import { Loading } from "@/components/General/AudioUI";
 import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
-import { play, stop, transparent1x1Pixel } from "@/lib/audio";
+import {
+  loadRadioStationBySlug,
+  play,
+  stop,
+  transparent1x1Pixel,
+} from "@/lib/audio";
 import {
   ControlFrom,
   controls,
@@ -52,13 +57,13 @@ function savePosition(x: number, y: number) {
 }
 
 // Marquee text component for long strings
-function MarqueeText({
+const MarqueeText = ({
   text,
   className,
 }: {
   text: string;
   className?: string;
-}) {
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const [shouldAnimate, setShouldAnimate] = useState(false);
@@ -99,7 +104,7 @@ function MarqueeText({
       </span>
     </div>
   );
-}
+};
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
@@ -109,6 +114,8 @@ export default function WidgetDraggableRadioPlayer() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioStationState = useAtomValue(radioStationStateAtom);
 
   // Load position from localStorage on mount
   useEffect(() => {
@@ -132,6 +139,23 @@ export default function WidgetDraggableRadioPlayer() {
     [],
   );
 
+  useEffect(() => {
+    const handleUseEffect = async () => {
+      if (!radioStationState.radioStation) {
+        // Check if localStorage has radioStationSlug
+        if (localStorage.getItem("radioStationSlug")) {
+          await loadRadioStationBySlug(
+            localStorage.getItem("radioStationSlug") as string,
+          );
+        } else {
+          await loadRadioStationBySlug("gold905");
+        }
+      }
+    };
+
+    handleUseEffect();
+  }, [radioStationState.radioStation]);
+
   // Reactive position plugin - updates when position state changes
   const positionCompartment = useCompartment(
     () => positionPlugin({ current: position }),
@@ -147,9 +171,6 @@ export default function WidgetDraggableRadioPlayer() {
     }),
     positionCompartment,
   ]);
-
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-  const radioStationState = useAtomValue(radioStationStateAtom);
 
   // Determine which artwork to show
   const artworkSrc = radioStationState.metadataExists
