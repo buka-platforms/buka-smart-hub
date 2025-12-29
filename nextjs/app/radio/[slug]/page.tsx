@@ -8,7 +8,6 @@ import BackgroundImageContainer from "@/components/Home/BackgroundImageContainer
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import { checkUserSession } from "@/lib/user";
 import Canvas from "./Canvas";
 import "@fontsource-variable/rubik";
 import Volume from "@/components/Home/Volume";
@@ -89,7 +88,6 @@ export default async function RadioDetailPage({
   params: Promise<{ slug: string }>;
   searchParams?: Props["searchParams"];
 }) {
-  const userSession = await checkUserSession();
   const paramsData = await params;
   const searchParamsData = await searchParams;
 
@@ -124,7 +122,7 @@ export default async function RadioDetailPage({
                   color="#f5f5f5"
                 />
               </span>
-              <UserAvatar userSession={userSession} />
+              <UserAvatar />
             </div>
           )}
           <div className="absolute bottom-0 left-0 w-full">
