@@ -9,8 +9,8 @@ import {
   GripVertical,
   LayoutGrid,
   LayoutTemplate,
-  Radio,
   Music,
+  Radio,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -38,16 +38,16 @@ const WIDGETS: {
     description: "Internet radio player",
   },
   {
-    id: "somafm",
-    label: "SomaFM",
-    icon: <Music className="h-5 w-5" />,
-    description: "SomaFM streaming radio player",
-  },
-  {
     id: "time",
     label: "Time",
     icon: <Clock className="h-5 w-5" />,
     description: "Date and time display",
+  },
+  {
+    id: "somafm",
+    label: "SomaFM",
+    icon: <Music className="h-5 w-5" />,
+    description: "SomaFM streaming radio player",
   },
 ];
 

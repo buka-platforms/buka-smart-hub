@@ -50,5 +50,5 @@ export const widgetVisibilityAtom = atom<Record<WidgetId, boolean>>({
   time: true,
   radio: true,
   weather: true,
-  somafm: false,
+  somafm: true,
 });
