@@ -296,7 +296,7 @@ export default function WidgetDraggableDateTime() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={resetPosition}>
-          Reset position
+          Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

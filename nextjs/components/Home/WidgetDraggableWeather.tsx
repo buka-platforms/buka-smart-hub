@@ -309,7 +309,7 @@ export default function WidgetDraggableWeather() {
             savePosition(0, 0);
           }}
         >
-          Reset position
+          Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

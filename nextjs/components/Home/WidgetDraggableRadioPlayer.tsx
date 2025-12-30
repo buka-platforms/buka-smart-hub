@@ -358,7 +358,7 @@ export default function WidgetDraggableRadioPlayer() {
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
         <DropdownMenuItem onSelect={resetPosition}>
-          Reset position
+          Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
