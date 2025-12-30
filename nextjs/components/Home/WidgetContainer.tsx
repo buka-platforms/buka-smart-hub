@@ -7,22 +7,22 @@ import dynamic from "next/dynamic";
 // Dynamically import widgets to code-split
 const WidgetDraggableWeather = dynamic(
   () => import("@/components/Home/WidgetDraggableWeather"),
-  { ssr: false }
+  { ssr: false },
 );
 
 const WidgetDraggableRadioPlayer = dynamic(
   () => import("@/components/Home/WidgetDraggableRadioPlayer"),
-  { ssr: false }
+  { ssr: false },
 );
 
 const WidgetDraggableDateTime = dynamic(
   () => import("@/components/Home/WidgetDraggableDateTime"),
-  { ssr: false }
+  { ssr: false },
 );
 
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Home/WidgetLauncherDock"),
-  { ssr: false }
+  { ssr: false },
 );
 
 /**
