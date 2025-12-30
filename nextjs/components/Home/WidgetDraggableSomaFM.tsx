@@ -19,7 +19,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
-import { MoreHorizontal, Waves } from "lucide-react";
+import { MoreHorizontal, Waves, Play as PlayIcon, Pause, Disc3 } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -50,6 +50,8 @@ export default function WidgetDraggableSomaFM() {
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/somafm-channels")
@@ -142,7 +144,7 @@ export default function WidgetDraggableSomaFM() {
 
         {/* Main Column */}
         <div className="flex w-80 flex-col">
-          {/* Player Row */}
+          {/* Player Row: Channel Art, Info, Play Button on right */}
           <div className="flex items-center gap-3 p-3">
             {/* Channel Art */}
             <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
@@ -162,65 +164,86 @@ export default function WidgetDraggableSomaFM() {
 
             {/* Channel Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              {/* <div className="flex items-center gap-2">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/b/ba/SomaFM_logo.svg"
-                  alt="SomaFM"
-                  className="h-5 w-5"
-                />
-                <span className="block overflow-hidden text-xs text-white/60">
-                  SomaFM Radio
-                </span>
-              </div> */}
-              <Combobox
-                options={channels.map((c) => ({ value: c.id, label: c.title }))}
-                value={selected}
-                onChange={(value) => {
-                  const wasPlaying = audioRef.current && !audioRef.current.paused;
-                  setSelected(value);
-                  setTimeout(() => {
-                    try {
-                      audioRef.current?.pause();
-                      audioRef.current?.load();
-                      if (wasPlaying) {
-                        audioRef.current?.play();
-                      }
-                    } catch {}
-                  }, 0);
-                }}
-                placeholder="Select channel..."
-                className="mt-1 mb-1 w-full rounded border bg-black/30 p-1 text-xs text-white"
-              />
               {currentChannel && (
                 <span className="truncate text-xs font-medium text-white">
                   {currentChannel.title}
                 </span>
               )}
+              {currentChannel && (
+                <span className="truncate text-xs text-white/70">
+                  {currentChannel.description}
+                </span>
+              )}
+              {currentChannel && (
+                <div className="flex items-center gap-2 text-[10px] text-white/50">
+                  <span>DJ: {currentChannel.dj}</span>
+                  <span>|</span>
+                  <span>Listeners: {currentChannel.listeners}</span>
+                </div>
+              )}
             </div>
+
+            {/* Play/Pause Button on right */}
+            <button
+              disabled={!streamUrl}
+              onClick={() => {
+                if (!audioRef.current) return;
+                if (isPlaying) {
+                  audioRef.current.pause();
+                } else {
+                  setIsLoading(true);
+                  audioRef.current.play();
+                }
+              }}
+              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 ${!streamUrl ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={isPlaying ? "Pause" : "Play"}
+            >
+              {isLoading ? (
+                <Disc3 className="h-5 w-5 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="h-5 w-5" fill="currentColor" />
+              ) : (
+                <PlayIcon className="h-5 w-5" fill="currentColor" />
+              )}
+            </button>
           </div>
 
-          {/* Channel Description & DJ */}
-          {currentChannel && (
-            <div className="px-3 pb-2">
-              <div className="mb-1 truncate text-xs text-white/70">
-                {currentChannel.description}
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-white/50">
-                <span>DJ: {currentChannel.dj}</span>
-                <span>|</span>
-                <span>Listeners: {currentChannel.listeners}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Audio Player */}
+          {/* Combobox Row: Channel Selection */}
           <div className="px-3 pb-2">
+            <Combobox
+              options={channels.map((c) => ({ value: c.id, label: c.title }))}
+              value={selected}
+              onChange={(value) => {
+                const wasPlaying = audioRef.current && !audioRef.current.paused;
+                setSelected(value);
+                setTimeout(() => {
+                  try {
+                    audioRef.current?.pause();
+                    audioRef.current?.load();
+                    if (wasPlaying) {
+                      audioRef.current?.play();
+                    }
+                  } catch {}
+                }, 0);
+              }}
+              placeholder="Select channel..."
+              className="w-full rounded border bg-black/30 p-1 text-xs text-white"
+            />
+            {/* Hidden audio element */}
             {streamUrl && (
               <audio
                 ref={audioRef}
                 src={streamUrl}
-                controls
-                className="w-full"
+                preload="none"
+                onPlay={() => {
+                  setIsPlaying(true);
+                  setIsLoading(false);
+                }}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+                onWaiting={() => setIsLoading(true)}
+                onCanPlay={() => setIsLoading(false)}
+                style={{ display: "none" }}
               />
             )}
           </div>
