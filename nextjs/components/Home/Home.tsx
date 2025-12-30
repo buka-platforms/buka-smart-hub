@@ -8,9 +8,7 @@ import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdo
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import Volume from "@/components/Home/Volume";
-import WidgetDraggableDateTime from "@/components/Home/WidgetDraggableDateTime";
-import WidgetDraggableRadioPlayer from "@/components/Home/WidgetDraggableRadioPlayer";
-import WidgetDraggableWeather from "@/components/Home/WidgetDraggableWeather";
+import WidgetContainer from "@/components/Home/WidgetContainer";
 import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
 
@@ -58,16 +56,8 @@ export default async function Home() {
             <UserAvatar />
           </div>
         </header>
-        {/* Bottom left: WidgetDraggableRadioPlayer and WidgetDraggableWeather above Date & Time */}
-        <div className="absolute bottom-111 left-3 z-20 md:bottom-113 md:left-6">
-          <WidgetDraggableWeather />
-        </div>
-        <div className="absolute bottom-72 left-3 z-20 md:bottom-74 md:left-6">
-          <WidgetDraggableRadioPlayer />
-        </div>
-        <div className="absolute bottom-36 left-3 z-20 md:bottom-38 md:left-6">
-          <WidgetDraggableDateTime />
-        </div>
+        {/* Widget Container: Launcher Dock + All Widgets */}
+        <WidgetContainer />
         {/* Bottom right: Apps CTA */}
         <>
           <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-16 md:pl-3">

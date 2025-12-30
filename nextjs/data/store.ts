@@ -42,3 +42,12 @@ export const radioStationStateAtom = atom({
   radioStation: <RadioStation | null | undefined>undefined, // Selected (or randomly selected) radio station, but can be currently playing or not
   isRadioStationLogoLoaded: false,
 });
+
+// Widget Launcher Dock State
+export type WidgetId = "time" | "radio" | "weather";
+
+export const widgetVisibilityAtom = atom<Record<WidgetId, boolean>>({
+  time: true,
+  radio: true,
+  weather: true,
+});
