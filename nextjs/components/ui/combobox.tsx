@@ -37,7 +37,7 @@ export function Combobox({ options, value, onChange, placeholder, className }: C
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width,16rem)] min-w-[8rem]">
+      <PopoverContent className="p-0 w-(--radix-popover-trigger-width,16rem) min-w-32">
         <Command>
           <CommandInput placeholder={placeholder || "Search..."} />
           <CommandList>
