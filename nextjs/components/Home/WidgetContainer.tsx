@@ -1,8 +1,17 @@
+
 "use client";
+
+
+
 
 import { widgetVisibilityAtom } from "@/data/store";
 import { useAtomValue } from "jotai";
 import dynamic from "next/dynamic";
+
+const WidgetDraggableSomaFM = dynamic(
+  () => import("@/components/Home/WidgetDraggableSomaFM"),
+  { ssr: false },
+);
 
 // Dynamically import widgets to code-split
 const WidgetDraggableWeather = dynamic(
@@ -54,6 +63,12 @@ export default function WidgetContainer() {
       {visibility.weather && (
         <div className="absolute bottom-36 left-3 z-20 animate-widget-appear md:bottom-40 md:left-4">
           <WidgetDraggableWeather />
+        </div>
+      )}
+
+      {visibility.somafm && (
+        <div className="absolute bottom-36 left-3 z-20 animate-widget-appear md:bottom-40 md:left-4">
+          <WidgetDraggableSomaFM />
         </div>
       )}
     </div>

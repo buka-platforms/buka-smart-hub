@@ -11,6 +11,7 @@ import {
   LayoutTemplate,
   Radio,
   X,
+  Waves,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -35,6 +36,12 @@ const WIDGETS: {
     label: "Radio",
     icon: <Radio className="h-5 w-5" />,
     description: "Internet radio player",
+  },
+  {
+    id: "somafm",
+    label: "SomaFM",
+    icon: <Waves className="h-5 w-5" />,
+    description: "SomaFM streaming radio player",
   },
   {
     id: "time",
