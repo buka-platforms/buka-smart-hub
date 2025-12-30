@@ -1,10 +1,21 @@
 "use client";
 
-import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
 
 interface ComboboxOption {
   value: string;
@@ -19,7 +30,13 @@ interface ComboboxProps {
   className?: string;
 }
 
-export function Combobox({ options, value, onChange, placeholder, className }: ComboboxProps) {
+export function Combobox({
+  options,
+  value,
+  onChange,
+  placeholder,
+  className,
+}: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const selectedLabel = options.find((o) => o.value === value)?.label || "";
 
@@ -33,11 +50,13 @@ export function Combobox({ options, value, onChange, placeholder, className }: C
             className,
           )}
         >
-          <span className="truncate text-left flex-1">{selectedLabel || placeholder || "Select..."}</span>
+          <span className="flex-1 truncate text-left">
+            {selectedLabel || placeholder || "Select..."}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-(--radix-popover-trigger-width,16rem) min-w-32">
+      <PopoverContent className="w-(--radix-popover-trigger-width,16rem) min-w-32 p-0">
         <Command>
           <CommandInput placeholder={placeholder || "Search..."} />
           <CommandList>
@@ -56,7 +75,7 @@ export function Combobox({ options, value, onChange, placeholder, className }: C
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.label}

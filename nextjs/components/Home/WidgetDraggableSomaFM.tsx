@@ -1,5 +1,6 @@
 "use client";
 
+import { Combobox } from "@/components/ui/combobox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,8 +20,15 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
-import { MoreHorizontal, Waves, Play as PlayIcon, Pause, Disc3 } from "lucide-react";
-import { Combobox } from "@/components/ui/combobox";
+import {
+  Disc3,
+  MoreHorizontal,
+  Pause,
+  Play as PlayIcon,
+  User,
+  Users,
+  Waves,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SomaFMChannel {
@@ -143,7 +151,7 @@ export default function WidgetDraggableSomaFM() {
         </div>
 
         {/* Main Column */}
-        <div className="flex w-80 flex-col">
+        <div className="flex w-85 flex-col">
           {/* Player Row: Channel Art, Info, Play Button on right */}
           <div className="flex items-center gap-3 p-3">
             {/* Channel Art */}
@@ -176,9 +184,21 @@ export default function WidgetDraggableSomaFM() {
               )}
               {currentChannel && (
                 <div className="flex items-center gap-2 text-[10px] text-white/50">
-                  <span>DJ: {currentChannel.dj}</span>
+                  <span
+                    className="flex max-w-27.5 items-center gap-1 truncate"
+                    title={`DJ: ${currentChannel.dj}`}
+                  >
+                    <User className="inline-block h-3 w-3" />
+                    {currentChannel.dj}
+                  </span>
                   <span>|</span>
-                  <span>Listeners: {currentChannel.listeners}</span>
+                  <span
+                    className="flex items-center gap-1"
+                    title={`Listeners: ${currentChannel.listeners}`}
+                  >
+                    <Users className="inline-block h-3 w-3" />
+                    {currentChannel.listeners}
+                  </span>
                 </div>
               )}
             </div>
@@ -195,7 +215,7 @@ export default function WidgetDraggableSomaFM() {
                   audioRef.current.play();
                 }
               }}
-              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 ${!streamUrl ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
               title={isPlaying ? "Pause" : "Play"}
             >
               {isLoading ? (
