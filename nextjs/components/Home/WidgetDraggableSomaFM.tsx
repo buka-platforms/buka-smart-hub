@@ -1,6 +1,5 @@
 "use client";
 
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +19,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
-import { Waves, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Waves } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SomaFMChannel {
@@ -38,14 +37,16 @@ interface SomaFMChannel {
   stream: string[];
 }
 
-
 export default function WidgetDraggableSomaFM() {
   const draggableRef = useRef<HTMLDivElement>(null);
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -80,7 +81,9 @@ export default function WidgetDraggableSomaFM() {
   // Listen for widget position reset events
   useEffect(() => {
     const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<Record<string, { x: number; y: number }>>;
+      const customEvent = e as CustomEvent<
+        Record<string, { x: number; y: number }>
+      >;
       if (customEvent.detail?.somafm) {
         setPosition(customEvent.detail.somafm);
       } else {
@@ -89,15 +92,19 @@ export default function WidgetDraggableSomaFM() {
       }
     };
     window.addEventListener("widget-positions-reset", handleReset);
-    return () => window.removeEventListener("widget-positions-reset", handleReset);
+    return () =>
+      window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
   // Handle drag end to save position
-  const handleDragEnd = useCallback((data: { offset: { x: number; y: number } }) => {
-    const newPosition = { x: data.offset.x, y: data.offset.y };
-    setPosition(newPosition);
-    saveWidgetPosition("somafm", newPosition.x, newPosition.y);
-  }, []);
+  const handleDragEnd = useCallback(
+    (data: { offset: { x: number; y: number } }) => {
+      const newPosition = { x: data.offset.x, y: data.offset.y };
+      setPosition(newPosition);
+      saveWidgetPosition("somafm", newPosition.x, newPosition.y);
+    },
+    [],
+  );
 
   // Reactive position plugin
   const positionCompartment = useCompartment(
@@ -113,7 +120,9 @@ export default function WidgetDraggableSomaFM() {
 
   const currentChannel = channels.find((c) => c.id === selected);
   // Use direct mp3 stream URL as per SomaFM docs
-  const streamUrl = currentChannel?.id ? `https://ice1.somafm.com/${currentChannel.id}-128-mp3` : "";
+  const streamUrl = currentChannel?.id
+    ? `https://ice1.somafm.com/${currentChannel.id}-128-mp3`
+    : "";
   const isVisible = isPositionLoaded;
 
   return (
@@ -135,8 +144,9 @@ export default function WidgetDraggableSomaFM() {
           {/* Player Row */}
           <div className="flex items-center gap-3 p-3">
             {/* Channel Art */}
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10 flex items-center justify-center">
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
               {currentChannel && currentChannel.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className="pointer-events-none h-full w-full object-contain"
                   src={currentChannel.image}
@@ -152,14 +162,22 @@ export default function WidgetDraggableSomaFM() {
             {/* Channel Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               <div className="flex items-center gap-2">
-                <img src="/assets/somafm.png" alt="SomaFM" className="w-5 h-5" />
-                <span className="block overflow-hidden text-xs text-white/60">SomaFM Radio</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/assets/somafm.png"
+                  alt="SomaFM"
+                  className="h-5 w-5"
+                />
+                <span className="block overflow-hidden text-xs text-white/60">
+                  SomaFM Radio
+                </span>
               </div>
               <select
-                className="w-full mt-1 mb-1 p-1 rounded border bg-black/30 text-white text-xs"
+                className="mt-1 mb-1 w-full rounded border bg-black/30 p-1 text-xs text-white"
                 value={selected}
                 onChange={(e) => {
-                  const wasPlaying = audioRef.current && !audioRef.current.paused;
+                  const wasPlaying =
+                    audioRef.current && !audioRef.current.paused;
                   setSelected(e.target.value);
                   setTimeout(() => {
                     try {
@@ -179,7 +197,7 @@ export default function WidgetDraggableSomaFM() {
                 ))}
               </select>
               {currentChannel && (
-                <span className="text-xs font-medium text-white truncate">
+                <span className="truncate text-xs font-medium text-white">
                   {currentChannel.title}
                 </span>
               )}
@@ -189,7 +207,7 @@ export default function WidgetDraggableSomaFM() {
           {/* Channel Description & DJ */}
           {currentChannel && (
             <div className="px-3 pb-2">
-              <div className="text-xs text-white/70 mb-1 truncate">
+              <div className="mb-1 truncate text-xs text-white/70">
                 {currentChannel.description}
               </div>
               <div className="flex items-center gap-2 text-[10px] text-white/50">
@@ -244,7 +262,11 @@ export default function WidgetDraggableSomaFM() {
           onSelect={() => {
             const positions = calculateAutoArrangePositions();
             setPosition(positions.somafm || { x: 0, y: 0 });
-            saveWidgetPosition("somafm", positions.somafm?.x || 0, positions.somafm?.y || 0);
+            saveWidgetPosition(
+              "somafm",
+              positions.somafm?.x || 0,
+              positions.somafm?.y || 0,
+            );
           }}
         >
           Reset widget position

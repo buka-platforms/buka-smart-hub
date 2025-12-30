@@ -1,8 +1,4 @@
-
 "use client";
-
-
-
 
 import { widgetVisibilityAtom } from "@/data/store";
 import { useAtomValue } from "jotai";

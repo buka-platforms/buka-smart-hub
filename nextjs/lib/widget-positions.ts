@@ -5,17 +5,18 @@
  * including default positions and auto-arrange functionality.
  */
 
-export type WidgetId = "weather" | "radio" | "time";
+export type WidgetId = "weather" | "radio" | "time" | "somafm";
 
 // Storage keys for each widget's position
 export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   weather: "widgetDraggableWeatherPosition",
   radio: "widgetDraggableRadioPlayerPosition",
   time: "widgetDraggableDateTimePosition",
+  somafm: "widgetDraggableSomaFMPosition",
 };
 
 // Order of widgets from left to right when auto-arranged
-const WIDGET_ORDER: WidgetId[] = ["time", "radio", "weather"];
+const WIDGET_ORDER: WidgetId[] = ["time", "radio", "weather", "somafm"];
 
 // Gap between widgets when auto-arranged horizontally
 const WIDGET_GAP = 12;
@@ -32,6 +33,7 @@ export function calculateAutoArrangePositions(): Record<
     time: { x: 0, y: 0 },
     radio: { x: 0, y: 0 },
     weather: { x: 0, y: 0 },
+    somafm: { x: 0, y: 0 },
   };
 
   if (typeof window === "undefined") return positions;
@@ -54,6 +56,7 @@ export function calculateAutoArrangePositions(): Record<
         time: 310,
         radio: 350,
         weather: 290,
+        somafm: 350,
       };
       currentX += fallbackWidths[widgetId] + WIDGET_GAP;
     }
