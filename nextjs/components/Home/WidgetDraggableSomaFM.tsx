@@ -50,8 +50,8 @@ export default function WidgetDraggableSomaFM() {
   const draggableRef = useRef<HTMLDivElement>(null);
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<{ x: number; y: number }>({
     x: 0,
     y: 0,
