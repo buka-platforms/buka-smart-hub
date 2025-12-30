@@ -25,10 +25,65 @@ import {
   Wind,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import useSWR from "swr";
 
 const POSITION_STORAGE_KEY = "widgetDraggableWeatherPosition";
+
+// Marquee text component for long strings
+const MarqueeText = ({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useLayoutEffect(() => {
+    const checkOverflow = () => {
+      if (containerRef.current && measureRef.current) {
+        const isOverflowing =
+          measureRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShouldAnimate(isOverflowing);
+      }
+    };
+
+    checkOverflow();
+
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [text]);
+
+  return (
+    <div ref={containerRef} className={`overflow-hidden ${className || ""}`}>
+      {/* Hidden measurement span */}
+      <span
+        ref={measureRef}
+        className="pointer-events-none absolute whitespace-nowrap opacity-0"
+        aria-hidden="true"
+      >
+        {text}
+      </span>
+      {/* Visible span with optional duplicate for marquee */}
+      <span
+        className={`inline-block whitespace-nowrap ${shouldAnimate ? "animate-marquee" : ""}`}
+        title={text}
+      >
+        {text}
+        {shouldAnimate && <span className="mx-8">{text}</span>}
+      </span>
+    </div>
+  );
+};
 const UNIT_STORAGE_KEY = "widgetDraggableWeatherUnit";
 
 interface WeatherData {
@@ -221,20 +276,15 @@ export default function WidgetDraggableWeather() {
                 </span>
                 <span className="text-xs text-white/60">{temperatureUnit}</span>
               </div>
-              <span
-                className="truncate text-xs text-white/70"
-                title={
+              <MarqueeText
+                text={
                   data?.weather[0].description
                     ? data.weather[0].description.charAt(0).toUpperCase() +
                       data.weather[0].description.slice(1)
-                    : undefined
+                    : ""
                 }
-              >
-                {data?.weather[0].description
-                  ? data.weather[0].description.charAt(0).toUpperCase() +
-                    data.weather[0].description.slice(1)
-                  : ""}
-              </span>
+                className="text-xs text-white/70"
+              />
             </div>
 
             {/* Additional Info */}
