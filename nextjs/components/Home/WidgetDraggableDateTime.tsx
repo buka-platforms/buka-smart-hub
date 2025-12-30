@@ -220,7 +220,7 @@ export default function WidgetDraggableDateTime() {
         </div>
 
         {/* Main Column */}
-        <div className="flex w-72 flex-col">
+        <div className="flex w-75 flex-col">
           {/* DateTime Row */}
           <div className="flex items-center gap-3 p-3">
             {/* Time of Day Icon */}
