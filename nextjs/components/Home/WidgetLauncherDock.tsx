@@ -1,14 +1,6 @@
 "use client";
 
 import { widgetVisibilityAtom, type WidgetId } from "@/data/store";
-import {
-  ControlFrom,
-  controls,
-  events,
-  position as positionPlugin,
-  useCompartment,
-  useDraggable,
-} from "@neodrag/react";
 import { useAtom } from "jotai";
 import {
   Clock,
@@ -54,11 +46,13 @@ const WIDGETS: {
 const MINI_DOCK_COUNT = 3;
 
 export default function WidgetLauncherDock() {
-  const draggableRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
   // Load position and visibility from localStorage
   useEffect(() => {
@@ -86,19 +80,86 @@ export default function WidgetLauncherDock() {
     });
   }, [setVisibility]);
 
-  // Save position on drag end
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
+  // Custom drag handlers
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      // Don't drag if clicking on a button or interactive element
+      if ((e.target as HTMLElement).closest("button, a, input")) {
+        return;
+      }
+      e.preventDefault();
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        posX: position.x,
+        posY: position.y,
+      };
+    },
+    [position],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      // Don't drag if touching a button or interactive element
+      if ((e.target as HTMLElement).closest("button, a, input")) {
+        return;
+      }
+      const touch = e.touches[0];
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        posX: position.x,
+        posY: position.y,
+      };
+    },
+    [position],
+  );
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
+      setPosition({
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      });
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+      setPosition({
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      });
+    };
+
+    const handleEnd = () => {
+      setIsDragging(false);
       try {
-        localStorage.setItem(DOCK_POSITION_KEY, JSON.stringify(newPosition));
+        localStorage.setItem(DOCK_POSITION_KEY, JSON.stringify(position));
       } catch {
         // Ignore errors
       }
-    },
-    [],
-  );
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleEnd);
+    };
+  }, [isDragging, position]);
 
   // Toggle widget visibility
   const toggleWidget = useCallback(
@@ -129,22 +190,6 @@ export default function WidgetLauncherDock() {
     }
   }, []);
 
-  // Reactive position plugin
-  const positionCompartment = useCompartment(
-    () => positionPlugin({ current: position }),
-    [position.x, position.y],
-  );
-
-  useDraggable(draggableRef, () => [
-    controls({
-      block: ControlFrom.selector("button, a"),
-    }),
-    events({
-      onDragEnd: handleDragEnd,
-    }),
-    positionCompartment,
-  ]);
-
   // Get widgets to show in mini dock
   const miniDockWidgets = WIDGETS.slice(0, MINI_DOCK_COUNT);
   const allWidgets = WIDGETS;
@@ -157,14 +202,19 @@ export default function WidgetLauncherDock() {
 
   return (
     <div
-      ref={draggableRef}
-      className={`pointer-events-auto absolute top-16 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-lg bg-black/80 shadow-2xl backdrop-blur-xl transition-opacity duration-200 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing md:top-20 md:left-4 ${
-        isExpanded ? "flex-col" : "flex-row"
-      } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px)`,
+      }}
+      className={`pointer-events-auto absolute top-16 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-lg bg-black/80 shadow-2xl backdrop-blur-xl transition-opacity duration-200 will-change-transform md:top-20 md:left-4 ${
+        isDragging ? "cursor-grabbing" : ""
+      } ${isExpanded ? "flex-col" : "flex-row"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       {/* Drag Handle - Visual indicator for dragging */}
       <div
-        className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors hover:bg-white/10 hover:text-white/70 ${
+        className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors select-none hover:bg-white/10 hover:text-white/70 ${
           isExpanded ? "border-b px-3 py-2" : "border-r p-3"
         }`}
         title="Drag to move dock"
