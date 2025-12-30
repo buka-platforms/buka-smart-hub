@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { requestHeadersStateAtom } from "@/data/store";
@@ -303,6 +304,10 @@ export default function WidgetDraggableWeather() {
         <DropdownMenuItem onSelect={() => mutate()}>
           Refresh weather
         </DropdownMenuItem>
+        <DropdownMenuItem onSelect={toggleUnit}>
+          Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => {
             setPosition({ x: 0, y: 0 });
