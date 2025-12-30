@@ -20,6 +20,7 @@ import {
   useDraggable,
 } from "@neodrag/react";
 import { MoreHorizontal, Waves } from "lucide-react";
+import { Combobox } from "@/components/ui/combobox";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SomaFMChannel {
@@ -171,13 +172,12 @@ export default function WidgetDraggableSomaFM() {
                   SomaFM Radio
                 </span>
               </div> */}
-              <select
-                className="mt-1 mb-1 w-full rounded border bg-black/30 p-1 text-xs text-white"
+              <Combobox
+                options={channels.map((c) => ({ value: c.id, label: c.title }))}
                 value={selected}
-                onChange={(e) => {
-                  const wasPlaying =
-                    audioRef.current && !audioRef.current.paused;
-                  setSelected(e.target.value);
+                onChange={(value) => {
+                  const wasPlaying = audioRef.current && !audioRef.current.paused;
+                  setSelected(value);
                   setTimeout(() => {
                     try {
                       audioRef.current?.pause();
@@ -188,13 +188,9 @@ export default function WidgetDraggableSomaFM() {
                     } catch {}
                   }, 0);
                 }}
-              >
-                {channels.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-              </select>
+                placeholder="Select channel..."
+                className="mt-1 mb-1 w-full rounded border bg-black/30 p-1 text-xs text-white"
+              />
               {currentChannel && (
                 <span className="truncate text-xs font-medium text-white">
                   {currentChannel.title}
