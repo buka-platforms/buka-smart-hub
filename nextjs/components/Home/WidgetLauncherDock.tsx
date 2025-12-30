@@ -10,7 +10,7 @@ import {
   LayoutGrid,
   LayoutTemplate,
   Radio,
-  Waves,
+  Music,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -40,7 +40,7 @@ const WIDGETS: {
   {
     id: "somafm",
     label: "SomaFM",
-    icon: <Waves className="h-5 w-5" />,
+    icon: <Music className="h-5 w-5" />,
     description: "SomaFM streaming radio player",
   },
   {

@@ -1,6 +1,12 @@
 "use client";
 
-import { Combobox } from "@/components/ui/combobox";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,12 +28,13 @@ import {
 } from "@neodrag/react";
 import {
   Disc3,
+  ListMusic,
+  LoaderCircle,
   MoreHorizontal,
   Pause,
   Play as PlayIcon,
   User,
   Users,
-  Waves,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -166,7 +173,7 @@ export default function WidgetDraggableSomaFM() {
                   draggable={false}
                 />
               ) : (
-                <Waves className="h-8 w-8 text-white/40" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-white/40" />
               )}
             </div>
 
@@ -228,28 +235,8 @@ export default function WidgetDraggableSomaFM() {
             </button>
           </div>
 
-          {/* Combobox Row: Channel Selection */}
-          <div className="px-3 pb-2">
-            <Combobox
-              options={channels.map((c) => ({ value: c.id, label: c.title }))}
-              value={selected}
-              onChange={(value) => {
-                const wasPlaying = audioRef.current && !audioRef.current.paused;
-                setSelected(value);
-                setTimeout(() => {
-                  try {
-                    audioRef.current?.pause();
-                    audioRef.current?.load();
-                    if (wasPlaying) {
-                      audioRef.current?.play();
-                    }
-                  } catch {}
-                }, 0);
-              }}
-              placeholder="Select channel..."
-              className="w-full rounded border bg-black/30 p-1 text-xs text-white"
-            />
-            {/* Hidden audio element */}
+          {/* Hidden audio element */}
+          <>
             {streamUrl && (
               <audio
                 ref={audioRef}
@@ -266,21 +253,57 @@ export default function WidgetDraggableSomaFM() {
                 style={{ display: "none" }}
               />
             )}
-          </div>
+          </>
 
           {/* Separator and action bar */}
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <a
-              href="https://somafm.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-              title="Open SomaFM website"
-            >
-              <Waves className="mr-1 h-3 w-3" />
-              <span className="hidden sm:inline">More</span>
-            </a>
+            {/* CHANNELS button with searchable command menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                  type="button"
+                  aria-label="Select channel"
+                >
+                  <ListMusic className="mr-1 h-3 w-3" />
+                  <span className="hidden sm:inline">Channels</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-64 rounded-lg border border-white/10 bg-black/90 p-2 shadow-lg"
+              >
+                <Command>
+                  <CommandInput placeholder="Search channels..." />
+                  <CommandList>
+                    <CommandEmpty>No channels found.</CommandEmpty>
+                    {channels.map((c) => (
+                      <CommandItem
+                        key={c.id}
+                        value={c.title}
+                        onSelect={() => {
+                          const wasPlaying =
+                            audioRef.current && !audioRef.current.paused;
+                          setSelected(c.id);
+                          setTimeout(() => {
+                            try {
+                              audioRef.current?.pause();
+                              audioRef.current?.load();
+                              if (wasPlaying) {
+                                audioRef.current?.play();
+                              }
+                            } catch {}
+                          }, 0);
+                        }}
+                      >
+                        {c.title}
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </Command>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="ml-auto">
               <DropdownMenuTrigger asChild>
                 <button
