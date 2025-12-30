@@ -158,7 +158,7 @@ export default function WidgetLauncherDock() {
   return (
     <div
       ref={draggableRef}
-      className={`pointer-events-auto absolute top-16 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-2xl bg-black/80 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl transition-opacity duration-200 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing md:top-20 md:left-4 ${
+      className={`pointer-events-auto absolute top-16 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-lg bg-black/80 shadow-2xl backdrop-blur-xl transition-opacity duration-200 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing md:top-20 md:left-4 ${
         isExpanded ? "flex-col" : "flex-row"
       } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
@@ -184,7 +184,7 @@ export default function WidgetLauncherDock() {
               <button
                 key={widget.id}
                 onClick={() => toggleWidget(widget.id)}
-                className={`group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl transition-all duration-200 ${
+                className={`group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 ${
                   isActive
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
                     : "bg-white/10 text-white/50 hover:bg-white/20 hover:text-white"
@@ -203,7 +203,7 @@ export default function WidgetLauncherDock() {
           {/* Expand button */}
           <button
             onClick={() => setIsExpanded(true)}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl bg-white/5 text-white/50 transition-all duration-200 hover:bg-white/15 hover:text-white"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-white/5 text-white/50 transition-all duration-200 hover:bg-white/15 hover:text-white"
             title="Show all widgets"
           >
             <LayoutGrid className="h-5 w-5" />
@@ -241,7 +241,7 @@ export default function WidgetLauncherDock() {
                   <button
                     key={widget.id}
                     onClick={() => toggleWidget(widget.id)}
-                    className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-all duration-200 ${
+                    className={`group flex w-full cursor-pointer items-center gap-3 rounded-lg p-2.5 transition-all duration-200 ${
                       isActive
                         ? "bg-purple-600/20 text-white"
                         : "text-white/60 hover:bg-white/10 hover:text-white"
@@ -249,7 +249,7 @@ export default function WidgetLauncherDock() {
                   >
                     {/* Icon */}
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all ${
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-all ${
                         isActive
                           ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
                           : "bg-white/10 text-white/50 group-hover:bg-white/20 group-hover:text-white"
