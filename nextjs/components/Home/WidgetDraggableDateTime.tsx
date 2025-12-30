@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { T } from "@/lib/app";
 import {
+  calculateAutoArrangePositions,
+  getSavedWidgetPosition,
+  saveWidgetPosition,
+} from "@/lib/widget-positions";
+import {
   ControlFrom,
   controls,
   events,
@@ -28,37 +33,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const POSITION_STORAGE_KEY = "widgetDraggableDateTimePosition";
 const FORMAT_STORAGE_KEY = "widgetDraggableDateTimeFormat";
 
 type TimeFormat = "12h" | "24h";
-
-// Helper to get saved position from localStorage
-function getSavedPosition(): { x: number; y: number } | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const saved = localStorage.getItem(POSITION_STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (typeof parsed.x === "number" && typeof parsed.y === "number") {
-        return parsed;
-      }
-    }
-  } catch {
-    // Ignore parsing errors
-  }
-  return null;
-}
-
-// Helper to save position to localStorage
-function savePosition(x: number, y: number) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify({ x, y }));
-  } catch {
-    // Ignore storage errors
-  }
-}
 
 // Get time of day icon based on hour
 function TimeOfDayIcon({
@@ -105,13 +82,35 @@ export default function WidgetDraggableDateTime() {
 
   // Load position from localStorage on mount
   useEffect(() => {
-    const saved = getSavedPosition();
+    const saved = getSavedWidgetPosition("time");
     queueMicrotask(() => {
       if (saved) {
         setPosition(saved);
+      } else {
+        // Use calculated position based on actual widget sizes
+        const positions = calculateAutoArrangePositions();
+        setPosition(positions.time);
       }
       setIsPositionLoaded(true);
     });
+  }, []);
+
+  // Listen for widget position reset events
+  useEffect(() => {
+    const handleReset = (e: Event) => {
+      const customEvent = e as CustomEvent<
+        Record<string, { x: number; y: number }>
+      >;
+      if (customEvent.detail?.time) {
+        setPosition(customEvent.detail.time);
+      } else {
+        const positions = calculateAutoArrangePositions();
+        setPosition(positions.time);
+      }
+    };
+    window.addEventListener("widget-positions-reset", handleReset);
+    return () =>
+      window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
   // Update time every second
@@ -128,7 +127,7 @@ export default function WidgetDraggableDateTime() {
     (data: { offset: { x: number; y: number } }) => {
       const newPosition = { x: data.offset.x, y: data.offset.y };
       setPosition(newPosition);
-      savePosition(newPosition.x, newPosition.y);
+      saveWidgetPosition("time", newPosition.x, newPosition.y);
     },
     [],
   );
@@ -150,8 +149,9 @@ export default function WidgetDraggableDateTime() {
 
   // Reset position
   const resetPosition = useCallback(() => {
-    setPosition({ x: 0, y: 0 });
-    savePosition(0, 0);
+    const positions = calculateAutoArrangePositions();
+    setPosition(positions.time);
+    saveWidgetPosition("time", positions.time.x, positions.time.y);
   }, []);
 
   // Reactive position plugin
@@ -210,6 +210,7 @@ export default function WidgetDraggableDateTime() {
     <DropdownMenu>
       <div
         ref={draggableRef}
+        data-widget-id="time"
         className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "DateTime" Label */}

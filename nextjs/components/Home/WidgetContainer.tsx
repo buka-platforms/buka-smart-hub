@@ -38,21 +38,22 @@ export default function WidgetContainer() {
       <WidgetLauncherDock />
 
       {/* Widgets - conditionally rendered based on visibility */}
-      {visibility.weather && (
-        <div className="absolute bottom-111 left-3 z-20 animate-widget-appear md:bottom-113 md:left-6">
-          <WidgetDraggableWeather />
+      {/* All widgets share the same anchor point (bottom-left), positioning is handled via drag offsets */}
+      {visibility.time && (
+        <div className="absolute bottom-36 left-3 z-20 animate-widget-appear md:bottom-40 md:left-4">
+          <WidgetDraggableDateTime />
         </div>
       )}
 
       {visibility.radio && (
-        <div className="absolute bottom-72 left-3 z-20 animate-widget-appear md:bottom-74 md:left-6">
+        <div className="absolute bottom-36 left-3 z-20 animate-widget-appear md:bottom-40 md:left-4">
           <WidgetDraggableRadioPlayer />
         </div>
       )}
 
-      {visibility.time && (
-        <div className="absolute bottom-36 left-3 z-20 animate-widget-appear md:bottom-38 md:left-6">
-          <WidgetDraggableDateTime />
+      {visibility.weather && (
+        <div className="absolute bottom-36 left-3 z-20 animate-widget-appear md:bottom-40 md:left-4">
+          <WidgetDraggableWeather />
         </div>
       )}
     </div>

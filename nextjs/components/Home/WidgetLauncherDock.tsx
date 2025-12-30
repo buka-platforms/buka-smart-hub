@@ -1,12 +1,14 @@
 "use client";
 
 import { widgetVisibilityAtom, type WidgetId } from "@/data/store";
+import { resetAllWidgetPositions } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   Clock,
   CloudSun,
   GripVertical,
   LayoutGrid,
+  LayoutTemplate,
   Radio,
   X,
 } from "lucide-react";
@@ -335,7 +337,17 @@ export default function WidgetLauncherDock() {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-white/10 px-3 py-2">
+          <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
+            <button
+              onClick={() => {
+                resetAllWidgetPositions();
+              }}
+              className="w-full cursor-pointer rounded-lg bg-purple-600/20 px-3 py-1.5 text-xs text-purple-300 transition-colors hover:bg-purple-600/30 hover:text-purple-200"
+              title="Reset all widgets to their default stacked positions"
+            >
+              <LayoutTemplate className="mr-1 inline-block h-3 w-3" />
+              Auto-arrange widgets
+            </button>
             <button
               onClick={resetPosition}
               className="w-full cursor-pointer rounded-lg bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white"
