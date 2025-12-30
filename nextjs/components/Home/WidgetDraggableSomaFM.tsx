@@ -161,17 +161,16 @@ export default function WidgetDraggableSomaFM() {
 
             {/* Channel Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              <div className="flex items-center gap-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+              {/* <div className="flex items-center gap-2">
                 <img
-                  src="/assets/somafm.png"
+                  src="https://upload.wikimedia.org/wikipedia/commons/b/ba/SomaFM_logo.svg"
                   alt="SomaFM"
                   className="h-5 w-5"
                 />
                 <span className="block overflow-hidden text-xs text-white/60">
                   SomaFM Radio
                 </span>
-              </div>
+              </div> */}
               <select
                 className="mt-1 mb-1 w-full rounded border bg-black/30 p-1 text-xs text-white"
                 value={selected}
