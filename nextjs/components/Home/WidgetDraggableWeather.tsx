@@ -210,15 +210,10 @@ export default function WidgetDraggableWeather() {
 
             {/* Weather Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              <Link
-                href="/apps/weather"
-                className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
-              >
-                <span className="truncate">
-                  {data?.name}
-                  {data?.sys?.country ? `, ${data.sys.country}` : ""}
-                </span>
-              </Link>
+              <span className="block truncate text-xs text-white/60">
+                {data?.name}
+                {data?.sys?.country ? `, ${data.sys.country}` : ""}
+              </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-semibold text-white">
                   {temperatureValue}°
