@@ -221,10 +221,18 @@ export default function WidgetDraggableWeather() {
                 <span className="text-xs text-white/60">{temperatureUnit}</span>
               </div>
               <span
-                className="truncate text-xs text-white/70 capitalize"
-                title={data?.weather[0].description}
+                className="truncate text-xs text-white/70"
+                title={
+                  data?.weather[0].description
+                    ? data.weather[0].description.charAt(0).toUpperCase() +
+                      data.weather[0].description.slice(1)
+                    : undefined
+                }
               >
-                {data?.weather[0].description}
+                {data?.weather[0].description
+                  ? data.weather[0].description.charAt(0).toUpperCase() +
+                    data.weather[0].description.slice(1)
+                  : ""}
               </span>
             </div>
 
