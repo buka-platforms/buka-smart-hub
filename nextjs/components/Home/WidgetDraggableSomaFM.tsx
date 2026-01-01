@@ -67,6 +67,12 @@ export default function WidgetDraggableSomaFM() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [nowPlaying, setNowPlaying] = useState<{
+    title: string;
+    artist: string;
+    album?: string;
+    albumArt?: string;
+  } | null>(null);
 
   useEffect(() => {
     fetch("/api/somafm-channels")
@@ -147,6 +153,46 @@ export default function WidgetDraggableSomaFM() {
     ? `https://ice1.somafm.com/${currentChannel.id}-128-mp3`
     : "";
   const isVisible = isPositionLoaded;
+  const visibleNowPlaying = selected ? nowPlaying : null;
+
+  // Fetch now playing info for selected channel
+  useEffect(() => {
+    if (!selected) return;
+
+    const controller = new AbortController();
+    const fetchNowPlaying = () => {
+      fetch(`https://somafm.com/songs/${selected}.json`, {
+        signal: controller.signal,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const firstSong = data?.songs?.[0];
+          if (firstSong) {
+            setNowPlaying({
+              title: firstSong.title || "",
+              artist: firstSong.artist || "",
+              album: firstSong.album || "",
+              albumArt: firstSong.albumArt || "",
+            });
+          } else {
+            setNowPlaying(null);
+          }
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) {
+            setNowPlaying(null);
+          }
+        });
+    };
+
+    fetchNowPlaying();
+    const intervalId = window.setInterval(fetchNowPlaying, 7000);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(intervalId);
+    };
+  }, [selected]);
 
   return (
     <DropdownMenu>
@@ -168,7 +214,18 @@ export default function WidgetDraggableSomaFM() {
           <div className="flex items-center gap-3 p-3">
             {/* Channel Art */}
             <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
-              {currentChannel && currentChannel.image ? (
+              {visibleNowPlaying?.albumArt ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className="pointer-events-none h-full w-full object-contain"
+                  src={visibleNowPlaying.albumArt}
+                  alt={
+                    visibleNowPlaying.title || currentChannel?.title || "SomaFM"
+                  }
+                  loading="lazy"
+                  draggable={false}
+                />
+              ) : currentChannel && currentChannel.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className="pointer-events-none h-full w-full object-contain"
@@ -185,33 +242,31 @@ export default function WidgetDraggableSomaFM() {
             {/* Channel Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               {currentChannel && (
-                <span className="truncate text-xs font-medium text-white">
+                <span
+                  className="truncate text-[11px] font-semibold text-white/70"
+                  title={currentChannel.title}
+                >
                   {currentChannel.title}
                 </span>
               )}
-              {currentChannel && (
-                <span className="truncate text-xs text-white/70">
-                  {currentChannel.description}
+              {visibleNowPlaying && (
+                <span
+                  className="truncate text-xs font-semibold text-white"
+                  title={visibleNowPlaying.title}
+                >
+                  {visibleNowPlaying.title}
                 </span>
               )}
-              {currentChannel && (
-                <div className="flex items-center gap-2 text-[10px] text-white/50">
-                  <span
-                    className="flex max-w-27.5 items-center gap-1 truncate"
-                    title={`DJ: ${currentChannel.dj}`}
-                  >
-                    <User className="inline-block h-3 w-3" />
-                    {currentChannel.dj}
-                  </span>
-                  <span>|</span>
-                  <span
-                    className="flex items-center gap-1"
-                    title={`Listeners: ${currentChannel.listeners}`}
-                  >
-                    <Users className="inline-block h-3 w-3" />
-                    {currentChannel.listeners}
-                  </span>
-                </div>
+              {visibleNowPlaying && (
+                <span
+                  className="truncate text-xs text-white/70"
+                  title={`${visibleNowPlaying.artist}${visibleNowPlaying.album ? ` — ${visibleNowPlaying.album}` : ""}`}
+                >
+                  {visibleNowPlaying.artist}
+                  {visibleNowPlaying.album
+                    ? ` — ${visibleNowPlaying.album}`
+                    : ""}
+                </span>
               )}
             </div>
 
@@ -239,6 +294,41 @@ export default function WidgetDraggableSomaFM() {
               )}
             </button>
           </div>
+
+          {currentChannel && (
+            <div className="px-3 pb-3 text-xs text-white">
+              {currentChannel.description && (
+                <div
+                  className="mt-1 overflow-hidden leading-snug text-white/70"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                  title={currentChannel.description}
+                >
+                  {currentChannel.description}
+                </div>
+              )}
+              <div className="mt-1 flex items-center gap-3 text-[10px] text-white/50">
+                <span
+                  className="flex items-center gap-1"
+                  title={`DJ: ${currentChannel.dj}`}
+                >
+                  <User className="inline-block h-3 w-3" />
+                  {currentChannel.dj}
+                </span>
+                <span className="opacity-50">•</span>
+                <span
+                  className="flex items-center gap-1"
+                  title={`Listeners: ${currentChannel.listeners}`}
+                >
+                  <Users className="inline-block h-3 w-3" />
+                  {currentChannel.listeners}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Hidden audio element */}
           <>
