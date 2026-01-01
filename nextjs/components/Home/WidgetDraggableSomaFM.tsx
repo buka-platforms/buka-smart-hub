@@ -72,8 +72,13 @@ export default function WidgetDraggableSomaFM() {
     fetch("/api/somafm-channels")
       .then((res) => res.json())
       .then((data) => {
-        setChannels(data.channels || []);
-        setSelected(data.channels?.[0]?.id || "");
+        // Sort channels alphabetically by title
+        const sortedChannels = (data.channels || [])
+          .slice()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .sort((a: any, b: any) => a.title.localeCompare(b.title));
+        setChannels(sortedChannels);
+        setSelected(sortedChannels?.[0]?.id || "");
         setLoading(false);
       })
       .catch(() => {
@@ -222,11 +227,11 @@ export default function WidgetDraggableSomaFM() {
                   audioRef.current.play();
                 }
               }}
-              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
+              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
               title={isPlaying ? "Pause" : "Play"}
             >
               {isLoading ? (
-                <Disc3 className="h-5 w-5 animate-spin" />
+                <Disc3 className="h-10 w-10 animate-spin" />
               ) : isPlaying ? (
                 <Pause className="h-5 w-5" fill="currentColor" />
               ) : (
