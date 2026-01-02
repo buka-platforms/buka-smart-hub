@@ -490,7 +490,7 @@ export default function WidgetDraggableSomaFM() {
                     } catch {}
                   }}
                 >
-                  <span className="hidden sm:inline">Channels</span>
+                  Channels
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
