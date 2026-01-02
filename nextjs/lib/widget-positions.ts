@@ -5,7 +5,12 @@
  * including default positions and auto-arrange functionality.
  */
 
-export type WidgetId = "weather" | "radio" | "time" | "somafm";
+export type WidgetId =
+  | "weather"
+  | "radio"
+  | "time"
+  | "somafm"
+  | "youtubelivetv";
 
 // Storage keys for each widget's position
 export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
@@ -13,10 +18,17 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   radio: "widgetDraggableRadioPlayerPosition",
   time: "widgetDraggableDateTimePosition",
   somafm: "widgetDraggableSomaFMPosition",
+  youtubelivetv: "widgetDraggableYouTubeLiveTVPosition",
 };
 
 // Order of widgets from top to bottom when auto-arranged
-const WIDGET_ORDER: WidgetId[] = ["time", "radio", "weather", "somafm"];
+const WIDGET_ORDER: WidgetId[] = [
+  "time",
+  "radio",
+  "weather",
+  "somafm",
+  "youtubelivetv",
+];
 
 // Gap between widgets when auto-arranged vertically
 const WIDGET_GAP = 16;
@@ -63,6 +75,7 @@ export function calculateAutoArrangePositions(): Record<
     radio: { x: 0, y: 0 },
     weather: { x: 0, y: 0 },
     somafm: { x: 0, y: 0 },
+    youtubelivetv: { x: 0, y: 0 },
   };
 
   if (typeof window === "undefined") return positions;
@@ -94,6 +107,7 @@ export function calculateAutoArrangePositions(): Record<
         radio: 160,
         weather: 170,
         somafm: 170,
+        youtubelivetv: 250,
       };
       currentY += fallbackHeights[widgetId] + WIDGET_GAP;
     }
@@ -183,6 +197,24 @@ export function resetAllWidgetPositions(): void {
   window.dispatchEvent(
     new CustomEvent("widget-positions-reset", { detail: positions }),
   );
+}
+
+/**
+ * Reset a single widget's position to its auto-arranged position
+ * Only updates the specified widget, not all
+ */
+export function resetWidgetPosition(widgetId: WidgetId): void {
+  if (typeof window === "undefined") return;
+  const positions = calculateAutoArrangePositions();
+  const position = positions[widgetId];
+  if (position) {
+    saveWidgetPosition(widgetId, position.x, position.y);
+    window.dispatchEvent(
+      new CustomEvent("widget-positions-reset", {
+        detail: { [widgetId]: position },
+      }),
+    );
+  }
 }
 
 /**

@@ -10,6 +10,7 @@ import { requestHeadersStateAtom } from "@/data/store";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
+  resetWidgetPosition,
   saveWidgetPosition,
   setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
@@ -68,6 +69,7 @@ export default function WidgetDraggableWeather() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [unit, setUnit] = useState<"metric" | "imperial">(() => {
     if (typeof window === "undefined") return "metric";
     const savedUnit = localStorage.getItem(UNIT_STORAGE_KEY);
@@ -192,7 +194,7 @@ export default function WidgetDraggableWeather() {
   const windLabel = unit === "metric" ? "km/h" : "mph";
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
       <div
         ref={draggableRef}
         data-widget-id="weather"
@@ -320,14 +322,12 @@ export default function WidgetDraggableWeather() {
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={() => {
-            const positions = calculateAutoArrangePositions();
-            setPosition(positions.weather);
-            saveWidgetPosition(
-              "weather",
-              positions.weather.x,
-              positions.weather.y,
-            );
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            requestAnimationFrame(() => {
+              resetWidgetPosition("weather");
+            });
           }}
         >
           Reset widget position

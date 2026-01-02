@@ -19,6 +19,7 @@ import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
+  resetWidgetPosition,
   saveWidgetPosition,
   setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
@@ -57,6 +58,7 @@ export default function WidgetDraggableRadioPlayer() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
@@ -179,9 +181,7 @@ export default function WidgetDraggableRadioPlayer() {
   }, [radioStationState.radioStation?.slug]);
 
   const resetPosition = useCallback(() => {
-    const positions = calculateAutoArrangePositions();
-    setPosition(positions.radio);
-    saveWidgetPosition("radio", positions.radio.x, positions.radio.y);
+    resetWidgetPosition("radio");
   }, []);
 
   const updateVolume = useCallback(
@@ -251,7 +251,7 @@ export default function WidgetDraggableRadioPlayer() {
   }, [stationName, title, artist, isVisible]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
       <div
         ref={draggableRef}
         data-widget-id="radio"
@@ -374,6 +374,7 @@ export default function WidgetDraggableRadioPlayer() {
                   onValueChange={(v) => updateVolume(v[0] ?? volume)}
                   max={100}
                   step={1}
+                  className="cursor-pointer"
                 />
               </PopoverContent>
             </Popover>
@@ -423,7 +424,16 @@ export default function WidgetDraggableRadioPlayer() {
             </Link>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={resetPosition} className="cursor-pointer">
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            requestAnimationFrame(() => {
+              resetPosition();
+            });
+          }}
+          className="cursor-pointer"
+        >
           Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>

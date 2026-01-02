@@ -12,6 +12,7 @@ import {
   LayoutTemplate,
   Music,
   Radio,
+  Tv,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -50,6 +51,12 @@ const WIDGETS: {
     label: "SomaFM",
     icon: <Music className="h-5 w-5" />,
     description: "SomaFM streaming radio player",
+  },
+  {
+    id: "youtubelivetv",
+    label: "Live TV",
+    icon: <Tv className="h-5 w-5" />,
+    description: "Watch live TV channels",
   },
 ];
 
