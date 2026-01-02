@@ -430,7 +430,7 @@ export default function WidgetDraggableSomaFM() {
                               } catch {}
                             }, 0);
                           }}
-                          className="group rounded-md px-2! py-2! transition-colors hover:bg-white/10 focus:bg-white/10"
+                          className="group cursor-pointer rounded-md px-2! py-2! transition-colors hover:bg-white/10 focus:bg-white/10"
                         >
                           <div className="flex w-full items-start gap-3">
                             {/* Logo */}
