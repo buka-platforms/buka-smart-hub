@@ -45,7 +45,6 @@ import {
   Heart,
   MoreHorizontal,
   Pause,
-  PictureInPicture2,
   Play as PlayIcon,
   Tv,
   Volume1,
@@ -109,7 +108,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
-  const [isPiPActive, setIsPiPActive] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
@@ -401,33 +399,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
       return newFavorites;
     });
   }, [selectedChannel]);
-
-  // Picture-in-Picture
-  const togglePiP = useCallback(async () => {
-    if (!document.pictureInPictureEnabled) return;
-
-    try {
-      if (isPiPActive && document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-        setIsPiPActive(false);
-      } else {
-        // Get the video element from the iframe
-        const iframe = containerRef.current?.querySelector("iframe");
-        if (iframe && selectedChannel) {
-          // Unfortunately, we can't directly access cross-origin iframe video
-          // But we can open in a new window for a similar effect
-          const url = `https://www.youtube.com/embed/${selectedChannel.source_id}?autoplay=1&mute=${isMuted ? 1 : 0}`;
-          window.open(
-            url,
-            "Live TV",
-            `width=400,height=225,left=${window.screenX + 50},top=${window.screenY + 50}`,
-          );
-        }
-      }
-    } catch {
-      // Ignore
-    }
-  }, [isPiPActive, selectedChannel, isMuted]);
 
   // Reset position
   const resetPosition = useCallback(() => {
@@ -787,15 +758,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
                 <span className="hidden sm:inline">Details</span>
               </Link>
             )}
-
-            {/* PiP */}
-            <button
-              onClick={togglePiP}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-              title="Picture in Picture"
-            >
-              <PictureInPicture2 className="h-3.5 w-3.5" />
-            </button>
 
             {/* More Options */}
             <DropdownMenuTrigger asChild>
