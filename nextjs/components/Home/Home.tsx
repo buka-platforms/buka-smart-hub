@@ -12,7 +12,6 @@ import WidgetContainer from "@/components/Home/WidgetContainer";
 import { getRequestHeaders } from "@/lib/header";
 import Link from "next/link";
 
-/* eslint-disable @next/next/no-img-element */
 export default async function Home() {
   const requestHeaders = await getRequestHeaders();
 
@@ -34,18 +33,8 @@ export default async function Home() {
       </h1>
       <div className="relative z-0 h-screen w-full overflow-hidden">
         <RandomBackgroundImage />
-        {/* Header: logo left, controls right */}
-        <header className="absolute top-0 left-0 z-10 flex w-full items-start justify-between p-4">
-          <div
-            className="flex items-center"
-            title={`${process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.`}
-          >
-            <img
-              src="/assets/images/logo-white.svg"
-              alt={`${process.env.NEXT_PUBLIC_APP_TITLE}`}
-              className="isolate h-8 w-8 md:h-10 md:w-10"
-            />
-          </div>
+        {/* Header: controls right */}
+        <header className="absolute top-0 left-0 z-10 flex w-full items-start justify-end p-4">
           <div className="flex items-center gap-x-3">
             <div title="Search" className="flex items-center">
               <Search
