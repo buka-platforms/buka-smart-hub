@@ -373,19 +373,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
     }
   }, [isPlaying]);
 
-  // Toggle mute
-  const toggleMute = useCallback(() => {
-    setIsMuted((prev) => {
-      const newMuted = !prev;
-      try {
-        localStorage.setItem(MUTED_KEY, String(newMuted));
-      } catch {
-        // Ignore
-      }
-      return newMuted;
-    });
-  }, []);
-
   // Update volume
   const updateVolume = useCallback((value: number) => {
     setVolume(value);
@@ -758,9 +745,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  onClick={toggleMute}
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title={isMuted ? "Unmute" : "Mute"}
+                  title="Volume"
                 >
                   {isMuted || volume === 0 ? (
                     <VolumeX className="h-4 w-4" />
