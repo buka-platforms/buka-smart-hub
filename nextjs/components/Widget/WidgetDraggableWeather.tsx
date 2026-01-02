@@ -294,7 +294,7 @@ export default function WidgetDraggableWeather() {
               className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title="Open weather app"
             >
-              <span className="hidden sm:inline">More</span>
+              More
             </Link>
 
             <div className="ml-auto">
