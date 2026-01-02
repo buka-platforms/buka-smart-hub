@@ -495,7 +495,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       <div
         ref={draggableRef}
         data-widget-id="livetv"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/90 shadow-xl ring-1 ring-white/15 backdrop-blur-xl transition-all duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"} ${theaterStyles}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/90 shadow-xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"} ${theaterStyles}`}
       >
         {/* Vertical "Live TV" Label */}
         {!isTheaterMode && (
