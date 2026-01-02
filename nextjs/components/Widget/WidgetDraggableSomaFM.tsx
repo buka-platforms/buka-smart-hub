@@ -464,6 +464,7 @@ export default function WidgetDraggableSomaFM() {
                   }}
                   max={100}
                   step={1}
+                  className="cursor-pointer"
                 />
               </PopoverContent>
             </Popover>
