@@ -73,7 +73,7 @@ export default function WidgetContainer() {
         </div>
       )}
 
-      {visibility.livetv && (
+      {visibility.youtubelivetv && (
         <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
           <WidgetDraggableYouTubeLiveTV />
         </div>

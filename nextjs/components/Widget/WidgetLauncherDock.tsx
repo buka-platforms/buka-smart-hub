@@ -53,7 +53,7 @@ const WIDGETS: {
     description: "SomaFM streaming radio player",
   },
   {
-    id: "livetv",
+    id: "youtubelivetv",
     label: "Live TV",
     icon: <Tv className="h-5 w-5" />,
     description: "Watch live TV channels",

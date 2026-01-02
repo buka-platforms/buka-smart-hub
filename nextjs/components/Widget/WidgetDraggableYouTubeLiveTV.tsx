@@ -92,6 +92,10 @@ const MUTED_KEY = "widgetDraggableYouTubeLiveTVMuted";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {
+  // Shared styles for command palette items to keep dark theme consistent
+  const commandItemClass =
+    "group cursor-pointer rounded-md px-2 py-1.5 text-white/80 transition-colors hover:bg-white/5 data-[highlighted=true]:bg-white/10 data-[highlighted=true]:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white";
+
   const draggableRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -122,12 +126,12 @@ export default function WidgetDraggableYouTubeLiveTV() {
   useEffect(() => {
     queueMicrotask(() => {
       // Load position
-      const savedPosition = getSavedWidgetPosition("livetv");
+      const savedPosition = getSavedWidgetPosition("youtubelivetv");
       if (savedPosition) {
         setPosition(savedPosition);
       } else {
         const positions = calculateAutoArrangePositions();
-        setPosition(positions.livetv || { x: 0, y: 0 });
+        setPosition(positions.youtubelivetv || { x: 0, y: 0 });
       }
       setIsPositionLoaded(true);
 
@@ -173,11 +177,13 @@ export default function WidgetDraggableYouTubeLiveTV() {
       const customEvent = e as CustomEvent<
         Record<string, { x: number; y: number }>
       >;
-      if (customEvent.detail?.livetv) {
-        setPosition(customEvent.detail.livetv);
+      const resetPos =
+        customEvent.detail?.youtubelivetv || customEvent.detail?.livetv;
+      if (resetPos) {
+        setPosition(resetPos);
       } else {
         const positions = calculateAutoArrangePositions();
-        setPosition(positions.livetv || { x: 0, y: 0 });
+        setPosition(positions.youtubelivetv || { x: 0, y: 0 });
       }
     };
     window.addEventListener("widget-positions-reset", handleReset);
@@ -190,7 +196,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
     (data: { offset: { x: number; y: number } }) => {
       const newPosition = { x: data.offset.x, y: data.offset.y };
       setPosition(newPosition);
-      saveWidgetPosition("livetv", newPosition.x, newPosition.y);
+      saveWidgetPosition("youtubelivetv", newPosition.x, newPosition.y);
     },
     [],
   );
@@ -414,11 +420,11 @@ export default function WidgetDraggableYouTubeLiveTV() {
   // Reset position
   const resetPosition = useCallback(() => {
     const positions = calculateAutoArrangePositions();
-    setPosition(positions.livetv || { x: 0, y: 0 });
+    setPosition(positions.youtubelivetv || { x: 0, y: 0 });
     saveWidgetPosition(
-      "livetv",
-      positions.livetv?.x || 0,
-      positions.livetv?.y || 0,
+      "youtubelivetv",
+      positions.youtubelivetv?.x || 0,
+      positions.youtubelivetv?.y || 0,
     );
   }, []);
 
@@ -483,7 +489,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       const el = draggableRef.current;
       if (!el) return;
       const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("livetv", h);
+      if (Number.isFinite(h)) setWidgetMeasuredHeight("youtubelivetv", h);
     };
     report();
     window.addEventListener("resize", report);
@@ -494,7 +500,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
     <DropdownMenu>
       <div
         ref={draggableRef}
-        data-widget-id="livetv"
+        data-widget-id="youtubelivetv"
         className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/90 shadow-xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Live TV" Label */}
@@ -546,7 +552,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
             >
               <PopoverTrigger asChild>
                 <button
-                  className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                  className="flex h-7 cursor-pointer items-center gap-1 rounded-sm border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                   title="Change channel"
                 >
                   <Tv className="h-3 w-3" />
@@ -556,13 +562,13 @@ export default function WidgetDraggableYouTubeLiveTV() {
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-80 rounded-lg border border-white/10 bg-black/95 p-0 shadow-2xl backdrop-blur-xl"
+                className="w-96 rounded-lg border border-white/10 bg-[#0c0c10]/95 p-0 shadow-2xl backdrop-blur-xl"
               >
-                <Command className="bg-transparent">
+                <Command className="border-0 bg-transparent text-white">
                   <div className="flex items-center gap-2 border-b border-white/10 p-2">
                     <CommandInput
                       placeholder="Search channels..."
-                      className="h-8 text-sm"
+                      className="h-8 text-sm text-white placeholder:text-white/40"
                     />
                     {/* Country Filter */}
                     <Popover>
@@ -609,18 +615,26 @@ export default function WidgetDraggableYouTubeLiveTV() {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <CommandList className="max-h-72 overflow-y-auto">
-                    <CommandEmpty>No channels found.</CommandEmpty>
+                  <CommandList className="max-h-72 overflow-y-auto bg-transparent">
+                    <CommandEmpty className="px-3 py-2 text-xs text-white/60">
+                      No channels found.
+                    </CommandEmpty>
 
                     {/* Favorites Section */}
                     {favoriteChannels.length > 0 && (
-                      <CommandGroup heading="Favorites">
+                      <CommandGroup
+                        heading={
+                          <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                            Favorites
+                          </span>
+                        }
+                      >
                         {favoriteChannels.map((channel) => (
                           <CommandItem
                             key={channel.id}
                             value={`${channel.name} ${channel.country}`}
                             onSelect={() => selectChannel(channel)}
-                            className="group cursor-pointer rounded-md px-2 py-1.5 transition-colors"
+                            className={commandItemClass}
                           >
                             <div className="flex w-full items-center gap-2">
                               {channel.logo_url && (
@@ -654,13 +668,20 @@ export default function WidgetDraggableYouTubeLiveTV() {
                       const channels = filteredChannels[category];
                       if (!channels || channels.length === 0) return null;
                       return (
-                        <CommandGroup key={category} heading={category}>
+                        <CommandGroup
+                          key={category}
+                          heading={
+                            <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                              {category}
+                            </span>
+                          }
+                        >
                           {channels.map((channel) => (
                             <CommandItem
                               key={channel.id}
                               value={`${channel.name} ${channel.country} ${channel.category}`}
                               onSelect={() => selectChannel(channel)}
-                              className="group cursor-pointer rounded-md px-2 py-1.5 transition-colors"
+                              className={commandItemClass}
                             >
                               <div className="flex w-full items-center gap-2">
                                 {channel.logo_url && (

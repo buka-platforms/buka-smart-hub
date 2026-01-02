@@ -44,12 +44,17 @@ export const radioStationStateAtom = atom({
 });
 
 // Widget Launcher Dock State
-export type WidgetId = "time" | "radio" | "weather" | "somafm" | "livetv";
+export type WidgetId =
+  | "time"
+  | "radio"
+  | "weather"
+  | "somafm"
+  | "youtubelivetv";
 
 export const widgetVisibilityAtom = atom<Record<WidgetId, boolean>>({
   time: true,
   radio: true,
   weather: true,
   somafm: true,
-  livetv: true,
+  youtubelivetv: true,
 });
