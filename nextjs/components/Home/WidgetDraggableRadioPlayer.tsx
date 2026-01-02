@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug,
   play,
@@ -48,7 +48,7 @@ export default function WidgetDraggableRadioPlayer() {
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
 
   // Load position from localStorage on mount
@@ -259,12 +259,12 @@ export default function WidgetDraggableRadioPlayer() {
 
             {/* Play/Stop Button */}
             <div className="shrink-0">
-              {mediaAudioState.isLoading ? (
+              {radioAudioState.isLoading ? (
                 <Loading
                   className="h-10 w-10 animate-spin text-white/80"
                   color="#f5f5f5"
                 />
-              ) : mediaAudioState.isPlaying ? (
+              ) : radioAudioState.isPlaying ? (
                 <button
                   onClick={stop}
                   className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"

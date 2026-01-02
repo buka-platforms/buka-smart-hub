@@ -1,6 +1,6 @@
 "use client";
 
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import { transparent1x1Pixel } from "@/lib/audio";
 import { useAtomValue, useSetAtom } from "jotai";
 
@@ -130,22 +130,22 @@ const RadioStationPlayingWithTitleMetadata = () => {
 };
 
 export default function RadioCoverArt() {
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
 
   return (
     <>
       {radioStationState.radioStation &&
         (() => {
-          if (!mediaAudioState.isLoading && !mediaAudioState.isPlaying) {
+          if (!radioAudioState.isLoading && !radioAudioState.isPlaying) {
             return <RadioStation />;
           }
 
-          if (mediaAudioState.isLoading) {
+          if (radioAudioState.isLoading) {
             return <RadioStation />;
           }
 
-          if (mediaAudioState.isPlaying) {
+          if (radioAudioState.isPlaying) {
             if (radioStationState.metadataExists) {
               return <RadioStationPlayingWithCompleteMetadata />;
             }

@@ -1,6 +1,6 @@
 import {
   jotaiStore,
-  mediaAudioStateAtom,
+  radioAudioStateAtom,
   radioStationStateAtom,
 } from "@/data/store";
 import type { AudioVisualizationOptions } from "@/data/type";
@@ -86,11 +86,11 @@ export const randomizeRainbowColor = () => {
 };
 
 export const setupMediaAudio = () => {
-  if (!jotaiStore.get(mediaAudioStateAtom).mediaAudio) {
+  if (!jotaiStore.get(radioAudioStateAtom).radioAudio) {
     const mediaAudio = new Audio();
     mediaAudio.crossOrigin = "anonymous";
 
-    jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    jotaiStore.set(radioAudioStateAtom, (prev) => ({
       ...prev,
       mediaAudio: mediaAudio,
     }));
@@ -120,7 +120,7 @@ export const setupMediaAudio = () => {
 };
 
 const resetStateWhenStop = () => {
-  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+  jotaiStore.set(radioAudioStateAtom, (prev) => ({
     ...prev,
     isPlaying: false,
     isLoading: false,
@@ -158,13 +158,13 @@ const getBukaRadioStream = async () => {
 };
 
 export const play = async (isChangeAddressBar = false) => {
-  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+  jotaiStore.set(radioAudioStateAtom, (prev) => ({
     ...prev,
     isLoading: true,
   }));
 
   const radioStation = jotaiStore.get(radioStationStateAtom).radioStation;
-  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
+  const radioAudio = jotaiStore.get(radioAudioStateAtom).radioAudio;
 
   // Override the url if the radio station is https://buka.sh/radio/stream, call https://buka.sh/radio/streams to get the random stream with its metadata
   if (radioStation?.slug === "buka") {
@@ -186,15 +186,15 @@ export const play = async (isChangeAddressBar = false) => {
   const url = radioStation?.radio_stations_radio_streams[0]?.radio_stream?.url;
 
   if (radioStation?.radio_stations_radio_streams[0]?.radio_stream?.type === 2) {
-    // Set mediaAudio to empty src
-    if (mediaAudio) {
-      mediaAudio.removeAttribute("src");
+    // Set radioAudio to empty src
+    if (radioAudio) {
+      radioAudio.removeAttribute("src");
     }
 
     // Load the source to hls
     hls?.loadSource(url as string);
-    if (mediaAudio) {
-      hls?.attachMedia(mediaAudio);
+    if (radioAudio) {
+      hls?.attachMedia(radioAudio);
     }
   } else if (
     jotaiStore.get(radioStationStateAtom).radioStation
@@ -206,8 +206,8 @@ export const play = async (isChangeAddressBar = false) => {
       hls.detachMedia();
     }
 
-    if (mediaAudio) {
-      mediaAudio.src = url as string;
+    if (radioAudio) {
+      radioAudio.src = url as string;
     }
   }
 
@@ -229,14 +229,14 @@ export const play = async (isChangeAddressBar = false) => {
   }
 
   const playPromise = !isRadioStationCORSProblem
-    ? mediaAudio?.play()
+    ? radioAudio?.play()
     : mediaAudioCors?.play();
 
   if (playPromise !== undefined) {
     playPromise
       .then(() => {
         // Set the state, isPlaying = true and isLoading = false
-        jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+        jotaiStore.set(radioAudioStateAtom, (prev) => ({
           ...prev,
           isLoading: false,
           isPlaying: true,
@@ -268,7 +268,7 @@ export const play = async (isChangeAddressBar = false) => {
         }
       })
       .catch(() => {
-        jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+        jotaiStore.set(radioAudioStateAtom, (prev) => ({
           ...prev,
           isLoading: false,
         }));
@@ -276,7 +276,7 @@ export const play = async (isChangeAddressBar = false) => {
         playRandom(isChangeAddressBar);
       });
   } else {
-    jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    jotaiStore.set(radioAudioStateAtom, (prev) => ({
       ...prev,
       isLoading: false,
     }));
@@ -284,10 +284,10 @@ export const play = async (isChangeAddressBar = false) => {
 };
 
 export const playRandom = async (isChangeAddressBar = false) => {
-  if (!jotaiStore.get(mediaAudioStateAtom).isLoading) {
+  if (!jotaiStore.get(radioAudioStateAtom).isLoading) {
     await stop();
 
-    jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+    jotaiStore.set(radioAudioStateAtom, (prev) => ({
       ...prev,
       isLoading: true,
     }));
@@ -330,10 +330,10 @@ export const stop = async () => {
   // Reset the state
   resetStateWhenStop();
 
-  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
+  const radioAudio = jotaiStore.get(radioAudioStateAtom).radioAudio;
 
-  mediaAudio?.pause();
-  mediaAudio?.removeAttribute("src");
+  radioAudio?.pause();
+  radioAudio?.removeAttribute("src");
 
   mediaAudioCors?.pause();
   mediaAudioCors?.removeAttribute("src");
@@ -386,7 +386,7 @@ const handleEventAudioError = () => {
 };
 
 export const handleEventAudioPlaying = () => {
-  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+  jotaiStore.set(radioAudioStateAtom, (prev) => ({
     ...prev,
     isPlaying: true,
     isLoading: false,
@@ -394,28 +394,28 @@ export const handleEventAudioPlaying = () => {
 };
 
 export const attachMediaAudioListeners = () => {
-  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
+  const radioAudio = jotaiStore.get(radioAudioStateAtom).radioAudio;
 
-  if (mediaAudio) {
-    mediaAudio.addEventListener(
+  if (radioAudio) {
+    radioAudio.addEventListener(
       "canplaythrough",
       handleEventAudioCanPlayThrough,
     );
-    mediaAudio.addEventListener("error", handleEventAudioError);
-    mediaAudio.addEventListener("playing", handleEventAudioPlaying);
+    radioAudio.addEventListener("error", handleEventAudioError);
+    radioAudio.addEventListener("playing", handleEventAudioPlaying);
   }
 };
 
 export const detachMediaAudioListeners = () => {
-  const mediaAudio = jotaiStore.get(mediaAudioStateAtom).mediaAudio;
+  const radioAudio = jotaiStore.get(radioAudioStateAtom).radioAudio;
 
-  if (mediaAudio) {
-    mediaAudio.removeEventListener(
+  if (radioAudio) {
+    radioAudio.removeEventListener(
       "canplaythrough",
       handleEventAudioCanPlayThrough,
     );
-    mediaAudio.removeEventListener("error", handleEventAudioError);
-    mediaAudio.removeEventListener("playing", handleEventAudioPlaying);
+    radioAudio.removeEventListener("error", handleEventAudioError);
+    radioAudio.removeEventListener("playing", handleEventAudioPlaying);
   }
 };
 
@@ -526,13 +526,13 @@ export const checkRadioStationCORS = async (
 };
 
 export const setupMediaAudioContext = () => {
-  const mediaAudio = jotaiStore.get(mediaAudioStateAtom)
-    .mediaAudio as HTMLAudioElement;
+  const radioAudio = jotaiStore.get(radioAudioStateAtom)
+    .radioAudio as HTMLAudioElement;
   const audioContext = new AudioContext();
-  const audioSourceNode = audioContext.createMediaElementSource(mediaAudio);
+  const audioSourceNode = audioContext.createMediaElementSource(radioAudio);
   audioAnalyserNode = audioContext.createAnalyser();
 
-  jotaiStore.set(mediaAudioStateAtom, (prev) => ({
+  jotaiStore.set(radioAudioStateAtom, (prev) => ({
     ...prev,
     contextCreated: true,
   }));
@@ -1012,7 +1012,7 @@ export const setupVisibilityHandler = () => {
       consZ = 0;
       usableLength = 250;
 
-      if (jotaiStore.get(mediaAudioStateAtom).isPlaying) {
+      if (jotaiStore.get(radioAudioStateAtom).isPlaying) {
         if (useOffscreenCanvas && visualizerWorker) {
           visualizerWorker.postMessage({ type: "resume" });
           startFrequencyDataTransfer();

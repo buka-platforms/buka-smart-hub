@@ -21,11 +21,11 @@ export const backgroundImageStateAtom = atom({
   randomBackgroundImage: undefined as Unsplash | null | undefined,
   tmpRandomBackgroundImage: undefined as Unsplash | null | undefined,
 });
-export const mediaAudioStateAtom = atom({
+export const radioAudioStateAtom = atom({
   isLoading: false,
   isPlaying: false,
   contextCreated: false,
-  mediaAudio: undefined as HTMLAudioElement | null | undefined,
+  radioAudio: undefined as HTMLAudioElement | null | undefined,
 });
 export const radioStationStateAtom = atom({
   metadataExists: false,

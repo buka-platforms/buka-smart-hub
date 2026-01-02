@@ -1,6 +1,6 @@
 "use client";
 
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   initAudioVisualization,
   renderAudioVisualization,
@@ -13,12 +13,12 @@ import { useCallback, useEffect } from "react";
 
 const AudioContext = () => {
   const pathname = usePathname();
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
 
   // Handle user gesture to create audio context
   useEffect(() => {
     const handleUserGesture = () => {
-      if (!mediaAudioState.contextCreated && mediaAudioState.mediaAudio) {
+      if (!radioAudioState.contextCreated && radioAudioState.radioAudio) {
         setupMediaAudioContext();
       }
     };
@@ -28,13 +28,13 @@ const AudioContext = () => {
     return () => {
       window.removeEventListener("click", handleUserGesture);
     };
-  }, [mediaAudioState.contextCreated, mediaAudioState.mediaAudio]);
+  }, [radioAudioState.contextCreated, radioAudioState.radioAudio]);
 
   useEffect(() => {
     if (pathname === "/login") {
       return;
     } else {
-      if (mediaAudioState.contextCreated && mediaAudioState.isPlaying) {
+      if (radioAudioState.contextCreated && radioAudioState.isPlaying) {
         // Re-initialize and start rendering when navigating between pages
         initAudioVisualization();
         renderAudioVisualization();
@@ -44,17 +44,17 @@ const AudioContext = () => {
     return () => {
       // Cleanup if needed
     };
-  }, [pathname, mediaAudioState.contextCreated, mediaAudioState.isPlaying]);
+  }, [pathname, radioAudioState.contextCreated, radioAudioState.isPlaying]);
 
   return <></>;
 };
 
 export default function Audio() {
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
 
   const sendGoogleAnalyticsEvent = useCallback(() => {
-    if (mediaAudioState.isPlaying && radioStationState.radioStation) {
+    if (radioAudioState.isPlaying && radioStationState.radioStation) {
       if (window && window.gtag) {
         window.gtag("event", "page_view", {
           page_title: `Still listening to ${radioStationState.radioStation.name} from ${radioStationState.radioStation.country?.name_alias}`,
@@ -63,7 +63,7 @@ export default function Audio() {
         });
       }
     }
-  }, [mediaAudioState.isPlaying, radioStationState.radioStation]);
+  }, [radioAudioState.isPlaying, radioStationState.radioStation]);
 
   // Handle setup of media audio
   useEffect(() => {

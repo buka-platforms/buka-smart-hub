@@ -6,30 +6,30 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
-import { mediaAudioStateAtom } from "@/data/store";
+import { radioAudioStateAtom } from "@/data/store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Volume1, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Volume() {
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-  const setMediaAudioStore = useSetAtom(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
+  const setRadioAudioStore = useSetAtom(radioAudioStateAtom);
 
   const [volume, setVolume] = useState([
-    (mediaAudioState.mediaAudio?.volume as number) * 100 || 0,
+    (radioAudioState.radioAudio?.volume as number) * 100 || 0,
   ]);
 
   const adjustVolume = (value: number[]) => {
     setVolume(value);
 
     // Adjust the volume of the audio on mediaAudioStore
-    setMediaAudioStore((prev) => {
-      if (prev.mediaAudio) {
-        prev.mediaAudio.volume = value[0] / 100;
+    setRadioAudioStore((prev) => {
+      if (prev.radioAudio) {
+        prev.radioAudio.volume = value[0] / 100;
       }
       return {
         ...prev,
-        mediaAudio: prev.mediaAudio,
+        radioAudio: prev.radioAudio,
       };
     });
 
@@ -38,33 +38,33 @@ export default function Volume() {
   };
 
   useEffect(() => {
-    const mediaAudio = mediaAudioState.mediaAudio;
-    if (!mediaAudio) return;
+    const radioAudio = radioAudioState.radioAudio;
+    if (!radioAudio) return;
 
     const handleVolumeChange = () => {
-      setVolume([(mediaAudio.volume as number) * 100 || 0]);
+      setVolume([(radioAudio.volume as number) * 100 || 0]);
     };
 
-    mediaAudio.addEventListener("volumechange", handleVolumeChange);
+    radioAudio.addEventListener("volumechange", handleVolumeChange);
 
     // Set initial volume state
     handleVolumeChange();
 
     return () => {
-      mediaAudio.removeEventListener("volumechange", handleVolumeChange);
+      radioAudio.removeEventListener("volumechange", handleVolumeChange);
     };
-  }, [mediaAudioState.mediaAudio]);
+  }, [radioAudioState.radioAudio]);
 
   return (
     <>
       <Popover>
         <PopoverTrigger>
           <div id="volume" className="cursor-pointer" title="Volume">
-            {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
+            {Number(radioAudioState.radioAudio?.volume) * 100 === 0 ? (
               <VolumeX className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
-            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
+            ) : Number(radioAudioState.radioAudio?.volume) * 100 <= 50 ? (
               <Volume1 className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
-            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
+            ) : Number(radioAudioState.radioAudio?.volume) * 100 > 50 ? (
               <Volume2 className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
             ) : null}
           </div>

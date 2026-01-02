@@ -1,7 +1,7 @@
 "use client";
 
 import { Loading } from "@/components/General/AudioUI";
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, stop } from "@/lib/audio";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -68,9 +68,9 @@ export default function RadioPanel({
 }) {
   const radioStationState = useAtomValue(radioStationStateAtom);
   const setRadioStationStore = useSetAtom(radioStationStateAtom);
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
   const searchParams = useSearchParams();
-  const isInIframe = searchParams.get("if") === "1";
+  const isInIframe = searchParams?.get("if") === "1";
 
   useEffect(() => {
     setRadioStationStore((prev) => ({
@@ -81,8 +81,8 @@ export default function RadioPanel({
 
   return (
     <>
-      {!mediaAudioState.isPlaying &&
-        !mediaAudioState.isLoading &&
+      {!radioAudioState.isPlaying &&
+        !radioAudioState.isLoading &&
         (!radioStationState.radioStation ? (
           <Loader2
             className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
@@ -92,9 +92,9 @@ export default function RadioPanel({
           <Play />
         ))}
 
-      {mediaAudioState.isPlaying && !mediaAudioState.isLoading && <Stop />}
+      {radioAudioState.isPlaying && !radioAudioState.isLoading && <Stop />}
 
-      {mediaAudioState.isLoading && (
+      {radioAudioState.isLoading && (
         <Loading
           className="h-10 w-10 animate-spin opacity-80 hover:opacity-100 md:h-12 md:w-12"
           color="#f5f5f5"

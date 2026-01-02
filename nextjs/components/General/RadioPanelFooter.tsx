@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug as loadRadioStation,
   loadRandomRadioStation,
@@ -74,29 +74,29 @@ const Random = () => {
 };
 
 const Volume = () => {
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-  const setMediaAudioStore = useSetAtom(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
+  const setRadioAudioStore = useSetAtom(radioAudioStateAtom);
 
   const [volume, setVolume] = useState([
-    (mediaAudioState.mediaAudio?.volume as number) * 100 || 0,
+    (radioAudioState.radioAudio?.volume as number) * 100 || 0,
   ]);
 
   const adjustVolume = (value: number[]) => {
     setVolume(value);
 
-    // Adjust the volume of the audio on mediaAudioStore
-    setMediaAudioStore((prev) => {
-      if (prev.mediaAudio) {
-        prev.mediaAudio.volume = value[0] / 100;
+    // Adjust the volume of the audio on radioAudioStore
+    setRadioAudioStore((prev) => {
+      if (prev.radioAudio) {
+        prev.radioAudio.volume = value[0] / 100;
       }
       return {
         ...prev,
-        mediaAudio: prev.mediaAudio,
+        radioAudio: prev.radioAudio,
       };
     });
 
     // Save the volume to local storage
-    localStorage.setItem("mediaAudioVolume", JSON.stringify(value[0]));
+    localStorage.setItem("radioAudioVolume", JSON.stringify(value[0]));
   };
 
   return (
@@ -104,11 +104,11 @@ const Volume = () => {
       <Popover>
         <PopoverTrigger>
           <div id="volume" className="cursor-pointer" title="Volume">
-            {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
+            {Number(radioAudioState.radioAudio?.volume) * 100 === 0 ? (
               <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
+            ) : Number(radioAudioState.radioAudio?.volume) * 100 <= 50 ? (
               <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-            ) : Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
+            ) : Number(radioAudioState.radioAudio?.volume) * 100 > 50 ? (
               <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
             ) : (
               <Loader2
@@ -135,7 +135,7 @@ const Volume = () => {
 
 /* eslint-disable @next/next/no-img-element */
 const RadioThumbnail = () => {
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
   const setRadioStationState = useSetAtom(radioStationStateAtom);
 
@@ -155,11 +155,11 @@ const RadioThumbnail = () => {
 
   return (
     <>
-      {!mediaAudioState.isLoading && (
+      {!radioAudioState.isLoading && (
         <>
           <div className="h-16 w-16 shrink-0 p-1">
             <Link href={`/radio/${radioStationState.radioStation?.slug}`}>
-              {mediaAudioState.isPlaying && radioStationState.metadataExists ? (
+              {radioAudioState.isPlaying && radioStationState.metadataExists ? (
                 <img
                   className={`h-full w-full overflow-hidden rounded-md object-scale-down ${
                     radioStationState.metadataImageLoaded
@@ -202,7 +202,7 @@ const RadioThumbnail = () => {
         </>
       )}
 
-      {mediaAudioState.isLoading && (
+      {radioAudioState.isLoading && (
         <>
           <div className="h-16 w-16 shrink-0 p-1">
             <Skeleton className="h-full w-full overflow-hidden rounded-md" />
@@ -217,12 +217,12 @@ const RadioThumbnail = () => {
 
   // Helper function to determine flex class
   function getFlexClass() {
-    if (mediaAudioState.isPlaying && radioStationState.metadataExists) {
+    if (radioAudioState.isPlaying && radioStationState.metadataExists) {
       return "justify-between";
     }
 
     if (
-      mediaAudioState.isPlaying &&
+      radioAudioState.isPlaying &&
       !radioStationState.metadataExists &&
       radioStationState.exposedTitleOnly !== ""
     ) {
@@ -234,7 +234,7 @@ const RadioThumbnail = () => {
 
   // Helper function to render track details
   function renderTrackDetails() {
-    if (mediaAudioState.isPlaying && radioStationState.metadataExists) {
+    if (radioAudioState.isPlaying && radioStationState.metadataExists) {
       return (
         <div>
           <div
@@ -264,7 +264,7 @@ const RadioThumbnail = () => {
     }
 
     if (
-      mediaAudioState.isPlaying &&
+      radioAudioState.isPlaying &&
       !radioStationState.metadataExists &&
       radioStationState.exposedTitleOnly !== ""
     ) {
@@ -286,22 +286,22 @@ const RadioThumbnail = () => {
 
 const RadioPanel = () => {
   const radioStationState = useAtomValue(radioStationStateAtom);
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
 
   return (
     <>
       <div className="mr-2 flex shrink-0 gap-1 md:gap-2">
-        {!mediaAudioState.isPlaying &&
-          !mediaAudioState.isLoading &&
+        {!radioAudioState.isPlaying &&
+          !radioAudioState.isLoading &&
           (!radioStationState.radioStation ? (
             <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
           ) : (
             <Play />
           ))}
 
-        {mediaAudioState.isPlaying && !mediaAudioState.isLoading && <Stop />}
+        {radioAudioState.isPlaying && !radioAudioState.isLoading && <Stop />}
 
-        {mediaAudioState.isLoading && (
+        {radioAudioState.isLoading && (
           <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
         )}
 
