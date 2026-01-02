@@ -4,9 +4,9 @@ import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   initAudioVisualization,
   renderAudioVisualization,
-  setupRadioAudio,
   setupRadioAudioContext,
-} from "@/lib/radio-audio";
+} from "@/lib/audio-visualizer";
+import { setupRadioAudio } from "@/lib/radio-audio";
 import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect } from "react";

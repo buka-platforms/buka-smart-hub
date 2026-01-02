@@ -7,7 +7,7 @@ import type { RadioStation } from "@/data/type";
 import {
   initAudioVisualization,
   randomizeRainbowColor,
-} from "@/lib/radio-audio";
+} from "@/lib/audio-visualizer";
 import { replaceArtworkSizes } from "./utils";
 
 let intervalIdTrackMetadata: NodeJS.Timeout | null = null;
