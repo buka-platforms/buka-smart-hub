@@ -421,14 +421,14 @@ export default function WidgetDraggableSomaFM() {
                           }}
                           className="group rounded-md px-2! py-2! transition-colors hover:bg-white/10 focus:bg-white/10"
                         >
-                          <div className="flex w-full items-center gap-3">
+                          <div className="flex w-full items-start gap-3">
                             {/* Logo */}
                             {c.image && (
                               /* eslint-disable-next-line @next/next/no-img-element */
                               <img
                                 src={c.image}
                                 alt={c.title}
-                                className="h-8 w-8 rounded border border-white/10 bg-white/20 object-contain shadow"
+                                className="mt-1 h-8 w-8 rounded border border-white/10 bg-white/20 object-contain shadow"
                                 style={{ minWidth: 32, minHeight: 32 }}
                                 draggable={false}
                               />
