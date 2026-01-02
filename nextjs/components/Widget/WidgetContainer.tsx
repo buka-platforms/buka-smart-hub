@@ -5,28 +5,28 @@ import { useAtomValue } from "jotai";
 import dynamic from "next/dynamic";
 
 const WidgetDraggableSomaFM = dynamic(
-  () => import("@/components/Home/WidgetDraggableSomaFM"),
+  () => import("@/components/Widget/WidgetDraggableSomaFM"),
   { ssr: false },
 );
 
 // Dynamically import widgets to code-split
 const WidgetDraggableWeather = dynamic(
-  () => import("@/components/Home/WidgetDraggableWeather"),
+  () => import("@/components/Widget/WidgetDraggableWeather"),
   { ssr: false },
 );
 
 const WidgetDraggableRadioPlayer = dynamic(
-  () => import("@/components/Home/WidgetDraggableRadioPlayer"),
+  () => import("@/components/Widget/WidgetDraggableRadioPlayer"),
   { ssr: false },
 );
 
 const WidgetDraggableDateTime = dynamic(
-  () => import("@/components/Home/WidgetDraggableDateTime"),
+  () => import("@/components/Widget/WidgetDraggableDateTime"),
   { ssr: false },
 );
 
 const WidgetLauncherDock = dynamic(
-  () => import("@/components/Home/WidgetLauncherDock"),
+  () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
 );
 

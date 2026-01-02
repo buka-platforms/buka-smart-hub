@@ -6,7 +6,7 @@ import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import WidgetContainer from "@/components/Home/WidgetContainer";
+import WidgetContainer from "@/components/Widget/WidgetContainer";
 import { getRequestHeaders } from "@/lib/header";
 
 export default async function Home() {
