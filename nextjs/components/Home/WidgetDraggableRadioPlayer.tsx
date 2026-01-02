@@ -64,7 +64,7 @@ export default function WidgetDraggableRadioPlayer() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
-    const stored = localStorage.getItem("mediaAudioVolume");
+    const stored = localStorage.getItem("radioAudioVolume");
     if (stored !== null && !Number.isNaN(Number(stored))) return Number(stored);
     return Math.round((radioAudioState.radioAudio?.volume ?? 0.5) * 100);
   });
@@ -198,7 +198,7 @@ export default function WidgetDraggableRadioPlayer() {
         return { ...prev };
       });
       try {
-        localStorage.setItem("mediaAudioVolume", value.toString());
+        localStorage.setItem("radioAudioVolume", value.toString());
       } catch {
         /* noop */
       }

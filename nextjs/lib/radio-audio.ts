@@ -102,7 +102,7 @@ export const setupMediaAudio = () => {
 
     if (localStorage) {
       // Get media audio volume from localStorage
-      const volumeInLocalStorage = localStorage.getItem("mediaAudioVolume");
+      const volumeInLocalStorage = localStorage.getItem("radioAudioVolume");
 
       // Convert volume 0-100 to 0-1
       if (volumeInLocalStorage) {
@@ -111,7 +111,7 @@ export const setupMediaAudio = () => {
         mediaAudio.volume = 0.5;
 
         // Set media audio volume to localStorage
-        localStorage.setItem("mediaAudioVolume", "50");
+        localStorage.setItem("radioAudioVolume", "50");
       }
     } else {
       mediaAudio.volume = 0.5;

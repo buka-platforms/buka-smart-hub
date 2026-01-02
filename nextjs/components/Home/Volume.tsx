@@ -34,7 +34,7 @@ export default function Volume() {
     });
 
     // Save the volume to local storage
-    localStorage.setItem("mediaAudioVolume", JSON.stringify(value[0]));
+    localStorage.setItem("radioAudioVolume", JSON.stringify(value[0]));
   };
 
   useEffect(() => {
