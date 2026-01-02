@@ -401,7 +401,6 @@ export default function WidgetDraggableSomaFM() {
           {/* Separator and action bar */}
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            {/* Volume CTA using shadcn/ui Popover */}
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -419,16 +418,16 @@ export default function WidgetDraggableSomaFM() {
                 </button>
               </PopoverTrigger>
               <PopoverContent
-                align="end"
+                align="start"
                 sideOffset={6}
-                className="flex w-28 flex-col gap-1.5 rounded-md border border-white/10 bg-black/90 p-2.5 shadow-lg"
+                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
               >
-                <label
-                  htmlFor="somafm-volume-slider"
-                  className="text-[11px] font-semibold text-white/75"
-                >
-                  Volume
-                </label>
+                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <span>Volume</span>
+                  <span className="text-white/60">
+                    {Math.round(volume * 100)}%
+                  </span>
+                </div>
                 <input
                   id="somafm-volume-slider"
                   type="range"
@@ -443,9 +442,6 @@ export default function WidgetDraggableSomaFM() {
                   }}
                   className="w-full accent-white"
                 />
-                <span className="text-[11px] text-white/60">
-                  {Math.round(volume * 100)}%
-                </span>
               </PopoverContent>
             </Popover>
             {/* CHANNELS button with searchable command menu */}
