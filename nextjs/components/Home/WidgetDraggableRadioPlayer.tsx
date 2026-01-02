@@ -29,13 +29,7 @@ import {
   useDraggable,
 } from "@neodrag/react";
 import { useAtomValue } from "jotai";
-import {
-  Heart,
-  ListMusic,
-  MoreHorizontal,
-  Pause,
-  Play as PlayIcon,
-} from "lucide-react";
+import { Heart, MoreHorizontal, Pause, Play as PlayIcon } from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
@@ -44,56 +38,6 @@ import {
   useRef,
   useState,
 } from "react";
-
-// Marquee text component for long strings
-const MarqueeText = ({
-  text,
-  className,
-}: {
-  text: string;
-  className?: string;
-}) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
-
-  useLayoutEffect(() => {
-    const checkOverflow = () => {
-      if (containerRef.current && measureRef.current) {
-        // Measure the hidden single-text span to get accurate width
-        const isOverflowing =
-          measureRef.current.scrollWidth > containerRef.current.clientWidth;
-        setShouldAnimate(isOverflowing);
-      }
-    };
-
-    checkOverflow();
-
-    window.addEventListener("resize", checkOverflow);
-    return () => window.removeEventListener("resize", checkOverflow);
-  }, [text]);
-
-  return (
-    <div ref={containerRef} className={`overflow-hidden ${className || ""}`}>
-      {/* Hidden measurement span - always contains just the text */}
-      <span
-        ref={measureRef}
-        className="pointer-events-none absolute whitespace-nowrap opacity-0"
-        aria-hidden="true"
-      >
-        {text}
-      </span>
-      {/* Visible span with optional duplicate for marquee */}
-      <span
-        className={`inline-block whitespace-nowrap ${shouldAnimate ? "animate-marquee" : ""}`}
-        title={text}
-      >
-        {text}
-        {shouldAnimate && <span className="mx-8">{text}</span>}
-      </span>
-    </div>
-  );
-};
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
@@ -291,18 +235,25 @@ export default function WidgetDraggableRadioPlayer() {
 
             {/* Track Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              <Link
-                href={`/radio/${radioStationState.radioStation?.slug}`}
-                className="block overflow-hidden text-xs text-white/60 hover:text-white/80"
+              <span
+                className="block max-w-full cursor-default truncate text-xs font-semibold text-white/60"
+                title={stationName}
               >
-                <MarqueeText text={stationName} />
-              </Link>
-              <MarqueeText
-                text={title || "\u00A0"}
-                className="text-sm font-medium text-white"
-              />
+                {stationName}
+              </span>
+              <span
+                className="max-w-full truncate text-sm font-medium text-white"
+                title={title}
+              >
+                {title || "\u00A0"}
+              </span>
               {artist && (
-                <MarqueeText text={artist} className="text-xs text-white/70" />
+                <span
+                  className="max-w-full truncate text-xs text-white/70"
+                  title={artist}
+                >
+                  {artist}
+                </span>
               )}
             </div>
 
@@ -352,8 +303,7 @@ export default function WidgetDraggableRadioPlayer() {
               className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title="Browse more stations"
             >
-              <ListMusic className="mr-1 h-3 w-3" />
-              <span className="hidden sm:inline">More</span>
+              <span className="hidden sm:inline">Stations</span>
             </Link>
 
             <div className="ml-auto">

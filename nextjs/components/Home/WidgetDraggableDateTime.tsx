@@ -290,10 +290,9 @@ export default function WidgetDraggableDateTime() {
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
               onClick={toggleTimeFormat}
-              className="flex h-8 cursor-pointer items-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
             >
-              <Clock className="h-3.5 w-3.5" />
               <span>{timeFormat === "12h" ? "24H" : "12H"}</span>
             </button>
 

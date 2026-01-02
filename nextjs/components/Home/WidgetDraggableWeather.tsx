@@ -40,54 +40,6 @@ import {
 } from "react";
 import useSWR from "swr";
 
-// Marquee text component for long strings
-const MarqueeText = ({
-  text,
-  className,
-}: {
-  text: string;
-  className?: string;
-}) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
-
-  useLayoutEffect(() => {
-    const checkOverflow = () => {
-      if (containerRef.current && measureRef.current) {
-        const isOverflowing =
-          measureRef.current.scrollWidth > containerRef.current.clientWidth;
-        setShouldAnimate(isOverflowing);
-      }
-    };
-
-    checkOverflow();
-
-    window.addEventListener("resize", checkOverflow);
-    return () => window.removeEventListener("resize", checkOverflow);
-  }, [text]);
-
-  return (
-    <div ref={containerRef} className={`overflow-hidden ${className || ""}`}>
-      {/* Hidden measurement span */}
-      <span
-        ref={measureRef}
-        className="pointer-events-none absolute whitespace-nowrap opacity-0"
-        aria-hidden="true"
-      >
-        {text}
-      </span>
-      {/* Visible span with optional duplicate for marquee */}
-      <span
-        className={`inline-block whitespace-nowrap ${shouldAnimate ? "animate-marquee" : ""}`}
-        title={text}
-      >
-        {text}
-        {shouldAnimate && <span className="mx-8">{text}</span>}
-      </span>
-    </div>
-  );
-};
 const UNIT_STORAGE_KEY = "widgetDraggableWeatherUnit";
 
 interface WeatherData {
@@ -289,15 +241,20 @@ export default function WidgetDraggableWeather() {
                 </span>
                 <span className="text-xs text-white/60">{temperatureUnit}</span>
               </div>
-              <MarqueeText
-                text={
+              <span
+                className="max-w-full truncate text-xs text-white/70"
+                title={
                   data?.weather[0].description
                     ? data.weather[0].description.charAt(0).toUpperCase() +
                       data.weather[0].description.slice(1)
                     : ""
                 }
-                className="text-xs text-white/70"
-              />
+              >
+                {data?.weather[0].description
+                  ? data.weather[0].description.charAt(0).toUpperCase() +
+                    data.weather[0].description.slice(1)
+                  : ""}
+              </span>
             </div>
 
             {/* Additional Info */}
@@ -333,10 +290,9 @@ export default function WidgetDraggableWeather() {
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
               onClick={toggleUnit}
-              className="flex h-8 cursor-pointer items-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
             >
-              <Thermometer className="h-3.5 w-3.5" />
               <span>°{temperatureUnit}</span>
             </button>
 
@@ -345,7 +301,6 @@ export default function WidgetDraggableWeather() {
               className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title="Open weather app"
             >
-              <CloudSun className="mr-1 h-3 w-3" />
               <span className="hidden sm:inline">More</span>
             </Link>
 

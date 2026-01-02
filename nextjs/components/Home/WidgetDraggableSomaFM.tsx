@@ -29,7 +29,6 @@ import {
 } from "@neodrag/react";
 import {
   Disc3,
-  ListMusic,
   LoaderCircle,
   MoreHorizontal,
   Pause,
@@ -403,7 +402,6 @@ export default function WidgetDraggableSomaFM() {
                     } catch {}
                   }}
                 >
-                  <ListMusic className="mr-1 h-3 w-3" />
                   <span className="hidden sm:inline">Channels</span>
                 </button>
               </DropdownMenuTrigger>
