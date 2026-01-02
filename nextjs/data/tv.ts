@@ -354,8 +354,7 @@ export const tv = [
     name: "France 24",
     short_description: "France 24 from France.",
     long_description: "France 24 is a news channel from France.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/en/6/65/FRANCE_24_logo.svg",
+    logo_url: "https://static.france24.com/infographies/wikipedia/logo.svg",
     source: "YouTube",
     source_id: "Ap-UM1O9RBU",
     category: "News",
@@ -368,8 +367,7 @@ export const tv = [
     name: "France 24",
     short_description: "France 24 from France.",
     long_description: "France 24 is a news channel from France.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/en/6/65/FRANCE_24_logo.svg",
+    logo_url: "https://static.france24.com/infographies/wikipedia/logo.svg",
     source: "YouTube",
     source_id: "l8PMl7tUDIE",
     category: "News",
@@ -522,7 +520,7 @@ export const tv = [
     short_description: "TVBS from Taiwan.",
     long_description: "TVBS is a news channel from Taiwan.",
     logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/f/f8/TVBS_Media_Inc_LogoV2.svg",
+      "https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/TVBS_Media_Inc_logo.svg/960px-TVBS_Media_Inc_logo.svg.png",
     source: "YouTube",
     source_id: "m_dhMSvUCIc",
     category: "News",
@@ -551,8 +549,8 @@ export const tv = [
     long_description: "WION is a news channel from India.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/7/70/WION_news_Logo.svg",
-    source: "WION",
-    source_id: "wion",
+    source: "YouTube",
+    source_id: "vfszY1JYbMc",
     category: "News",
   },
   {
