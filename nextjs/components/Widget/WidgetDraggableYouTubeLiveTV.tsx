@@ -43,8 +43,6 @@ import {
   Flag,
   Globe,
   Heart,
-  Maximize2,
-  Minimize2,
   MoreHorizontal,
   Pause,
   PictureInPicture2,
@@ -111,7 +109,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
-  const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isPiPActive, setIsPiPActive] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
@@ -405,11 +402,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
     });
   }, [selectedChannel]);
 
-  // Toggle theater mode
-  const toggleTheaterMode = useCallback(() => {
-    setIsTheaterMode((prev) => !prev);
-  }, []);
-
   // Picture-in-Picture
   const togglePiP = useCallback(async () => {
     if (!document.pictureInPictureEnabled) return;
@@ -485,29 +477,24 @@ export default function WidgetDraggableYouTubeLiveTV() {
     report();
     window.addEventListener("resize", report);
     return () => window.removeEventListener("resize", report);
-  }, [selectedChannel, isTheaterMode, isVisible]);
-
-  // Theater mode styles
-  const theaterStyles = isTheaterMode ? "fixed inset-4 z-[100] flex-col" : "";
+  }, [selectedChannel, isVisible]);
 
   return (
     <DropdownMenu>
       <div
         ref={draggableRef}
         data-widget-id="livetv"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/90 shadow-xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"} ${theaterStyles}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/90 shadow-xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Live TV" Label */}
-        {!isTheaterMode && (
-          <div className="flex items-center justify-center border-r border-white/10 px-1">
-            <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-              Live TV
-            </span>
-          </div>
-        )}
+        <div className="flex items-center justify-center border-r border-white/10 px-1">
+          <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
+            Live TV
+          </span>
+        </div>
 
         {/* Main Column */}
-        <div className={`flex flex-col ${isTheaterMode ? "flex-1" : "w-85"}`}>
+        <div className="flex w-85 flex-col">
           {/* Channel Header */}
           <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
             {/* Channel Logo */}
@@ -704,9 +691,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
           {/* Video Player Area */}
           <div
             ref={containerRef}
-            className={`relative overflow-hidden bg-black ${
-              isTheaterMode ? "flex-1" : "aspect-video"
-            }`}
+            className="relative aspect-video overflow-hidden bg-black"
           >
             {/* Gradient overlay for controls visibility */}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-linear-to-t from-black/80 to-transparent" />
@@ -812,23 +797,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
               <PictureInPicture2 className="h-3.5 w-3.5" />
             </button>
 
-            {/* Theater Mode */}
-            <button
-              onClick={toggleTheaterMode}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
-                isTheaterMode
-                  ? "border-purple-400/60 bg-purple-500/30 text-purple-400"
-                  : "border-white/10 bg-white/10 text-white hover:bg-white/20"
-              }`}
-              title={isTheaterMode ? "Exit theater mode" : "Theater mode"}
-            >
-              {isTheaterMode ? (
-                <Minimize2 className="h-3.5 w-3.5" />
-              ) : (
-                <Maximize2 className="h-3.5 w-3.5" />
-              )}
-            </button>
-
             {/* More Options */}
             <DropdownMenuTrigger asChild>
               <button
@@ -874,14 +842,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
           Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>
-
-      {/* Theater Mode Backdrop */}
-      {isTheaterMode && (
-        <div
-          className="fixed inset-0 z-99 bg-black/80 backdrop-blur-sm"
-          onClick={toggleTheaterMode}
-        />
-      )}
     </DropdownMenu>
   );
 }
