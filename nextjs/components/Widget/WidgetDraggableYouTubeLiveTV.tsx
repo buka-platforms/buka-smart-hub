@@ -771,6 +771,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   onValueChange={(v) => updateVolume(v[0] ?? volume)}
                   max={100}
                   step={1}
+                  className="cursor-pointer"
                 />
               </PopoverContent>
             </Popover>
