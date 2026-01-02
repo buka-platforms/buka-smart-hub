@@ -85,19 +85,19 @@ export const randomizeRainbowColor = () => {
   audioVisualizationOptions.color = `rainbow${n}`;
 };
 
-export const setupMediaAudio = () => {
+export const setupRadioAudio = () => {
   if (!jotaiStore.get(radioAudioStateAtom).radioAudio) {
-    const mediaAudio = new Audio();
-    mediaAudio.crossOrigin = "anonymous";
+    const radioAudio = new Audio();
+    radioAudio.crossOrigin = "anonymous";
 
     jotaiStore.set(radioAudioStateAtom, (prev) => ({
       ...prev,
-      radioAudio: mediaAudio,
+      radioAudio: radioAudio,
     }));
 
     if (Hls.isSupported()) {
       hls = new Hls();
-      hls.attachMedia(mediaAudio);
+      hls.attachMedia(radioAudio);
     }
 
     if (localStorage) {
@@ -106,15 +106,15 @@ export const setupMediaAudio = () => {
 
       // Convert volume 0-100 to 0-1
       if (volumeInLocalStorage) {
-        mediaAudio.volume = parseFloat(volumeInLocalStorage) / 100;
+        radioAudio.volume = parseFloat(volumeInLocalStorage) / 100;
       } else {
-        mediaAudio.volume = 0.5;
+        radioAudio.volume = 0.5;
 
         // Set media audio volume to localStorage
         localStorage.setItem("radioAudioVolume", "50");
       }
     } else {
-      mediaAudio.volume = 0.5;
+      radioAudio.volume = 0.5;
     }
   }
 };
@@ -267,13 +267,21 @@ export const play = async (isChangeAddressBar = false) => {
           });
         }
       })
-      .catch(() => {
+      .catch(async () => {
         jotaiStore.set(radioAudioStateAtom, (prev) => ({
           ...prev,
           isLoading: false,
         }));
 
-        playRandom(isChangeAddressBar);
+        // playRandom(isChangeAddressBar);
+
+        // Set radio to default radio, defined in NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG
+        await loadRadioStationBySlug(
+          process.env.NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG as string,
+        );
+
+        // Play the default radio station
+        play(isChangeAddressBar);
       });
   } else {
     jotaiStore.set(radioAudioStateAtom, (prev) => ({
@@ -283,48 +291,48 @@ export const play = async (isChangeAddressBar = false) => {
   }
 };
 
-export const playRandom = async (isChangeAddressBar = false) => {
-  if (!jotaiStore.get(radioAudioStateAtom).isLoading) {
-    await stop();
+// export const playRandom = async (isChangeAddressBar = false) => {
+//   if (!jotaiStore.get(radioAudioStateAtom).isLoading) {
+//     await stop();
 
-    jotaiStore.set(radioAudioStateAtom, (prev) => ({
-      ...prev,
-      isLoading: true,
-    }));
+//     jotaiStore.set(radioAudioStateAtom, (prev) => ({
+//       ...prev,
+//       isLoading: true,
+//     }));
 
-    // This is needed to reset the radio station name and logo, do not reset if path is not starts with /apps/radio
-    if (!window.location.pathname.startsWith("/apps/radio")) {
-      const dummyRadioStation = jotaiStore.get(
-        radioStationStateAtom,
-      ).radioStation;
-      if (dummyRadioStation) {
-        dummyRadioStation.name = "";
-        dummyRadioStation.logo = "";
-        dummyRadioStation.slug = "";
-        dummyRadioStation.country.name_alias = "";
-        dummyRadioStation.city = "";
+//     // This is needed to reset the radio station name and logo, do not reset if path is not starts with /apps/radio
+//     if (!window.location.pathname.startsWith("/apps/radio")) {
+//       const dummyRadioStation = jotaiStore.get(
+//         radioStationStateAtom,
+//       ).radioStation;
+//       if (dummyRadioStation) {
+//         dummyRadioStation.name = "";
+//         dummyRadioStation.logo = "";
+//         dummyRadioStation.slug = "";
+//         dummyRadioStation.country.name_alias = "";
+//         dummyRadioStation.city = "";
 
-        jotaiStore.set(radioStationStateAtom, (prev) => ({
-          ...prev,
-          radioStation: dummyRadioStation,
-        }));
-      }
-    }
+//         jotaiStore.set(radioStationStateAtom, (prev) => ({
+//           ...prev,
+//           radioStation: dummyRadioStation,
+//         }));
+//       }
+//     }
 
-    await loadRandomRadioStation();
+//     // await loadRandomRadioStation();
 
-    // Send virtual page view event to Google Analytics
-    if (window && window.gtag) {
-      window.gtag("event", "page_view", {
-        page_title: `Play random radio station`,
-        page_location: window.location.href,
-        page_path: window.location.pathname,
-      });
-    }
+//     // Send virtual page view event to Google Analytics
+//     if (window && window.gtag) {
+//       window.gtag("event", "page_view", {
+//         page_title: `Play random radio station`,
+//         page_location: window.location.href,
+//         page_path: window.location.pathname,
+//       });
+//     }
 
-    play(isChangeAddressBar);
-  }
-};
+//     play(isChangeAddressBar);
+//   }
+// };
 
 export const stop = async () => {
   // Reset the state
@@ -419,30 +427,30 @@ export const detachMediaAudioListeners = () => {
   }
 };
 
-export const loadRandomRadioStation = async (countryAlpha2: string = "") => {
-  let baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true`;
+// export const loadRandomRadioStation = async (countryAlpha2: string = "") => {
+//   let baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true`;
 
-  if (countryAlpha2 !== "") {
-    baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true&cca2=${countryAlpha2}`;
-  }
+//   if (countryAlpha2 !== "") {
+//     baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true&cca2=${countryAlpha2}`;
+//   }
 
-  // Fetch data in parallel
-  const [radioStationResult] = await Promise.all([
-    fetch(baseUrl, {
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }),
-  ]);
+//   // Fetch data in parallel
+//   const [radioStationResult] = await Promise.all([
+//     fetch(baseUrl, {
+//       cache: "no-cache",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     }),
+//   ]);
 
-  const radioStation = await radioStationResult.json();
+//   const radioStation = await radioStationResult.json();
 
-  jotaiStore.set(radioStationStateAtom, (prev) => ({
-    ...prev,
-    radioStation: radioStation.data,
-  }));
-};
+//   jotaiStore.set(radioStationStateAtom, (prev) => ({
+//     ...prev,
+//     radioStation: radioStation.data,
+//   }));
+// };
 
 export const loadRadioStationById = async (dataId: string) => {
   // Fetch data in parallel
@@ -458,10 +466,10 @@ export const loadRadioStationById = async (dataId: string) => {
   const radioStation = await radioStationResult.json();
 
   // Check if the radio station is not found, on Buka it will return an object with errors key
-  if (radioStation.status === 1) {
-    await loadRandomRadioStation();
-    return;
-  }
+  // if (radioStation.status === 1) {
+  //   await loadRandomRadioStation();
+  //   return;
+  // }
 
   jotaiStore.set(radioStationStateAtom, (prev) => ({
     ...prev,
@@ -486,10 +494,10 @@ export const loadRadioStationBySlug = async (dataSlug: string) => {
   const radioStation = await radioStationResult.json();
 
   // Check if the radio station is not found, on Buka it will return an object with errors key
-  if (radioStation.status === 1) {
-    await loadRandomRadioStation();
-    return;
-  }
+  // if (radioStation.status === 1) {
+  //   await loadRandomRadioStation();
+  //   return;
+  // }
 
   jotaiStore.set(radioStationStateAtom, (prev) => ({
     ...prev,
@@ -525,7 +533,7 @@ export const checkRadioStationCORS = async (
   });
 };
 
-export const setupMediaAudioContext = () => {
+export const setupRadioAudioContext = () => {
   const radioAudio = jotaiStore.get(radioAudioStateAtom)
     .radioAudio as HTMLAudioElement;
   const audioContext = new AudioContext();

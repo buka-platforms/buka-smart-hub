@@ -12,14 +12,14 @@ import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug,
   play,
-  playRandom,
+  // playRandom,
   stop,
 } from "@/lib/radio-audio";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   Loader2,
   PlayCircle,
-  Shuffle,
+  // Shuffle,
   StopCircle,
   Volume1,
   Volume2,
@@ -58,19 +58,19 @@ const Stop = () => {
   );
 };
 
-const Random = () => {
-  return (
-    <>
-      <div
-        onClick={() => playRandom(false)}
-        className="cursor-pointer"
-        title="Random radio station"
-      >
-        <Shuffle className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-      </div>
-    </>
-  );
-};
+// const Random = () => {
+//   return (
+//     <>
+//       <div
+//         // onClick={() => playRandom(false)}
+//         className="cursor-pointer"
+//         title="Random radio station"
+//       >
+//         <Shuffle className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
+//       </div>
+//     </>
+//   );
+// };
 
 const Volume = () => {
   const radioAudioState = useAtomValue(radioAudioStateAtom);
@@ -306,7 +306,7 @@ const RadioPanel = () => {
 
         {radioStationState.radioStation && (
           <>
-            <Random />
+            {/* <Random /> */}
             <Volume />
           </>
         )}

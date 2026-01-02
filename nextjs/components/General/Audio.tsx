@@ -4,8 +4,8 @@ import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   initAudioVisualization,
   renderAudioVisualization,
-  setupMediaAudio,
-  setupMediaAudioContext,
+  setupRadioAudio,
+  setupRadioAudioContext,
 } from "@/lib/radio-audio";
 import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
@@ -19,7 +19,7 @@ const AudioContext = () => {
   useEffect(() => {
     const handleUserGesture = () => {
       if (!radioAudioState.contextCreated && radioAudioState.radioAudio) {
-        setupMediaAudioContext();
+        setupRadioAudioContext();
       }
     };
 
@@ -67,7 +67,7 @@ export default function Audio() {
 
   // Handle setup of media audio
   useEffect(() => {
-    setupMediaAudio();
+    setupRadioAudio();
   }, []);
 
   // Handle if user still listening to the radio and send the GA event every 5 minutes
