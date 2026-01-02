@@ -10,8 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
-  loadRadioStationBySlug as loadRadioStation,
-  loadRandomRadioStation,
+  loadRadioStationBySlug,
   play,
   playRandom,
   stop,
@@ -316,36 +315,25 @@ const RadioPanel = () => {
   );
 };
 
-export default function RadioPanelFooter({
-  requestHeaders,
-}: {
-  requestHeaders: { [key: string]: string };
-}) {
+export default function RadioPanelFooter() {
   const radioStationState = useAtomValue(radioStationStateAtom);
-  const ipCountry = requestHeaders.hasOwnProperty("x-vercel-ip-country")
-    ? requestHeaders["x-vercel-ip-country"]
-    : null;
 
   useEffect(() => {
     const handleUseEffect = async () => {
       if (!radioStationState.radioStation) {
         // Check if localStorage has radioStationSlug
         if (localStorage.getItem("radioStationSlug")) {
-          await loadRadioStation(
+          await loadRadioStationBySlug(
             localStorage.getItem("radioStationSlug") as string,
           );
         } else {
-          if (ipCountry) {
-            await loadRandomRadioStation(ipCountry);
-          } else {
-            await loadRandomRadioStation();
-          }
+          await loadRadioStationBySlug("gold905");
         }
       }
     };
 
     handleUseEffect();
-  }, [ipCountry, radioStationState.radioStation]);
+  }, [radioStationState.radioStation]);
 
   if (!radioStationState.radioStation) {
     return null;

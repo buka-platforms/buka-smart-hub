@@ -203,7 +203,7 @@ export default async function TvDetailPage({
           />
         </div>
         <div className="h-64"></div>
-        <RadioPanelFooter requestHeaders={requestHeaders} />
+        <RadioPanelFooter />
       </div>
     </>
   );

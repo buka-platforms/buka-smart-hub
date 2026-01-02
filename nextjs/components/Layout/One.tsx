@@ -30,7 +30,7 @@ export default async function LayoutOne({
           <div className="h-64"></div>
         )}
         <AppsLink />
-        <RadioPanelFooter requestHeaders={requestHeaders} />
+        <RadioPanelFooter />
       </div>
     </>
   );
