@@ -3,7 +3,7 @@
 import { Loading } from "@/components/General/AudioUI";
 import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
-import { play, stop } from "@/lib/audio";
+import { play, stop } from "@/lib/radio-audio";
 import { useAtomValue, useSetAtom } from "jotai";
 import { ListMusic, Loader2, PlayCircle, StopCircle } from "lucide-react";
 import Link from "next/link";

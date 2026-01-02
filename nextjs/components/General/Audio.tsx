@@ -6,7 +6,7 @@ import {
   renderAudioVisualization,
   setupMediaAudio,
   setupMediaAudioContext,
-} from "@/lib/audio";
+} from "@/lib/radio-audio";
 import { useAtomValue } from "jotai";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect } from "react";

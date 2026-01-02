@@ -15,7 +15,7 @@ import {
   play,
   playRandom,
   stop,
-} from "@/lib/audio";
+} from "@/lib/radio-audio";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   Loader2,

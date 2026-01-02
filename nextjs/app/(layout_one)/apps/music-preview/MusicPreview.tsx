@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
-import { mediaAudioStateAtom } from "@/data/store";
-import { stop as stopMediaAudio } from "@/lib/audio";
+import { radioAudioStateAtom } from "@/data/store";
+import { stop as stopMediaAudio } from "@/lib/radio-audio";
 import { useReadable } from "@/lib/react-use-svelte-store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
@@ -70,8 +70,8 @@ export default function MusicPreview() {
   const randomTopic = topics[Math.floor(Math.random() * topics.length)];
 
   const searchParams = useSearchParams();
-  const queryParam = searchParams.get("q") || randomTopic;
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const queryParam = searchParams?.get("q") || randomTopic;
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
 
   const search = useCallback(async (query: string) => {
     if (query.trim().length === 0) {
@@ -137,7 +137,7 @@ export default function MusicPreview() {
     const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
 
     if (mediaAudioMusicPreview) {
-      if (mediaAudioState.isPlaying) {
+      if (radioAudioState.isPlaying) {
         await stopMediaAudio();
       }
 
@@ -219,11 +219,11 @@ export default function MusicPreview() {
     );
 
     const Volume = () => {
-      const mediaAudioState = useAtomValue(mediaAudioStateAtom);
-      const setMediaAudioState = useSetAtom(mediaAudioStateAtom);
+      const radioAudioState = useAtomValue(radioAudioStateAtom);
+      const setRadioAudioState = useSetAtom(radioAudioStateAtom);
 
       const [volume, setVolume] = useState([
-        (mediaAudioState.mediaAudio?.volume as number) * 100 || 0,
+        (radioAudioState.radioAudio?.volume as number) * 100 || 0,
       ]);
 
       const adjustVolume = useCallback(
@@ -233,13 +233,13 @@ export default function MusicPreview() {
           setVolume(value);
 
           // Adjust the volume of the audio on mediaAudioStore
-          setMediaAudioState((prev) => {
-            if (prev.mediaAudio) {
-              prev.mediaAudio.volume = value[0] / 100;
+          setRadioAudioState((prev) => {
+            if (prev.radioAudio) {
+              prev.radioAudio.volume = value[0] / 100;
             }
             return {
               ...prev,
-              mediaAudio: prev.mediaAudio,
+              radioAudio: prev.radioAudio,
             };
           });
 
@@ -249,20 +249,20 @@ export default function MusicPreview() {
           }
 
           // Save the volume to local storage
-          localStorage.setItem("mediaAudioVolume", JSON.stringify(value[0]));
+          localStorage.setItem("radioAudioVolume", JSON.stringify(value[0]));
         },
-        [setMediaAudioState],
+        [setRadioAudioState],
       );
 
       return (
         <Popover>
           <PopoverTrigger>
             <div id="volume" className="cursor-pointer" title="Volume">
-              {Number(mediaAudioState.mediaAudio?.volume) * 100 === 0 ? (
+              {Number(radioAudioState.radioAudio?.volume) * 100 === 0 ? (
                 <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : Number(mediaAudioState.mediaAudio?.volume) * 100 <= 50 ? (
+              ) : Number(radioAudioState.radioAudio?.volume) * 100 <= 50 ? (
                 <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : Number(mediaAudioState.mediaAudio?.volume) * 100 > 50 ? (
+              ) : Number(radioAudioState.radioAudio?.volume) * 100 > 50 ? (
                 <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
               ) : (
                 <Loader2
@@ -569,7 +569,7 @@ export default function MusicPreview() {
 
     if (!mediaAudioMusicPreview) {
       const audio = new Audio();
-      audio.volume = mediaAudioState.mediaAudio?.volume ?? 1.0;
+      audio.volume = radioAudioState.radioAudio?.volume ?? 1.0;
       mediaAudioMusicPreviewStore.set(audio);
 
       get(mediaAudioMusicPreviewStore)?.addEventListener(
@@ -578,7 +578,7 @@ export default function MusicPreview() {
       );
       get(mediaAudioMusicPreviewStore)?.addEventListener("ended", handleEnded);
     } else {
-      mediaAudioMusicPreview.volume = mediaAudioState.mediaAudio?.volume ?? 1.0;
+      mediaAudioMusicPreview.volume = radioAudioState.radioAudio?.volume ?? 1.0;
     }
 
     return () => {
@@ -594,7 +594,7 @@ export default function MusicPreview() {
         );
       }
     };
-  }, [mediaAudioState.mediaAudio?.volume]);
+  }, [radioAudioState.radioAudio?.volume]);
 
   useEffect(() => {
     if (

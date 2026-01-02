@@ -4,7 +4,10 @@ import {
   radioStationStateAtom,
 } from "@/data/store";
 import type { RadioStation } from "@/data/type";
-import { initAudioVisualization, randomizeRainbowColor } from "@/lib/audio";
+import {
+  initAudioVisualization,
+  randomizeRainbowColor,
+} from "@/lib/radio-audio";
 import { replaceArtworkSizes } from "./utils";
 
 let intervalIdTrackMetadata: NodeJS.Timeout | null = null;

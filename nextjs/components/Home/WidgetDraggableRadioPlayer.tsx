@@ -13,7 +13,7 @@ import {
   play,
   stop,
   transparent1x1Pixel,
-} from "@/lib/audio";
+} from "@/lib/radio-audio";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
