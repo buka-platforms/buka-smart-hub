@@ -123,34 +123,16 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const playerInstanceRef = useRef<YTPlayer | null>(null);
   const shouldAutoPlayRef = useRef(false);
 
-  // Clamp a position so the widget stays within the viewport bounds
-  const clampPosition = useCallback(
-    (pos: { x: number; y: number }) => {
-      if (typeof window === "undefined") return pos;
-      const rect = draggableRef.current?.getBoundingClientRect();
-      const widgetWidth = rect?.width ?? 360;
-      const widgetHeight = rect?.height ?? 260;
-      const margin = 12;
-      const maxX = Math.max(margin, window.innerWidth - widgetWidth - margin);
-      const maxY = Math.max(margin, window.innerHeight - widgetHeight - margin);
-      return {
-        x: Math.min(Math.max(margin, pos.x), maxX),
-        y: Math.min(Math.max(margin, pos.y), maxY),
-      };
-    },
-    [],
-  );
-
   // Load saved state on mount
   useEffect(() => {
     queueMicrotask(() => {
       // Load position
       const savedPosition = getSavedWidgetPosition("youtubelivetv");
       if (savedPosition) {
-        setPosition(clampPosition(savedPosition));
+        setPosition(savedPosition);
       } else {
         const positions = calculateAutoArrangePositions();
-        setPosition(clampPosition(positions.youtubelivetv || { x: 0, y: 0 }));
+        setPosition(positions.youtubelivetv || { x: 0, y: 0 });
       }
       setIsPositionLoaded(true);
 
@@ -188,7 +170,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
         // Ignore
       }
     });
-  }, [clampPosition]);
+  }, []);
 
   // Listen for widget position reset events
   useEffect(() => {
@@ -199,26 +181,25 @@ export default function WidgetDraggableYouTubeLiveTV() {
       const resetPos =
         customEvent.detail?.youtubelivetv || customEvent.detail?.livetv;
       if (resetPos) {
-        setPosition(clampPosition(resetPos));
+        setPosition(resetPos);
       } else {
         const positions = calculateAutoArrangePositions();
-        setPosition(clampPosition(positions.youtubelivetv || { x: 0, y: 0 }));
+        setPosition(positions.youtubelivetv || { x: 0, y: 0 });
       }
     };
     window.addEventListener("widget-positions-reset", handleReset);
     return () =>
       window.removeEventListener("widget-positions-reset", handleReset);
-  }, [clampPosition]);
+  }, []);
 
   // Handle drag end
   const handleDragEnd = useCallback(
     (data: { offset: { x: number; y: number } }) => {
       const newPosition = { x: data.offset.x, y: data.offset.y };
-      const clamped = clampPosition(newPosition);
-      setPosition(clamped);
-      saveWidgetPosition("youtubelivetv", clamped.x, clamped.y);
+      setPosition(newPosition);
+      saveWidgetPosition("youtubelivetv", newPosition.x, newPosition.y);
     },
-    [clampPosition],
+    [],
   );
 
   // Reactive position plugin
@@ -443,10 +424,10 @@ export default function WidgetDraggableYouTubeLiveTV() {
   // Reset position
   const resetPosition = useCallback(() => {
     const positions = calculateAutoArrangePositions();
-    const target = clampPosition(positions.youtubelivetv || { x: 0, y: 0 });
+    const target = positions.youtubelivetv || { x: 0, y: 0 };
     setPosition(target);
     saveWidgetPosition("youtubelivetv", target.x, target.y);
-  }, [clampPosition]);
+  }, []);
 
   // Filtered channels
   const filteredChannels = useMemo(() => {
