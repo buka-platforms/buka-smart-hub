@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mediaAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
-import { play, stop } from "@/lib/audio";
+import { play, stop } from "@/lib/radio-audio";
 import { useReadable } from "@/lib/react-use-svelte-store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
@@ -65,7 +65,7 @@ const getInitialRadioStations = async (query: string) => {
 
 /* eslint-disable @next/next/no-img-element */
 const Item = ({ item }: { item: RadioStation }) => {
-  const mediaAudioState = useAtomValue(mediaAudioStateAtom);
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
 
   const radioStationState = useAtomValue(radioStationStateAtom);
   const setRadioStationState = useSetAtom(radioStationStateAtom);
@@ -74,7 +74,7 @@ const Item = ({ item }: { item: RadioStation }) => {
     useState(false);
 
   const playSelected = async (radioStation: RadioStation) => {
-    if (mediaAudioState.isLoading) {
+    if (radioAudioState.isLoading) {
       return;
     } else {
       await stop();
@@ -105,20 +105,20 @@ const Item = ({ item }: { item: RadioStation }) => {
             onLoad={handleRadioStationImageLoad}
           />
           <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${radioStationState.radioStation?.id === item.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
+            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${radioStationState.radioStation?.id === item.id && (radioAudioState.isPlaying || radioAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
           ></div>
           <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${radioStationState.radioStation?.id === item.id && (mediaAudioState.isPlaying || mediaAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
+            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${radioStationState.radioStation?.id === item.id && (radioAudioState.isPlaying || radioAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
           >
             {radioStationState.radioStation?.id === item.id ? (
-              !mediaAudioState.isPlaying && !mediaAudioState.isLoading ? (
+              !radioAudioState.isPlaying && !radioAudioState.isLoading ? (
                 <CirclePlay
                   className="absolute h-10 w-10 text-slate-50"
                   onClick={() => playSelected(item)}
                 />
-              ) : mediaAudioState.isLoading ? (
+              ) : radioAudioState.isLoading ? (
                 <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
-              ) : mediaAudioState.isPlaying ? (
+              ) : radioAudioState.isPlaying ? (
                 <CircleStop
                   className="absolute h-10 w-10 text-slate-50"
                   onClick={stop}
@@ -192,7 +192,7 @@ const Search = () => {
   const searchQuery = useReadable(searchQueryStore);
   const isLoading = useReadable(isLoadingStore);
   const searchParams = useSearchParams();
-  const queryParam = searchParams.get("q") || "";
+  const queryParam = searchParams?.get("q") || "";
 
   const changeSearchQuery = async (value: string) => {
     searchQueryStore.set(value);
@@ -337,7 +337,7 @@ const LoadMore = () => {
 
 const NotFound = () => {
   const searchParams = useSearchParams();
-  const queryParam = searchParams.get("q") || "";
+  const queryParam = searchParams?.get("q") || "";
 
   const isNotFound = useReadable(isNotFoundStore);
 
@@ -358,7 +358,7 @@ const NotFound = () => {
 
 export default function RadioStations() {
   const searchParams = useSearchParams();
-  const queryParam = searchParams.get("q") || "";
+  const queryParam = searchParams?.get("q") || "";
 
   useEffect(() => {
     searchQueryStore.set(queryParam);
