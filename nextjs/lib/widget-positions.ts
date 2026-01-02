@@ -19,7 +19,36 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
 const WIDGET_ORDER: WidgetId[] = ["time", "radio", "weather", "somafm"];
 
 // Gap between widgets when auto-arranged vertically
-const WIDGET_GAP = 12;
+const WIDGET_GAP = 16;
+
+// Cached measured heights reported by widgets after render
+const measuredHeights: Partial<Record<WidgetId, number>> = {};
+let arrangeDebounce: ReturnType<typeof setTimeout> | null = null;
+
+// Allow widgets to report their actual rendered height
+export function setWidgetMeasuredHeight(widgetId: WidgetId, height: number) {
+  if (Number.isFinite(height) && height > 0) {
+    measuredHeights[widgetId] = height;
+
+    // If user has not customized positions, re-run auto-arrange using fresh measurements
+    try {
+      if (!hasAnyWidgetPosition()) {
+        if (arrangeDebounce) clearTimeout(arrangeDebounce);
+        arrangeDebounce = setTimeout(() => {
+          const positions = calculateAutoArrangePositions();
+          Object.entries(positions).forEach(([id, pos]) => {
+            saveWidgetPosition(id as WidgetId, pos.x, pos.y);
+          });
+          window.dispatchEvent(
+            new CustomEvent("widget-positions-reset", { detail: positions }),
+          );
+        }, 50); // debounce to batch multiple height reports
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+}
 
 /**
  * Calculate auto-arrange positions by measuring actual DOM elements
@@ -43,20 +72,28 @@ export function calculateAutoArrangePositions(): Record<
   for (const widgetId of WIDGET_ORDER) {
     positions[widgetId] = { x: 0, y: currentY };
 
-    // Try to measure the actual widget width from DOM
+    // Prefer measured height reported by widget
+    const reportedHeight = measuredHeights[widgetId];
+
+    // Otherwise try to measure actual DOM element
     const widgetElement = document.querySelector(
       `[data-widget-id="${widgetId}"]`,
     );
-    if (widgetElement) {
+
+    if (reportedHeight) {
+      currentY += reportedHeight + WIDGET_GAP;
+    } else if (widgetElement) {
       const rect = widgetElement.getBoundingClientRect();
-      currentY += rect.height + WIDGET_GAP;
+      const height = rect.height || 0;
+      measuredHeights[widgetId] = height;
+      currentY += height + WIDGET_GAP;
     } else {
       // Fallback estimates if widget not rendered
       const fallbackHeights: Record<WidgetId, number> = {
         time: 150,
         radio: 160,
-        weather: 150,
-        somafm: 160,
+        weather: 170,
+        somafm: 170,
       };
       currentY += fallbackHeights[widgetId] + WIDGET_GAP;
     }

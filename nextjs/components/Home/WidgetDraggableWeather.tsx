@@ -12,6 +12,7 @@ import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
   saveWidgetPosition,
+  setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
 import {
   ControlFrom,
@@ -220,6 +221,19 @@ export default function WidgetDraggableWeather() {
 
   // Determine visibility
   const isVisible = isPositionLoaded && !error && (data || isLoading);
+
+  // Report rendered height for accurate stacking
+  useLayoutEffect(() => {
+    const report = () => {
+      const el = draggableRef.current;
+      if (!el) return;
+      const h = el.getBoundingClientRect().height;
+      if (Number.isFinite(h)) setWidgetMeasuredHeight("weather", h);
+    };
+    report();
+    window.addEventListener("resize", report);
+    return () => window.removeEventListener("resize", report);
+  }, [data, unit, isVisible]);
 
   const temperatureUnit = unit === "metric" ? "C" : "F";
   const temperatureValue = data ? Math.round(Number(data.main.temp)) : "--";

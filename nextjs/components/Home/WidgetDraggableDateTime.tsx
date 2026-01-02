@@ -12,6 +12,7 @@ import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
   saveWidgetPosition,
+  setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
 import {
   ControlFrom,
@@ -31,7 +32,13 @@ import {
   Sunrise,
   Sunset,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 const FORMAT_STORAGE_KEY = "widgetDraggableDateTimeFormat";
 
@@ -205,6 +212,19 @@ export default function WidgetDraggableDateTime() {
   const greeting = getGreeting(hour);
 
   const isVisible = isPositionLoaded && currentTime !== null;
+
+  // Report rendered height for accurate stacking
+  useLayoutEffect(() => {
+    const report = () => {
+      const el = draggableRef.current;
+      if (!el) return;
+      const h = el.getBoundingClientRect().height;
+      if (Number.isFinite(h)) setWidgetMeasuredHeight("time", h);
+    };
+    report();
+    window.addEventListener("resize", report);
+    return () => window.removeEventListener("resize", report);
+  }, [currentTime, timeFormat]);
 
   return (
     <DropdownMenu>

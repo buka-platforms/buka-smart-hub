@@ -18,6 +18,7 @@ import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
   saveWidgetPosition,
+  setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
 import {
   ControlFrom,
@@ -245,6 +246,19 @@ export default function WidgetDraggableRadioPlayer() {
 
   // Always render the element so the ref is attached, but hide when no station or position not loaded
   const isVisible = !!radioStationState.radioStation && isPositionLoaded;
+
+  // Report rendered height for accurate stacking
+  useLayoutEffect(() => {
+    const report = () => {
+      const el = draggableRef.current;
+      if (!el) return;
+      const h = el.getBoundingClientRect().height;
+      if (Number.isFinite(h)) setWidgetMeasuredHeight("radio", h);
+    };
+    report();
+    window.addEventListener("resize", report);
+    return () => window.removeEventListener("resize", report);
+  }, [stationName, title, artist, isVisible]);
 
   return (
     <DropdownMenu>
