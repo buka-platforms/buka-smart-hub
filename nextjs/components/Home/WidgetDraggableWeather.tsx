@@ -286,7 +286,7 @@ export default function WidgetDraggableWeather() {
               className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
             >
-              <span>°{temperatureUnit}</span>
+              <span>°{unit === "metric" ? "F" : "C"}</span>
             </button>
 
             <Link
