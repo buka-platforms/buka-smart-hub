@@ -22,6 +22,7 @@ import { Slider } from "@/components/ui/slider";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
+  resetWidgetPosition,
   saveWidgetPosition,
   setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
@@ -81,6 +82,7 @@ export default function WidgetDraggableSomaFM() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -257,7 +259,7 @@ export default function WidgetDraggableSomaFM() {
   }, [selected, isPlaying]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
       <div
         ref={draggableRef}
         data-widget-id="somafm"
@@ -608,14 +610,12 @@ export default function WidgetDraggableSomaFM() {
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
         <DropdownMenuItem
-          onSelect={() => {
-            const positions = calculateAutoArrangePositions();
-            setPosition(positions.somafm || { x: 0, y: 0 });
-            saveWidgetPosition(
-              "somafm",
-              positions.somafm?.x || 0,
-              positions.somafm?.y || 0,
-            );
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            requestAnimationFrame(() => {
+              resetWidgetPosition("somafm");
+            });
           }}
         >
           Reset widget position

@@ -10,6 +10,7 @@ import { T } from "@/lib/app";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
+  resetWidgetPosition,
   saveWidgetPosition,
   setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
@@ -78,6 +79,7 @@ export default function WidgetDraggableDateTime() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => {
     if (typeof window === "undefined") return "12h";
@@ -154,9 +156,7 @@ export default function WidgetDraggableDateTime() {
 
   // Reset position
   const resetPosition = useCallback(() => {
-    const positions = calculateAutoArrangePositions();
-    setPosition(positions.time);
-    saveWidgetPosition("time", positions.time.x, positions.time.y);
+    resetWidgetPosition("time");
   }, []);
 
   // Reactive position plugin
@@ -225,7 +225,7 @@ export default function WidgetDraggableDateTime() {
   }, [currentTime, timeFormat]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
       <div
         ref={draggableRef}
         data-widget-id="time"
@@ -315,7 +315,16 @@ export default function WidgetDraggableDateTime() {
         >
           Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"} format
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={resetPosition} className="cursor-pointer">
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            requestAnimationFrame(() => {
+              resetPosition();
+            });
+          }}
+          className="cursor-pointer"
+        >
           Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>
