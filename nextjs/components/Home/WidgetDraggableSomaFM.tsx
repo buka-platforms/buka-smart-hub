@@ -83,7 +83,7 @@ export default function WidgetDraggableSomaFM() {
   } | null>(null);
 
   useEffect(() => {
-    fetch("/api/somafm-channels")
+    fetch("https://somafm.com/channels.json")
       .then((res) => res.json())
       .then((data) => {
         // Sort channels alphabetically by title for display
@@ -389,7 +389,9 @@ export default function WidgetDraggableSomaFM() {
                   aria-label="Select channel"
                   onClick={async () => {
                     try {
-                      const res = await fetch("/api/somafm-channels");
+                      const res = await fetch(
+                        "https://somafm.com/channels.json",
+                      );
                       const data = await res.json();
                       const sortedChannels = (data.channels || [])
                         .slice()
