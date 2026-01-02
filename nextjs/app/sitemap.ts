@@ -3,8 +3,10 @@ import { createDirectus, readItems, rest, staticToken } from "@directus/sdk";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Get all tv stations that doesn't have an external property
-  const tvChannels = tv.filter((channel) => !channel.external);
+  // Get all tv stations that don't have an 'external' property (assume missing means false)
+  const tvChannels = tv.filter(
+    (channel) => !("external" in channel && channel.external),
+  );
 
   const sitemapTvStationRoutes = tvChannels.map((channel) => ({
     url: `${process.env.NEXT_PUBLIC_BASE_URL}/tv/${channel.slug}`,
@@ -19,23 +21,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .with(rest());
 
   // Get all radio stations, by page, starting from page 1 until the last page (when results is empty)
-  const allRadioStations = [];
+  const allRadioStations: import("@/data/type").RadioStation[] = [];
   let currentPage = 1;
-  let radioStations;
+  let radioStations: import("@/data/type").RadioStation[];
 
   do {
-    radioStations = await client.request(
-      readItems("radio_stations" as any, {
+    radioStations = (await client.request(
+      readItems("radio_stations", {
         fields: ["*.*.*"],
         page: currentPage,
       }),
-    );
+    )) as import("@/data/type").RadioStation[];
 
     allRadioStations.push(...radioStations);
     currentPage++;
   } while (radioStations.length > 0);
 
-  const sitemapRadioStationRoutes = allRadioStations.map((station: any) => ({
+  const sitemapRadioStationRoutes = allRadioStations.map((station) => ({
     url: `${process.env.NEXT_PUBLIC_BASE_URL}/radio/${station.slug}`,
     lastModified: new Date(),
     changeFrequency: "daily",
