@@ -4,7 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { T } from "@/lib/app";
@@ -25,7 +24,6 @@ import {
 import "@fontsource-variable/rubik";
 import {
   Calendar,
-  Clock,
   Moon,
   MoreHorizontal,
   Sun,
@@ -311,11 +309,13 @@ export default function WidgetDraggableDateTime() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem onSelect={toggleTimeFormat}>
+        <DropdownMenuItem
+          onSelect={toggleTimeFormat}
+          className="cursor-pointer"
+        >
           Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"} format
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={resetPosition}>
+        <DropdownMenuItem onSelect={resetPosition} className="cursor-pointer">
           Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>

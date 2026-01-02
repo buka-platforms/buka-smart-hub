@@ -4,7 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { requestHeadersStateAtom } from "@/data/store";
@@ -23,13 +22,7 @@ import {
   useDraggable,
 } from "@neodrag/react";
 import { useAtomValue } from "jotai";
-import {
-  CloudSun,
-  Droplets,
-  MoreHorizontal,
-  Thermometer,
-  Wind,
-} from "lucide-react";
+import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
@@ -319,14 +312,14 @@ export default function WidgetDraggableWeather() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem onSelect={() => mutate()}>
+        <DropdownMenuItem onSelect={() => mutate()} className="cursor-pointer">
           Refresh weather
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={toggleUnit}>
+        <DropdownMenuItem onSelect={toggleUnit} className="cursor-pointer">
           Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={() => {
             const positions = calculateAutoArrangePositions();
             setPosition(positions.weather);
