@@ -286,7 +286,7 @@ export default function WidgetDraggableRadioPlayer() {
             {/* Track Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               <span
-                className="block max-w-full cursor-default truncate text-xs font-semibold text-white/60"
+                className="block max-w-full truncate text-xs font-semibold text-white/60"
                 title={stationName}
               >
                 {stationName}
