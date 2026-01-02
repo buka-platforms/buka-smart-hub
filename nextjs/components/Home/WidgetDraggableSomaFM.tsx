@@ -86,13 +86,19 @@ export default function WidgetDraggableSomaFM() {
     fetch("/api/somafm-channels")
       .then((res) => res.json())
       .then((data) => {
-        // Sort channels alphabetically by title
+        // Sort channels alphabetically by title for display
         const sortedChannels = (data.channels || [])
           .slice()
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .sort((a: any, b: any) => a.title.localeCompare(b.title));
         setChannels(sortedChannels);
-        setSelected(sortedChannels?.[0]?.id || "");
+        // Find the channel with the most listeners
+        const mostListenersChannel = (data.channels || []).slice().sort(
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          (a: any, b: any) =>
+            (Number(b.listeners) || 0) - (Number(a.listeners) || 0),
+        )[0];
+        setSelected(mostListenersChannel?.id || sortedChannels?.[0]?.id || "");
         setLoading(false);
       })
       .catch(() => {
