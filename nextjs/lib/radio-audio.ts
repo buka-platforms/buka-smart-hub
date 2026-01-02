@@ -291,49 +291,6 @@ export const play = async (isChangeAddressBar = false) => {
   }
 };
 
-// export const playRandom = async (isChangeAddressBar = false) => {
-//   if (!jotaiStore.get(radioAudioStateAtom).isLoading) {
-//     await stop();
-
-//     jotaiStore.set(radioAudioStateAtom, (prev) => ({
-//       ...prev,
-//       isLoading: true,
-//     }));
-
-//     // This is needed to reset the radio station name and logo, do not reset if path is not starts with /apps/radio
-//     if (!window.location.pathname.startsWith("/apps/radio")) {
-//       const dummyRadioStation = jotaiStore.get(
-//         radioStationStateAtom,
-//       ).radioStation;
-//       if (dummyRadioStation) {
-//         dummyRadioStation.name = "";
-//         dummyRadioStation.logo = "";
-//         dummyRadioStation.slug = "";
-//         dummyRadioStation.country.name_alias = "";
-//         dummyRadioStation.city = "";
-
-//         jotaiStore.set(radioStationStateAtom, (prev) => ({
-//           ...prev,
-//           radioStation: dummyRadioStation,
-//         }));
-//       }
-//     }
-
-//     // await loadRandomRadioStation();
-
-//     // Send virtual page view event to Google Analytics
-//     if (window && window.gtag) {
-//       window.gtag("event", "page_view", {
-//         page_title: `Play random radio station`,
-//         page_location: window.location.href,
-//         page_path: window.location.pathname,
-//       });
-//     }
-
-//     play(isChangeAddressBar);
-//   }
-// };
-
 export const stop = async () => {
   // Reset the state
   resetStateWhenStop();
@@ -427,31 +384,6 @@ export const detachMediaAudioListeners = () => {
   }
 };
 
-// export const loadRandomRadioStation = async (countryAlpha2: string = "") => {
-//   let baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true`;
-
-//   if (countryAlpha2 !== "") {
-//     baseUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?random=true&cca2=${countryAlpha2}`;
-//   }
-
-//   // Fetch data in parallel
-//   const [radioStationResult] = await Promise.all([
-//     fetch(baseUrl, {
-//       cache: "no-cache",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     }),
-//   ]);
-
-//   const radioStation = await radioStationResult.json();
-
-//   jotaiStore.set(radioStationStateAtom, (prev) => ({
-//     ...prev,
-//     radioStation: radioStation.data,
-//   }));
-// };
-
 export const loadRadioStationById = async (dataId: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
@@ -466,10 +398,9 @@ export const loadRadioStationById = async (dataId: string) => {
   const radioStation = await radioStationResult.json();
 
   // Check if the radio station is not found, on Buka it will return an object with errors key
-  // if (radioStation.status === 1) {
-  //   await loadRandomRadioStation();
-  //   return;
-  // }
+  if (radioStation.status === 1) {
+    return;
+  }
 
   jotaiStore.set(radioStationStateAtom, (prev) => ({
     ...prev,
@@ -494,10 +425,9 @@ export const loadRadioStationBySlug = async (dataSlug: string) => {
   const radioStation = await radioStationResult.json();
 
   // Check if the radio station is not found, on Buka it will return an object with errors key
-  // if (radioStation.status === 1) {
-  //   await loadRandomRadioStation();
-  //   return;
-  // }
+  if (radioStation.status === 1) {
+    return;
+  }
 
   jotaiStore.set(radioStationStateAtom, (prev) => ({
     ...prev,
