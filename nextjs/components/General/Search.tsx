@@ -30,7 +30,7 @@ export default function Search({ ...props }) {
   const [selectedValue, setSelectedValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const doSearch = (e: any) => {
+  const doSearch = () => {
     const searchInput = document.getElementById("search") as HTMLInputElement;
 
     // Check if the search input is empty
@@ -67,8 +67,6 @@ export default function Search({ ...props }) {
       router.push(`/apps/book-preview?q=${searchInput.value}`);
     else if (selectedValue === "music_preview")
       router.push(`/apps/music-preview?q=${searchInput.value}`);
-    else if (selectedValue === "movie_preview")
-      router.push(`/apps/movie-preview?q=${searchInput.value}`);
     else if (selectedValue === "ai")
       window.open(`https://chat.com?q=${searchInput.value}`, "_blank");
 
@@ -76,13 +74,13 @@ export default function Search({ ...props }) {
     setIsOpen(false);
   };
 
-  const doKeyDown = (e: any) => {
+  const doKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      doSearch(e);
+      doSearch();
     }
   };
 
-  const handleOpenChange = (open: any) => {
+  const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
 
     if (!open) {
@@ -98,7 +96,7 @@ export default function Search({ ...props }) {
         <DialogTrigger>
           <SearchIcon {...props} />
         </DialogTrigger>
-        <DialogContent className="top-[150px]">
+        <DialogContent className="top-37.5">
           <DialogHeader>
             <DialogTitle>Search</DialogTitle>
             <DialogDescription></DialogDescription>
@@ -120,7 +118,6 @@ export default function Search({ ...props }) {
                   <SelectLabel>What to search</SelectLabel>
                   <SelectItem value="ai">Artificial Intelligence</SelectItem>
                   <SelectItem value="book_preview">Book Preview</SelectItem>
-                  <SelectItem value="movie_preview">Movie Preview</SelectItem>
                   <SelectItem value="music_preview">Music Preview</SelectItem>
                   <SelectItem value="radio">Radio</SelectItem>
                 </SelectGroup>
