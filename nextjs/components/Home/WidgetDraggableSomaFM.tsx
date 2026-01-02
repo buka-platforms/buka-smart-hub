@@ -381,6 +381,19 @@ export default function WidgetDraggableSomaFM() {
                   className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
                   type="button"
                   aria-label="Select channel"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/somafm-channels");
+                      const data = await res.json();
+                      const sortedChannels = (data.channels || [])
+                        .slice()
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                        .sort((a: any, b: any) =>
+                          a.title.localeCompare(b.title),
+                        );
+                      setChannels(sortedChannels);
+                    } catch {}
+                  }}
                 >
                   <ListMusic className="mr-1 h-3 w-3" />
                   <span className="hidden sm:inline">Channels</span>
