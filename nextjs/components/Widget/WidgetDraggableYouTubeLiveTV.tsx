@@ -12,7 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -778,28 +777,16 @@ export default function WidgetDraggableYouTubeLiveTV() {
           onSelect={toggleFavorite}
           className="cursor-pointer gap-2"
         >
-          <Heart
-            className="h-4 w-4"
-            fill={isFavorite ? "currentColor" : "none"}
-          />
           {isFavorite ? "Remove from favorites" : "Add to favorites"}
         </DropdownMenuItem>
         {selectedChannel && (
           <DropdownMenuItem asChild className="cursor-pointer gap-2">
-            <Link href={`/tv/${selectedChannel.slug}`}>
-              <ExternalLink className="h-4 w-4" />
-              Open channel page
-            </Link>
+            <Link href={`/tv/${selectedChannel.slug}`}>Open channel page</Link>
           </DropdownMenuItem>
         )}
-        <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="cursor-pointer gap-2">
-          <Link href="/apps/tv">
-            <Tv className="h-4 w-4" />
-            Browse all channels
-          </Link>
+          <Link href="/apps/tv">Browse all channels</Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={resetPosition} className="cursor-pointer">
           Reset widget position
         </DropdownMenuItem>
