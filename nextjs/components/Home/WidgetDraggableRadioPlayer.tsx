@@ -389,6 +389,15 @@ export default function WidgetDraggableRadioPlayer() {
             >
               <span className="hidden sm:inline">Stations</span>
             </Link>
+            {radioStationState.radioStation?.slug && (
+              <Link
+                href={`/radio/${radioStationState.radioStation.slug}`}
+                className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                title={`Go to ${radioStationState.radioStation.name} details`}
+              >
+                Details
+              </Link>
+            )}
 
             <div className="ml-auto">
               <DropdownMenuTrigger asChild>
