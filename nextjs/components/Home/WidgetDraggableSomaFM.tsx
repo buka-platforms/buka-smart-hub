@@ -36,6 +36,9 @@ import {
   Play as PlayIcon,
   User,
   Users,
+  Volume1,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   useCallback,
@@ -75,6 +78,8 @@ export default function WidgetDraggableSomaFM() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [showVolumePopover, setShowVolumePopover] = useState(false);
   const [nowPlaying, setNowPlaying] = useState<{
     title: string;
     artist: string;
@@ -237,7 +242,7 @@ export default function WidgetDraggableSomaFM() {
 
         {/* Main Column */}
         <div className="flex w-85 flex-col">
-          {/* Player Row: Channel Art, Info, Play Button on right */}
+          {/* Player Row: Channel Art, Info, Play Button and Volume on right */}
           <div className="flex items-center gap-3 p-3">
             {/* Channel Art */}
             <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
@@ -392,6 +397,50 @@ export default function WidgetDraggableSomaFM() {
           {/* Separator and action bar */}
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            {/* Volume CTA Button - moved next to Channels and More options */}
+            <div className="relative">
+              <button
+                type="button"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                title="Volume"
+                onClick={() => setShowVolumePopover((v) => !v)}
+              >
+                {volume === 0 ? (
+                  <VolumeX className="h-4 w-4" />
+                ) : volume < 0.5 ? (
+                  <Volume1 className="h-4 w-4" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
+              </button>
+              {showVolumePopover && (
+                <div className="absolute right-0 z-50 mt-2 flex w-32 flex-col items-center rounded-lg border border-white/10 bg-black/90 p-3 shadow-lg">
+                  <label
+                    htmlFor="somafm-volume-slider"
+                    className="mb-2 text-xs text-white/70"
+                  >
+                    Volume
+                  </label>
+                  <input
+                    id="somafm-volume-slider"
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={volume}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      setVolume(v);
+                      if (audioRef.current) audioRef.current.volume = v;
+                    }}
+                    className="w-full"
+                  />
+                  <span className="mt-1 text-xs text-white/50">
+                    {Math.round(volume * 100)}%
+                  </span>
+                </div>
+              )}
+            </div>
             {/* CHANNELS button with searchable command menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
