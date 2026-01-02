@@ -276,7 +276,7 @@ export default function WidgetLauncherDock() {
           <Link
             href="/apps"
             title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-            className="flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            className="flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
           >
             <AppWindow className="h-4 w-4" />
             <span className="hidden md:inline">Apps</span>
@@ -362,7 +362,7 @@ export default function WidgetLauncherDock() {
             <Link
               href="/apps"
               title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
             >
               <AppWindow className="h-3.5 w-3.5" />
               <span>Open Apps</span>
