@@ -305,7 +305,7 @@ export default function WidgetDraggableSomaFM() {
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               {currentChannel && (
                 <span
-                  className="truncate text-[11px] font-semibold text-white/70"
+                  className="truncate text-xs font-semibold text-white/60"
                   title={currentChannel.title}
                 >
                   {currentChannel.title}
@@ -313,7 +313,7 @@ export default function WidgetDraggableSomaFM() {
               )}
               {visibleNowPlaying && (
                 <span
-                  className="truncate text-xs font-semibold text-white"
+                  className="truncate text-sm font-medium text-white"
                   title={visibleNowPlaying.title}
                 >
                   {visibleNowPlaying.title}
