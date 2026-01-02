@@ -337,6 +337,17 @@ export default function WidgetDraggableRadioPlayer() {
           {/* Separator and action bar */}
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            <button
+              onClick={toggleFavorite}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart
+                className="h-3.5 w-3.5"
+                fill={isFavorite ? "currentColor" : "none"}
+              />
+            </button>
+
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -370,16 +381,6 @@ export default function WidgetDraggableRadioPlayer() {
                 />
               </PopoverContent>
             </Popover>
-            <button
-              onClick={toggleFavorite}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
-              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
-              <Heart
-                className="h-3.5 w-3.5"
-                fill={isFavorite ? "currentColor" : "none"}
-              />
-            </button>
 
             <Link
               href="/apps/radio"
