@@ -219,7 +219,7 @@ export default function WidgetLauncherDock() {
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
-      className={`pointer-events-auto absolute top-5 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-lg bg-black/80 shadow-2xl backdrop-blur-xl transition-opacity duration-200 will-change-transform md:top-5 md:left-4 ${
+      className={`pointer-events-auto absolute top-5 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-200 will-change-transform md:top-5 md:left-4 ${
         isDragging ? "cursor-grabbing" : ""
       } ${isExpanded ? "flex-col" : "flex-row"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
