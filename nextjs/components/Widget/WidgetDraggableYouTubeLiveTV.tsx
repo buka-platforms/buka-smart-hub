@@ -42,6 +42,8 @@ import {
   Flag,
   Globe,
   Heart,
+  Maximize2,
+  Minimize2,
   MoreHorizontal,
   Pause,
   Play as PlayIcon,
@@ -111,6 +113,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // YouTube Player API
   const playerInstanceRef = useRef<YTPlayer | null>(null);
@@ -239,6 +242,15 @@ export default function WidgetDraggableYouTubeLiveTV() {
     initialVolumeRef.current = volume;
     initialMutedRef.current = isMuted;
   }, [volume, isMuted]);
+
+  // Track fullscreen state
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
 
   // Initialize YouTube player when API is ready and channel is selected
   useEffect(() => {
@@ -430,6 +442,35 @@ export default function WidgetDraggableYouTubeLiveTV() {
     () => youtubeChannels.filter((c) => favorites.includes(c.slug)),
     [favorites],
   );
+
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(() => {
+    const iframe =
+      (
+        playerInstanceRef.current as unknown as {
+          getIframe?: () => HTMLIFrameElement;
+        }
+      )?.getIframe?.() || containerRef.current?.querySelector("iframe");
+    if (!iframe) return;
+
+    const element: HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void> | void;
+      msRequestFullscreen?: () => Promise<void> | void;
+    } = iframe;
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+      return;
+    }
+
+    const request =
+      element.requestFullscreen ||
+      element.webkitRequestFullscreen ||
+      element.msRequestFullscreen;
+    if (request) {
+      Promise.resolve(request.call(element)).catch(() => {});
+    }
+  }, []);
 
   const isFavorite = selectedChannel
     ? favorites.includes(selectedChannel.slug)
@@ -746,6 +787,23 @@ export default function WidgetDraggableYouTubeLiveTV() {
             {/* Spacer */}
             <div className="flex-1" />
 
+            {/* Fullscreen */}
+            <button
+              onClick={toggleFullscreen}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
+                isFullscreen
+                  ? "border-purple-400/60 bg-purple-500/30 text-purple-400"
+                  : "border-white/10 bg-white/10 text-white hover:bg-white/20"
+              }`}
+              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="h-3.5 w-3.5" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+
             {/* Channel Page Link */}
             {selectedChannel && (
               <Link
@@ -807,6 +865,8 @@ interface YTPlayer {
   getVolume(): number;
   destroy(): void;
   loadVideoById(videoId: string): void;
+  // Non-standard helper present on the iframe API instance
+  getIframe?: () => HTMLIFrameElement;
 }
 
 interface YTPlayerEvent {
