@@ -383,7 +383,7 @@ export default function WidgetDraggableRadioPlayer() {
               className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title="Browse more stations"
             >
-              <span className="hidden sm:inline">Stations</span>
+              Stations
             </Link>
             {radioStationState.radioStation?.slug && (
               <Link
