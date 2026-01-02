@@ -406,15 +406,13 @@ export default function WidgetDraggableSomaFM() {
                           key={c.id}
                           value={c.title}
                           onSelect={() => {
-                            const wasPlaying =
-                              audioRef.current && !audioRef.current.paused;
                             setSelected(c.id);
                             setTimeout(() => {
                               try {
-                                audioRef.current?.pause();
-                                audioRef.current?.load();
-                                if (wasPlaying) {
-                                  audioRef.current?.play();
+                                if (audioRef.current) {
+                                  audioRef.current.pause();
+                                  audioRef.current.load();
+                                  audioRef.current.play();
                                 }
                               } catch {}
                             }, 0);
