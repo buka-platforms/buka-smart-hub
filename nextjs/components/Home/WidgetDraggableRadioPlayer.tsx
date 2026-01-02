@@ -418,8 +418,15 @@ export default function WidgetDraggableRadioPlayer() {
           {isFavorite ? "Remove from favorites" : "Add to favorites"}
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href="/apps/radio">Go to Radio Apps</Link>
+          <Link href="/apps/radio">Browse more stations</Link>
         </DropdownMenuItem>
+        {radioStationState.radioStation?.slug && (
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href={`/radio/${radioStationState.radioStation.slug}`}>
+              {`Go to ${radioStationState.radioStation.name} station page`}
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onSelect={resetPosition} className="cursor-pointer">
           Reset widget position
         </DropdownMenuItem>
