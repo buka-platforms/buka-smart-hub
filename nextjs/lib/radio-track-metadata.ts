@@ -10,6 +10,7 @@ import {
 } from "@/lib/audio-visualizer";
 import { replaceArtworkSizes } from "./utils";
 
+const DEFAULT_METADATA_INTERVAL_MS = 7000;
 let intervalIdTrackMetadata: NodeJS.Timeout | null = null;
 
 export const stopPeriodicGetTrackMetadata = () => {
@@ -19,15 +20,19 @@ export const stopPeriodicGetTrackMetadata = () => {
   }
 };
 
-export const startPeriodicGetTrackMetadata = async () => {
+export const startPeriodicGetTrackMetadata = async (
+  intervalMs: number = DEFAULT_METADATA_INTERVAL_MS,
+) => {
   if (intervalIdTrackMetadata) {
     stopPeriodicGetTrackMetadata();
   }
 
+  const effectiveInterval = Math.max(intervalMs, 1000);
+
   await getTrackMetadata();
   const intervalIdGetTrackMetadata = setInterval(async () => {
     await getTrackMetadata();
-  }, 7000);
+  }, effectiveInterval);
   intervalIdTrackMetadata = intervalIdGetTrackMetadata;
 };
 

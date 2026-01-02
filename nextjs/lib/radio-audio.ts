@@ -176,8 +176,8 @@ export const play = async (isChangeAddressBar = false) => {
           isPlaying: true,
         }));
 
-        // Periodically get track metadata when the radio is playing
-        startPeriodicGetTrackMetadata();
+        // Periodically get track metadata when the radio is playing (7s)
+        startPeriodicGetTrackMetadata(7000);
 
         // Set radioStationSlug to localStorage
         if (localStorage) {
@@ -240,6 +240,9 @@ export const stop = async () => {
   stopPeriodicGetTrackMetadata();
 
   stopAudioVisualization();
+
+  // Resume metadata polling at idle cadence (60s) after stopping playback
+  await startPeriodicGetTrackMetadata(60000);
 
   // Send virtual page view event to Google Analytics
   if (window && window.gtag) {
@@ -315,6 +318,11 @@ export const loadRadioStationById = async (dataId: string) => {
     ...prev,
     radioStation: radioStation.data,
   }));
+
+  // If not playing yet, poll metadata at idle cadence (60s)
+  if (!jotaiStore.get(radioAudioStateAtom).isPlaying) {
+    await startPeriodicGetTrackMetadata(60000);
+  }
 };
 
 export const loadRadioStationBySlug = async (dataSlug: string) => {
@@ -342,6 +350,11 @@ export const loadRadioStationBySlug = async (dataSlug: string) => {
     ...prev,
     radioStation: radioStation.data,
   }));
+
+  // If not playing yet, poll metadata at idle cadence (60s)
+  if (!jotaiStore.get(radioAudioStateAtom).isPlaying) {
+    await startPeriodicGetTrackMetadata(60000);
+  }
 };
 
 export const checkRadioStationCORS = async (
