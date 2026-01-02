@@ -109,23 +109,23 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/f/ff/Astro_Awani.png",
     source: "YouTube",
-    source_id: "weCEi1NE0C8",
+    source_id: "mkVyNaGee8A",
     category: "News",
   },
-  {
-    id: "berita_rtm",
-    slug: "berita-rtm",
-    audience_type: "malay",
-    country: "Malaysia",
-    name: "Berita RTM",
-    short_description: "Berita RTM from Malaysia.",
-    long_description: "Berita RTM is a news channel from Malaysia.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/3/3d/Logo_Berita_RTM.png",
-    source: "YouTube",
-    source_id: "r8F9yzpCiR0",
-    category: "News",
-  },
+  // {
+  //   id: "berita_rtm",
+  //   slug: "berita-rtm",
+  //   audience_type: "malay",
+  //   country: "Malaysia",
+  //   name: "Berita RTM",
+  //   short_description: "Berita RTM from Malaysia.",
+  //   long_description: "Berita RTM is a news channel from Malaysia.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/3/3d/Logo_Berita_RTM.png",
+  //   source: "YouTube",
+  //   source_id: "r8F9yzpCiR0",
+  //   category: "News",
+  // },
   // {
   //   id: "bernama_tv",
   //   slug: "bernama-tv",
@@ -189,12 +189,12 @@ export const tv = [
     slug: "cgtn-europe",
     audience_type: "europe",
     country: "China",
-    name: "CGTN",
+    name: "CGTN Europe",
     short_description: "CGTN from China.",
     long_description: "CGTN is a news channel from China.",
     logo_url: "https://upload.wikimedia.org/wikipedia/commons/8/81/CGTN.svg",
     source: "YouTube",
-    source_id: "pd3CgRzcQdA",
+    source_id: "_6dRRfnYJws",
     category: "News",
   },
   {
@@ -278,7 +278,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/6/69/Deutsche_Welle_Logo.svg",
     source: "YouTube",
-    source_id: "tZT2MCYu6Zw",
+    source_id: "LuKwFajn37U",
     category: "News",
   },
   {
@@ -420,20 +420,20 @@ export const tv = [
     source_id: "lwYzwdBiaho",
     category: "News",
   },
-  {
-    id: "fox_news",
-    slug: "fox-news",
-    audience_type: "",
-    country: "United States",
-    name: "Fox News",
-    short_description: "Fox News from the US.",
-    long_description: "Fox News is a news channel from the US.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/6/67/Fox_News_Channel_logo.svg",
-    source: "YouTube",
-    source_id: "YDfiTGGPYCk",
-    category: "News",
-  },
+  // {
+  //   id: "fox_news",
+  //   slug: "fox-news",
+  //   audience_type: "",
+  //   country: "United States",
+  //   name: "Fox News",
+  //   short_description: "Fox News from the US.",
+  //   long_description: "Fox News is a news channel from the US.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/6/67/Fox_News_Channel_logo.svg",
+  //   source: "YouTube",
+  //   source_id: "YDfiTGGPYCk",
+  //   category: "News",
+  // },
   {
     id: "fox_weather",
     slug: "fox-weather",
@@ -486,7 +486,7 @@ export const tv = [
     long_description: "GB News is a news channel from the UK.",
     logo_url: "https://upload.wikimedia.org/wikipedia/en/3/35/GB_News_Logo.svg",
     source: "YouTube",
-    source_id: "8WX6YL9JnLw",
+    source_id: "QliL4CGc7iY",
     category: "News",
   },
   {
@@ -577,7 +577,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/d/dc/Liputan6_%282019%29.svg",
     source: "YouTube",
-    source_id: "zlgiYpUjPME",
+    source_id: "Nbsr3aZIDl8",
     category: "News",
   },
   {
@@ -591,7 +591,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/en/c/c1/LogoMetroTVsince2010.svg",
     source: "YouTube",
-    source_id: "CD4a5FNp59E",
+    source_id: "AUE5iHINUIw",
     category: "News",
   },
   {
@@ -996,20 +996,20 @@ export const tv = [
     external_url: "https://www.indihometv.com/livetv/tvri",
     category: "Culture",
   },
-  {
-    id: "usa_today",
-    slug: "usa-today",
-    audience_type: "",
-    country: "United States",
-    name: "USA Today",
-    short_description: "USA Today from the US.",
-    long_description: "USA Today is a news channel from the US.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/f/fe/USA_Today_%282020-01-29%29.svg",
-    source: "YouTube",
-    source_id: "vZYMwAm8sso",
-    category: "News",
-  },
+  // {
+  //   id: "usa_today",
+  //   slug: "usa-today",
+  //   audience_type: "",
+  //   country: "United States",
+  //   name: "USA Today",
+  //   short_description: "USA Today from the US.",
+  //   long_description: "USA Today is a news channel from the US.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/f/fe/USA_Today_%282020-01-29%29.svg",
+  //   source: "YouTube",
+  //   source_id: "vZYMwAm8sso",
+  //   category: "News",
+  // },
   {
     id: "wion",
     slug: "wion",
@@ -1035,7 +1035,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/8/8f/Yahoo%21_Finance_logo_2021.png",
     source: "YouTube",
-    source_id: "OAHHA27td-A",
+    source_id: "KQp-e_XQnDE",
     category: "News",
   },
   {
