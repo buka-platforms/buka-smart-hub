@@ -98,3 +98,19 @@ export interface UserSession {
   is_authenticated?: boolean;
   user_details?: User | null | undefined;
 }
+
+export interface TVChannel {
+  id: string;
+  slug: string;
+  audience_type: string;
+  country: string;
+  name: string;
+  short_description: string;
+  long_description: string;
+  logo_url: string;
+  source: string;
+  source_id: string;
+  category: string;
+  external?: boolean;
+  external_url?: string;
+}

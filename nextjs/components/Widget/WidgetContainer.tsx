@@ -25,6 +25,11 @@ const WidgetDraggableDateTime = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableYouTubeLiveTV = dynamic(
+  () => import("@/components/Widget/WidgetDraggableYouTubeLiveTV"),
+  { ssr: false },
+);
+
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
@@ -65,6 +70,12 @@ export default function WidgetContainer() {
       {visibility.somafm && (
         <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
           <WidgetDraggableSomaFM />
+        </div>
+      )}
+
+      {visibility.livetv && (
+        <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
+          <WidgetDraggableYouTubeLiveTV />
         </div>
       )}
     </div>
