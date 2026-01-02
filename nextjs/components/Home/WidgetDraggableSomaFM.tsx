@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -428,19 +429,16 @@ export default function WidgetDraggableSomaFM() {
                     {Math.round(volume * 100)}%
                   </span>
                 </div>
-                <input
-                  id="somafm-volume-slider"
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={volume}
-                  onChange={(e) => {
-                    const v = Number(e.target.value);
-                    setVolume(v);
-                    if (audioRef.current) audioRef.current.volume = v;
+                <Slider
+                  value={[Math.round(volume * 100)]}
+                  onValueChange={(v) => {
+                    const percent = v[0] ?? Math.round(volume * 100);
+                    setVolume(percent / 100);
+                    if (audioRef.current)
+                      audioRef.current.volume = percent / 100;
                   }}
-                  className="w-full accent-white"
+                  max={100}
+                  step={1}
                 />
               </PopoverContent>
             </Popover>
