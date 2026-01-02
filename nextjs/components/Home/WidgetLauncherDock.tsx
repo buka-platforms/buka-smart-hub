@@ -4,6 +4,7 @@ import { widgetVisibilityAtom, type WidgetId } from "@/data/store";
 import { resetAllWidgetPositions } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
+  AppWindow,
   Clock,
   CloudSun,
   GripVertical,
@@ -13,6 +14,7 @@ import {
   Radio,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const DOCK_POSITION_KEY = "widgetLauncherDockPosition";
@@ -267,6 +269,18 @@ export default function WidgetLauncherDock() {
           >
             <LayoutGrid className="h-5 w-5" />
           </button>
+
+          <div className="mx-1 h-10 w-px bg-white/10" />
+
+          {/* Apps CTA */}
+          <Link
+            href="/apps"
+            title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
+            className="flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+          >
+            <AppWindow className="h-4 w-4" />
+            <span className="hidden md:inline">Apps</span>
+          </Link>
         </div>
       )}
 
@@ -345,6 +359,16 @@ export default function WidgetLauncherDock() {
 
           {/* Footer */}
           <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
+            <Link
+              href="/apps"
+              title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            >
+              <AppWindow className="h-3.5 w-3.5" />
+              <span>Open Apps</span>
+            </Link>
+
+            <div className="h-px w-full bg-white/10" />
             <button
               onClick={() => {
                 resetAllWidgetPositions();

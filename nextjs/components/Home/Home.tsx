@@ -2,7 +2,6 @@ import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
 import RequestHeadersProvider from "@/components/General/RequestHeadersProvider";
 import Search from "@/components/General/Search";
 import UserAvatar from "@/components/General/UserAvatar";
-import AppsLink from "@/components/Home/AppsLink";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
@@ -10,7 +9,6 @@ import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import Volume from "@/components/Home/Volume";
 import WidgetContainer from "@/components/Home/WidgetContainer";
 import { getRequestHeaders } from "@/lib/header";
-import Link from "next/link";
 
 export default async function Home() {
   const requestHeaders = await getRequestHeaders();
@@ -47,27 +45,14 @@ export default async function Home() {
         </header>
         {/* Widget Container: Launcher Dock + All Widgets */}
         <WidgetContainer />
-        {/* Bottom right: Apps CTA */}
-        <>
-          <div className="absolute right-0 bottom-11 z-10 rounded-l-full bg-linear-to-r from-fuchsia-600 to-purple-600 p-1 pl-2 shadow-md md:bottom-16 md:pl-3">
-            <div className="flex items-center">
-              <Link
-                href="/apps"
-                title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-              >
-                <AppsLink />
-              </Link>
-            </div>
+        <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
+          <div className="flex gap-x-2">
+            <Volume />
+            <BackgroundImageDropdownMenu />
+            <Fullscreen />
+            <InfoDropdownMenu />
           </div>
-          <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
-            <div className="flex gap-x-2">
-              <Volume />
-              <BackgroundImageDropdownMenu />
-              <Fullscreen />
-              <InfoDropdownMenu />
-            </div>
-          </div>
-        </>
+        </div>
         <AudioSpectrumCanvas />
       </div>
     </>
