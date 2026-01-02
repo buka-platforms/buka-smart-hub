@@ -15,23 +15,9 @@ import {
 } from "@/lib/radio-track-metadata";
 import Hls from "hls.js";
 
-export {
-  destroyAudioVisualization,
-  initAudioVisualization,
-  randomizeRainbowColor,
-  renderAudioVisualization,
-  setupRadioAudioContext,
-  stopAudioVisualization,
-} from "@/lib/audio-visualizer";
-
 let isRadioStationCORSProblem: boolean = false;
 let mediaAudioCors: HTMLAudioElement | null | undefined = undefined;
 let hls: Hls | null | undefined = undefined;
-
-export {
-  startPeriodicGetTrackMetadata as startIntervalGetTrackMetadata,
-  stopPeriodicGetTrackMetadata as stopIntervalGetTrackMetadata,
-};
 
 export const setupRadioAudio = () => {
   if (!jotaiStore.get(radioAudioStateAtom).radioAudio) {
@@ -385,5 +371,3 @@ export const checkRadioStationCORS = async (
     }
   });
 };
-
-// Visualization utilities moved to lib/audio-visualizer.ts
