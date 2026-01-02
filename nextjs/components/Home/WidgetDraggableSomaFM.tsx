@@ -31,6 +31,7 @@ import {
   Disc3,
   LoaderCircle,
   MoreHorizontal,
+  Music2,
   Pause,
   Play as PlayIcon,
   User,
@@ -352,6 +353,18 @@ export default function WidgetDraggableSomaFM() {
                   <Users className="inline-block h-3 w-3" />
                   {currentChannel.listeners}
                 </span>
+                {currentChannel.genre && (
+                  <>
+                    <span className="opacity-50">•</span>
+                    <span
+                      className="flex items-center gap-1"
+                      title={`Genre: ${currentChannel.genre.replace(/\|/g, ", ")}`}
+                    >
+                      <Music2 className="inline-block h-3 w-3" />
+                      {currentChannel.genre.replace(/\|/g, ", ")}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           )}
