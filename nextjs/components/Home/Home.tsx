@@ -6,7 +6,6 @@ import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import Volume from "@/components/Home/Volume";
 import WidgetContainer from "@/components/Home/WidgetContainer";
 import { getRequestHeaders } from "@/lib/header";
 
@@ -47,7 +46,6 @@ export default async function Home() {
         <WidgetContainer />
         <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
           <div className="flex gap-x-2">
-            <Volume />
             <BackgroundImageDropdownMenu />
             <Fullscreen />
             <InfoDropdownMenu />
