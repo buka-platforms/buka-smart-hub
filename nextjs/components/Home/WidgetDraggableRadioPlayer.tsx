@@ -7,6 +7,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import {
   loadRadioStationBySlug,
@@ -28,8 +34,16 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
-import { useAtomValue } from "jotai";
-import { Heart, MoreHorizontal, Pause, Play as PlayIcon } from "lucide-react";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  Heart,
+  MoreHorizontal,
+  Pause,
+  Play as PlayIcon,
+  Volume1,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
@@ -48,6 +62,13 @@ export default function WidgetDraggableRadioPlayer() {
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [volume, setVolume] = useState(() => {
+    if (typeof window === "undefined") return 50;
+    const stored = localStorage.getItem("mediaAudioVolume");
+    if (stored !== null && !Number.isNaN(Number(stored))) return Number(stored);
+    return Math.round((radioAudioState.radioAudio?.volume ?? 0.5) * 100);
+  });
+  const setRadioAudioState = useSetAtom(radioAudioStateAtom);
   const radioAudioState = useAtomValue(radioAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
 
@@ -66,6 +87,17 @@ export default function WidgetDraggableRadioPlayer() {
       setIsPositionLoaded(true);
     });
   }, []);
+
+  // Sync volume with audio element and localStorage
+  useEffect(() => {
+    const audio = radioAudioState.radioAudio;
+    if (!audio) return;
+    const handleVolumeChange = () => {
+      setVolume(Math.round((audio.volume ?? 0) * 100));
+    };
+    audio.addEventListener("volumechange", handleVolumeChange);
+    return () => audio.removeEventListener("volumechange", handleVolumeChange);
+  }, [radioAudioState.radioAudio]);
 
   // Listen for widget position reset events
   useEffect(() => {
@@ -155,6 +187,24 @@ export default function WidgetDraggableRadioPlayer() {
     setPosition(positions.radio);
     saveWidgetPosition("radio", positions.radio.x, positions.radio.y);
   }, []);
+
+  const updateVolume = useCallback(
+    (value: number) => {
+      setVolume(value);
+      setRadioAudioState((prev) => {
+        if (prev.radioAudio) {
+          prev.radioAudio.volume = value / 100;
+        }
+        return { ...prev };
+      });
+      try {
+        localStorage.setItem("mediaAudioVolume", value.toString());
+      } catch {
+        /* noop */
+      }
+    },
+    [setVolume, setRadioAudioState],
+  );
 
   // Reactive position plugin - updates when position state changes
   const positionCompartment = useCompartment(
@@ -287,6 +337,39 @@ export default function WidgetDraggableRadioPlayer() {
           {/* Separator and action bar */}
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="Volume"
+                >
+                  {volume === 0 ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : volume < 50 ? (
+                    <Volume1 className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={6}
+                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+              >
+                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <span>Volume</span>
+                  <span className="text-white/60">{Math.round(volume)}%</span>
+                </div>
+                <Slider
+                  value={[volume]}
+                  onValueChange={(v) => updateVolume(v[0] ?? volume)}
+                  max={100}
+                  step={1}
+                />
+              </PopoverContent>
+            </Popover>
             <button
               onClick={toggleFavorite}
               className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
