@@ -5,6 +5,7 @@ import {
 import ClientSideOperationOnPage from "@/components/General/ClientSideOperationOnPage";
 import RadioPanelFooter from "@/components/General/RadioPanelFooter";
 import SignedInHeader from "@/components/General/SignedInHeader";
+import YouTubeIframePlayer from "@/components/General/YouTubeIframePlayer";
 import { tv } from "@/data/tv";
 import type { UserSession } from "@/data/type";
 import { getRequestHeaders } from "@/lib/header";
@@ -100,12 +101,12 @@ export default async function TvDetailPage({
         <main className="flex items-center justify-center bg-black">
           <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden md:w-[60%]">
             {selectedTv?.source === "YouTube" ? (
-              <iframe
+              <YouTubeIframePlayer
+                videoId={selectedTv?.source_id ?? ""}
+                title={selectedTv?.name ?? "YouTube video player"}
+                autoplay
                 className="absolute top-0 left-0 h-full w-full"
-                src={`https://www.youtube-nocookie.com/embed/${selectedTv?.source_id}?modestbranding=1&showinfo=0&autoplay=1&enablejsapi=1&origin=https://buka.sh`}
-                title="YouTube video player"
-                allowFullScreen
-              ></iframe>
+              />
             ) : selectedTv?.source === "NHK World" ? (
               <iframe
                 className="absolute top-0 left-0 h-full w-full"
