@@ -388,7 +388,7 @@ export default function WidgetDraggableSomaFM() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-84 rounded-lg border border-white/10 bg-black/90 p-2 shadow-lg"
+                className="w-84 rounded-lg border border-white/10 bg-black/90 p-1.5 shadow-lg"
               >
                 <Command>
                   <CommandInput placeholder="Search channels..." />
