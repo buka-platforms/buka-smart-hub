@@ -58,6 +58,7 @@ interface SomaFMChannel {
   largeimage: string;
   twitter: string;
   stream: string[];
+  lastPlaying: string;
 }
 
 export default function WidgetDraggableSomaFM() {
@@ -387,34 +388,100 @@ export default function WidgetDraggableSomaFM() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-64 rounded-lg border border-white/10 bg-black/90 p-2 shadow-lg"
+                className="w-84 rounded-lg border border-white/10 bg-black/90 p-2 shadow-lg"
               >
                 <Command>
                   <CommandInput placeholder="Search channels..." />
                   <CommandList>
                     <CommandEmpty>No channels found.</CommandEmpty>
-                    {channels.map((c) => (
-                      <CommandItem
-                        key={c.id}
-                        value={c.title}
-                        onSelect={() => {
-                          const wasPlaying =
-                            audioRef.current && !audioRef.current.paused;
-                          setSelected(c.id);
-                          setTimeout(() => {
-                            try {
-                              audioRef.current?.pause();
-                              audioRef.current?.load();
-                              if (wasPlaying) {
-                                audioRef.current?.play();
-                              }
-                            } catch {}
-                          }, 0);
-                        }}
-                      >
-                        {c.title}
-                      </CommandItem>
-                    ))}
+                    {[...channels]
+                      .slice()
+                      .sort(
+                        (a, b) =>
+                          (Number(b.listeners) || 0) -
+                          (Number(a.listeners) || 0),
+                      )
+                      .map((c) => (
+                        <CommandItem
+                          key={c.id}
+                          value={c.title}
+                          onSelect={() => {
+                            const wasPlaying =
+                              audioRef.current && !audioRef.current.paused;
+                            setSelected(c.id);
+                            setTimeout(() => {
+                              try {
+                                audioRef.current?.pause();
+                                audioRef.current?.load();
+                                if (wasPlaying) {
+                                  audioRef.current?.play();
+                                }
+                              } catch {}
+                            }, 0);
+                          }}
+                          className="group rounded-md px-2! py-2! transition-colors hover:bg-white/10 focus:bg-white/10"
+                        >
+                          <div className="flex w-full items-center gap-3">
+                            {/* Logo */}
+                            {c.image && (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={c.image}
+                                alt={c.title}
+                                className="h-8 w-8 rounded border border-white/10 bg-white/20 object-contain shadow"
+                                style={{ minWidth: 32, minHeight: 32 }}
+                                draggable={false}
+                              />
+                            )}
+                            <div className="flex min-w-0 flex-1 flex-col">
+                              {/* Title */}
+                              <span className="truncate text-[13px] font-bold text-neutral-600">
+                                {c.title}
+                              </span>
+                              {/* Description (truncated) */}
+                              {c.description && (
+                                <span
+                                  className="truncate text-[12px] text-neutral-500"
+                                  title={c.description}
+                                  style={{ maxWidth: 220 }}
+                                >
+                                  {c.description}
+                                </span>
+                              )}
+                              {/* Last playing */}
+                              {c.lastPlaying && (
+                                <span
+                                  className="truncate text-[11px] text-neutral-500"
+                                  title={c.lastPlaying}
+                                >
+                                  <span className="opacity-80">Last:</span>{" "}
+                                  {c.lastPlaying}
+                                </span>
+                              )}
+                              {/* Genre */}
+                              {c.genre && (
+                                <span
+                                  className="truncate text-[11px] text-neutral-500"
+                                  title={c.genre.replace(/\|/g, ", ")}
+                                >
+                                  <span className="opacity-80">Genre:</span>{" "}
+                                  {c.genre.replace(/\|/g, ", ")}
+                                </span>
+                              )}
+                            </div>
+                            {/* Listeners */}
+                            <span className="ml-2 flex min-w-9.5 flex-col items-end">
+                              <span
+                                className="flex items-center gap-1 rounded bg-black/30 px-2 py-1 text-[12px] font-semibold text-neutral-100 shadow"
+                                title={`Listeners: ${c.listeners}`}
+                              >
+                                <Users className="inline-block h-3.5 w-3.5" />
+                                {c.listeners}
+                              </span>
+                            </span>
+                          </div>
+                        </CommandItem>
+                      ))}
                   </CommandList>
                 </Command>
               </DropdownMenuContent>
