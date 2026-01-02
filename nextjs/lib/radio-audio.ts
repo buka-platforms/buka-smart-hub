@@ -92,7 +92,7 @@ export const setupMediaAudio = () => {
 
     jotaiStore.set(radioAudioStateAtom, (prev) => ({
       ...prev,
-      mediaAudio: mediaAudio,
+      radioAudio: mediaAudio,
     }));
 
     if (Hls.isSupported()) {
