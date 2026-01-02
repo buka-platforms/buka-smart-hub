@@ -13,13 +13,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
+import { transparent1x1Pixel } from "@/data/general";
 import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
-import {
-  loadRadioStationBySlug,
-  play,
-  stop,
-  transparent1x1Pixel,
-} from "@/lib/radio-audio";
+import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,

@@ -1,3 +1,4 @@
+import { transparent1x1Pixel } from "@/data/general";
 import {
   jotaiStore,
   radioAudioStateAtom,
@@ -71,9 +72,6 @@ const isOffscreenCanvasSupported = (): boolean => {
 
   return true;
 };
-
-export const transparent1x1Pixel: string =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 export {
   startPeriodicGetTrackMetadata as startIntervalGetTrackMetadata,

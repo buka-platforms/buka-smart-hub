@@ -1,7 +1,7 @@
 "use client";
 
+import { transparent1x1Pixel } from "@/data/general";
 import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
-import { transparent1x1Pixel } from "@/lib/radio-audio";
 import { useAtomValue, useSetAtom } from "jotai";
 
 /* eslint-disable @next/next/no-img-element */
