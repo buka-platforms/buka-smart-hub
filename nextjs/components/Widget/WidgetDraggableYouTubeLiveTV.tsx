@@ -111,8 +111,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
     null,
   );
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(50);
-  const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
+  const [volume, setVolume] = useState(100);
+  const [isMuted, setIsMuted] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
@@ -292,7 +292,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       width: "100%",
       height: "100%",
       playerVars: {
-        autoplay: 1,
+        autoplay: 0,
         mute: currentMuted ? 1 : 0,
         controls: 0,
         modestbranding: 1,
@@ -308,7 +308,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
           event.target.setVolume(currentVolume);
           if (currentMuted) event.target.mute();
           else event.target.unMute();
-          setIsPlaying(true);
+          setIsPlaying(false);
         },
         onStateChange: (event: YTOnStateChangeEvent) => {
           if (event.data === window.YT.PlayerState.PLAYING) {
