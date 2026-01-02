@@ -15,10 +15,10 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   somafm: "widgetDraggableSomaFMPosition",
 };
 
-// Order of widgets from left to right when auto-arranged
+// Order of widgets from top to bottom when auto-arranged
 const WIDGET_ORDER: WidgetId[] = ["time", "radio", "weather", "somafm"];
 
-// Gap between widgets when auto-arranged horizontally
+// Gap between widgets when auto-arranged vertically
 const WIDGET_GAP = 12;
 
 /**
@@ -38,10 +38,10 @@ export function calculateAutoArrangePositions(): Record<
 
   if (typeof window === "undefined") return positions;
 
-  let currentX = 0;
+  let currentY = 0;
 
   for (const widgetId of WIDGET_ORDER) {
-    positions[widgetId] = { x: currentX, y: 0 };
+    positions[widgetId] = { x: 0, y: currentY };
 
     // Try to measure the actual widget width from DOM
     const widgetElement = document.querySelector(
@@ -49,16 +49,16 @@ export function calculateAutoArrangePositions(): Record<
     );
     if (widgetElement) {
       const rect = widgetElement.getBoundingClientRect();
-      currentX += rect.width + WIDGET_GAP;
+      currentY += rect.height + WIDGET_GAP;
     } else {
       // Fallback estimates if widget not rendered
-      const fallbackWidths: Record<WidgetId, number> = {
-        time: 310,
-        radio: 350,
-        weather: 290,
-        somafm: 350,
+      const fallbackHeights: Record<WidgetId, number> = {
+        time: 150,
+        radio: 160,
+        weather: 150,
+        somafm: 160,
       };
-      currentX += fallbackWidths[widgetId] + WIDGET_GAP;
+      currentY += fallbackHeights[widgetId] + WIDGET_GAP;
     }
   }
 
