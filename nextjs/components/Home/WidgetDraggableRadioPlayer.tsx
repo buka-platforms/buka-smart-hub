@@ -321,9 +321,17 @@ export default function WidgetDraggableRadioPlayer() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem onSelect={resetPosition}>
-          Reset widget position
-        </DropdownMenuItem>
+          <DropdownMenuItem onSelect={toggleFavorite}>
+            {isFavorite ? "Remove from favorites" : "Add to favorites"}
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/apps/radio">
+              Go to Radio Apps
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={resetPosition}>
+            Reset widget position
+          </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
