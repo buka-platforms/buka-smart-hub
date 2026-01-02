@@ -420,12 +420,12 @@ export default function WidgetDraggableSomaFM() {
               </PopoverTrigger>
               <PopoverContent
                 align="end"
-                sideOffset={8}
-                className="flex w-32 flex-col items-center rounded-lg border border-white/10 bg-black/90 p-3 shadow-lg"
+                sideOffset={6}
+                className="flex w-28 flex-col gap-1.5 rounded-md border border-white/10 bg-black/90 p-2.5 shadow-lg"
               >
                 <label
                   htmlFor="somafm-volume-slider"
-                  className="mb-2 text-xs text-white/70"
+                  className="text-[11px] font-semibold text-white/75"
                 >
                   Volume
                 </label>
@@ -441,9 +441,9 @@ export default function WidgetDraggableSomaFM() {
                     setVolume(v);
                     if (audioRef.current) audioRef.current.volume = v;
                   }}
-                  className="w-full"
+                  className="w-full accent-white"
                 />
-                <span className="mt-1 text-xs text-white/50">
+                <span className="text-[11px] text-white/60">
                   {Math.round(volume * 100)}%
                 </span>
               </PopoverContent>
