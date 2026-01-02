@@ -10,7 +10,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/2/2a/ABC_News_logo_2021.svg",
     source: "YouTube",
-    source_id: "-mvUkiILTqI",
+    source_id: "iipR5yUp36o",
     category: "News",
   },
   {
@@ -253,20 +253,20 @@ export const tv = [
   //   source_id: "detik-tv",
   //   category: "News",
   // },
-  {
-    id: "disneyxd",
-    slug: "disneyxd",
-    audience_type: "",
-    country: "United States",
-    name: "Disney XD",
-    short_description: "Disney XD from the US.",
-    long_description: "Disney XD is a channel from the US.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/b/b9/Disney_XD_-_2015.svg",
-    source: "YouTube",
-    source_id: "lTjkFcVlypQ",
-    category: "Kids",
-  },
+  // {
+  //   id: "disneyxd",
+  //   slug: "disneyxd",
+  //   audience_type: "",
+  //   country: "United States",
+  //   name: "Disney XD",
+  //   short_description: "Disney XD from the US.",
+  //   long_description: "Disney XD is a channel from the US.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/b/b9/Disney_XD_-_2015.svg",
+  //   source: "YouTube",
+  //   source_id: "lTjkFcVlypQ",
+  //   category: "Kids",
+  // },
   {
     id: "dw",
     slug: "dw",
@@ -786,20 +786,20 @@ export const tv = [
     source_id: "ikFW_P5TeRQ",
     category: "News",
   },
-  {
-    id: "net_tv",
-    slug: "net-tv",
-    audience_type: "bahasa",
-    country: "Indonesia",
-    name: "NET TV",
-    short_description: "NET TV from Indonesia.",
-    long_description: "NET TV is a channel from Indonesia.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/9/9a/NET._sky_blue.svg",
-    source: "YouTube",
-    source_id: "8WCKaco64js",
-    category: "Entertainment",
-  },
+  // {
+  //   id: "net_tv",
+  //   slug: "net-tv",
+  //   audience_type: "bahasa",
+  //   country: "Indonesia",
+  //   name: "NET TV",
+  //   short_description: "NET TV from Indonesia.",
+  //   long_description: "NET TV is a channel from Indonesia.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/9/9a/NET._sky_blue.svg",
+  //   source: "YouTube",
+  //   source_id: "8WCKaco64js",
+  //   category: "Entertainment",
+  // },
   {
     id: "nhk_world",
     slug: "nhk-world",
