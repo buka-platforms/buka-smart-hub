@@ -319,7 +319,7 @@ export default function WidgetDraggableSomaFM() {
                   audioRef.current.play();
                 }
               }}
-              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
+              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-white/10" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
               title={isPlaying ? "Pause" : "Play"}
             >
               {isLoading ? (
