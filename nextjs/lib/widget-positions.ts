@@ -200,6 +200,24 @@ export function resetAllWidgetPositions(): void {
 }
 
 /**
+ * Reset a single widget's position to its auto-arranged position
+ * Only updates the specified widget, not all
+ */
+export function resetWidgetPosition(widgetId: WidgetId): void {
+  if (typeof window === "undefined") return;
+  const positions = calculateAutoArrangePositions();
+  const position = positions[widgetId];
+  if (position) {
+    saveWidgetPosition(widgetId, position.x, position.y);
+    window.dispatchEvent(
+      new CustomEvent("widget-positions-reset", {
+        detail: { [widgetId]: position },
+      }),
+    );
+  }
+}
+
+/**
  * Clear all widget position data from localStorage
  */
 export function clearAllWidgetPositions(): void {

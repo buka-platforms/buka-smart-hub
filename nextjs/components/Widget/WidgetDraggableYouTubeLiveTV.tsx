@@ -25,6 +25,7 @@ import type { TVChannel } from "@/data/type";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
+  resetWidgetPosition,
   saveWidgetPosition,
   setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
@@ -118,6 +119,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
   // YouTube Player API
   const playerInstanceRef = useRef<YTPlayer | null>(null);
@@ -421,12 +423,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
     });
   }, [selectedChannel]);
 
-  // Reset position
+  // Reset position using centralized auto-arrange logic
   const resetPosition = useCallback(() => {
-    const positions = calculateAutoArrangePositions();
-    const target = positions.youtubelivetv || { x: 0, y: 0 };
-    setPosition(target);
-    saveWidgetPosition("youtubelivetv", target.x, target.y);
+    resetWidgetPosition("youtubelivetv");
   }, []);
 
   // Filtered channels
@@ -498,7 +497,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   }, [selectedChannel, isVisible]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
       <div
         ref={draggableRef}
         data-widget-id="youtubelivetv"
@@ -867,7 +866,17 @@ export default function WidgetDraggableYouTubeLiveTV() {
         <DropdownMenuItem asChild className="cursor-pointer gap-2">
           <Link href="/apps/tv">Browse all channels</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={resetPosition} className="cursor-pointer">
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            // Delay reset until after dropdown closes to avoid scroll jump
+            requestAnimationFrame(() => {
+              resetPosition();
+            });
+          }}
+          className="cursor-pointer"
+        >
           Reset widget position
         </DropdownMenuItem>
       </DropdownMenuContent>
