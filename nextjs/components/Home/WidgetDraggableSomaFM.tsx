@@ -197,6 +197,9 @@ export default function WidgetDraggableSomaFM() {
     if (!selected) return;
 
     const controller = new AbortController();
+    let intervalId: number | undefined;
+    let currentInterval = 7000;
+
     const fetchNowPlaying = () => {
       fetch(`https://somafm.com/songs/${selected}.json`, {
         signal: controller.signal,
@@ -222,14 +225,36 @@ export default function WidgetDraggableSomaFM() {
         });
     };
 
+    const setupInterval = (ms: number) => {
+      if (intervalId) window.clearInterval(intervalId);
+      intervalId = window.setInterval(fetchNowPlaying, ms);
+      currentInterval = ms;
+    };
+
     fetchNowPlaying();
-    const intervalId = window.setInterval(fetchNowPlaying, 7000);
+    setupInterval(isPlaying ? 7000 : 60000);
+
+    // Listen for isPlaying changes to adjust interval
+    const handlePlayState = () => {
+      const desired = isPlaying ? 7000 : 60000;
+      if (currentInterval !== desired) {
+        setupInterval(desired);
+      }
+    };
+
+    handlePlayState();
+
+    // Observe isPlaying changes
+    const observer = setInterval(() => {
+      handlePlayState();
+    }, 1000);
 
     return () => {
       controller.abort();
-      window.clearInterval(intervalId);
+      if (intervalId) window.clearInterval(intervalId);
+      clearInterval(observer);
     };
-  }, [selected]);
+  }, [selected, isPlaying]);
 
   return (
     <DropdownMenu>
