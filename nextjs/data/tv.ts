@@ -514,4 +514,30 @@ export const tv = [
     source_id: "FJfwehhzIhw",
     category: "News",
   },
+  {
+    id: "bbc_earth_science",
+    slug: "bbc-earth-science",
+    country: "United Kingdom",
+    name: "BBC Earth Science",
+    short_description: "BBC Earth Science from the UK.",
+    long_description: "BBC Earth Science is a science channel from the UK.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/4/41/BBC_Logo_2021.svg",
+    source: "YouTube",
+    source_id: "LdbozD8XeJ0",
+    category: "Science",
+  },
+  {
+    id: "sen",
+    slug: "sen",
+    country: "",
+    name: "Sen's Live TV",
+    short_description: "Earth and space live TV.",
+    long_description: "Sen's Live TV is a live TV channel about earth and space.",
+    logo_url:
+      "https://yt3.googleusercontent.com/RVkE9-nlGZ8OsIA_J6gIpARDBsHJ_CDrTg0S6MQCTE0_FPWNKdERX2_ysWHXBSC8axthwNWPQg=s900-c-k-c0x00ffffff-no-rj",
+    source: "YouTube",
+    source_id: "fO9e9jnhYK8",
+    category: "Science",
+  },
 ];
