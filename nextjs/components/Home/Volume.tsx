@@ -35,7 +35,7 @@ export default function Volume() {
 
     // Save the volume to local storage
     localStorage.setItem(
-      "widgetDraggableRadioPlayerAudioVolume",
+      "widgetDraggableRadioPlayerVolume",
       JSON.stringify(value[0]),
     );
   };

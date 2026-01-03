@@ -63,7 +63,7 @@ export default function WidgetDraggableRadioPlayer() {
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
     const stored = localStorage.getItem(
-      "widgetDraggableRadioPlayerAudioVolume",
+      "widgetDraggableRadioPlayerVolume",
     );
     if (stored !== null && !Number.isNaN(Number(stored))) return Number(stored);
     return Math.round((radioAudioState.radioAudio?.volume ?? 0.5) * 100);
@@ -199,7 +199,7 @@ export default function WidgetDraggableRadioPlayer() {
       });
       try {
         localStorage.setItem(
-          "widgetDraggableRadioPlayerAudioVolume",
+          "widgetDraggableRadioPlayerVolume",
           value.toString(),
         );
       } catch {
