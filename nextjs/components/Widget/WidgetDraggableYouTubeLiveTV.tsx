@@ -582,7 +582,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                 sideOffset={8}
                 className="w-96 rounded-lg border border-white/10 bg-[#0c0c10]/95 p-0 shadow-2xl backdrop-blur-xl"
               >
-                <Command className="border-0 bg-transparent text-white [&_[cmdk-input-wrapper]]:flex-1 [&_[cmdk-input-wrapper]]:border-0 [&_[cmdk-input-wrapper]]:px-0">
+                <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
                   <div className="flex items-center gap-2 border-b border-white/10 p-2">
                     <CommandInput
                       placeholder="Search channels..."
