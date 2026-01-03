@@ -570,7 +570,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
             >
               <PopoverTrigger asChild>
                 <button
-                  className="flex h-7 cursor-pointer items-center gap-1 rounded-sm border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                  className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                   title="Change channel"
                 >
                   <Tv className="h-3 w-3" />
