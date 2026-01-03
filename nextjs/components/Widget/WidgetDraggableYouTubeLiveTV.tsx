@@ -124,6 +124,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
   // YouTube Player API
   const playerInstanceRef = useRef<YTPlayer | null>(null);
   const shouldAutoPlayRef = useRef(false);
+  const volumeRafRef = useRef<number | null>(null);
+  const pendingVolumeRef = useRef<number | null>(null);
+  const pendingMutedRef = useRef<boolean | null>(null);
 
   // Load saved state on mount
   useEffect(() => {
@@ -350,17 +353,39 @@ export default function WidgetDraggableYouTubeLiveTV() {
     };
   }, [isPlayerReady, selectedChannel]);
 
-  // Sync volume/mute with player
+  // Apply volume/mute to the iframe player with rAF batching to reduce per-tick work
+  const applyPlayerVolume = useCallback(
+    (nextVolume: number, nextMuted: boolean) => {
+      pendingVolumeRef.current = nextVolume;
+      pendingMutedRef.current = nextMuted;
+
+      if (volumeRafRef.current !== null) return;
+
+      volumeRafRef.current = requestAnimationFrame(() => {
+        volumeRafRef.current = null;
+        const player = playerInstanceRef.current;
+        const pendingVolume = pendingVolumeRef.current;
+        const pendingMuted = pendingMutedRef.current;
+        pendingVolumeRef.current = null;
+        pendingMutedRef.current = null;
+
+        if (!player || pendingVolume === null || pendingMuted === null) return;
+        try {
+          player.setVolume(pendingVolume);
+          if (pendingMuted) player.mute();
+          else player.unMute();
+        } catch {
+          // Ignore player errors
+        }
+      });
+    },
+    [],
+  );
+
+  // Sync volume/mute with player (reactive)
   useEffect(() => {
-    if (!playerInstanceRef.current) return;
-    try {
-      playerInstanceRef.current.setVolume(volume);
-      if (isMuted) playerInstanceRef.current.mute();
-      else playerInstanceRef.current.unMute();
-    } catch {
-      // Ignore
-    }
-  }, [volume, isMuted]);
+    applyPlayerVolume(volume, isMuted);
+  }, [volume, isMuted, applyPlayerVolume]);
 
   // Handle channel selection
   const selectChannel = useCallback(
@@ -396,6 +421,11 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const updateVolume = useCallback((value: number) => {
     setVolume(value);
     setIsMuted(value === 0);
+
+    applyPlayerVolume(value, value === 0);
+  }, [applyPlayerVolume]);
+
+  const handleVolumeCommit = useCallback((value: number) => {
     try {
       localStorage.setItem(VOLUME_KEY, String(value));
       localStorage.setItem(MUTED_KEY, String(value === 0));
@@ -782,6 +812,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                 <Slider
                   value={[volume]}
                   onValueChange={(v) => updateVolume(v[0] ?? volume)}
+                  onValueCommit={(v) => handleVolumeCommit(v[0] ?? volume)}
                   max={100}
                   step={1}
                   className="cursor-pointer"
