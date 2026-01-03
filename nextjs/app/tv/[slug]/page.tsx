@@ -111,7 +111,7 @@ export default async function TvDetailPage({
               <iframe
                 className="absolute top-0 left-0 h-full w-full"
                 id="nPlayerFrame"
-                src="https://www3.nhk.or.jp/nhkworld/common/player/tv/live/embed/embed.html"
+                src="https://www3.nhk.or.jp/nhkworld/common/player/world-player/iframe/player.html?playerId=tTvLive__player&src=https%3A%2F%2Fmasterpl.hls.nhkworld.jp%2Fhls%2Fw%2Flive%2Fmaster.m3u8&analyticsCookie=true&playspeed=1&quality=auto&volume=1"
                 allowFullScreen
                 title="NHK World"
               ></iframe>

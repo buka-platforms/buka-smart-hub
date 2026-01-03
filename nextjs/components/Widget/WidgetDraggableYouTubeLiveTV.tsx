@@ -720,8 +720,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
                                   </span>
                                   <span className="truncate text-[11px] text-white/50">
                                     {channel.country}
-                                    {channel.audience_type &&
-                                      ` • ${channel.audience_type}`}
                                   </span>
                                 </div>
                                 {favorites.includes(channel.slug) && (

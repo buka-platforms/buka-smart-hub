@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -8,7 +8,6 @@ interface TvApp {
   name: string;
   logo_url: string;
   short_description: string;
-  audience_type: string;
   external?: boolean;
   external_url?: string;
   category: string;
@@ -23,14 +22,14 @@ export const InternalTvLink = ({ app }: TvLinkProps) => {
   return (
     <Link href={`/tv/${app.slug}`}>
       <div className="relative flex w-full cursor-pointer flex-row items-center rounded-md border p-5 text-center shadow-xs hover:bg-slate-50 md:h-40 md:w-40 md:max-w-40 md:flex-col md:justify-center md:p-0">
-        {app.audience_type.length > 0 ? (
+        {/* {app.audience_type.length > 0 ? (
           <Badge
             variant="destructive"
             className="absolute top-1 right-1 rounded-full bg-slate-300 text-xs font-light text-gray-700 shadow-none hover:bg-slate-300"
           >
             {app.audience_type}
           </Badge>
-        ) : null}
+        ) : null} */}
         <div className="flex items-center md:grow md:justify-center">
           <img
             src={app.logo_url}
@@ -60,14 +59,14 @@ export const ExternalTvLink = ({ app }: TvLinkProps) => {
     >
       <div className="relative flex w-full cursor-pointer flex-row items-center rounded-md border p-5 text-center shadow-xs hover:bg-slate-50 md:h-40 md:w-40 md:max-w-40 md:flex-col md:justify-center md:p-0">
         <ExternalLink className="absolute top-1 left-1 h-4 w-4 text-slate-400" />
-        {app.audience_type.length > 0 ? (
+        {/* {app.audience_type.length > 0 ? (
           <Badge
             variant="destructive"
             className="absolute top-1 right-1 rounded-full bg-slate-300 text-xs font-light text-gray-700 shadow-none hover:bg-slate-300"
           >
             {app.audience_type}
           </Badge>
-        ) : null}
+        ) : null} */}
         <div className="flex items-center md:grow md:justify-center">
           <img
             src={app.logo_url}

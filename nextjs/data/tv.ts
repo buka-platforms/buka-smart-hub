@@ -2,7 +2,6 @@ export const tv = [
   {
     id: "abc_news",
     slug: "abc-news",
-    audience_type: "",
     country: "United States",
     name: "ABC News",
     short_description: "ABC News from the US.",
@@ -16,7 +15,6 @@ export const tv = [
   {
     id: "africanews",
     slug: "africanews",
-    audience_type: "",
     country: "France",
     name: "Africanews",
     short_description: "Africanews from France.",
@@ -30,7 +28,6 @@ export const tv = [
   {
     id: "africanews_fr",
     slug: "africanews-fr",
-    audience_type: "france",
     country: "France",
     name: "Africanews",
     short_description: "Africanews from France.",
@@ -44,7 +41,6 @@ export const tv = [
   {
     id: "aljazeera",
     slug: "aljazeera",
-    audience_type: "",
     country: "Qatar",
     name: "Al Jazeera",
     short_description: "Al Jazeera from Qatar.",
@@ -58,7 +54,7 @@ export const tv = [
   {
     id: "aljazeera_arabic",
     slug: "aljazeera-arabic",
-    audience_type: "arabic",
+
     country: "Qatar",
     name: "Al Jazeera",
     short_description: "Al Jazeera from Qatar.",
@@ -72,7 +68,6 @@ export const tv = [
   {
     id: "arirang",
     slug: "arirang",
-    audience_type: "",
     country: "South Korea",
     name: "Arirang",
     short_description: "Arirang from South Korea.",
@@ -85,7 +80,6 @@ export const tv = [
   {
     id: "astro_awani",
     slug: "astro-awani",
-    audience_type: "",
     country: "Malaysia",
     name: "Astro Awani",
     short_description: "Astro Awani from Malaysia.",
@@ -99,7 +93,6 @@ export const tv = [
   {
     id: "bloomberg",
     slug: "bloomberg",
-    audience_type: "",
     country: "United States",
     name: "Bloomberg",
     short_description: "Bloomberg from the US.",
@@ -113,7 +106,6 @@ export const tv = [
   {
     id: "bloomberg_original",
     slug: "bloomberg-original",
-    audience_type: "",
     country: "United States",
     name: "Bloomberg Original",
     short_description: "Bloomberg from the US.",
@@ -127,7 +119,6 @@ export const tv = [
   {
     id: "cgtn_europe",
     slug: "cgtn-europe",
-    audience_type: "europe",
     country: "China",
     name: "CGTN Europe",
     short_description: "CGTN from China.",
@@ -140,7 +131,6 @@ export const tv = [
   {
     id: "cna",
     slug: "cna",
-    audience_type: "",
     country: "Singapore",
     name: "CNA",
     short_description: "CNA from Singapore.",
@@ -154,7 +144,6 @@ export const tv = [
   {
     id: "cnbc",
     slug: "cnbc",
-    audience_type: "",
     country: "United States",
     name: "CNBC",
     short_description: "CNBC from the US.",
@@ -165,24 +154,22 @@ export const tv = [
     source_id: "9NyxcX3rhQs",
     category: "News",
   },
-  {
-    id: "cnbc_indonesia",
-    slug: "cnbc-indonesia",
-    audience_type: "bahasa",
-    country: "Indonesia",
-    name: "CNBC Indonesia",
-    short_description: "CNBC Indonesia from Indonesia.",
-    long_description: "CNBC Indonesia is a news channel from Indonesia.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/7/7a/Logo_of_CNBC_Indonesia.svg",
-    source: "CNBC Indonesia",
-    source_id: "cnbc-indonesia",
-    category: "News",
-  },
+  // {
+  //   id: "cnbc_indonesia",
+  //   slug: "cnbc-indonesia",
+  //   country: "Indonesia",
+  //   name: "CNBC Indonesia",
+  //   short_description: "CNBC Indonesia from Indonesia.",
+  //   long_description: "CNBC Indonesia is a news channel from Indonesia.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/7/7a/Logo_of_CNBC_Indonesia.svg",
+  //   source: "CNBC Indonesia",
+  //   source_id: "cnbc-indonesia",
+  //   category: "News",
+  // },
   {
     id: "dw",
     slug: "dw",
-    audience_type: "",
     country: "Germany",
     name: "DW",
     short_description: "DW from Germany.",
@@ -196,7 +183,6 @@ export const tv = [
   {
     id: "earthtv",
     slug: "earthtv",
-    audience_type: "",
     country: "Germany",
     name: "earthTV",
     short_description: "earthTV from Germany.",
@@ -209,7 +195,6 @@ export const tv = [
   {
     id: "euronews",
     slug: "euronews",
-    audience_type: "",
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -223,7 +208,7 @@ export const tv = [
   {
     id: "euronews_de",
     slug: "euronews-de",
-    audience_type: "germany",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -237,7 +222,7 @@ export const tv = [
   {
     id: "euronews_es",
     slug: "euronews-es",
-    audience_type: "spain",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -251,7 +236,7 @@ export const tv = [
   {
     id: "euronews_fr",
     slug: "euronews-fr",
-    audience_type: "france",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -265,7 +250,7 @@ export const tv = [
   {
     id: "euronews_gr",
     slug: "euronews-gr",
-    audience_type: "greece",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -279,7 +264,7 @@ export const tv = [
   {
     id: "euronews_hu",
     slug: "euronews-hu",
-    audience_type: "hungary",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -293,7 +278,7 @@ export const tv = [
   {
     id: "euronews_it",
     slug: "euronews-it",
-    audience_type: "italy",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -307,7 +292,7 @@ export const tv = [
   {
     id: "euronews_pt",
     slug: "euronews-pt",
-    audience_type: "portugal",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -321,7 +306,7 @@ export const tv = [
   {
     id: "euronews_ru",
     slug: "euronews-ru",
-    audience_type: "russia",
+
     country: "Belgium",
     name: "Euronews",
     short_description: "Euronews from Belgium.",
@@ -335,7 +320,6 @@ export const tv = [
   {
     id: "fox_weather",
     slug: "fox-weather",
-    audience_type: "",
     country: "United States",
     name: "Fox Weather",
     short_description: "Fox Weather from the US.",
@@ -349,7 +333,6 @@ export const tv = [
   {
     id: "france24",
     slug: "france24",
-    audience_type: "",
     country: "France",
     name: "France 24",
     short_description: "France 24 from France.",
@@ -362,7 +345,6 @@ export const tv = [
   {
     id: "france24_fr",
     slug: "france24-fr",
-    audience_type: "france",
     country: "France",
     name: "France 24",
     short_description: "France 24 from France.",
@@ -375,7 +357,6 @@ export const tv = [
   {
     id: "gbnews",
     slug: "gbnews",
-    audience_type: "",
     country: "United Kingdom",
     name: "GB News",
     short_description: "GB News from the UK.",
@@ -388,7 +369,6 @@ export const tv = [
   {
     id: "kompas_tv",
     slug: "kompas-tv",
-    audience_type: "bahasa",
     country: "Indonesia",
     name: "Kompas TV",
     short_description: "Kompas TV from Indonesia.",
@@ -402,7 +382,6 @@ export const tv = [
   {
     id: "kbs_world",
     slug: "kbs-world",
-    audience_type: "korean",
     country: "South Korea",
     name: "KBS World",
     short_description: "KBS World from South Korea.",
@@ -416,7 +395,6 @@ export const tv = [
   {
     id: "liputan_6",
     slug: "liputan-6",
-    audience_type: "bahasa",
     country: "Indonesia",
     name: "Liputan 6",
     short_description: "Liputan 6 from Indonesia.",
@@ -430,7 +408,6 @@ export const tv = [
   {
     id: "metrotv",
     slug: "metrotv",
-    audience_type: "bahasa",
     country: "Indonesia",
     name: "Metro TV",
     short_description: "Metro TV from Indonesia.",
@@ -444,7 +421,6 @@ export const tv = [
   {
     id: "nbc_news",
     slug: "nbc-news",
-    audience_type: "",
     country: "United States",
     name: "NBC News",
     short_description: "NBC News from the US.",
@@ -458,35 +434,32 @@ export const tv = [
   {
     id: "nhk_world",
     slug: "nhk-world",
-    audience_type: "",
     country: "Japan",
     name: "NHK World",
     short_description: "NHK World from Japan.",
     long_description: "NHK World is a news channel from Japan.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/7/7b/NHK_World.svg",
-    source: "NHK World",
-    source_id: "nhkworld",
+    source: "YouTube",
+    source_id: "f0lYkdA-Gtw",
     category: "Culture",
   },
-  {
-    id: "rt",
-    slug: "rt",
-    audience_type: "",
-    country: "Russia",
-    name: "RT",
-    short_description: "RT from Russia.",
-    long_description: "RT is a news channel from Russia.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg",
-    source: "RT",
-    source_id: "rt",
-    category: "News",
-  },
+  // {
+  //   id: "rt",
+  //   slug: "rt",
+  //   country: "Russia",
+  //   name: "RT",
+  //   short_description: "RT from Russia.",
+  //   long_description: "RT is a news channel from Russia.",
+  //   logo_url:
+  //     "https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg",
+  //   source: "RT",
+  //   source_id: "rt",
+  //   category: "News",
+  // },
   {
     id: "skynews",
     slug: "skynews",
-    audience_type: "",
     country: "United Kingdom",
     name: "Sky News",
     short_description: "Sky News from the UK.",
@@ -500,7 +473,6 @@ export const tv = [
   {
     id: "trtworld",
     slug: "trtworld",
-    audience_type: "",
     country: "Turkey",
     name: "TRT World",
     short_description: "TRT World from Turkey.",
@@ -514,7 +486,6 @@ export const tv = [
   {
     id: "tvbs",
     slug: "tvbs",
-    audience_type: "mandarin",
     country: "Taiwan",
     name: "TVBS",
     short_description: "TVBS from Taiwan.",
@@ -528,7 +499,6 @@ export const tv = [
   {
     id: "tvone",
     slug: "tvone",
-    audience_type: "bahasa",
     country: "Indonesia",
     name: "tvOne",
     short_description: "tvOne from Indonesia.",
@@ -542,7 +512,6 @@ export const tv = [
   {
     id: "wion",
     slug: "wion",
-    audience_type: "",
     country: "India",
     name: "WION",
     short_description: "WION from India.",
@@ -556,7 +525,6 @@ export const tv = [
   {
     id: "yahoo_finance",
     slug: "yahoo-finance",
-    audience_type: "",
     country: "United States",
     name: "Yahoo Finance",
     short_description: "Yahoo Finance from the US.",
@@ -570,7 +538,6 @@ export const tv = [
   {
     id: "ytn",
     slug: "ytn",
-    audience_type: "korean",
     country: "South Korea",
     name: "YTN",
     short_description: "YTN from South Korea.",
