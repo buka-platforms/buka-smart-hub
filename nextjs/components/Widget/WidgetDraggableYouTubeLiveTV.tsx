@@ -654,25 +654,27 @@ export default function WidgetDraggableYouTubeLiveTV() {
                             onSelect={() => selectChannel(channel)}
                             className={commandItemClass}
                           >
-                            <div className="flex w-full items-center gap-2">
+                            <div className="flex w-full items-center gap-3">
                               {channel.logo_url && (
-                                <img
-                                  src={channel.logo_url}
-                                  alt={channel.name}
-                                  className="h-5 w-5 rounded bg-white/10 object-contain"
-                                  draggable={false}
-                                />
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                                  <img
+                                    src={channel.logo_url}
+                                    alt={channel.name}
+                                    className="h-full w-full object-contain"
+                                    draggable={false}
+                                  />
+                                </div>
                               )}
                               <div className="flex min-w-0 flex-1 flex-col">
-                                <span className="truncate text-xs font-medium text-white">
+                                <span className="truncate text-[13px] font-medium text-white">
                                   {channel.name}
                                 </span>
-                                <span className="truncate text-[10px] text-white/50">
+                                <span className="truncate text-[11px] text-white/50">
                                   {channel.country}
                                 </span>
                               </div>
                               <Heart
-                                className="h-3 w-3 text-pink-400"
+                                className="h-3.5 w-3.5 text-pink-400"
                                 fill="currentColor"
                               />
                             </div>
@@ -701,20 +703,22 @@ export default function WidgetDraggableYouTubeLiveTV() {
                               onSelect={() => selectChannel(channel)}
                               className={commandItemClass}
                             >
-                              <div className="flex w-full items-center gap-2">
+                              <div className="flex w-full items-center gap-3">
                                 {channel.logo_url && (
-                                  <img
-                                    src={channel.logo_url}
-                                    alt={channel.name}
-                                    className="h-5 w-5 rounded bg-white/10 object-contain"
-                                    draggable={false}
-                                  />
+                                  <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                                    <img
+                                      src={channel.logo_url}
+                                      alt={channel.name}
+                                      className="h-full w-full object-contain"
+                                      draggable={false}
+                                    />
+                                  </div>
                                 )}
                                 <div className="flex min-w-0 flex-1 flex-col">
-                                  <span className="truncate text-xs font-medium text-white">
+                                  <span className="truncate text-[13px] font-medium text-white">
                                     {channel.name}
                                   </span>
-                                  <span className="truncate text-[10px] text-white/50">
+                                  <span className="truncate text-[11px] text-white/50">
                                     {channel.country}
                                     {channel.audience_type &&
                                       ` • ${channel.audience_type}`}
@@ -722,7 +726,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                                 </div>
                                 {favorites.includes(channel.slug) && (
                                   <Heart
-                                    className="h-3 w-3 text-pink-400"
+                                    className="h-3.5 w-3.5 text-pink-400"
                                     fill="currentColor"
                                   />
                                 )}
