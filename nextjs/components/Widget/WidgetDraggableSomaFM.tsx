@@ -71,6 +71,8 @@ interface SomaFMChannel {
   lastPlaying: string;
 }
 
+const VOLUME_KEY = "widgetSomaFMVolume";
+
 export default function WidgetDraggableSomaFM() {
   const draggableRef = useRef<HTMLDivElement>(null);
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
@@ -86,7 +88,16 @@ export default function WidgetDraggableSomaFM() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [volume, setVolume] = useState(() => {
+    if (typeof window === "undefined") return 1;
+    const saved = localStorage.getItem(VOLUME_KEY);
+    const parsed = Number(saved);
+    if (Number.isFinite(parsed)) {
+      if (parsed > 1) return Math.min(1, Math.max(0, parsed / 100));
+      return Math.min(1, Math.max(0, parsed));
+    }
+    return 1;
+  });
   const [nowPlaying, setNowPlaying] = useState<{
     title: string;
     artist: string;
@@ -193,6 +204,26 @@ export default function WidgetDraggableSomaFM() {
     window.addEventListener("resize", report);
     return () => window.removeEventListener("resize", report);
   }, [visibleNowPlaying, currentChannel, isVisible]);
+
+  // Sync audio element volume and persist to localStorage when volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(VOLUME_KEY, volume.toString());
+    } catch {
+      /* ignore */
+    }
+  }, [volume]);
+
+  // Ensure volume is applied whenever the stream URL changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [streamUrl, volume]);
 
   // Fetch now playing info for selected channel
   useEffect(() => {
@@ -460,9 +491,8 @@ export default function WidgetDraggableSomaFM() {
                   value={[Math.round(volume * 100)]}
                   onValueChange={(v) => {
                     const percent = v[0] ?? Math.round(volume * 100);
-                    setVolume(percent / 100);
-                    if (audioRef.current)
-                      audioRef.current.volume = percent / 100;
+                    const next = Math.min(1, Math.max(0, percent / 100));
+                    setVolume(next);
                   }}
                   max={100}
                   step={1}
