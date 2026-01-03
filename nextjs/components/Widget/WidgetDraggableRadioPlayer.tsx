@@ -50,6 +50,11 @@ import {
   useState,
 } from "react";
 
+// Storage keys
+const VOLUME_KEY = "widgetDraggableRadioPlayerVolume";
+const STATION_SLUG_KEY = "widgetDraggableRadioPlayerStationSlug";
+const FAVORITES_KEY = "widgetDraggableRadioPlayerStationFavorites";
+
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
   const draggableRef = useRef<HTMLDivElement>(null);
@@ -62,7 +67,7 @@ export default function WidgetDraggableRadioPlayer() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
-    const stored = localStorage.getItem("widgetDraggableRadioPlayerVolume");
+    const stored = localStorage.getItem(VOLUME_KEY);
     if (stored !== null && !Number.isNaN(Number(stored))) return Number(stored);
     return Math.round((radioAudioState.radioAudio?.volume ?? 0.5) * 100);
   });
@@ -128,13 +133,10 @@ export default function WidgetDraggableRadioPlayer() {
   useEffect(() => {
     const handleUseEffect = async () => {
       if (!radioStationState.radioStation) {
-        // Check if localStorage has widgetDraggableRadioPlayerStationSlug
-        if (localStorage.getItem("widgetDraggableRadioPlayerStationSlug")) {
-          await loadRadioStationBySlug(
-            localStorage.getItem(
-              "widgetDraggableRadioPlayerStationSlug",
-            ) as string,
-          );
+        // Check if localStorage has STATION_SLUG_KEY
+        const storedSlug = localStorage.getItem(STATION_SLUG_KEY);
+        if (storedSlug) {
+          await loadRadioStationBySlug(storedSlug);
         } else {
           await loadRadioStationBySlug("gold905");
         }
@@ -153,7 +155,7 @@ export default function WidgetDraggableRadioPlayer() {
     queueMicrotask(() => {
       if (!isMounted) return;
       try {
-        const saved = localStorage.getItem("favoriteRadioStations");
+        const saved = localStorage.getItem(FAVORITES_KEY);
         const parsed: string[] = saved ? JSON.parse(saved) : [];
         setIsFavorite(parsed.includes(slug));
       } catch {
@@ -170,12 +172,12 @@ export default function WidgetDraggableRadioPlayer() {
     const slug = radioStationState.radioStation?.slug;
     if (!slug || typeof window === "undefined") return;
     try {
-      const saved = localStorage.getItem("favoriteRadioStations");
+      const saved = localStorage.getItem(FAVORITES_KEY);
       const parsed: string[] = saved ? JSON.parse(saved) : [];
       const next = parsed.includes(slug)
         ? parsed.filter((s) => s !== slug)
         : [...parsed, slug];
-      localStorage.setItem("favoriteRadioStations", JSON.stringify(next));
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
       setIsFavorite(next.includes(slug));
     } catch {
       /* noop */
@@ -196,10 +198,7 @@ export default function WidgetDraggableRadioPlayer() {
         return { ...prev };
       });
       try {
-        localStorage.setItem(
-          "widgetDraggableRadioPlayerVolume",
-          value.toString(),
-        );
+        localStorage.setItem(VOLUME_KEY, value.toString());
       } catch {
         /* noop */
       }
