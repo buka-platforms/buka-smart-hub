@@ -535,7 +535,7 @@ export default function WidgetDraggableSomaFM() {
                     placeholder="Search channels..."
                     className="h-10 border-b border-white/10 bg-transparent px-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
                   />
-                  <CommandList className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 max-h-96">
+                  <CommandList className="max-h-96 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
                     <CommandEmpty className="py-6 text-center text-sm text-white/50">
                       No channels found.
                     </CommandEmpty>
@@ -571,7 +571,7 @@ export default function WidgetDraggableSomaFM() {
                               <img
                                 src={c.image}
                                 alt={c.title}
-                                className="mt-1 h-8 w-8 rounded border border-white/20 bg-white/10 object-contain shadow-lg transition-all group-hover:border-white/40 group-hover:shadow-xl group-hover:shadow-white/10"
+                                className="mt-1 h-8 w-8 rounded border border-white/20 bg-white/10 object-contain shadow-lg transition-all group-hover:border-white/40"
                                 style={{ minWidth: 32, minHeight: 32 }}
                                 draggable={false}
                               />
@@ -615,7 +615,7 @@ export default function WidgetDraggableSomaFM() {
                             {/* Listeners */}
                             <span className="ml-2 flex min-w-9.5 flex-col items-end">
                               <span
-                                className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:bg-blue-500/20 group-hover:shadow-xl group-hover:shadow-blue-500/20"
+                                className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:bg-blue-500/20"
                                 title={`Listeners: ${c.listeners}`}
                               >
                                 <Users className="inline-block h-3.5 w-3.5" />
