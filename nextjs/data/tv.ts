@@ -42,9 +42,9 @@ export const tv = [
     id: "aljazeera",
     slug: "aljazeera",
     country: "Qatar",
-    name: "Al Jazeera",
-    short_description: "Al Jazeera from Qatar.",
-    long_description: "Al Jazeera is a news channel from Qatar.",
+    name: "Al Jazeera English",
+    short_description: "Al Jazeera English from Qatar.",
+    long_description: "Al Jazeera English is a news channel from Qatar.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/en/f/f2/Aljazeera_eng.svg",
     source: "YouTube",
@@ -56,9 +56,9 @@ export const tv = [
     slug: "aljazeera-arabic",
 
     country: "Qatar",
-    name: "Al Jazeera",
-    short_description: "Al Jazeera from Qatar.",
-    long_description: "Al Jazeera is a news channel from Qatar.",
+    name: "Al Jazeera Arabic",
+    short_description: "Al Jazeera Arabic from Qatar.",
+    long_description: "Al Jazeera Arabic is a news channel from Qatar.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/en/f/f2/Aljazeera_eng.svg",
     source: "YouTube",
@@ -183,9 +183,9 @@ export const tv = [
     id: "euronews",
     slug: "euronews",
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews English",
+    short_description: "Euronews English from Belgium.",
+    long_description: "Euronews English is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -195,11 +195,10 @@ export const tv = [
   {
     id: "euronews_de",
     slug: "euronews-de",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews German",
+    short_description: "Euronews German from Belgium.",
+    long_description: "Euronews German is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -209,11 +208,10 @@ export const tv = [
   {
     id: "euronews_es",
     slug: "euronews-es",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews Spanish",
+    short_description: "Euronews Spanish from Belgium.",
+    long_description: "Euronews Spanish is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -223,11 +221,10 @@ export const tv = [
   {
     id: "euronews_fr",
     slug: "euronews-fr",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews French",
+    short_description: "Euronews French from Belgium.",
+    long_description: "Euronews French is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -237,11 +234,10 @@ export const tv = [
   {
     id: "euronews_gr",
     slug: "euronews-gr",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews Greek",
+    short_description: "Euronews Greek from Belgium.",
+    long_description: "Euronews Greek is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -251,11 +247,10 @@ export const tv = [
   {
     id: "euronews_hu",
     slug: "euronews-hu",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews Hungarian",
+    short_description: "Euronews Hungarian from Belgium.",
+    long_description: "Euronews Hungarian is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -265,11 +260,10 @@ export const tv = [
   {
     id: "euronews_it",
     slug: "euronews-it",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews Italian",
+    short_description: "Euronews Italian from Belgium.",
+    long_description: "Euronews Italian is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -279,11 +273,10 @@ export const tv = [
   {
     id: "euronews_pt",
     slug: "euronews-pt",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews Portuguese",
+    short_description: "Euronews Portuguese from Belgium.",
+    long_description: "Euronews Portuguese is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -293,11 +286,10 @@ export const tv = [
   {
     id: "euronews_ru",
     slug: "euronews-ru",
-
     country: "Belgium",
-    name: "Euronews",
-    short_description: "Euronews from Belgium.",
-    long_description: "Euronews is a news channel from Belgium.",
+    name: "Euronews Russian",
+    short_description: "Euronews Russian from Belgium.",
+    long_description: "Euronews Russian is a news channel from Belgium.",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
@@ -321,9 +313,9 @@ export const tv = [
     id: "france24",
     slug: "france24",
     country: "France",
-    name: "France 24",
-    short_description: "France 24 from France.",
-    long_description: "France 24 is a news channel from France.",
+    name: "France 24 English",
+    short_description: "France 24 English from France.",
+    long_description: "France 24 English is a news channel from France.",
     logo_url: "https://static.france24.com/infographies/wikipedia/logo.svg",
     source: "YouTube",
     source_id: "Ap-UM1O9RBU",
@@ -333,9 +325,9 @@ export const tv = [
     id: "france24_fr",
     slug: "france24-fr",
     country: "France",
-    name: "France 24",
-    short_description: "France 24 from France.",
-    long_description: "France 24 is a news channel from France.",
+    name: "France 24 French",
+    short_description: "France 24 French from France.",
+    long_description: "France 24 French is a news channel from France.",
     logo_url: "https://static.france24.com/infographies/wikipedia/logo.svg",
     source: "YouTube",
     source_id: "l8PMl7tUDIE",

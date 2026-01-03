@@ -65,7 +65,7 @@ import {
 
 // Filter only YouTube-based channels for the widget
 const youtubeChannels = (tv as TVChannel[]).filter(
-  (channel) => channel.source === "YouTube" && !channel.external,
+  (channel) => channel.source === "YouTube",
 );
 
 // Group channels by category
@@ -650,7 +650,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
                         {favoriteChannels.map((channel) => (
                           <CommandItem
                             key={channel.id}
-                            value={`${channel.name} ${channel.country}`}
+                            // value={`${channel.name} ${channel.country}`}
+                            value={`${channel.slug}`}
                             onSelect={() => selectChannel(channel)}
                             className={commandItemClass}
                           >
@@ -699,7 +700,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
                           {channels.map((channel) => (
                             <CommandItem
                               key={channel.id}
-                              value={`${channel.name} ${channel.country} ${channel.category}`}
+                              // value={`${channel.name} ${channel.country} ${channel.category}`}
+                              value={`${channel.slug}`}
                               onSelect={() => selectChannel(channel)}
                               className={commandItemClass}
                             >
