@@ -154,19 +154,6 @@ export const tv = [
     source_id: "9NyxcX3rhQs",
     category: "News",
   },
-  // {
-  //   id: "cnbc_indonesia",
-  //   slug: "cnbc-indonesia",
-  //   country: "Indonesia",
-  //   name: "CNBC Indonesia",
-  //   short_description: "CNBC Indonesia from Indonesia.",
-  //   long_description: "CNBC Indonesia is a news channel from Indonesia.",
-  //   logo_url:
-  //     "https://upload.wikimedia.org/wikipedia/commons/7/7a/Logo_of_CNBC_Indonesia.svg",
-  //   source: "CNBC Indonesia",
-  //   source_id: "cnbc-indonesia",
-  //   category: "News",
-  // },
   {
     id: "dw",
     slug: "dw",
@@ -444,19 +431,6 @@ export const tv = [
     source_id: "f0lYkdA-Gtw",
     category: "Culture",
   },
-  // {
-  //   id: "rt",
-  //   slug: "rt",
-  //   country: "Russia",
-  //   name: "RT",
-  //   short_description: "RT from Russia.",
-  //   long_description: "RT is a news channel from Russia.",
-  //   logo_url:
-  //     "https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg",
-  //   source: "RT",
-  //   source_id: "rt",
-  //   category: "News",
-  // },
   {
     id: "skynews",
     slug: "skynews",
