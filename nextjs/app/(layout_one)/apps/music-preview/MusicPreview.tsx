@@ -249,7 +249,10 @@ export default function MusicPreview() {
           }
 
           // Save the volume to local storage
-          localStorage.setItem("radioAudioVolume", JSON.stringify(value[0]));
+          localStorage.setItem(
+            "widgetDraggableRadioPlayerAudioVolume",
+            JSON.stringify(value[0]),
+          );
         },
         [setRadioAudioState],
       );

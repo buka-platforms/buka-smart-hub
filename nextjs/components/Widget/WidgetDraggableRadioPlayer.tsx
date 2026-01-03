@@ -62,7 +62,9 @@ export default function WidgetDraggableRadioPlayer() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
-    const stored = localStorage.getItem("radioAudioVolume");
+    const stored = localStorage.getItem(
+      "widgetDraggableRadioPlayerAudioVolume",
+    );
     if (stored !== null && !Number.isNaN(Number(stored))) return Number(stored);
     return Math.round((radioAudioState.radioAudio?.volume ?? 0.5) * 100);
   });
@@ -128,10 +130,12 @@ export default function WidgetDraggableRadioPlayer() {
   useEffect(() => {
     const handleUseEffect = async () => {
       if (!radioStationState.radioStation) {
-        // Check if localStorage has radioStationSlug
-        if (localStorage.getItem("radioStationSlug")) {
+        // Check if localStorage has widgetDraggableRadioPlayerStationSlug
+        if (localStorage.getItem("widgetDraggableRadioPlayerStationSlug")) {
           await loadRadioStationBySlug(
-            localStorage.getItem("radioStationSlug") as string,
+            localStorage.getItem(
+              "widgetDraggableRadioPlayerStationSlug",
+            ) as string,
           );
         } else {
           await loadRadioStationBySlug("gold905");
@@ -194,7 +198,10 @@ export default function WidgetDraggableRadioPlayer() {
         return { ...prev };
       });
       try {
-        localStorage.setItem("radioAudioVolume", value.toString());
+        localStorage.setItem(
+          "widgetDraggableRadioPlayerAudioVolume",
+          value.toString(),
+        );
       } catch {
         /* noop */
       }

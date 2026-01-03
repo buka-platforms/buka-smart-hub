@@ -95,7 +95,10 @@ const Volume = () => {
     });
 
     // Save the volume to local storage
-    localStorage.setItem("radioAudioVolume", JSON.stringify(value[0]));
+    localStorage.setItem(
+      "widgetDraggableRadioPlayerAudioVolume",
+      JSON.stringify(value[0]),
+    );
   };
 
   return (
@@ -321,10 +324,12 @@ export default function RadioPanelFooter() {
   useEffect(() => {
     const handleUseEffect = async () => {
       if (!radioStationState.radioStation) {
-        // Check if localStorage has radioStationSlug
-        if (localStorage.getItem("radioStationSlug")) {
+        // Check if localStorage has widgetDraggableRadioPlayerStationSlug
+        if (localStorage.getItem("widgetDraggableRadioPlayerStationSlug")) {
           await loadRadioStationBySlug(
-            localStorage.getItem("radioStationSlug") as string,
+            localStorage.getItem(
+              "widgetDraggableRadioPlayerStationSlug",
+            ) as string,
           );
         } else {
           await loadRadioStationBySlug("gold905");
