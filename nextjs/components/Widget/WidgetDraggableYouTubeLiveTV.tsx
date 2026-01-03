@@ -604,7 +604,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                       </PopoverTrigger>
                       <PopoverContent
                         align="end"
-                        className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1"
+                        className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
                       >
                         <button
                           onClick={() => setCountryFilter(null)}
@@ -633,7 +633,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <CommandList className="max-h-72 overflow-y-auto bg-transparent">
+                  <CommandList className="max-h-72 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
                     <CommandEmpty className="px-3 py-2 text-xs text-white/60">
                       No channels found.
                     </CommandEmpty>
