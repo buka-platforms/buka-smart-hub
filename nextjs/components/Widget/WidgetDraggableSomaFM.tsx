@@ -562,7 +562,7 @@ export default function WidgetDraggableSomaFM() {
                               } catch {}
                             }, 0);
                           }}
-                          className="group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-linear-to-r hover:from-white/15 hover:to-white/5 focus:bg-linear-to-r focus:from-white/15 focus:to-white/5 data-[selected=true]:bg-linear-to-r data-[selected=true]:from-blue-500/20 data-[selected=true]:to-purple-500/10"
+                          className="group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-blue-500/10"
                         >
                           <div className="flex w-full items-start gap-3">
                             {/* Logo */}
@@ -571,7 +571,7 @@ export default function WidgetDraggableSomaFM() {
                               <img
                                 src={c.image}
                                 alt={c.title}
-                                className="mt-1 h-8 w-8 rounded border border-white/20 bg-linear-to-br from-white/10 to-white/5 object-contain shadow-lg transition-all group-hover:border-white/40 group-hover:shadow-xl group-hover:shadow-white/10"
+                                className="mt-1 h-8 w-8 rounded border border-white/20 bg-white/10 object-contain shadow-lg transition-all group-hover:border-white/40 group-hover:shadow-xl group-hover:shadow-white/10"
                                 style={{ minWidth: 32, minHeight: 32 }}
                                 draggable={false}
                               />
@@ -615,7 +615,7 @@ export default function WidgetDraggableSomaFM() {
                             {/* Listeners */}
                             <span className="ml-2 flex min-w-9.5 flex-col items-end">
                               <span
-                                className="flex items-center gap-1 rounded bg-linear-to-br from-blue-500/20 to-purple-500/20 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:from-blue-500/30 group-hover:to-purple-500/30 group-hover:shadow-xl group-hover:shadow-blue-500/20"
+                                className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:bg-blue-500/20 group-hover:shadow-xl group-hover:shadow-blue-500/20"
                                 title={`Listeners: ${c.listeners}`}
                               >
                                 <Users className="inline-block h-3.5 w-3.5" />
