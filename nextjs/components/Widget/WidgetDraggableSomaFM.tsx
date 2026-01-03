@@ -528,12 +528,17 @@ export default function WidgetDraggableSomaFM() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-84 rounded-lg border border-white/10 bg-black/90 p-1.5 shadow-lg"
+                className="w-84 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl"
               >
-                <Command>
-                  <CommandInput placeholder="Search channels..." />
-                  <CommandList>
-                    <CommandEmpty>No channels found.</CommandEmpty>
+                <Command className="bg-transparent text-white">
+                  <CommandInput
+                    placeholder="Search channels..."
+                    className="h-10 border-b border-white/10 bg-transparent px-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
+                  />
+                  <CommandList className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 max-h-96">
+                    <CommandEmpty className="py-6 text-center text-sm text-white/50">
+                      No channels found.
+                    </CommandEmpty>
                     {[...channels]
                       .slice()
                       .sort(
@@ -557,7 +562,7 @@ export default function WidgetDraggableSomaFM() {
                               } catch {}
                             }, 0);
                           }}
-                          className="group cursor-pointer rounded-md px-2! py-2! transition-colors hover:bg-white/10 focus:bg-white/10"
+                          className="group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-linear-to-r hover:from-white/15 hover:to-white/5 focus:bg-linear-to-r focus:from-white/15 focus:to-white/5 data-[selected=true]:bg-linear-to-r data-[selected=true]:from-blue-500/20 data-[selected=true]:to-purple-500/10"
                         >
                           <div className="flex w-full items-start gap-3">
                             {/* Logo */}
@@ -566,20 +571,20 @@ export default function WidgetDraggableSomaFM() {
                               <img
                                 src={c.image}
                                 alt={c.title}
-                                className="mt-1 h-8 w-8 rounded border border-white/10 bg-white/20 object-contain shadow"
+                                className="mt-1 h-8 w-8 rounded border border-white/20 bg-linear-to-br from-white/10 to-white/5 object-contain shadow-lg transition-all group-hover:border-white/40 group-hover:shadow-xl group-hover:shadow-white/10"
                                 style={{ minWidth: 32, minHeight: 32 }}
                                 draggable={false}
                               />
                             )}
                             <div className="flex min-w-0 flex-1 flex-col">
                               {/* Title */}
-                              <span className="truncate text-[13px] font-bold text-neutral-600">
+                              <span className="truncate text-[13px] font-bold text-white transition-all group-hover:text-white/95">
                                 {c.title}
                               </span>
                               {/* Description (truncated) */}
                               {c.description && (
                                 <span
-                                  className="truncate text-[12px] text-neutral-500"
+                                  className="truncate text-[12px] text-white/65 transition-colors group-hover:text-white/75"
                                   title={c.description}
                                   style={{ maxWidth: 220 }}
                                 >
@@ -589,20 +594,20 @@ export default function WidgetDraggableSomaFM() {
                               {/* Last playing */}
                               {c.lastPlaying && (
                                 <span
-                                  className="truncate text-[11px] text-neutral-500"
+                                  className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
                                   title={c.lastPlaying}
                                 >
-                                  <span className="opacity-80">Last:</span>{" "}
+                                  <span className="text-white/40">Last:</span>{" "}
                                   {c.lastPlaying}
                                 </span>
                               )}
                               {/* Genre */}
                               {c.genre && (
                                 <span
-                                  className="truncate text-[11px] text-neutral-500"
+                                  className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
                                   title={c.genre.replace(/\|/g, ", ")}
                                 >
-                                  <span className="opacity-80">Genre:</span>{" "}
+                                  <span className="text-white/40">Genre:</span>{" "}
                                   {c.genre.replace(/\|/g, ", ")}
                                 </span>
                               )}
@@ -610,7 +615,7 @@ export default function WidgetDraggableSomaFM() {
                             {/* Listeners */}
                             <span className="ml-2 flex min-w-9.5 flex-col items-end">
                               <span
-                                className="flex items-center gap-1 rounded bg-black/30 px-2 py-1 text-[12px] font-semibold text-neutral-100 shadow"
+                                className="flex items-center gap-1 rounded bg-linear-to-br from-blue-500/20 to-purple-500/20 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:from-blue-500/30 group-hover:to-purple-500/30 group-hover:shadow-xl group-hover:shadow-blue-500/20"
                                 title={`Listeners: ${c.listeners}`}
                               >
                                 <Users className="inline-block h-3.5 w-3.5" />
