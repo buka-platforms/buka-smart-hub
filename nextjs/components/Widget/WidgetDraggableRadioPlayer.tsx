@@ -62,9 +62,7 @@ export default function WidgetDraggableRadioPlayer() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
-    const stored = localStorage.getItem(
-      "widgetDraggableRadioPlayerVolume",
-    );
+    const stored = localStorage.getItem("widgetDraggableRadioPlayerVolume");
     if (stored !== null && !Number.isNaN(Number(stored))) return Number(stored);
     return Math.round((radioAudioState.radioAudio?.volume ?? 0.5) * 100);
   });
