@@ -11,6 +11,9 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Volume1, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 
+// Storage keys
+const WIDGET_RADIO_PLAYER_VOLUME_KEY = "widgetRadioPlayerVolume";
+
 export default function Volume() {
   const radioAudioState = useAtomValue(radioAudioStateAtom);
   const setRadioAudioStore = useSetAtom(radioAudioStateAtom);
@@ -34,7 +37,10 @@ export default function Volume() {
     });
 
     // Save the volume to local storage
-    localStorage.setItem("widgetRadioPlayerVolume", JSON.stringify(value[0]));
+    localStorage.setItem(
+      WIDGET_RADIO_PLAYER_VOLUME_KEY,
+      JSON.stringify(value[0]),
+    );
   };
 
   useEffect(() => {

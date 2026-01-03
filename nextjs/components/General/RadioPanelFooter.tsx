@@ -28,6 +28,10 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+// Storage keys
+const WIDGET_RADIO_PLAYER_VOLUME_KEY = "widgetRadioPlayerVolume";
+const WIDGET_RADIO_PLAYER_STATION_SLUG_KEY = "widgetRadioPlayerStationSlug";
+
 const Play = () => {
   const radioStationState = useAtomValue(radioStationStateAtom);
 
@@ -95,7 +99,10 @@ const Volume = () => {
     });
 
     // Save the volume to local storage
-    localStorage.setItem("widgetRadioPlayerVolume", JSON.stringify(value[0]));
+    localStorage.setItem(
+      WIDGET_RADIO_PLAYER_VOLUME_KEY,
+      JSON.stringify(value[0]),
+    );
   };
 
   return (
@@ -322,12 +329,16 @@ export default function RadioPanelFooter() {
     const handleUseEffect = async () => {
       if (!radioStationState.radioStation) {
         // Check if localStorage has widgetRadioPlayerStationSlug
-        if (localStorage.getItem("widgetRadioPlayerStationSlug")) {
+        if (localStorage.getItem(WIDGET_RADIO_PLAYER_STATION_SLUG_KEY)) {
           await loadRadioStationBySlug(
-            localStorage.getItem("widgetRadioPlayerStationSlug") as string,
+            localStorage.getItem(
+              WIDGET_RADIO_PLAYER_STATION_SLUG_KEY,
+            ) as string,
           );
         } else {
-          await loadRadioStationBySlug("gold905");
+          await loadRadioStationBySlug(
+            process.env.NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG || "gold905",
+          );
         }
       }
     };

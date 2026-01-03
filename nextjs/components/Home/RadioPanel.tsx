@@ -8,6 +8,9 @@ import { ListMusic, Loader2, PlayCircle, StopCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 
+// Storage keys
+const WIDGET_RADIO_PLAYER_STATION_SLUG_KEY = "widgetRadioPlayerStationSlug";
+
 const Play = () => {
   const radioStationState = useAtomValue(radioStationStateAtom);
 
@@ -67,9 +70,11 @@ export default function RadioPanel() {
     const handleUseEffect = async () => {
       if (!radioStationState.radioStation) {
         // Check if localStorage has widgetRadioPlayerStationSlug
-        if (localStorage.getItem("widgetRadioPlayerStationSlug")) {
+        if (localStorage.getItem(WIDGET_RADIO_PLAYER_STATION_SLUG_KEY)) {
           await loadRadioStationBySlug(
-            localStorage.getItem("widgetRadioPlayerStationSlug") as string,
+            localStorage.getItem(
+              WIDGET_RADIO_PLAYER_STATION_SLUG_KEY,
+            ) as string,
           );
         } else {
           await loadRadioStationBySlug("gold905");

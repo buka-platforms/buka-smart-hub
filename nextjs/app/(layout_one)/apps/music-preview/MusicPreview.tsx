@@ -30,6 +30,9 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { get, writable } from "svelte/store";
 
+// Storage keys
+const WIDGET_RADIO_PLAYER_VOLUME_KEY = "widgetRadioPlayerVolume";
+
 interface MusicTrack {
   trackId: string;
   trackName: string;
@@ -250,7 +253,7 @@ export default function MusicPreview() {
 
           // Save the volume to local storage
           localStorage.setItem(
-            "widgetRadioPlayerVolume",
+            WIDGET_RADIO_PLAYER_VOLUME_KEY,
             JSON.stringify(value[0]),
           );
         },

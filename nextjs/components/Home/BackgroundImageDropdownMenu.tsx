@@ -23,6 +23,9 @@ import { Image as ImageIcon, Images, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+// Storage keys
+const RANDOM_BACKGROUND_IMAGE_ID_KEY = "randomBackgroundImageId";
+
 /* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageDropdownMenu() {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
@@ -67,7 +70,7 @@ export default function BackgroundImageDropdownMenu() {
       },
     }));
 
-    localStorage.setItem("randomBackgroundImageId", id);
+    localStorage.setItem(RANDOM_BACKGROUND_IMAGE_ID_KEY, id);
 
     // Send virtual page view event to Google Analytics
     if (window && window.gtag) {
