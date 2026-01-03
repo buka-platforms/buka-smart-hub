@@ -89,7 +89,6 @@ const countries = [...new Set(youtubeChannels.map((c) => c.country))].sort();
 const SELECTED_CHANNEL_KEY = "widgetDraggableYouTubeLiveTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetDraggableYouTubeLiveTVFavorites";
 const VOLUME_KEY = "widgetDraggableYouTubeLiveTVVolume";
-const MUTED_KEY = "widgetDraggableYouTubeLiveTVMuted";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {
@@ -113,7 +112,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
   );
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(100);
-  const [isMuted, setIsMuted] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
@@ -126,7 +124,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const shouldAutoPlayRef = useRef(false);
   const volumeRafRef = useRef<number | null>(null);
   const pendingVolumeRef = useRef<number | null>(null);
-  const pendingMutedRef = useRef<boolean | null>(null);
 
   // Load saved state on mount
   useEffect(() => {
@@ -167,10 +164,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
         // Load volume
         const savedVolume = localStorage.getItem(VOLUME_KEY);
         if (savedVolume) setVolume(Number(savedVolume));
-
-        // Load muted state
-        const savedMuted = localStorage.getItem(MUTED_KEY);
-        if (savedMuted) setIsMuted(savedMuted === "true");
       } catch {
         // Ignore
       }
@@ -247,13 +240,13 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
   // Store refs for initial player setup (doesn't need to trigger re-render)
   const initialVolumeRef = useRef(volume);
-  const initialMutedRef = useRef(isMuted);
+  const initialMutedRef = useRef(volume === 0);
 
   // Update refs when values change
   useEffect(() => {
     initialVolumeRef.current = volume;
-    initialMutedRef.current = isMuted;
-  }, [volume, isMuted]);
+    initialMutedRef.current = volume === 0;
+  }, [volume]);
 
   // Track fullscreen state
   useEffect(() => {
@@ -354,38 +347,33 @@ export default function WidgetDraggableYouTubeLiveTV() {
   }, [isPlayerReady, selectedChannel]);
 
   // Apply volume/mute to the iframe player with rAF batching to reduce per-tick work
-  const applyPlayerVolume = useCallback(
-    (nextVolume: number, nextMuted: boolean) => {
-      pendingVolumeRef.current = nextVolume;
-      pendingMutedRef.current = nextMuted;
+  const applyPlayerVolume = useCallback((nextVolume: number) => {
+    pendingVolumeRef.current = nextVolume;
 
-      if (volumeRafRef.current !== null) return;
+    if (volumeRafRef.current !== null) return;
 
-      volumeRafRef.current = requestAnimationFrame(() => {
-        volumeRafRef.current = null;
-        const player = playerInstanceRef.current;
-        const pendingVolume = pendingVolumeRef.current;
-        const pendingMuted = pendingMutedRef.current;
-        pendingVolumeRef.current = null;
-        pendingMutedRef.current = null;
+    volumeRafRef.current = requestAnimationFrame(() => {
+      volumeRafRef.current = null;
+      const player = playerInstanceRef.current;
+      const pendingVolume = pendingVolumeRef.current;
+      pendingVolumeRef.current = null;
 
-        if (!player || pendingVolume === null || pendingMuted === null) return;
-        try {
-          player.setVolume(pendingVolume);
-          if (pendingMuted) player.mute();
-          else player.unMute();
-        } catch {
-          // Ignore player errors
-        }
-      });
-    },
-    [],
-  );
+      if (!player || pendingVolume === null) return;
+      const shouldMute = pendingVolume <= 0;
+      try {
+        player.setVolume(pendingVolume);
+        if (shouldMute) player.mute();
+        else player.unMute();
+      } catch {
+        // Ignore player errors
+      }
+    });
+  }, []);
 
   // Sync volume/mute with player (reactive)
   useEffect(() => {
-    applyPlayerVolume(volume, isMuted);
-  }, [volume, isMuted, applyPlayerVolume]);
+    applyPlayerVolume(volume);
+  }, [volume, applyPlayerVolume]);
 
   // Handle channel selection
   const selectChannel = useCallback(
@@ -418,17 +406,17 @@ export default function WidgetDraggableYouTubeLiveTV() {
   }, [isPlaying]);
 
   // Update volume
-  const updateVolume = useCallback((value: number) => {
-    setVolume(value);
-    setIsMuted(value === 0);
-
-    applyPlayerVolume(value, value === 0);
-  }, [applyPlayerVolume]);
+  const updateVolume = useCallback(
+    (value: number) => {
+      setVolume(value);
+      applyPlayerVolume(value);
+    },
+    [applyPlayerVolume],
+  );
 
   const handleVolumeCommit = useCallback((value: number) => {
     try {
       localStorage.setItem(VOLUME_KEY, String(value));
-      localStorage.setItem(MUTED_KEY, String(value === 0));
     } catch {
       // Ignore
     }
@@ -791,7 +779,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
                   title="Volume"
                 >
-                  {isMuted || volume === 0 ? (
+                  {volume === 0 ? (
                     <VolumeX className="h-4 w-4" />
                   ) : volume < 50 ? (
                     <Volume1 className="h-4 w-4" />
