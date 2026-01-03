@@ -37,7 +37,7 @@ export const setupRadioAudio = () => {
     if (localStorage) {
       // Get media audio volume from localStorage
       const volumeInLocalStorage = localStorage.getItem(
-        "widgetDraggableRadioPlayerVolume",
+        "widgetRadioPlayerVolume",
       );
 
       // Convert volume 0-100 to 0-1
@@ -47,7 +47,7 @@ export const setupRadioAudio = () => {
         radioAudio.volume = 0.5;
 
         // Set media audio volume to localStorage
-        localStorage.setItem("widgetDraggableRadioPlayerVolume", "50");
+        localStorage.setItem("widgetRadioPlayerVolume", "50");
       }
     } else {
       radioAudio.volume = 0.5;
@@ -181,10 +181,10 @@ export const play = async (isChangeAddressBar = false) => {
         // Periodically get track metadata when the radio is playing (7s)
         startPeriodicGetTrackMetadata(7000);
 
-        // Set widgetDraggableRadioPlayerStationSlug to localStorage
+        // Set widgetRadioPlayerStationSlug to localStorage
         if (localStorage) {
           localStorage.setItem(
-            "widgetDraggableRadioPlayerStationSlug",
+            "widgetRadioPlayerStationSlug",
             radioStation?.slug as string,
           );
         }

@@ -39,7 +39,7 @@ import {
   useState,
 } from "react";
 
-const FORMAT_STORAGE_KEY = "widgetDraggableDateTimeFormat";
+const FORMAT_STORAGE_KEY = "widgetDateTimeFormat";
 
 type TimeFormat = "12h" | "24h";
 

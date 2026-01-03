@@ -51,9 +51,9 @@ import {
 } from "react";
 
 // Storage keys
-const VOLUME_KEY = "widgetDraggableRadioPlayerVolume";
-const STATION_SLUG_KEY = "widgetDraggableRadioPlayerStationSlug";
-const FAVORITES_KEY = "widgetDraggableRadioPlayerStationFavorites";
+const VOLUME_KEY = "widgetRadioPlayerVolume";
+const STATION_SLUG_KEY = "widgetRadioPlayerStationSlug";
+const FAVORITES_KEY = "widgetRadioPlayerStationFavorites";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {

@@ -34,10 +34,7 @@ export default function Volume() {
     });
 
     // Save the volume to local storage
-    localStorage.setItem(
-      "widgetDraggableRadioPlayerVolume",
-      JSON.stringify(value[0]),
-    );
+    localStorage.setItem("widgetRadioPlayerVolume", JSON.stringify(value[0]));
   };
 
   useEffect(() => {

@@ -34,7 +34,7 @@ import {
 } from "react";
 import useSWR from "swr";
 
-const UNIT_STORAGE_KEY = "widgetDraggableWeatherUnit";
+const UNIT_STORAGE_KEY = "widgetWeatherUnit";
 
 interface WeatherData {
   weather: { icon: string; description: string; main: string }[];

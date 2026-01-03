@@ -250,7 +250,7 @@ export default function MusicPreview() {
 
           // Save the volume to local storage
           localStorage.setItem(
-            "widgetDraggableRadioPlayerVolume",
+            "widgetRadioPlayerVolume",
             JSON.stringify(value[0]),
           );
         },

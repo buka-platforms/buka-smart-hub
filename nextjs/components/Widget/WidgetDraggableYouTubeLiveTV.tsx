@@ -86,9 +86,9 @@ const sortedCategories = Object.keys(groupedChannels).sort();
 const countries = [...new Set(youtubeChannels.map((c) => c.country))].sort();
 
 // Storage keys
-const SELECTED_CHANNEL_KEY = "widgetDraggableYouTubeLiveTVSelectedChannel";
-const FAVORITE_CHANNELS_KEY = "widgetDraggableYouTubeLiveTVFavorites";
-const VOLUME_KEY = "widgetDraggableYouTubeLiveTVVolume";
+const SELECTED_CHANNEL_KEY = "widgetYouTubeLiveTVSelectedChannel";
+const FAVORITE_CHANNELS_KEY = "widgetYouTubeLiveTVFavorites";
+const VOLUME_KEY = "widgetYouTubeLiveTVVolume";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {

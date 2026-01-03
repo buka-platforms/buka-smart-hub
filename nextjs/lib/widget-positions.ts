@@ -14,11 +14,11 @@ export type WidgetId =
 
 // Storage keys for each widget's position
 export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
-  weather: "widgetDraggableWeatherPosition",
-  radio: "widgetDraggableRadioPlayerPosition",
-  time: "widgetDraggableDateTimePosition",
-  somafm: "widgetDraggableSomaFMPosition",
-  youtubelivetv: "widgetDraggableYouTubeLiveTVPosition",
+  weather: "widgetWeatherPosition",
+  radio: "widgetRadioPlayerPosition",
+  time: "widgetDateTimePosition",
+  somafm: "widgetSomaFMPosition",
+  youtubelivetv: "widgetYouTubeLiveTVPosition",
 };
 
 // Order of widgets from top to bottom when auto-arranged
