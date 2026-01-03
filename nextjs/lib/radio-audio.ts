@@ -15,6 +15,10 @@ import {
 } from "@/lib/radio-track-metadata";
 import Hls from "hls.js";
 
+// Storage keys
+export const WIDGET_RADIO_PLAYER_STATION_SLUG_KEY =
+  "widgetRadioPlayerStationSlug";
+
 let isRadioStationCORSProblem: boolean = false;
 let mediaAudioCors: HTMLAudioElement | null | undefined = undefined;
 let hls: Hls | null | undefined = undefined;
@@ -184,7 +188,7 @@ export const play = async (isChangeAddressBar = false) => {
         // Set widgetRadioPlayerStationSlug to localStorage
         if (localStorage) {
           localStorage.setItem(
-            "widgetRadioPlayerStationSlug",
+            WIDGET_RADIO_PLAYER_STATION_SLUG_KEY,
             radioStation?.slug as string,
           );
         }
