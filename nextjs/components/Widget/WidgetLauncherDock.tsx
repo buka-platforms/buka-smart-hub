@@ -12,6 +12,7 @@ import {
   LayoutTemplate,
   Music,
   Radio,
+  Timer,
   Tv,
   X,
 } from "lucide-react";
@@ -45,6 +46,12 @@ const WIDGETS: {
     label: "Time",
     icon: <Clock className="h-5 w-5" />,
     description: "Date and time display",
+  },
+  {
+    id: "pomodoro",
+    label: "Pomodoro",
+    icon: <Timer className="h-5 w-5" />,
+    description: "Focus timer with breaks",
   },
   {
     id: "somafm",

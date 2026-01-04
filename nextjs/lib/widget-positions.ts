@@ -10,7 +10,8 @@ export type WidgetId =
   | "radio"
   | "time"
   | "somafm"
-  | "youtubelivetv";
+  | "youtubelivetv"
+  | "pomodoro";
 
 // Storage keys for each widget's position
 export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
@@ -19,6 +20,7 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   time: "widgetDateTimePosition",
   somafm: "widgetSomaFMPosition",
   youtubelivetv: "widgetYouTubeLiveTVPosition",
+  pomodoro: "widgetPomodoroPosition",
 };
 
 // Order of widgets from top to bottom when auto-arranged
@@ -28,6 +30,7 @@ const WIDGET_ORDER: WidgetId[] = [
   "weather",
   "somafm",
   "youtubelivetv",
+  "pomodoro",
 ];
 
 // Gap between widgets when auto-arranged vertically
@@ -76,6 +79,7 @@ export function calculateAutoArrangePositions(): Record<
     weather: { x: 0, y: 0 },
     somafm: { x: 0, y: 0 },
     youtubelivetv: { x: 0, y: 0 },
+    pomodoro: { x: 0, y: 0 },
   };
 
   if (typeof window === "undefined") return positions;
@@ -108,6 +112,7 @@ export function calculateAutoArrangePositions(): Record<
         weather: 170,
         somafm: 170,
         youtubelivetv: 250,
+        pomodoro: 160,
       };
       currentY += fallbackHeights[widgetId] + WIDGET_GAP;
     }

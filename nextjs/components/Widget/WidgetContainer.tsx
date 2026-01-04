@@ -30,6 +30,11 @@ const WidgetDraggableYouTubeLiveTV = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggablePomodoro = dynamic(
+  () => import("@/components/Widget/WidgetDraggablePomodoro"),
+  { ssr: false },
+);
+
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
@@ -76,6 +81,12 @@ export default function WidgetContainer() {
       {visibility.youtubelivetv && (
         <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
           <WidgetDraggableYouTubeLiveTV />
+        </div>
+      )}
+
+      {visibility.pomodoro && (
+        <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
+          <WidgetDraggablePomodoro />
         </div>
       )}
     </div>

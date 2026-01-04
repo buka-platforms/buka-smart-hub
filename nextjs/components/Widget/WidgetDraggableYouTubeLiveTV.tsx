@@ -176,13 +176,16 @@ export default function WidgetDraggableYouTubeLiveTV() {
       const customEvent = e as CustomEvent<
         Record<string, { x: number; y: number }>
       >;
-      const resetPos =
-        customEvent.detail?.youtubelivetv || customEvent.detail?.livetv;
+      // Ignore unrelated reset events; only act when our key is present
+      const detail = customEvent.detail || {};
+      const hasLiveTV =
+        Object.prototype.hasOwnProperty.call(detail, "youtubelivetv") ||
+        Object.prototype.hasOwnProperty.call(detail, "livetv");
+      if (!hasLiveTV) return;
+
+      const resetPos = detail.youtubelivetv || detail.livetv;
       if (resetPos) {
         setPosition(resetPos);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.youtubelivetv || { x: 0, y: 0 });
       }
     };
     window.addEventListener("widget-positions-reset", handleReset);
