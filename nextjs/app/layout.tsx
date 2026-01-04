@@ -79,7 +79,7 @@ export default async function RootLayout({
         className={cn("bg-background font-sans antialiased", inter.variable)}
       >
         <NextTopLoader
-          color="#cb3837"
+          color="#2563eb"
           shadow={false}
           showSpinner={false}
           height={3}
