@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { requestHeadersStateAtom } from "@/data/store";
+import { requestHeadersStateAtom, widgetVisibilityAtom } from "@/data/store";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -22,7 +22,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
 import Link from "next/link";
 import {
@@ -35,6 +35,7 @@ import {
 import useSWR from "swr";
 
 const UNIT_STORAGE_KEY = "widgetWeatherUnit";
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 interface WeatherData {
   weather: { icon: string; description: string; main: string }[];
@@ -69,6 +70,7 @@ export default function WidgetDraggableWeather() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [unit, setUnit] = useState<"metric" | "imperial">(() => {
     if (typeof window === "undefined") return "metric";
@@ -167,7 +169,11 @@ export default function WidgetDraggableWeather() {
   ]);
 
   // Determine visibility
-  const isVisible = isPositionLoaded && !error && (data || isLoading);
+  const isVisible =
+    isPositionLoaded &&
+    !error &&
+    (data || isLoading) &&
+    visibility.weather !== false;
 
   // Report rendered height for accurate stacking
   useLayoutEffect(() => {
@@ -318,6 +324,22 @@ export default function WidgetDraggableWeather() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, weather: false }));
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ ...visibility, weather: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => mutate()} className="cursor-pointer">
           Refresh weather
         </DropdownMenuItem>

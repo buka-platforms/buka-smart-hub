@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { widgetVisibilityAtom } from "@/data/store";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -21,6 +22,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
+import { useAtom } from "jotai";
 import {
   Clock3,
   MoreHorizontal,
@@ -40,6 +42,7 @@ import {
 
 const STATE_KEY = "widgetPomodoroState";
 const DURATION_KEY = "widgetPomodoroDurations";
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 type Mode = "focus" | "short_break" | "long_break";
 
@@ -153,6 +156,7 @@ export default function WidgetDraggablePomodoro() {
   const [focusStreak, setFocusStreak] = useState(0);
   const [completedFocus, setCompletedFocus] = useState(0);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   // Load saved timer state and position
   useEffect(() => {
@@ -337,7 +341,7 @@ export default function WidgetDraggablePomodoro() {
     positionCompartment,
   ]);
 
-  const isVisible = isPositionLoaded;
+  const isVisible = isPositionLoaded && visibility.pomodoro !== false;
   const formatted = useMemo(
     () => formatTime(remainingSeconds),
     [remainingSeconds],
@@ -488,6 +492,22 @@ export default function WidgetDraggablePomodoro() {
       </div>
 
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, pomodoro: false }));
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ ...visibility, pomodoro: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
