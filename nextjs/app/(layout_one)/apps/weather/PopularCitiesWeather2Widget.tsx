@@ -20,10 +20,9 @@ const PopularCitiesWeather2Widget = () => {
     })(document, "script", "tomorrow-sdk");
   }, []);
 
-  /* eslint-disable @next/next/no-img-element */
   return (
     <div
-      className="tomorrow relative w-full pb-[22px]"
+      className="tomorrow relative w-full pb-5.5"
       data-location-id="067098,131136,064500,019111,050388,099972"
       data-language="EN"
       data-unit-system="METRIC"
