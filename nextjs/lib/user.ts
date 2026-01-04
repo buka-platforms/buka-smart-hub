@@ -35,6 +35,7 @@ export const checkUserSession = async () => {
 
   // Get user session data
   const userSession = await client.request(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readItems("user_sessions" as any, {
       filter: {
         _and: [
@@ -54,6 +55,7 @@ export const checkUserSession = async () => {
             },
           },
         ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     }),
   );

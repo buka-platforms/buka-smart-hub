@@ -12,6 +12,7 @@ export type Setter<T> = (v: T) => void;
 export type UpdateFn<T> = (v: T) => T;
 export type Updater<T> = (u: UpdateFn<T>) => void;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const unset: any = Symbol();
 
 export function useReadable<T>(store: Readable<T>): T {
