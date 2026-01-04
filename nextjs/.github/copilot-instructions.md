@@ -1,52 +1,54 @@
 # Copilot Instructions for buka-platforms/web-buka/nextjs
 
-## Project Overview
+This file tells AI coding agents the concrete, repo-specific patterns that make contributions safe and productive.
 
-- This is a Next.js monorepo app with a modular structure under `app/`, `components/`, `data/`, and `lib/`.
-- The `app/` directory uses the new Next.js App Router, with nested layouts and route handlers.
-- UI is component-driven, with reusable elements in `components/General/`, `components/Home/`, and `components/Layout/`.
-- Data and configuration are centralized in `data/` and `lib/`.
+## Big picture
 
-## Key Patterns & Conventions
+- Next.js App Router app at the repo root. App code, pages, and API route handlers live under `app/`.
+- UI is component-driven (`components/`), shared types & small utilities live in `data/` and `lib/`.
+- Primary concerns: streaming (radio/tv), social auth, widget layout/state, and lightweight client audio visualizations.
 
-- **Routing:** All routes and API endpoints are under `app/`. Use `[slug]` for dynamic routes. Route handlers (API) use `route.ts`.
-- **Layouts:** Shared layouts are in `app/layout.tsx` and nested under subfolders (e.g., `app/(layout_one)/layout.tsx`).
-- **UI Components:** Prefer using and extending components from `components/ui/` for consistency.
-- **State Management:** Uses Jotai (see `components/JotaiProvider.tsx`).
-- **Styling:** Uses global CSS (`app/globals.css`) and PostCSS. Follow existing className patterns.
-- **TypeScript:** All code is TypeScript-first. Types are in `data/type.ts` and `global.d.ts`.
+## Key patterns & concrete examples
 
-## Developer Workflows
+- Routing & APIs: create files/folders under `app/`. Dynamic routes use `[slug]`. API route handlers are `route.ts` (see [app/radio/route.ts](app/radio/route.ts) and [app/tv/route.ts](app/tv/route.ts)).
+- Layouts: top-level shared layout is [app/layout.tsx](app/layout.tsx); nested layouts follow folder-scoped layout pattern (example: [app/(layout_one)/layout.tsx](app/(layout_one)/layout.tsx)).
+- Server vs Client: files default to server components. Add `"use client"` at file top for client-only components (see `components/Home/BackgroundImageContainerClient.tsx`).
+- UI primitives: prefer `components/ui/*` primitives for consistent styling and accessibility.
+- State: Jotai is used app-wide. Provider is `components/JotaiProvider.tsx`; local widget positions live in `lib/widget-positions.ts` and store-like data in `data/store.ts`.
 
-- **Start Dev Server:** `npm run dev`
-- **Format Code:** `npm run format:fix`
-- **Lint:** `npm run lint`
-- **Build:** `npm run build`
-- **No explicit test scripts found.**
+## Integrations and important helpers
 
-## Integration & Data Flow
+- Radio/streaming: core helpers in `lib/radio-audio.ts`, `lib/radio-track-metadata.ts`, and `app/radio/buka-radio-streams.ts`.
+- Audio visualizer: `lib/audio-visualizer.ts` and `audio-visualizer.worker.ts` implement client-side worklet/worker logic.
+- Headers & cookies: utilities in `lib/header.ts` and `lib/cookies.ts` for consistent request handling.
+- Auth flows: social provider handlers are under `app/auth/*`; login page is [app/login/page.tsx](app/login/page.tsx).
 
-- **Radio/TV:** Streaming logic in `app/radio/` and `app/tv/`, with helpers in `lib/radio-audio.ts` and `lib/radio-track-metadata.ts`.
-- **Auth:** Social login under `app/auth/` and `app/login/`.
-- **Widget System:** Widgets in `components/Widget/` and related state in `lib/widget-positions.ts`.
-- **Analytics:** Google Analytics in `components/General/GoogleAnalytics.tsx`.
+## Developer workflows (commands you can run)
 
-## External Dependencies
+- Dev server: `npm run dev` (Next dev server)
+- Build: `npm run build`
+- Lint: `npm run lint` (fix issues with `npm run lint -- --fix` if configured)
+- Format: `npm run format:fix`
+- There are no repo-level test scripts; run type checks implicitly via `npm run build`.
 
-- Next.js, React, Jotai, PostCSS, and various social auth providers.
+## Code conventions & PR guidance
 
-## Examples
+- Keep changes minimal and local to the affected feature. Avoid cross-cutting refactors unless requested.
+- Follow existing component patterns (props naming, CSS class composition). Copy patterns from `components/General` when uncertain.
+- When adding APIs, match the `route.ts` handler signature and return valid Next.js Response objects.
 
-- To add a new page: create a folder in `app/` and add `page.tsx`.
-- To add a new widget: add a component to `components/Widget/` and update state logic if needed.
-- For new data types, extend `data/type.ts`.
+## Where to look for examples
 
-## References
+- Page+route handler: [app/radio/route.ts](app/radio/route.ts)
+- Widget patterns: `components/Widget/` and `lib/widget-positions.ts`
+- Jotai usage: [components/JotaiProvider.tsx](components/JotaiProvider.tsx)
+- Audio/visualization: `lib/audio-visualizer.ts`, `audio-visualizer.worker.ts`
 
-- Main config: `next.config.ts`, `tsconfig.json`, `postcss.config.mjs`, `eslint.config.mjs`
-- Entry point: `app/page.tsx`, `app/layout.tsx`
-- UI primitives: `components/ui/`
+## When to avoid automated edits
+
+- Do not change API shapes in `data/type.ts` without coordinating — many components rely on these types.
+- Avoid altering global layout markup in `app/layout.tsx` unless adjusting meta, analytics, or global CSS imports.
 
 ---
 
-**Keep instructions concise and up-to-date. Update this file if project structure or conventions change.**
+If anything here is unclear or you want more detail (e.g., typical `route.ts` handler examples, or the widget state shape), tell me which area to expand.
