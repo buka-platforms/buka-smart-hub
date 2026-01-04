@@ -20,10 +20,9 @@ const MyWeatherWidget = () => {
     })(document, "script", "tomorrow-sdk");
   }, []);
 
-  /* eslint-disable @next/next/no-img-element */
   return (
     <div
-      className="tomorrow relative w-full pb-[22px]"
+      className="tomorrow relative w-full pb-5.5"
       data-location-id=""
       data-language="EN"
       data-unit-system="METRIC"

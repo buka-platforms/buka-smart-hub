@@ -22,7 +22,7 @@ const MyAirQualityAndPollutantWidget = () => {
 
   return (
     <div
-      className="tomorrow relative w-full pb-[22px]"
+      className="tomorrow relative w-full pb-5.5"
       data-location-id=""
       data-language="EN"
       data-unit-system="METRIC"
