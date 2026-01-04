@@ -14,7 +14,11 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { transparent1x1Pixel } from "@/data/general";
-import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import {
+  radioAudioStateAtom,
+  radioStationStateAtom,
+  widgetVisibilityAtom,
+} from "@/data/store";
 import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
 import {
   calculateAutoArrangePositions,
@@ -31,7 +35,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   Heart,
   MoreHorizontal,
@@ -54,6 +58,7 @@ import {
 const VOLUME_KEY = "widgetRadioPlayerVolume";
 const STATION_SLUG_KEY = "widgetRadioPlayerStationSlug";
 const FAVORITES_KEY = "widgetRadioPlayerStationFavorites";
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
@@ -65,6 +70,7 @@ export default function WidgetDraggableRadioPlayer() {
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [volume, setVolume] = useState(() => {
     if (typeof window === "undefined") return 50;
     const stored = localStorage.getItem(VOLUME_KEY);
@@ -239,7 +245,10 @@ export default function WidgetDraggableRadioPlayer() {
   const stationName = radioStationState.radioStation?.name || "";
 
   // Always render the element so the ref is attached, but hide when no station or position not loaded
-  const isVisible = !!radioStationState.radioStation && isPositionLoaded;
+  const isVisible =
+    !!radioStationState.radioStation &&
+    isPositionLoaded &&
+    visibility.radio !== false;
 
   // Report rendered height for accurate stacking
   useLayoutEffect(() => {
@@ -419,6 +428,23 @@ export default function WidgetDraggableRadioPlayer() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, radio: false }));
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ ...visibility, radio: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
+
         <DropdownMenuItem onSelect={toggleFavorite} className="cursor-pointer">
           {isFavorite ? "Remove from favorites" : "Add to favorites"}
         </DropdownMenuItem>

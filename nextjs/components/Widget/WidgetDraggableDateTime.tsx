@@ -23,6 +23,8 @@ import {
   useDraggable,
 } from "@neodrag/react";
 import "@fontsource-variable/rubik";
+import { widgetVisibilityAtom } from "@/data/store";
+import { useAtom } from "jotai";
 import {
   Calendar,
   Moon,
@@ -40,6 +42,7 @@ import {
 } from "react";
 
 const FORMAT_STORAGE_KEY = "widgetDateTimeFormat";
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 type TimeFormat = "12h" | "24h";
 
@@ -79,6 +82,7 @@ export default function WidgetDraggableDateTime() {
     y: 0,
   });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => {
@@ -209,7 +213,8 @@ export default function WidgetDraggableDateTime() {
   const hour = currentTime ? currentTime.getHours() : 12;
   const greeting = getGreeting(hour);
 
-  const isVisible = isPositionLoaded && currentTime !== null;
+  const isVisible =
+    isPositionLoaded && currentTime !== null && visibility.time !== false;
 
   // Report rendered height for accurate stacking
   useLayoutEffect(() => {
@@ -313,6 +318,22 @@ export default function WidgetDraggableDateTime() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, time: false }));
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ ...visibility, time: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={toggleTimeFormat}
           className="cursor-pointer"
