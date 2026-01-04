@@ -225,6 +225,31 @@ export default function WidgetLauncherDock() {
   // Always render so ref is attached, use opacity to hide when not loaded
   const isVisible = isPositionLoaded;
 
+  // Close expanded dock when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handlePointerDown = (e: Event) => {
+      if (!containerRef.current) return;
+      const target = e.target as Node | null;
+      if (target && !containerRef.current.contains(target)) {
+        setIsExpanded(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsExpanded(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isExpanded]);
+
   return (
     <div
       ref={containerRef}
