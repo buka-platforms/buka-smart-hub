@@ -225,7 +225,11 @@ export default function WidgetDraggableDateTime() {
   }, [currentTime, timeFormat]);
 
   return (
-    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+    <DropdownMenu
+      open={moreMenuOpen}
+      onOpenChange={setMoreMenuOpen}
+      modal={false}
+    >
       <div
         ref={draggableRef}
         data-widget-id="time"

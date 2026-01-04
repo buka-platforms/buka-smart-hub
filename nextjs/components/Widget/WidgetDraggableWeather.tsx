@@ -194,7 +194,11 @@ export default function WidgetDraggableWeather() {
   const windLabel = unit === "metric" ? "km/h" : "mph";
 
   return (
-    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+    <DropdownMenu
+      open={moreMenuOpen}
+      onOpenChange={setMoreMenuOpen}
+      modal={false}
+    >
       <div
         ref={draggableRef}
         data-widget-id="weather"

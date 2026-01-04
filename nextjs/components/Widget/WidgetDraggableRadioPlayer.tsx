@@ -255,7 +255,11 @@ export default function WidgetDraggableRadioPlayer() {
   }, [stationName, title, artist, isVisible]);
 
   return (
-    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+    <DropdownMenu
+      open={moreMenuOpen}
+      onOpenChange={setMoreMenuOpen}
+      modal={false}
+    >
       <div
         ref={draggableRef}
         data-widget-id="radio"
