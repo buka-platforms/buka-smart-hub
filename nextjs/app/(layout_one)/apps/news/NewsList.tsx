@@ -7,6 +7,7 @@ import { LoaderCircle, Search } from "lucide-react";
 import { useState } from "react";
 
 interface NewsListProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newsStories: any[];
   page: number;
 }
@@ -118,26 +119,39 @@ export default function NewsList({
       {newsStories.length > 0 ? (
         <Table className="mt-7">
           <TableBody>
-            {newsStories.map((newsStory: any) => (
-              <TableRow key={newsStory.id} className={`group`}>
-                <TableCell className={`relative w-[80px]`}>
-                  <a href={newsStory.link} className={`block`} target="_blank">
-                    <img
-                      alt=""
-                      className="aspect-square rounded-md object-cover"
-                      height="64"
-                      src={newsStory.image_url_detail}
-                      width="64"
-                    />
-                  </a>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <a href={newsStory.link} className={`block`} target="_blank">
-                    {newsStory.title}
-                  </a>
-                </TableCell>
-              </TableRow>
-            ))}
+            {newsStories.map(
+              (
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                newsStory: any,
+              ) => (
+                <TableRow key={newsStory.id} className={`group`}>
+                  <TableCell className={`relative w-20`}>
+                    <a
+                      href={newsStory.link}
+                      className={`block`}
+                      target="_blank"
+                    >
+                      <img
+                        alt=""
+                        className="aspect-square rounded-md object-cover"
+                        height="64"
+                        src={newsStory.image_url_detail}
+                        width="64"
+                      />
+                    </a>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <a
+                      href={newsStory.link}
+                      className={`block`}
+                      target="_blank"
+                    >
+                      {newsStory.title}
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ),
+            )}
           </TableBody>
         </Table>
       ) : (

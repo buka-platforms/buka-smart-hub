@@ -155,7 +155,7 @@ export default async function MyLocationPage() {
         </div>
       </div>
       <div className="mt-5 flex items-center gap-2 overflow-hidden">
-        <div className="relative h-[500px] w-full">
+        <div className="relative h-125 w-full">
           <Card className="h-full w-full overflow-hidden rounded-lg shadow-none">
             <Map requestHeaders={requestHeaders} styleUrl={styleUrl} />
           </Card>
@@ -165,7 +165,7 @@ export default async function MyLocationPage() {
         <img
           src="/assets/images/illustration_my_location.svg"
           alt="My Location"
-          className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+          className="h-50 w-50 md:h-87.5 md:w-87.5"
         />
       </div>
     </>

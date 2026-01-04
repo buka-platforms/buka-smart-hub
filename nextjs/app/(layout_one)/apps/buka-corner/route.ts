@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export async function GET(request: Request) {
+export async function GET() {
   return redirect("https://corner.buka.sh");
 }

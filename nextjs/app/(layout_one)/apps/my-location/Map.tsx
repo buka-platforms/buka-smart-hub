@@ -8,6 +8,7 @@ export default function Map({
   requestHeaders,
   styleUrl,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestHeaders: any;
   styleUrl: string;
 }) {
@@ -28,6 +29,7 @@ export default function Map({
     if (map.current) return; // stops map from intializing more than once
 
     map.current = new maplibregl.Map({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       container: mapContainer.current as any,
       style: styleUrl,
       center: [lng, lat],

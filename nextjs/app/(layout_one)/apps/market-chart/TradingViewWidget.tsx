@@ -31,7 +31,7 @@ const TradingViewWidget = () => {
       "calendar": true,
       "support_host": "https://www.tradingview.com"
     }`;
-    container.current && (container.current as HTMLElement).appendChild(script);
+    if (container.current) container.current.appendChild(script);
   }, []);
 
   return (
