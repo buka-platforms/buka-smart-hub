@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 export default function BackgroundImageLoading() {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const searchParams = useSearchParams();
-  const isNoBackgroundImage = searchParams.get("nobg") === "1"; // nobg = No Background Image
+  const isNoBackgroundImage = searchParams?.get("nobg") === "1"; // nobg = No Background Image
 
   return (
     <>

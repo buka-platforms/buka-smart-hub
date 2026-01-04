@@ -15,7 +15,6 @@ interface RequestHeaders {
 // Storage keys
 const RANDOM_BACKGROUND_IMAGE_ID_KEY = "randomBackgroundImageId";
 
-/* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageContainerClient() {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
