@@ -533,7 +533,8 @@ export const tv = [
     country: "",
     name: "Sen's Live TV",
     short_description: "Earth and space live TV.",
-    long_description: "Sen's Live TV is a live TV channel about earth and space.",
+    long_description:
+      "Sen's Live TV is a live TV channel about earth and space.",
     logo_url:
       "https://yt3.googleusercontent.com/RVkE9-nlGZ8OsIA_J6gIpARDBsHJ_CDrTg0S6MQCTE0_FPWNKdERX2_ysWHXBSC8axthwNWPQg=s900-c-k-c0x00ffffff-no-rj",
     source: "YouTube",
