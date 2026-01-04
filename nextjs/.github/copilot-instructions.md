@@ -11,7 +11,7 @@ This file tells AI coding agents the concrete, repo-specific patterns that make 
 ## Key patterns & concrete examples
 
 - Routing & APIs: create files/folders under `app/`. Dynamic routes use `[slug]`. API route handlers are `route.ts` (see [app/radio/route.ts](app/radio/route.ts) and [app/tv/route.ts](app/tv/route.ts)).
-- Layouts: top-level shared layout is [app/layout.tsx](app/layout.tsx); nested layouts follow folder-scoped layout pattern (example: [app/(layout_one)/layout.tsx](app/(layout_one)/layout.tsx)).
+- Layouts: top-level shared layout is [app/layout.tsx](app/layout.tsx); nested layouts follow folder-scoped layout pattern (example: [app/(layout_one)/layout.tsx](<app/(layout_one)/layout.tsx>)).
 - Server vs Client: files default to server components. Add `"use client"` at file top for client-only components (see `components/Home/BackgroundImageContainerClient.tsx`).
 - UI primitives: prefer `components/ui/*` primitives for consistent styling and accessibility.
 - State: Jotai is used app-wide. Provider is `components/JotaiProvider.tsx`; local widget positions live in `lib/widget-positions.ts` and store-like data in `data/store.ts`.
