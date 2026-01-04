@@ -35,6 +35,11 @@ const WidgetDraggablePomodoro = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableOnlineRadioBoxNowPlaying = dynamic(
+  () => import("@/components/Widget/WidgetDraggableOnlineRadioBoxNowPlaying"),
+  { ssr: false },
+);
+
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
@@ -87,6 +92,12 @@ export default function WidgetContainer() {
       {visibility.pomodoro && (
         <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
           <WidgetDraggablePomodoro />
+        </div>
+      )}
+
+      {visibility.onlineradiobox && (
+        <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
+          <WidgetDraggableOnlineRadioBoxNowPlaying />
         </div>
       )}
     </div>

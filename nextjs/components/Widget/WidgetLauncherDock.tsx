@@ -12,6 +12,7 @@ import {
   LayoutTemplate,
   Music,
   Radio,
+  Rss,
   Timer,
   Tv,
   X,
@@ -64,6 +65,12 @@ const WIDGETS: {
     label: "Live TV",
     icon: <Tv className="h-5 w-5" />,
     description: "Watch live TV channels",
+  },
+  {
+    id: "onlineradiobox",
+    label: "Now Playing",
+    icon: <Rss className="h-5 w-5" />,
+    description: "Live radio now playing list",
   },
 ];
 
