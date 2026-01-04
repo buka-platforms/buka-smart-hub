@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
+import { widgetVisibilityAtom } from "@/data/store";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -34,6 +35,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
+import { useAtom } from "jotai";
 import {
   Disc3,
   LoaderCircle,
@@ -72,6 +74,7 @@ interface SomaFMChannel {
 }
 
 const VOLUME_KEY = "widgetSomaFMVolume";
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 export default function WidgetDraggableSomaFM() {
   const draggableRef = useRef<HTMLDivElement>(null);
@@ -105,6 +108,7 @@ export default function WidgetDraggableSomaFM() {
     album?: string;
     albumArt?: string;
   } | null>(null);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   useEffect(() => {
     fetch("https://somafm.com/channels.json")
@@ -190,7 +194,7 @@ export default function WidgetDraggableSomaFM() {
   const streamUrl = currentChannel?.id
     ? `https://ice1.somafm.com/${currentChannel.id}-128-mp3`
     : "";
-  const isVisible = isPositionLoaded;
+  const isVisible = isPositionLoaded && visibility.somafm !== false;
   const visibleNowPlaying = selected ? nowPlaying : null;
 
   // Report rendered height for accurate stacking
@@ -649,6 +653,22 @@ export default function WidgetDraggableSomaFM() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, somafm: false }));
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ ...visibility, somafm: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();

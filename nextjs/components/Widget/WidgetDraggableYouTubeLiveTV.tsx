@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
+import { widgetVisibilityAtom } from "@/data/store";
 import { tv } from "@/data/tv";
 import type { TVChannel } from "@/data/type";
 import {
@@ -37,6 +38,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
+import { useAtom } from "jotai";
 import {
   ChevronDown,
   ExternalLink,
@@ -89,6 +91,7 @@ const countries = [...new Set(youtubeChannels.map((c) => c.country))].sort();
 const SELECTED_CHANNEL_KEY = "widgetYouTubeLiveTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetYouTubeLiveTVFavorites";
 const VOLUME_KEY = "widgetYouTubeLiveTVVolume";
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {
@@ -118,6 +121,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   // YouTube Player API
   const playerInstanceRef = useRef<YTPlayer | null>(null);
@@ -502,7 +506,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const isFavorite = selectedChannel
     ? favorites.includes(selectedChannel.slug)
     : false;
-  const isVisible = isPositionLoaded;
+  const isVisible = isPositionLoaded && visibility.youtubelivetv !== false;
 
   // Report height for stacking
   useLayoutEffect(() => {
@@ -882,6 +886,23 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
       {/* Dropdown Menu */}
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-44">
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, youtubelivetv: false }));
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ ...visibility, youtubelivetv: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
+
         <DropdownMenuItem
           onSelect={toggleFavorite}
           className="cursor-pointer gap-2"
