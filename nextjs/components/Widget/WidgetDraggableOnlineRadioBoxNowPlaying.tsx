@@ -40,11 +40,10 @@ import {
   Play,
   Radio,
   RefreshCw,
-  Square,
-  Users,
   Volume1,
   Volume2,
   VolumeX,
+  X,
 } from "lucide-react";
 import {
   useCallback,
@@ -159,7 +158,7 @@ function parseHtmlResponse(html: string): NowPlayingStation[] {
         streamType: streamTypeMatch?.[1] || "mp3",
         artist,
         title,
-        trackImg: trackImgMatch?.[1] || "",
+        trackImg: trackImgMatch?.[1]?.replace(/\d+x\d+bb/, "200x200bb") || "",
         listeners: listenersMatch ? parseInt(listenersMatch[1], 10) : undefined,
       });
     }
@@ -195,7 +194,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const [stations, setStations] = useState<NowPlayingStation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [country, setCountry] = useState(() => {
     if (typeof window === "undefined") return "id";
     return localStorage.getItem(COUNTRY_KEY) || "id";
@@ -204,6 +202,8 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   // Audio playback state
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const [selectedStation, setSelectedStation] =
+    useState<NowPlayingStation | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [volume, setVolume] = useState(() => {
@@ -276,29 +276,33 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     };
   }, []);
 
-  const playStation = useCallback((station: NowPlayingStation) => {
-    if (!audioRef.current) return;
+  const playStation = useCallback(
+    (station: NowPlayingStation) => {
+      if (!audioRef.current) return;
 
-    // If clicking on currently playing station, toggle pause/play
-    if (currentlyPlaying === station.radioId) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
+      // If clicking on currently playing station, toggle pause/play
+      if (currentlyPlaying === station.radioId) {
+        if (isPlaying) {
+          audioRef.current.pause();
+        } else {
+          audioRef.current.play();
+        }
+        return;
       }
-      return;
-    }
 
-    // Play new station
-    setIsAudioLoading(true);
-    setCurrentlyPlaying(station.radioId);
-    audioRef.current.src = station.stream;
-    audioRef.current.play().catch((err) => {
-      console.error("Failed to play:", err);
-      setIsAudioLoading(false);
-      setCurrentlyPlaying(null);
-    });
-  }, [currentlyPlaying, isPlaying]);
+      // Play new station - save the station info
+      setIsAudioLoading(true);
+      setCurrentlyPlaying(station.radioId);
+      setSelectedStation(station);
+      audioRef.current.src = station.stream;
+      audioRef.current.play().catch((err) => {
+        console.error("Failed to play:", err);
+        setIsAudioLoading(false);
+        setCurrentlyPlaying(null);
+      });
+    },
+    [currentlyPlaying, isPlaying],
+  );
 
   const stopPlayback = useCallback(() => {
     if (!audioRef.current) return;
@@ -307,7 +311,13 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     setCurrentlyPlaying(null);
     setIsPlaying(false);
     setIsAudioLoading(false);
+    // Keep selectedStation so user can play again
   }, []);
+
+  const clearSelectedStation = useCallback(() => {
+    stopPlayback();
+    setSelectedStation(null);
+  }, [stopPlayback]);
 
   const fetchNowPlaying = useCallback(async () => {
     setIsLoading(true);
@@ -315,14 +325,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
     try {
       // Use local API route to avoid CORS issues
-      const response = await fetch(
-        `/api/onlineradiobox?country=${country}`,
-        {
-          headers: {
-            Accept: "application/json",
-          },
+      const response = await fetch(`https://api1.buka.sh/radio-stations/orb/now-playing/${country}`, {
+        headers: {
+          Accept: "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -333,7 +340,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       if (data.data) {
         const parsedStations = parseHtmlResponse(data.data);
         setStations(parsedStations);
-        setLastUpdated(new Date());
       } else {
         throw new Error("Invalid response format");
       }
@@ -418,8 +424,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     positionCompartment,
   ]);
 
-  const isVisible =
-    isPositionLoaded && visibility.onlineradiobox !== false;
+  const isVisible = isPositionLoaded && visibility.onlineradiobox !== false;
 
   const selectedCountry = COUNTRIES.find((c) => c.code === country);
 
@@ -482,6 +487,85 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               </button>
             </div>
           </div>
+
+          {/* Selected Station Player */}
+          {selectedStation && (
+            <div className="border-b border-white/10 bg-white/5 px-3 py-3">
+              <div className="flex items-center gap-3">
+                {/* Cover Art */}
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg">
+                  {selectedStation.trackImg ? (
+                    <img
+                      src={selectedStation.trackImg}
+                      alt={`${selectedStation.artist} - ${selectedStation.title}`}
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                    />
+                  ) : selectedStation.radioImg ? (
+                    <img
+                      src={selectedStation.radioImg}
+                      alt={selectedStation.radioName}
+                      className="h-full w-full object-contain p-1"
+                      draggable={false}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Music className="h-5 w-5 text-white/30" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Track Info */}
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span
+                    className="truncate text-xs font-semibold text-white"
+                    title={selectedStation.title}
+                  >
+                    {selectedStation.title || "Unknown Title"}
+                  </span>
+                  <span
+                    className="truncate text-[11px] text-white/70"
+                    title={selectedStation.artist}
+                  >
+                    {selectedStation.artist || "Unknown Artist"}
+                  </span>
+                  <span
+                    className="truncate text-[10px] text-white/50"
+                    title={selectedStation.radioName}
+                  >
+                    {selectedStation.radioName}
+                  </span>
+                </div>
+
+                {/* Play/Pause Button */}
+                <button
+                  onClick={() => playStation(selectedStation)}
+                  className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black transition-all hover:scale-105 hover:bg-green-400"
+                  title={isPlaying ? "Pause" : "Play"}
+                >
+                  {isAudioLoading ? (
+                    <Disc3 className="h-5 w-5 animate-spin" />
+                  ) : isPlaying ? (
+                    <Pause className="h-5 w-5" fill="currentColor" />
+                  ) : (
+                    <Play
+                      className="h-5 w-5 translate-x-0.5"
+                      fill="currentColor"
+                    />
+                  )}
+                </button>
+
+                {/* Close Button */}
+                <button
+                  onClick={clearSelectedStation}
+                  className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
+                  title="Close"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Station List */}
           <div className="max-h-64 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
@@ -555,26 +639,12 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                         >
                           {station.artist || "Unknown Artist"}
                         </span>
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className="truncate text-[9px] text-white/40"
-                            title={station.radioName}
-                          >
-                            {station.radioName}
-                          </span>
-                          {station.listeners !== undefined && (
-                            <>
-                              <span className="text-white/20">•</span>
-                              <span
-                                className="flex shrink-0 items-center gap-0.5 text-[9px] text-white/40"
-                                title={`${station.listeners} listeners`}
-                              >
-                                <Users className="h-2.5 w-2.5" />
-                                {station.listeners}
-                              </span>
-                            </>
-                          )}
-                        </div>
+                        <span
+                          className="truncate text-[9px] text-white/40"
+                          title={station.radioName}
+                        >
+                          {station.radioName}
+                        </span>
                       </div>
 
                       {/* Play/Pause Button - Right side */}
@@ -585,7 +655,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                             ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
                             : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
                         }`}
-                        title={isThisPlaying && isPlaying ? "Pause" : `Play ${station.radioName}`}
+                        title={
+                          isThisPlaying && isPlaying
+                            ? "Pause"
+                            : `Play ${station.radioName}`
+                        }
                       >
                         {isThisLoading ? (
                           <Disc3 className="h-4 w-4 animate-spin" />
@@ -602,31 +676,9 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
             )}
           </div>
 
-          {/* Last updated */}
-          {lastUpdated && (
-            <div className="border-t border-white/10 px-3 py-1.5 text-center text-[9px] text-white/30">
-              Updated{" "}
-              {lastUpdated.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </div>
-          )}
-
           {/* Action Bar */}
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            {/* Stop Button - only show when playing */}
-            {currentlyPlaying && (
-              <button
-                onClick={stopPlayback}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-red-500/30 bg-red-500/20 text-red-400 transition-colors hover:bg-red-500/30"
-                title="Stop playback"
-              >
-                <Square className="h-3 w-3" fill="currentColor" />
-              </button>
-            )}
-
             {/* Volume Control */}
             <Popover>
               <PopoverTrigger asChild>
@@ -690,7 +742,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                     onSelect={() => setCountry(c.code)}
                     className={`cursor-pointer ${country === c.code ? "bg-white/10" : ""}`}
                   >
-                    <span className="mr-2 w-6 text-xs uppercase text-white/50">
+                    <span className="mr-2 w-6 text-xs text-white/50 uppercase">
                       {c.code}
                     </span>
                     {c.name}
