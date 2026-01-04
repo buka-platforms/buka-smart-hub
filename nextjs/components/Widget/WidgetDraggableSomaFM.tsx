@@ -89,14 +89,15 @@ export default function WidgetDraggableSomaFM() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState(() => {
-    if (typeof window === "undefined") return 1;
+    if (typeof window === "undefined") return 0.5;
     const saved = localStorage.getItem(VOLUME_KEY);
     const parsed = Number(saved);
     if (Number.isFinite(parsed)) {
-      if (parsed > 1) return Math.min(1, Math.max(0, parsed / 100));
-      return Math.min(1, Math.max(0, parsed));
+      if (parsed === 0) return 0.5;
+      if (parsed > 100) return Math.min(1, Math.max(0, parsed / 100));
+      return Math.min(1, Math.max(0, parsed / 100));
     }
-    return 1;
+    return 0.5;
   });
   const [nowPlaying, setNowPlaying] = useState<{
     title: string;
@@ -212,7 +213,7 @@ export default function WidgetDraggableSomaFM() {
     }
     if (typeof window === "undefined") return;
     try {
-      localStorage.setItem(VOLUME_KEY, volume.toString());
+      localStorage.setItem(VOLUME_KEY, Math.round(volume * 100).toString());
     } catch {
       /* ignore */
     }
