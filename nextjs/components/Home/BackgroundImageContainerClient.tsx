@@ -6,7 +6,7 @@ import {
 } from "@/data/store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface RequestHeaders {
   "cf-region"?: string; // The question mark indicates that the property is optional
@@ -152,42 +152,70 @@ export default function BackgroundImageContainerClient() {
     }));
   }, [isBackgroundImageFollowsCoverArt, setBackgroundImageState]);
 
-  const handleBackgroundImageLoad = () => {
-    setBackgroundImageState((prev) => ({
-      ...prev,
-      isLoaded: true,
-      isLoading: false,
-    }));
-  };
+  // Preload image and apply to body
+  const imageRef = useRef<HTMLImageElement | null>(null);
+
+  // Apply background image to body when loaded
+  useEffect(() => {
+    const imageUrl = backgroundImageState.randomBackgroundImage?.urls?.full;
+    const shouldShowImage =
+      backgroundImageState.randomBackgroundImage &&
+      ((!isNoBackgroundImage && !backgroundImageState.isFollowsCoverArt) ||
+        (isNoBackgroundImage &&
+          backgroundImageState.isFollowsCoverArt &&
+          backgroundImageState.randomBackgroundImage?.id === "cover-art"));
+
+    if (!shouldShowImage || !imageUrl) {
+      // Clear body background when no image should be shown
+      document.body.style.backgroundImage = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundPosition = "";
+      document.body.style.backgroundRepeat = "";
+      return;
+    }
+
+    // Create an image element to preload
+    const img = new Image();
+    imageRef.current = img;
+
+    img.onload = () => {
+      // Apply background to body
+      document.body.style.backgroundImage = `url(${imageUrl})`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundRepeat = "no-repeat";
+      document.body.style.backgroundAttachment = "fixed";
+
+      setBackgroundImageState((prev) => ({
+        ...prev,
+        isLoaded: true,
+        isLoading: false,
+      }));
+    };
+
+    img.src = imageUrl;
+
+    // Cleanup: remove body background styles when component unmounts
+    return () => {
+      document.body.style.backgroundImage = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundPosition = "";
+      document.body.style.backgroundRepeat = "";
+      document.body.style.backgroundAttachment = "";
+      imageRef.current = null;
+    };
+  }, [
+    backgroundImageState.randomBackgroundImage,
+    backgroundImageState.isFollowsCoverArt,
+    isNoBackgroundImage,
+    setBackgroundImageState,
+  ]);
 
   return (
     <>
-      {backgroundImageState.randomBackgroundImage &&
-        (!isNoBackgroundImage && !backgroundImageState.isFollowsCoverArt ? (
-          <img
-            className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-            src={backgroundImageState.randomBackgroundImage?.urls?.full}
-            srcSet={`${backgroundImageState.randomBackgroundImage?.urls?.full} 1080w, ${backgroundImageState.randomBackgroundImage?.urls?.raw} 2048w`}
-            sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
-            alt=""
-            loading="lazy"
-            onLoad={handleBackgroundImageLoad}
-          />
-        ) : isNoBackgroundImage &&
-          backgroundImageState.isFollowsCoverArt &&
-          backgroundImageState.randomBackgroundImage?.id == "cover-art" ? (
-          <img
-            className={`h-full w-full object-cover ${backgroundImageState.isLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-            src={backgroundImageState.randomBackgroundImage?.urls?.full}
-            srcSet={`${backgroundImageState.randomBackgroundImage?.urls?.full} 1080w, ${backgroundImageState.randomBackgroundImage?.urls?.raw} 2048w`}
-            sizes="(min-width: 2048px) 2048px, (min-width: 1080px) 1080px, 100vw"
-            alt=""
-            loading="lazy"
-            onLoad={handleBackgroundImageLoad}
-          />
-        ) : null)}
+      {/* Overlay div - fixed position to cover the body background */}
       <div
-        className={`absolute inset-0 ${styleBackgroundColor == "" && "bg-black"} ${backgroundImageState.isLoaded ? "opacity-50" : `${!isNoBackgroundPattern ? "wave-bg" : ""}`}`}
+        className={`fixed inset-0 z-[-1] ${styleBackgroundColor == "" && "bg-black"} ${backgroundImageState.isLoaded ? "opacity-50" : `${!isNoBackgroundPattern ? "wave-bg" : ""}`}`}
         style={{ backgroundColor: `#${styleBackgroundColor}` }}
       ></div>
     </>

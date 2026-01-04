@@ -28,10 +28,11 @@ export default async function Home() {
       <h1 className="hidden">
         {process.env.NEXT_PUBLIC_APP_TITLE}, something that you open everyday.
       </h1>
-      <div className="relative z-0 h-screen w-full overflow-hidden">
-        <RandomBackgroundImage />
+      {/* RandomBackgroundImage applies background to body and renders overlay */}
+      <RandomBackgroundImage />
+      <div className="relative z-0 min-h-screen w-full">
         {/* Header: controls right */}
-        <header className="absolute top-0 left-0 z-10 flex w-full items-start justify-end p-4">
+        <header className="fixed top-0 left-0 z-10 flex w-full items-start justify-end p-4">
           <div className="flex items-center gap-x-3">
             <div title="Search" className="flex items-center">
               <Search
@@ -44,7 +45,7 @@ export default async function Home() {
         </header>
         {/* Widget Container: Launcher Dock + All Widgets */}
         <WidgetContainer />
-        <div className="absolute right-3 bottom-3 z-10 md:right-3 md:bottom-3">
+        <div className="fixed right-3 bottom-3 z-10 md:right-3 md:bottom-3">
           <div className="flex gap-x-2">
             <BackgroundImageDropdownMenu />
             <Fullscreen />
