@@ -48,6 +48,7 @@ const List = () => {
 };
 
 /* eslint-disable @next/next/no-img-element */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Item = ({ item }: any) => {
   return (
     <>
@@ -81,7 +82,7 @@ const Item = ({ item }: any) => {
             <img
               src={item.image_url}
               alt={item.name}
-              className="size-[32px] md:size-[48px]"
+              className="size-8 md:size-12"
             />
           </div>
           <div className="flex flex-col items-start p-2 md:w-full md:items-center">
@@ -116,7 +117,7 @@ export default async function AppsPage() {
         <img
           src="/assets/images/illustration_apps.svg"
           alt="Apps"
-          className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+          className="h-50 w-50 md:h-87.5 md:w-87.5"
         />
       </div>
     </>

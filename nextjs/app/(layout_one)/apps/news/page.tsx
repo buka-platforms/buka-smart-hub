@@ -45,12 +45,14 @@ const getNewsStories = async () => {
 
   // Get all news stories
   const newsStories = (await client.request(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readItems("news" as any, {
       fields: ["*"],
       sort: ["-published_datetime"],
       page: 1,
       limit: 25,
     }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   )) as any;
 
   return newsStories;
@@ -79,7 +81,7 @@ export default async function NewsPage() {
         <img
           src="/assets/images/illustration_news_and_stories.svg"
           alt="News & Stories"
-          className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+          className="h-50 w-50 md:h-87.5 md:w-87.5"
         />
       </div>
     </>

@@ -61,6 +61,7 @@ export default async function PublicHolidaysPage() {
   // Check if the IP country is available in the list of available countries
   const isCountryAvailable = availableCountries.some(
     // (country: any) => country.countryCode === requestHeaders["cf-ipcountry"],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (country: any) =>
       country.countryCode === requestHeaders["x-vercel-ip-country"],
   );
@@ -106,7 +107,7 @@ export default async function PublicHolidaysPage() {
         <img
           src="/assets/images/illustration_public_holidays.svg"
           alt="Radio"
-          className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+          className="h-50 w-50 md:h-87.5 md:w-87.5"
         />
       </div>
     </>
