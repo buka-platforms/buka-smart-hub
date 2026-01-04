@@ -27,7 +27,6 @@ import {
   Pause,
   Play,
   RotateCcw,
-  SkipForward,
   TimerReset,
 } from "lucide-react";
 import {
@@ -306,15 +305,6 @@ export default function WidgetDraggablePomodoro() {
     setRemainingSeconds(durations[mode] * 60);
   }, [durations, mode]);
 
-  const skipPhase = useCallback(() => {
-    // If skipping during focus, count it toward the cycle so long breaks are reachable
-    if (modeRef.current === "focus") {
-      advancePhase({ countFocus: true, autoStart: false });
-    } else {
-      advancePhase({ countFocus: false, autoStart: false });
-    }
-  }, [advancePhase]);
-
   const switchMode = useCallback(
     (target: Mode) => {
       setIsRunning(false);
@@ -372,7 +362,11 @@ export default function WidgetDraggablePomodoro() {
   }, [durations, mode, formatted]);
 
   return (
-    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+    <DropdownMenu
+      open={moreMenuOpen}
+      onOpenChange={setMoreMenuOpen}
+      modal={false}
+    >
       <div
         ref={draggableRef}
         data-widget-id="pomodoro"
@@ -438,13 +432,6 @@ export default function WidgetDraggablePomodoro() {
                 title="Reset current session"
               >
                 <RotateCcw className="h-4 w-4" />
-              </button>
-              <button
-                onClick={skipPhase}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                title="Skip to next phase"
-              >
-                <SkipForward className="h-4 w-4" />
               </button>
               <DropdownMenuTrigger asChild>
                 <button
