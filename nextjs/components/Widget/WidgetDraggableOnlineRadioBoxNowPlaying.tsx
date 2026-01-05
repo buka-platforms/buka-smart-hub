@@ -150,12 +150,17 @@ function parseHtmlResponse(html: string): NowPlayingStation[] {
         radioImg = "https:" + radioImg;
       }
 
+      const streamType = streamTypeMatch?.[1] || "mp3";
+
+      // Only include mp3 streams
+      if (streamType !== "mp3") continue;
+
       stations.push({
         radioId: radioIdMatch[1],
         radioName,
         radioImg,
         stream: streamMatch[1],
-        streamType: streamTypeMatch?.[1] || "mp3",
+        streamType,
         artist,
         title,
         trackImg: trackImgMatch?.[1]?.replace(/\d+x\d+bb/, "200x200bb") || "",
