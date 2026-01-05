@@ -213,11 +213,31 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [volume, setVolume] = useState(() => {
-    if (typeof window === "undefined") return 0.7;
-    const saved = localStorage.getItem(VOLUME_KEY);
-    const parsed = Number(saved);
-    if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 1) return parsed;
-    return 0.7;
+    if (typeof window === "undefined") return 0.5;
+    try {
+      const saved = localStorage.getItem(VOLUME_KEY);
+
+      // If there's no saved value, or the saved value is the old default '0',
+      // migrate it to 50 (50%). This keeps behavior consistent with other widgets.
+      if (saved === null || saved === "0") {
+        localStorage.setItem(VOLUME_KEY, "50");
+        return 0.5;
+      }
+
+      const parsed = Number(saved);
+      if (Number.isFinite(parsed)) {
+        // If stored as a decimal 0-1, use directly
+        if (parsed >= 0 && parsed <= 1) return parsed;
+        // If stored as a percent 0-100, convert to 0-1
+        if (parsed >= 0 && parsed <= 100) return parsed / 100;
+      }
+
+      // Fallback: set to 50%
+      localStorage.setItem(VOLUME_KEY, "50");
+      return 0.5;
+    } catch {
+      return 0.5;
+    }
   });
 
   // Initialize audio element
@@ -262,13 +282,15 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     };
   }, [volume]);
 
-  // Update volume when changed
+  // Update volume when changed and persist as integer percent (0-100)
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
     if (typeof window !== "undefined") {
-      localStorage.setItem(VOLUME_KEY, volume.toString());
+      try {
+        localStorage.setItem(VOLUME_KEY, String(Math.round(volume * 100)));
+      } catch {}
     }
   }, [volume]);
 
