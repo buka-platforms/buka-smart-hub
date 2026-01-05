@@ -565,7 +565,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         {/* Vertical Label */}
         <div className="flex items-center justify-center border-r border-white/10 px-1">
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-            Now Playing
+            Radio Now Playing
           </span>
         </div>
 
