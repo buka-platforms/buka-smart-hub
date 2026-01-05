@@ -92,6 +92,8 @@ const COUNTRIES = [
   { code: "tr", name: "Turkey" },
   { code: "se", name: "Sweden" },
   { code: "sg", name: "Singapore" },
+  { code: "my", name: "Malaysia" },
+  { code: "ph", name: "Philippines" },
 ];
 
 function parseHtmlResponse(html: string): NowPlayingStation[] {
