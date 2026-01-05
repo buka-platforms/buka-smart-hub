@@ -389,7 +389,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     const intervalId = setInterval(fetchMetadata, interval);
 
     return () => clearInterval(intervalId);
-  }, [selectedStation?.radioId, isPlaying]);
+  }, [selectedStation, isPlaying]);
 
   const fetchNowPlaying = useCallback(async () => {
     setIsLoading(true);
