@@ -86,7 +86,9 @@ export default function BackgroundImageDropdownMenu() {
   useEffect(() => {
     if (dialogOpen) {
       Promise.resolve().then(() => setLoading(true));
-      fetch(`${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?randoms=true`)
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?randoms=true`,
+      )
         .then((res) => res.json())
         .then((json) => {
           if (json.status === 0 && Array.isArray(json.data)) {
@@ -147,7 +149,9 @@ export default function BackgroundImageDropdownMenu() {
                 aria-label="Re-randomize images"
                 onClick={() => {
                   setLoading(true);
-                  fetch(`${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?randoms=true`)
+                  fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?randoms=true`,
+                  )
                     .then((res) => res.json())
                     .then((json) => {
                       if (json.status === 0 && Array.isArray(json.data)) {
