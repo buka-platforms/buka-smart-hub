@@ -358,7 +358,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     const fetchMetadata = async () => {
       try {
         const response = await fetch(
-          `https://api1.buka.sh/radio-station/stream-metadata?type=1&id=${radioId}`,
+          `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station/stream-metadata?type=1&id=${radioId}`,
         );
         if (!response.ok) return;
 
@@ -424,9 +424,8 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     setError(null);
 
     try {
-      // Use local API route to avoid CORS issues
       const response = await fetch(
-        `https://api1.buka.sh/radio-stations/orb/now-playing/${country}`,
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-stations/orb/now-playing/${country}`,
         {
           headers: {
             Accept: "application/json",
@@ -460,8 +459,8 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   useEffect(() => {
     fetchNowPlaying();
 
-    // Refresh every 60 seconds
-    const intervalId = setInterval(fetchNowPlaying, 60000);
+    // Refresh every 15 seconds
+    const intervalId = setInterval(fetchNowPlaying, 15000);
 
     return () => clearInterval(intervalId);
   }, [fetchNowPlaying]);
