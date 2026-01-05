@@ -319,17 +319,92 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     setSelectedStation(null);
   }, [stopPlayback]);
 
+  // Fetch metadata for selected station periodically
+  // When playing: every 7 seconds, when paused/stopped: every 60 seconds
+  useEffect(() => {
+    if (!selectedStation) return;
+
+    const radioId = selectedStation.radioId;
+    const interval = isPlaying ? 7000 : 60000;
+
+    const fetchMetadata = async () => {
+      try {
+        const response = await fetch(
+          `https://api1.buka.sh/radio-station/stream-metadata?type=1&id=${radioId}`,
+        );
+        if (!response.ok) return;
+
+        const json = await response.json();
+        const data = json?.data;
+
+        // Update selectedStation with new metadata if available
+        // Check if we have actual track data (updated > 0 means we have data)
+        if (data && data.updated > 0) {
+          setSelectedStation((prev) => {
+            if (!prev || prev.radioId !== radioId) return prev;
+
+            // Extract metadata from API response
+            // API returns: iName (song title), iArtist, iImg, or title (combined "Artist - Title")
+            let newTitle = prev.title;
+            let newArtist = prev.artist;
+            let newTrackImg = prev.trackImg;
+
+            if (data.iName) {
+              newTitle = data.iName;
+            }
+            if (data.iArtist) {
+              newArtist = data.iArtist;
+            }
+            // Fallback: parse from combined title "Artist - Title"
+            if (!data.iName && !data.iArtist && data.title) {
+              const parts = data.title.split(" - ");
+              if (parts.length >= 2) {
+                newArtist = parts[0].trim();
+                newTitle = parts.slice(1).join(" - ").trim();
+              } else {
+                newTitle = data.title;
+              }
+            }
+            if (data.iImg) {
+              newTrackImg = data.iImg.replace(/\d+x\d+bb/, "200x200bb");
+            }
+
+            return {
+              ...prev,
+              title: newTitle,
+              artist: newArtist,
+              trackImg: newTrackImg,
+            };
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching metadata:", err);
+      }
+    };
+
+    // Fetch immediately
+    fetchMetadata();
+
+    // Then fetch at the appropriate interval
+    const intervalId = setInterval(fetchMetadata, interval);
+
+    return () => clearInterval(intervalId);
+  }, [selectedStation?.radioId, isPlaying]);
+
   const fetchNowPlaying = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
       // Use local API route to avoid CORS issues
-      const response = await fetch(`https://api1.buka.sh/radio-stations/orb/now-playing/${country}`, {
-        headers: {
-          Accept: "application/json",
+      const response = await fetch(
+        `https://api1.buka.sh/radio-stations/orb/now-playing/${country}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
