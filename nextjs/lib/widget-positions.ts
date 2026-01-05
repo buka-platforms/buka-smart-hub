@@ -12,7 +12,7 @@ export type WidgetId =
   | "somafm"
   | "youtubelivetv"
   | "pomodoro"
-  | "onlineradiobox";
+  | "onlineradioboxnowplaying";
 
 // Storage keys for each widget's position
 export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
@@ -22,7 +22,7 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   somafm: "widgetSomaFMPosition",
   youtubelivetv: "widgetYouTubeLiveTVPosition",
   pomodoro: "widgetPomodoroPosition",
-  onlineradiobox: "widgetOnlineRadioBoxPosition",
+  onlineradioboxnowplaying: "widgetOnlineRadioBoxNowPlayingPosition",
 };
 
 // Order of widgets from top to bottom when auto-arranged
@@ -33,7 +33,7 @@ const WIDGET_ORDER: WidgetId[] = [
   "somafm",
   "youtubelivetv",
   "pomodoro",
-  "onlineradiobox",
+  "onlineradioboxnowplaying",
 ];
 
 // Gap between widgets when auto-arranged vertically
@@ -83,7 +83,7 @@ export function calculateAutoArrangePositions(): Record<
     somafm: { x: 0, y: 0 },
     youtubelivetv: { x: 0, y: 0 },
     pomodoro: { x: 0, y: 0 },
-    onlineradiobox: { x: 0, y: 0 },
+    onlineradioboxnowplaying: { x: 0, y: 0 },
   };
 
   if (typeof window === "undefined") return positions;
@@ -117,7 +117,7 @@ export function calculateAutoArrangePositions(): Record<
         somafm: 170,
         youtubelivetv: 250,
         pomodoro: 160,
-        onlineradiobox: 350,
+        onlineradioboxnowplaying: 350,
       };
       currentY += fallbackHeights[widgetId] + WIDGET_GAP;
     }

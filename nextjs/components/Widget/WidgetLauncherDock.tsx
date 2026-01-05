@@ -67,7 +67,7 @@ const WIDGETS: {
     description: "Watch live TV channels",
   },
   {
-    id: "onlineradiobox",
+    id: "onlineradioboxnowplaying",
     label: "Now Playing",
     icon: <Rss className="h-5 w-5" />,
     description: "Live radio now playing list",
@@ -103,7 +103,8 @@ export default function WidgetLauncherDock() {
         const savedVisibility = localStorage.getItem(WIDGET_VISIBILITY_KEY);
         if (savedVisibility) {
           const parsed = JSON.parse(savedVisibility);
-          setVisibility((prev) => ({ ...prev, ...parsed }));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setVisibility((prev: any) => ({ ...prev, ...parsed }));
         }
       } catch {
         // Ignore errors
@@ -196,7 +197,8 @@ export default function WidgetLauncherDock() {
   // Toggle widget visibility
   const toggleWidget = useCallback(
     (widgetId: WidgetId) => {
-      setVisibility((prev) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setVisibility((prev: any) => {
         const newVisibility = { ...prev, [widgetId]: !prev[widgetId] };
         try {
           localStorage.setItem(

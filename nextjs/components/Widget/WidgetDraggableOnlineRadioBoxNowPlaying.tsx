@@ -66,8 +66,8 @@ interface NowPlayingStation {
 }
 
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
-const COUNTRY_KEY = "widgetOnlineRadioBoxCountry";
-const VOLUME_KEY = "widgetOnlineRadioBoxVolume";
+const COUNTRY_KEY = "widgetOnlineRadioBoxNowPlayingCountry";
+const VOLUME_KEY = "widgetOnlineRadioBoxNowPlayingVolume";
 
 // Supported countries for OnlineRadioBox
 const COUNTRIES = [
@@ -91,6 +91,7 @@ const COUNTRIES = [
   { code: "pl", name: "Poland" },
   { code: "tr", name: "Turkey" },
   { code: "se", name: "Sweden" },
+  { code: "sg", name: "Singapore" },
 ];
 
 function parseHtmlResponse(html: string): NowPlayingStation[] {
@@ -452,13 +453,13 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
   // Load position from localStorage on mount
   useEffect(() => {
-    const saved = getSavedWidgetPosition("onlineradiobox");
+    const saved = getSavedWidgetPosition("onlineradioboxnowplaying");
     queueMicrotask(() => {
       if (saved) {
         setPosition(saved);
       } else {
         const positions = calculateAutoArrangePositions();
-        setPosition(positions.onlineradiobox || { x: 0, y: 0 });
+        setPosition(positions.onlineradioboxnowplaying || { x: 0, y: 0 });
       }
       setIsPositionLoaded(true);
     });
@@ -470,11 +471,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       const customEvent = e as CustomEvent<
         Record<string, { x: number; y: number }>
       >;
-      if (customEvent.detail?.onlineradiobox) {
-        setPosition(customEvent.detail.onlineradiobox);
+      if (customEvent.detail?.onlineradioboxnowplaying) {
+        setPosition(customEvent.detail.onlineradioboxnowplaying);
       } else {
         const positions = calculateAutoArrangePositions();
-        setPosition(positions.onlineradiobox || { x: 0, y: 0 });
+        setPosition(positions.onlineradioboxnowplaying || { x: 0, y: 0 });
       }
     };
     window.addEventListener("widget-positions-reset", handleReset);
@@ -487,7 +488,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     (data: { offset: { x: number; y: number } }) => {
       const newPosition = { x: data.offset.x, y: data.offset.y };
       setPosition(newPosition);
-      saveWidgetPosition("onlineradiobox", newPosition.x, newPosition.y);
+      saveWidgetPosition(
+        "onlineradioboxnowplaying",
+        newPosition.x,
+        newPosition.y,
+      );
     },
     [],
   );
@@ -504,7 +509,8 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     positionCompartment,
   ]);
 
-  const isVisible = isPositionLoaded && visibility.onlineradiobox !== false;
+  const isVisible =
+    isPositionLoaded && visibility.onlineradioboxnowplaying !== false;
 
   const selectedCountry = COUNTRIES.find((c) => c.code === country);
 
@@ -514,7 +520,8 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       const el = draggableRef.current;
       if (!el) return;
       const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("onlineradiobox", h);
+      if (Number.isFinite(h))
+        setWidgetMeasuredHeight("onlineradioboxnowplaying", h);
     };
     report();
     window.addEventListener("resize", report);
@@ -529,7 +536,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     >
       <div
         ref={draggableRef}
-        data-widget-id="onlineradiobox"
+        data-widget-id="onlineradioboxnowplaying"
         className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical Label */}
@@ -862,11 +869,18 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, onlineradiobox: false }));
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setVisibility((prev: any) => ({
+              ...prev,
+              onlineradioboxnowplaying: false,
+            }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, onlineradiobox: false }),
+                JSON.stringify({
+                  ...visibility,
+                  onlineradioboxnowplaying: false,
+                }),
               );
             } catch {}
           }}
@@ -888,7 +902,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
             e.preventDefault();
             setMoreMenuOpen(false);
             requestAnimationFrame(() => {
-              resetWidgetPosition("onlineradiobox");
+              resetWidgetPosition("onlineradioboxnowplaying");
             });
           }}
           className="cursor-pointer"
