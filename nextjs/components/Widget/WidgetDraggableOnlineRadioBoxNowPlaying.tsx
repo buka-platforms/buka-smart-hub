@@ -583,10 +583,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   ) : isPlaying ? (
                     <Pause className="h-5 w-5" fill="currentColor" />
                   ) : (
-                    <Play
-                      className="h-5 w-5 translate-x-0.5"
-                      fill="currentColor"
-                    />
+                    <Play className="h-5 w-5" fill="currentColor" />
                   )}
                 </button>
 
