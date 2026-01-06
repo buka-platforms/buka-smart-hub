@@ -766,18 +766,24 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="max-h-64 overflow-y-auto"
+                className="max-h-64 overflow-y-auto rounded-md border border-white/10 bg-black/90 p-2 text-white shadow-lg [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
               >
                 {COUNTRIES.map((c) => (
                   <DropdownMenuItem
                     key={c.code}
                     onSelect={() => setCountry(c.code)}
-                    className={`cursor-pointer ${country === c.code ? "bg-white/10" : ""}`}
+                    className={`group cursor-pointer ${country === c.code ? "bg-white/10" : ""}`}
                   >
-                    <span className="mr-2 w-6 text-xs text-white/50 uppercase">
+                    <span
+                      className={`mr-2 w-6 text-xs uppercase ${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/50 group-hover:text-gray-950"}`}
+                    >
                       {c.code}
                     </span>
-                    {c.name}
+                    <span
+                      className={`${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/90 group-hover:text-gray-950"}`}
+                    >
+                      {c.name}
+                    </span>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
