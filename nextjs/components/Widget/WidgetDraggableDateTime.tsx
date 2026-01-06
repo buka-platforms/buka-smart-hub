@@ -7,13 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { T } from "@/lib/app";
-import {
-  calculateAutoArrangePositions,
-  getSavedWidgetPosition,
-  resetWidgetPosition,
-  saveWidgetPosition,
-  setWidgetMeasuredHeight,
-} from "@/lib/widget-positions";
+import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
   ControlFrom,
   controls,
@@ -22,6 +16,7 @@ import {
   useCompartment,
   useDraggable,
 } from "@neodrag/react";
+import { useWidgetPosition } from "./useWidgetPosition";
 import "@fontsource-variable/rubik";
 import { widgetVisibilityAtom } from "@/data/store";
 import { useAtom } from "jotai";
@@ -33,13 +28,7 @@ import {
   Sunrise,
   Sunset,
 } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const FORMAT_STORAGE_KEY = "widgetDateTimeFormat";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -76,12 +65,8 @@ function format24h(date: Date): string {
 }
 
 export default function WidgetDraggableDateTime() {
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
+    useWidgetPosition({ widgetId: "time" });
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
@@ -91,39 +76,6 @@ export default function WidgetDraggableDateTime() {
     return saved === "24h" ? "24h" : "12h";
   });
 
-  // Load position from localStorage on mount
-  useEffect(() => {
-    const saved = getSavedWidgetPosition("time");
-    queueMicrotask(() => {
-      if (saved) {
-        setPosition(saved);
-      } else {
-        // Use calculated position based on actual widget sizes
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.time);
-      }
-      setIsPositionLoaded(true);
-    });
-  }, []);
-
-  // Listen for widget position reset events
-  useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      if (customEvent.detail?.time) {
-        setPosition(customEvent.detail.time);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.time);
-      }
-    };
-    window.addEventListener("widget-positions-reset", handleReset);
-    return () =>
-      window.removeEventListener("widget-positions-reset", handleReset);
-  }, []);
-
   // Update time every second
   useEffect(() => {
     const updateTime = () => setCurrentTime(new Date());
@@ -132,16 +84,6 @@ export default function WidgetDraggableDateTime() {
     const intervalId = setInterval(updateTime, 1000);
     return () => clearInterval(intervalId);
   }, []);
-
-  // Handle drag end to save position
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
-      saveWidgetPosition("time", newPosition.x, newPosition.y);
-    },
-    [],
-  );
 
   // Toggle time format
   const toggleTimeFormat = useCallback(() => {
@@ -216,19 +158,6 @@ export default function WidgetDraggableDateTime() {
   const isVisible =
     isPositionLoaded && currentTime !== null && visibility.time !== false;
 
-  // Report rendered height for accurate stacking
-  useLayoutEffect(() => {
-    const report = () => {
-      const el = draggableRef.current;
-      if (!el) return;
-      const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("time", h);
-    };
-    report();
-    window.addEventListener("resize", report);
-    return () => window.removeEventListener("resize", report);
-  }, [currentTime, timeFormat]);
-
   return (
     <DropdownMenu
       open={moreMenuOpen}
@@ -238,7 +167,7 @@ export default function WidgetDraggableDateTime() {
       <div
         ref={draggableRef}
         data-widget-id="time"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "DateTime" Label */}
         <div className="flex items-center justify-center border-r border-white/10 px-1">

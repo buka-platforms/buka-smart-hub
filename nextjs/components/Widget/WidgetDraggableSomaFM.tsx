@@ -20,13 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
-import {
-  calculateAutoArrangePositions,
-  getSavedWidgetPosition,
-  resetWidgetPosition,
-  saveWidgetPosition,
-  setWidgetMeasuredHeight,
-} from "@/lib/widget-positions";
+import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
   ControlFrom,
   controls,
@@ -49,13 +43,8 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useWidgetPosition } from "./useWidgetPosition";
 
 interface SomaFMChannel {
   id: string;
@@ -77,16 +66,12 @@ const VOLUME_KEY = "widgetSomaFMVolume";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 export default function WidgetDraggableSomaFM() {
-  const draggableRef = useRef<HTMLDivElement>(null);
+  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
+    useWidgetPosition({ widgetId: "somafm" });
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -135,48 +120,6 @@ export default function WidgetDraggableSomaFM() {
       });
   }, []);
 
-  // Load position from localStorage on mount
-  useEffect(() => {
-    const saved = getSavedWidgetPosition("somafm");
-    queueMicrotask(() => {
-      if (saved) {
-        setPosition(saved);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.somafm || { x: 0, y: 0 });
-      }
-      setIsPositionLoaded(true);
-    });
-  }, []);
-
-  // Listen for widget position reset events
-  useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      if (customEvent.detail?.somafm) {
-        setPosition(customEvent.detail.somafm);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.somafm || { x: 0, y: 0 });
-      }
-    };
-    window.addEventListener("widget-positions-reset", handleReset);
-    return () =>
-      window.removeEventListener("widget-positions-reset", handleReset);
-  }, []);
-
-  // Handle drag end to save position
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
-      saveWidgetPosition("somafm", newPosition.x, newPosition.y);
-    },
-    [],
-  );
-
   // Reactive position plugin
   const positionCompartment = useCompartment(
     () => positionPlugin({ current: position }),
@@ -196,19 +139,6 @@ export default function WidgetDraggableSomaFM() {
     : "";
   const isVisible = isPositionLoaded && visibility.somafm !== false;
   const visibleNowPlaying = selected ? nowPlaying : null;
-
-  // Report rendered height for accurate stacking
-  useLayoutEffect(() => {
-    const report = () => {
-      const el = draggableRef.current;
-      if (!el) return;
-      const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("somafm", h);
-    };
-    report();
-    window.addEventListener("resize", report);
-    return () => window.removeEventListener("resize", report);
-  }, [visibleNowPlaying, currentChannel, isVisible]);
 
   // Sync audio element volume and persist to localStorage when volume changes
   useEffect(() => {
@@ -303,7 +233,7 @@ export default function WidgetDraggableSomaFM() {
       <div
         ref={draggableRef}
         data-widget-id="somafm"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "SomaFM" Label */}
         <div className="flex items-center justify-center border-r border-white/10 px-1">

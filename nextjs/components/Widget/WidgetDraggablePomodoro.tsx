@@ -7,13 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { widgetVisibilityAtom } from "@/data/store";
-import {
-  calculateAutoArrangePositions,
-  getSavedWidgetPosition,
-  resetWidgetPosition,
-  saveWidgetPosition,
-  setWidgetMeasuredHeight,
-} from "@/lib/widget-positions";
+import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
   ControlFrom,
   controls,
@@ -31,14 +25,8 @@ import {
   RotateCcw,
   TimerReset,
 } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useWidgetPosition } from "./useWidgetPosition";
 
 const STATE_KEY = "widgetPomodoroState";
 const DURATION_KEY = "widgetPomodoroDurations";
@@ -104,14 +92,15 @@ function deriveNextPhase(
 }
 
 export default function WidgetDraggablePomodoro() {
-  const draggableRef = useRef<HTMLDivElement>(null);
+  const {
+    position,
+    isPositionLoaded,
+    draggableRef,
+    handleDragEnd: baseHandleDragEnd,
+  } = useWidgetPosition({ widgetId: "pomodoro" });
 
   // Ref to track latest mode for use inside callbacks (avoids stale closure)
   const modeRef = useRef<Mode>("focus");
-
-  // Position state
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
 
   // Timer state
   const [durations, setDurations] = useState<Durations>(() => {
@@ -158,19 +147,8 @@ export default function WidgetDraggablePomodoro() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
-  // Load saved timer state and position
+  // Load saved timer state
   useEffect(() => {
-    const savedPos = getSavedWidgetPosition("pomodoro");
-    queueMicrotask(() => {
-      if (savedPos) {
-        setPosition(savedPos);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.pomodoro || { x: 0, y: 0 });
-      }
-      setIsPositionLoaded(true);
-    });
-
     if (typeof window === "undefined") return;
     queueMicrotask(() => {
       try {
@@ -192,27 +170,6 @@ export default function WidgetDraggablePomodoro() {
         /* ignore */
       }
     });
-  }, []);
-
-  // Listen for widget position reset events
-  useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      const detail = customEvent.detail || {};
-      if (!Object.prototype.hasOwnProperty.call(detail, "pomodoro")) return; // ignore resets for other widgets
-
-      if (detail.pomodoro) {
-        setPosition(detail.pomodoro);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.pomodoro || { x: 0, y: 0 });
-      }
-    };
-    window.addEventListener("widget-positions-reset", handleReset);
-    return () =>
-      window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
   // Persist timer state
@@ -291,15 +248,6 @@ export default function WidgetDraggablePomodoro() {
     });
   }, [isRunning, remainingSeconds, advancePhase]);
 
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
-      saveWidgetPosition("pomodoro", newPosition.x, newPosition.y);
-    },
-    [],
-  );
-
   const toggleRun = useCallback(() => {
     setIsRunning((prev) => !prev);
   }, []);
@@ -337,7 +285,7 @@ export default function WidgetDraggablePomodoro() {
 
   useDraggable(draggableRef, () => [
     controls({ block: ControlFrom.selector("a, button, input") }),
-    events({ onDragEnd: handleDragEnd }),
+    events({ onDragEnd: baseHandleDragEnd }),
     positionCompartment,
   ]);
 
@@ -352,19 +300,6 @@ export default function WidgetDraggablePomodoro() {
     return Math.min(100, Math.max(0, (1 - remainingSeconds / total) * 100));
   }, [durations, mode, remainingSeconds]);
 
-  // Measure height for stacking
-  useLayoutEffect(() => {
-    const report = () => {
-      const el = draggableRef.current;
-      if (!el) return;
-      const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("pomodoro", h);
-    };
-    report();
-    window.addEventListener("resize", report);
-    return () => window.removeEventListener("resize", report);
-  }, [durations, mode, formatted]);
-
   return (
     <DropdownMenu
       open={moreMenuOpen}
@@ -374,7 +309,7 @@ export default function WidgetDraggablePomodoro() {
       <div
         ref={draggableRef}
         data-widget-id="pomodoro"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/85 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/85 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical label */}
         <div className="flex items-center justify-center border-r border-white/10 px-1">

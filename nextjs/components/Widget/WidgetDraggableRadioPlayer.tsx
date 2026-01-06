@@ -20,13 +20,7 @@ import {
   widgetVisibilityAtom,
 } from "@/data/store";
 import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
-import {
-  calculateAutoArrangePositions,
-  getSavedWidgetPosition,
-  resetWidgetPosition,
-  saveWidgetPosition,
-  setWidgetMeasuredHeight,
-} from "@/lib/widget-positions";
+import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
   ControlFrom,
   controls,
@@ -46,13 +40,8 @@ import {
   VolumeX,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useWidgetPosition } from "./useWidgetPosition";
 
 // Storage keys
 const VOLUME_KEY = "widgetRadioPlayerVolume";
@@ -62,12 +51,8 @@ const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableRadioPlayer() {
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
+    useWidgetPosition({ widgetId: "radio" });
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
@@ -81,23 +66,6 @@ export default function WidgetDraggableRadioPlayer() {
   const radioAudioState = useAtomValue(radioAudioStateAtom);
   const radioStationState = useAtomValue(radioStationStateAtom);
 
-  // Load position from localStorage on mount
-  useEffect(() => {
-    const saved = getSavedWidgetPosition("radio");
-    // Use queueMicrotask to avoid synchronous setState warning
-    queueMicrotask(() => {
-      if (saved) {
-        setPosition(saved);
-      } else {
-        // Use calculated position based on actual widget sizes
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.radio);
-      }
-      setIsPositionLoaded(true);
-    });
-  }, []);
-
-  // Sync volume with audio element and localStorage
   useEffect(() => {
     const audio = radioAudioState.radioAudio;
     if (!audio) return;
@@ -107,34 +75,6 @@ export default function WidgetDraggableRadioPlayer() {
     audio.addEventListener("volumechange", handleVolumeChange);
     return () => audio.removeEventListener("volumechange", handleVolumeChange);
   }, [radioAudioState.radioAudio]);
-
-  // Listen for widget position reset events
-  useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      if (customEvent.detail?.radio) {
-        setPosition(customEvent.detail.radio);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.radio);
-      }
-    };
-    window.addEventListener("widget-positions-reset", handleReset);
-    return () =>
-      window.removeEventListener("widget-positions-reset", handleReset);
-  }, []);
-
-  // Handle drag end to save position
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
-      saveWidgetPosition("radio", newPosition.x, newPosition.y);
-    },
-    [],
-  );
 
   useEffect(() => {
     const handleUseEffect = async () => {
@@ -250,19 +190,6 @@ export default function WidgetDraggableRadioPlayer() {
     isPositionLoaded &&
     visibility.radio !== false;
 
-  // Report rendered height for accurate stacking
-  useLayoutEffect(() => {
-    const report = () => {
-      const el = draggableRef.current;
-      if (!el) return;
-      const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("radio", h);
-    };
-    report();
-    window.addEventListener("resize", report);
-    return () => window.removeEventListener("resize", report);
-  }, [stationName, title, artist, isVisible]);
-
   return (
     <DropdownMenu
       open={moreMenuOpen}
@@ -272,7 +199,7 @@ export default function WidgetDraggableRadioPlayer() {
       <div
         ref={draggableRef}
         data-widget-id="radio"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Radio" Label */}
         <div className="flex items-center justify-center border-r border-white/10 px-1">

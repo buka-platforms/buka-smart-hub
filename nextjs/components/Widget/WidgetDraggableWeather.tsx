@@ -7,13 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { requestHeadersStateAtom, widgetVisibilityAtom } from "@/data/store";
-import {
-  calculateAutoArrangePositions,
-  getSavedWidgetPosition,
-  resetWidgetPosition,
-  saveWidgetPosition,
-  setWidgetMeasuredHeight,
-} from "@/lib/widget-positions";
+import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
   ControlFrom,
   controls,
@@ -25,14 +19,9 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
+import { useWidgetPosition } from "./useWidgetPosition";
 
 const UNIT_STORAGE_KEY = "widgetWeatherUnit";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -64,12 +53,8 @@ const fetcher = async (
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableWeather() {
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
+    useWidgetPosition({ widgetId: "weather" });
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [unit, setUnit] = useState<"metric" | "imperial">(() => {
@@ -93,49 +78,6 @@ export default function WidgetDraggableWeather() {
       revalidateOnFocus: true,
       refreshInterval: 900000, // 15 minutes
     },
-  );
-
-  // Load position from localStorage on mount
-  useEffect(() => {
-    const saved = getSavedWidgetPosition("weather");
-    queueMicrotask(() => {
-      if (saved) {
-        setPosition(saved);
-      } else {
-        // Use calculated position based on actual widget sizes
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.weather);
-      }
-      setIsPositionLoaded(true);
-    });
-  }, []);
-
-  // Listen for widget position reset events
-  useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      if (customEvent.detail?.weather) {
-        setPosition(customEvent.detail.weather);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions.weather);
-      }
-    };
-    window.addEventListener("widget-positions-reset", handleReset);
-    return () =>
-      window.removeEventListener("widget-positions-reset", handleReset);
-  }, []);
-
-  // Handle drag end to save position
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
-      saveWidgetPosition("weather", newPosition.x, newPosition.y);
-    },
-    [],
   );
 
   // Reactive position plugin
@@ -175,19 +117,6 @@ export default function WidgetDraggableWeather() {
     (data || isLoading) &&
     visibility.weather !== false;
 
-  // Report rendered height for accurate stacking
-  useLayoutEffect(() => {
-    const report = () => {
-      const el = draggableRef.current;
-      if (!el) return;
-      const h = el.getBoundingClientRect().height;
-      if (Number.isFinite(h)) setWidgetMeasuredHeight("weather", h);
-    };
-    report();
-    window.addEventListener("resize", report);
-    return () => window.removeEventListener("resize", report);
-  }, [data, unit, isVisible]);
-
   const temperatureUnit = unit === "metric" ? "C" : "F";
   const temperatureValue = data ? Math.round(Number(data.main.temp)) : "--";
   const feelsLikeValue = data?.main.feels_like
@@ -208,7 +137,7 @@ export default function WidgetDraggableWeather() {
       <div
         ref={draggableRef}
         data-widget-id="weather"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Weather" Label */}
         <div className="flex items-center justify-center border-r border-white/10 px-1">
