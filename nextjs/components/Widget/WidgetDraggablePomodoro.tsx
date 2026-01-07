@@ -18,19 +18,77 @@ import {
 } from "@neodrag/react";
 import { useAtom } from "jotai";
 import {
+  Bell,
+  BellOff,
+  CheckCircle2,
   Clock3,
+  Coffee,
+  FastForward,
   MoreHorizontal,
   Pause,
   Play,
   RotateCcw,
   TimerReset,
+  Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useWidgetPosition } from "./useWidgetPosition";
 
 const STATE_KEY = "widgetPomodoroState";
 const DURATION_KEY = "widgetPomodoroDurations";
+const SETTINGS_KEY = "widgetPomodoroSettings";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+
+interface PomodoroSettings {
+  audioEnabled: boolean;
+}
+
+const DEFAULT_SETTINGS: PomodoroSettings = {
+  audioEnabled: true,
+};
+
+// Play notification sound using Web Audio API
+function playNotificationSound() {
+  try {
+    const AudioContext =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof window.AudioContext })
+        .webkitAudioContext;
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    // Create a pleasant bell-like chime (two tones)
+    const playTone = (freq: number, startTime: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.frequency.value = freq;
+      osc.type = "sine";
+
+      // Envelope: quick attack, sustain, slow decay
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    };
+
+    // Play a two-note chime (C5, E5)
+    playTone(523.25, now, 0.4); // C5
+    playTone(659.25, now + 0.15, 0.5); // E5
+
+    // Clean up after sounds finish
+    setTimeout(() => ctx.close(), 1000);
+  } catch {
+    /* ignore audio errors */
+  }
+}
 
 type Mode = "focus" | "short_break" | "long_break";
 
@@ -147,6 +205,22 @@ export default function WidgetDraggablePomodoro() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
+  // Completion modal state
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [completedMode, setCompletedMode] = useState<Mode>("focus");
+
+  // Settings
+  const [settings, setSettings] = useState<PomodoroSettings>(() => {
+    if (typeof window === "undefined") return DEFAULT_SETTINGS;
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      if (saved) return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+    } catch {
+      /* ignore */
+    }
+    return DEFAULT_SETTINGS;
+  });
+
   // Load saved timer state
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -199,6 +273,16 @@ export default function WidgetDraggablePomodoro() {
     }
   }, [durations]);
 
+  // Persist settings
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch {
+      /* ignore */
+    }
+  }, [settings]);
+
   // Timer tick
   useEffect(() => {
     if (!isRunning) return undefined;
@@ -239,14 +323,45 @@ export default function WidgetDraggablePomodoro() {
     [durations, setMode],
   );
 
-  // Handle timer completion - advance phase when timer reaches 0
+  // Handle timer completion - show completion modal when timer reaches 0
   useEffect(() => {
     if (!isRunning || remainingSeconds > 0) return;
     // Wrap in queueMicrotask to avoid synchronous setState in effect warning
     queueMicrotask(() => {
-      advancePhase({ countFocus: true, autoStart: true });
+      setIsRunning(false);
+      setCompletedMode(modeRef.current);
+      setShowCompletion(true);
+
+      // Play audio notification
+      if (settings.audioEnabled) {
+        playNotificationSound();
+      }
     });
-  }, [isRunning, remainingSeconds, advancePhase]);
+  }, [isRunning, remainingSeconds, settings.audioEnabled]);
+
+  // Continue to next phase (called from completion modal)
+  const continueToNextPhase = useCallback(() => {
+    setShowCompletion(false);
+    advancePhase({ countFocus: true, autoStart: true });
+  }, [advancePhase]);
+
+  // Skip break and go back to focus
+  const skipBreak = useCallback(() => {
+    setShowCompletion(false);
+    // If we just completed focus, still count it but go to focus instead of break
+    if (completedMode === "focus") {
+      setCompletedFocus((c) => c + 1);
+      setFocusStreak((s) => s + 1);
+    }
+    setMode("focus");
+    setRemainingSeconds(durations.focus * 60);
+    setIsRunning(true);
+  }, [completedMode, durations.focus, setMode]);
+
+  // Toggle audio setting
+  const toggleAudio = useCallback(() => {
+    setSettings((prev) => ({ ...prev, audioEnabled: !prev.audioEnabled }));
+  }, []);
 
   const toggleRun = useCallback(() => {
     setIsRunning((prev) => !prev);
@@ -319,7 +434,73 @@ export default function WidgetDraggablePomodoro() {
         </div>
 
         {/* Main column */}
-        <div className="flex w-80 flex-col">
+        <div className="relative flex w-80 flex-col">
+          {/* Completion Modal Overlay */}
+          {showCompletion && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-3 px-4 text-center">
+                {/* Icon */}
+                <div
+                  className={`flex h-14 w-14 items-center justify-center rounded-full ${
+                    completedMode === "focus"
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-purple-500/20 text-purple-400"
+                  }`}
+                >
+                  {completedMode === "focus" ? (
+                    <CheckCircle2 className="h-7 w-7" />
+                  ) : (
+                    <Coffee className="h-7 w-7" />
+                  )}
+                </div>
+
+                {/* Message */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-lg font-semibold text-white">
+                    {completedMode === "focus"
+                      ? "Focus Complete!"
+                      : "Break Over!"}
+                  </span>
+                  <span className="text-sm text-white/60">
+                    {completedMode === "focus"
+                      ? "Great work! Ready for a break?"
+                      : "Time to get back to work!"}
+                  </span>
+                </div>
+
+                {/* Buttons */}
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={continueToNextPhase}
+                    className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
+                      completedMode === "focus"
+                        ? "bg-purple-500 text-white hover:bg-purple-400"
+                        : "bg-green-500 text-white hover:bg-green-400"
+                    }`}
+                  >
+                    {completedMode === "focus" ? (
+                      <>
+                        <Coffee className="h-4 w-4" /> Take Break
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4" /> Start Focus
+                      </>
+                    )}
+                  </button>
+
+                  {completedMode === "focus" && (
+                    <button
+                      onClick={skipBreak}
+                      className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/20"
+                    >
+                      <FastForward className="h-4 w-4" /> Skip Break
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/10 text-white/80">
@@ -371,6 +552,21 @@ export default function WidgetDraggablePomodoro() {
                 title="Reset current session"
               >
                 <RotateCcw className="h-4 w-4" />
+              </button>
+              <button
+                onClick={toggleAudio}
+                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+                  settings.audioEnabled
+                    ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
+                    : "bg-white/10 text-white/50 hover:bg-white/20"
+                }`}
+                title={settings.audioEnabled ? "Sound on" : "Sound off"}
+              >
+                {settings.audioEnabled ? (
+                  <Bell className="h-4 w-4" />
+                ) : (
+                  <BellOff className="h-4 w-4" />
+                )}
               </button>
               <DropdownMenuTrigger asChild>
                 <button
