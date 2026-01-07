@@ -744,7 +744,7 @@ export default function WidgetDraggableSomaFM() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-          <DropdownMenuItem
+        <DropdownMenuItem
           className="cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
