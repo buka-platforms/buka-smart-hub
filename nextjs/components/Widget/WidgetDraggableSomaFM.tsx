@@ -380,7 +380,7 @@ export default function WidgetDraggableSomaFM() {
         <div
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
-          className={`flex items-center justify-center border-r border-white/10 px-1 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             SomaFM
