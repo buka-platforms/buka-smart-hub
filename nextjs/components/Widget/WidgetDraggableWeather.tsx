@@ -225,7 +225,7 @@ export default function WidgetDraggableWeather() {
     isPositionLoaded &&
     !error &&
     (data || isLoading) &&
-    visibility.weather !== false;
+    visibility[WIDGET_ID] !== false;
 
   const temperatureUnit = unit === "metric" ? "C" : "F";
   const temperatureValue = data ? Math.round(Number(data.main.temp)) : "--";
@@ -246,7 +246,7 @@ export default function WidgetDraggableWeather() {
     >
       <div
         ref={containerRef}
-        data-widget-id="weather"
+        data-widget-id={WIDGET_ID}
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
