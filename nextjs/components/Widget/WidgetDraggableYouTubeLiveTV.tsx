@@ -962,7 +962,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       </div>
 
       {/* Dropdown Menu */}
-        <DropdownMenuContent align="end" sideOffset={6} className="min-w-44">
+      <DropdownMenuContent align="end" sideOffset={6} className="min-w-44">
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={(e) => {
