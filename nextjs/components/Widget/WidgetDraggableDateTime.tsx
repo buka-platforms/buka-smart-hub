@@ -230,7 +230,7 @@ export default function WidgetDraggableDateTime() {
 
   // Reset position
   const resetPosition = useCallback(() => {
-    resetWidgetPosition("time");
+    resetWidgetPosition(WIDGET_ID);
   }, []);
 
   // Derived values
@@ -268,7 +268,7 @@ export default function WidgetDraggableDateTime() {
   const greeting = getGreeting(hour);
 
   const isVisible =
-    isPositionLoaded && currentTime !== null && visibility.time !== false;
+    isPositionLoaded && currentTime !== null && visibility[WIDGET_ID] !== false;
 
   return (
     <DropdownMenu
@@ -278,7 +278,7 @@ export default function WidgetDraggableDateTime() {
     >
       <div
         ref={containerRef}
-        data-widget-id="time"
+        data-widget-id={WIDGET_ID}
         style={{
           transform: `translate(${position.x}px, ${position.y}px)`,
         }}
@@ -371,11 +371,11 @@ export default function WidgetDraggableDateTime() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, time: false }));
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, time: false }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
