@@ -110,36 +110,36 @@ export default function WidgetContainer() {
       {/* Widgets - conditionally rendered based on visibility */}
       {/* All widgets share the same anchor point (top-left), positioning is handled via drag offsets */}
 
-      <WidgetWrapper widgetId="time" visible={visibility.time}>
+      <WidgetWrapper widgetId="time" visible={visibility["time"]}>
         <WidgetDraggableDateTime />
       </WidgetWrapper>
 
-      <WidgetWrapper widgetId="radio" visible={visibility.radio}>
+      <WidgetWrapper widgetId="radio" visible={visibility["radio"]}>
         <WidgetDraggableRadioPlayer />
       </WidgetWrapper>
 
-      <WidgetWrapper widgetId="weather" visible={visibility.weather}>
+      <WidgetWrapper widgetId="weather" visible={visibility["weather"]}>
         <WidgetDraggableWeather />
       </WidgetWrapper>
 
-      <WidgetWrapper widgetId="somafm" visible={visibility.somafm}>
+      <WidgetWrapper widgetId="somafm" visible={visibility["somafm"]}>
         <WidgetDraggableSomaFM />
       </WidgetWrapper>
 
       <WidgetWrapper
         widgetId="youtubelivetv"
-        visible={visibility.youtubelivetv}
+        visible={visibility["youtubelivetv"]}
       >
         <WidgetDraggableYouTubeLiveTV />
       </WidgetWrapper>
 
-      <WidgetWrapper widgetId="pomodoro" visible={visibility.pomodoro}>
+      <WidgetWrapper widgetId="pomodoro" visible={visibility["pomodoro"]}>
         <WidgetDraggablePomodoro />
       </WidgetWrapper>
 
       <WidgetWrapper
         widgetId="onlineradioboxnowplaying"
-        visible={visibility.onlineradioboxnowplaying}
+        visible={visibility["onlineradioboxnowplaying"]}
       >
         <WidgetDraggableOnlineRadioBoxNowPlaying />
       </WidgetWrapper>
