@@ -269,6 +269,19 @@ export default function WidgetDraggableYouTubeLiveTV() {
         onStateChange: (event: YTOnStateChangeEvent) => {
           if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              if (typeof window !== "undefined" && (window as any).gtag) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (window as any).gtag("event", "page_view", {
+                  page_title: `Live TV: ${selectedChannel?.name || selectedChannel?.slug}`,
+                  page_location: window.location.href,
+                  page_path: window.location.pathname,
+                });
+              }
+            } catch {
+              /* ignore */
+            }
           } else if (
             event.data === window.YT.PlayerState.PAUSED ||
             event.data === window.YT.PlayerState.ENDED
