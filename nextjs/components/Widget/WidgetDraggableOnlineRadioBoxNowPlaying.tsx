@@ -239,6 +239,19 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     const handlePlay = () => {
       setIsPlaying(true);
       setIsAudioLoading(false);
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (typeof window !== "undefined" && (window as any).gtag) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).gtag("event", "page_view", {
+            page_title: `OnlineRadioBox: ${selectedStation?.radioName || selectedStation?.radioId || currentlyPlaying}`,
+            page_location: window.location.href,
+            page_path: window.location.pathname,
+          });
+        }
+      } catch {
+        /* ignore */
+      }
     };
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => {
@@ -267,7 +280,12 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("error", handleError);
     };
-  }, [volume]);
+  }, [
+    currentlyPlaying,
+    selectedStation?.radioId,
+    selectedStation?.radioName,
+    volume,
+  ]);
 
   // Update volume when changed and persist as integer percent (0-100)
   useEffect(() => {
