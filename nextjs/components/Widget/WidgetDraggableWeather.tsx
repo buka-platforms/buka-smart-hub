@@ -7,24 +7,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { requestHeadersStateAtom, widgetVisibilityAtom } from "@/data/store";
-import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
-  ControlFrom,
-  controls,
-  events,
-  position as positionPlugin,
-  useCompartment,
-  useDraggable,
-} from "@neodrag/react";
+  calculateAutoArrangePositions,
+  getSavedWidgetPosition,
+  observeWidget,
+  resetWidgetPosition,
+  saveWidgetPosition,
+  unobserveWidget,
+} from "@/lib/widget-positions";
 import { useAtom, useAtomValue } from "jotai";
 import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
-import { useWidgetPosition } from "./useWidgetPosition";
 
 const UNIT_STORAGE_KEY = "widgetWeatherUnit";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+const WIDGET_ID = "weather";
 
 interface WeatherData {
   weather: { icon: string; description: string; main: string }[];
@@ -53,15 +52,19 @@ const fetcher = async (
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableWeather() {
-  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
-    useWidgetPosition({ widgetId: "weather" });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [unit, setUnit] = useState<"metric" | "imperial">(() => {
     if (typeof window === "undefined") return "metric";
     const savedUnit = localStorage.getItem(UNIT_STORAGE_KEY);
     return savedUnit === "metric" || savedUnit === "imperial"
-      ? savedUnit
+      ? (savedUnit as "metric" | "imperial")
       : "metric";
   });
   const requestHeaders = useAtomValue(requestHeadersStateAtom);
@@ -80,12 +83,6 @@ export default function WidgetDraggableWeather() {
     },
   );
 
-  // Reactive position plugin
-  const positionCompartment = useCompartment(
-    () => positionPlugin({ current: position }),
-    [position.x, position.y],
-  );
-
   const toggleUnit = useCallback(() => {
     setUnit((prev) => {
       const next = prev === "metric" ? "imperial" : "metric";
@@ -100,15 +97,117 @@ export default function WidgetDraggableWeather() {
     });
   }, []);
 
-  useDraggable(draggableRef, () => [
-    controls({
-      block: ControlFrom.selector("a, button"),
-    }),
-    events({
-      onDragEnd: handleDragEnd,
-    }),
-    positionCompartment,
-  ]);
+  // Load position from localStorage (or auto-arrange) on mount
+  useEffect(() => {
+    queueMicrotask(() => {
+      const saved = getSavedWidgetPosition(WIDGET_ID);
+      if (saved) {
+        setPosition(saved);
+      } else {
+        const positions = calculateAutoArrangePositions();
+        setPosition(positions[WIDGET_ID] || { x: 0, y: 0 });
+      }
+      setIsPositionLoaded(true);
+    });
+  }, []);
+
+  // Register ResizeObserver for layout updates
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    observeWidget(WIDGET_ID, el);
+    return () => unobserveWidget(WIDGET_ID);
+  }, []);
+
+  // Listen for widget position reset events
+  useEffect(() => {
+    const handleReset = (e: Event) => {
+      const customEvent = e as CustomEvent<
+        Record<string, { x: number; y: number }>
+      >;
+      const detail = customEvent.detail || {};
+      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+        const newPos = detail[WIDGET_ID];
+        if (newPos) setPosition(newPos);
+      } else if (Object.keys(detail).length > 1) {
+        const newPos = detail[WIDGET_ID];
+        if (newPos) setPosition(newPos);
+      }
+    };
+    window.addEventListener("widget-positions-reset", handleReset);
+    return () =>
+      window.removeEventListener("widget-positions-reset", handleReset);
+  }, []);
+
+  // Drag handlers - only from left label
+  const handleDragStart = useCallback(
+    (clientX: number, clientY: number) => {
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: clientX,
+        y: clientY,
+        posX: position.x,
+        posY: position.y,
+      };
+    },
+    [position],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      handleDragStart(e.clientX, e.clientY);
+    },
+    [handleDragStart],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      handleDragStart(touch.clientX, touch.clientY);
+    },
+    [handleDragStart],
+  );
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
+      setPosition({
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      });
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+      setPosition({
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      });
+    };
+
+    const handleEnd = () => {
+      setIsDragging(false);
+      saveWidgetPosition(WIDGET_ID, position.x, position.y);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleEnd);
+    };
+  }, [isDragging, position]);
 
   // Determine visibility
   const isVisible =
@@ -135,12 +234,17 @@ export default function WidgetDraggableWeather() {
       modal={false}
     >
       <div
-        ref={draggableRef}
+        ref={containerRef}
         data-widget-id="weather"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isDragging ? "shadow-none" : ""} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        {/* Vertical "Weather" Label */}
-        <div className="flex items-center justify-center border-r border-white/10 px-1">
+        {/* Vertical "Weather" Label - Drag Handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             Weather
           </span>
