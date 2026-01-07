@@ -43,6 +43,16 @@ export const radioStationStateAtom = atom({
   isRadioStationLogoLoaded: false,
 });
 
+// OnlineRadioBox audio state (per-widget audio controller)
+export const onlineRadioBoxAudioStateAtom = atom({
+  isLoading: false,
+  isPlaying: false,
+  audio: undefined as HTMLAudioElement | null | undefined,
+  volume: 0.5,
+  lastStream: null as string | null,
+  lastRadioId: null as string | null,
+});
+
 // Widget Launcher Dock State
 export type WidgetId =
   | "time"

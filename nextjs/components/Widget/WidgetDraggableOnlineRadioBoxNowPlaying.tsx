@@ -12,7 +12,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
-import { widgetVisibilityAtom } from "@/data/store";
+import {
+  onlineRadioBoxAudioStateAtom,
+  widgetVisibilityAtom,
+} from "@/data/store";
+import {
+  attachOnlineRadioListeners,
+  detachOnlineRadioListeners,
+  playOnlineRadioStream,
+  setOnlineRadioVolume,
+  setupOnlineRadioBoxAudio,
+  stopOnlineRadio,
+} from "@/lib/onlineradioboxnowplaying-audio";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -54,7 +65,6 @@ interface NowPlayingStation {
 
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const COUNTRY_KEY = "widgetOnlineRadioBoxNowPlayingCountry";
-const VOLUME_KEY = "widgetOnlineRadioBoxNowPlayingVolume";
 const WIDGET_ID = "onlineradioboxnowplaying";
 
 // Supported countries for OnlineRadioBox
@@ -187,190 +197,55 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     return localStorage.getItem(COUNTRY_KEY) || "id";
   });
 
-  // Audio playback state
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Audio playback state via shared atom/manager
+  const [audioState] = useAtom(onlineRadioBoxAudioStateAtom);
+
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [selectedStation, setSelectedStation] =
     useState<NowPlayingStation | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isAudioLoading, setIsAudioLoading] = useState(false);
-  const [volume, setVolume] = useState(() => {
-    if (typeof window === "undefined") return 0.5;
-    try {
-      const saved = localStorage.getItem(VOLUME_KEY);
 
-      // If there's no saved value, or the saved value is the old default '0',
-      // migrate it to 50 (50%). This keeps behavior consistent with other widgets.
-      if (saved === null || saved === "0") {
-        localStorage.setItem(VOLUME_KEY, "50");
-        return 0.5;
-      }
+  const isPlaying = !!audioState?.isPlaying;
+  const isAudioLoading = !!audioState?.isLoading;
+  const volume = Number.isFinite(audioState?.volume) ? audioState.volume : 0.5;
 
-      const parsed = Number(saved);
-      if (Number.isFinite(parsed)) {
-        // If stored as a decimal 0-1, use directly
-        if (parsed >= 0 && parsed <= 1) return parsed;
-        // If stored as a percent 0-100, convert to 0-1
-        if (parsed >= 0 && parsed <= 100) return parsed / 100;
-      }
-
-      // Fallback: set to 50%
-      localStorage.setItem(VOLUME_KEY, "50");
-      return 0.5;
-    } catch {
-      return 0.5;
-    }
-  });
-
-  // Initialize audio element
+  // Setup audio and attach listeners on mount (do not stop audio on unmount)
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = volume;
-    }
-
-    const audio = audioRef.current;
-
-    const handlePlay = () => {
-      setIsPlaying(true);
-      setIsAudioLoading(false);
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (typeof window !== "undefined" && (window as any).gtag) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).gtag("event", "page_view", {
-            page_title: `OnlineRadioBox: ${selectedStation?.radioName || selectedStation?.radioId || currentlyPlaying}`,
-            page_location: window.location.href,
-            page_path: window.location.pathname,
-          });
-        }
-      } catch {
-        /* ignore */
-      }
-    };
-    const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentlyPlaying(null);
-    };
-    const handleWaiting = () => setIsAudioLoading(true);
-    const handleCanPlay = () => setIsAudioLoading(false);
-    const handleError = () => {
-      setIsAudioLoading(false);
-      setIsPlaying(false);
-    };
-
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("waiting", handleWaiting);
-    audio.addEventListener("canplay", handleCanPlay);
-    audio.addEventListener("error", handleError);
-
+    setupOnlineRadioBoxAudio();
+    attachOnlineRadioListeners();
     return () => {
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("waiting", handleWaiting);
-      audio.removeEventListener("canplay", handleCanPlay);
-      audio.removeEventListener("error", handleError);
-    };
-  }, [
-    currentlyPlaying,
-    selectedStation?.radioId,
-    selectedStation?.radioName,
-    volume,
-  ]);
-
-  // Track last sent track to avoid duplicate GA hits
-  const lastTrackRef = useRef<string | null>(null);
-
-  // Send GA virtual page_view when track metadata changes while playing
-  useEffect(() => {
-    if (!selectedStation) {
-      lastTrackRef.current = null;
-      return;
-    }
-
-    const trackKey = `${selectedStation.artist || ""} - ${selectedStation.title || ""}`;
-
-    if (isPlaying && trackKey && trackKey !== lastTrackRef.current) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (typeof window !== "undefined" && (window as any).gtag) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).gtag("event", "page_view", {
-            page_title: `OnlineRadioBox: ${selectedStation.radioName || selectedStation.radioId} — ${selectedStation.artist || ""} - ${selectedStation.title || ""}`,
-            page_location: window.location.href,
-            page_path: window.location.pathname,
-          });
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-
-    lastTrackRef.current = trackKey;
-  }, [isPlaying, lastTrackRef, selectedStation]);
-
-  // Update volume when changed and persist as integer percent (0-100)
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(VOLUME_KEY, String(Math.round(volume * 100)));
-      } catch {}
-    }
-  }, [volume]);
-
-  // Cleanup audio on unmount
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
+      detachOnlineRadioListeners();
     };
   }, []);
 
   const playStation = useCallback(
-    (station: NowPlayingStation) => {
-      if (!audioRef.current) return;
-
-      // If clicking on currently playing station, toggle pause/play
-      if (currentlyPlaying === station.radioId) {
-        if (isPlaying) {
-          audioRef.current.pause();
+    async (station: NowPlayingStation) => {
+      // Toggle if clicking same station
+      const audio = audioState.audio as HTMLAudioElement | undefined | null;
+      if (audio && currentlyPlaying === station.radioId) {
+        if (audio.paused) {
+          try {
+            await audio.play();
+          } catch {}
         } else {
-          audioRef.current.play();
+          audio.pause();
         }
         return;
       }
-
-      // Play new station - save the station info
-      setIsAudioLoading(true);
       setCurrentlyPlaying(station.radioId);
       setSelectedStation(station);
-      audioRef.current.src = station.stream;
-      audioRef.current.play().catch((err) => {
-        console.error("Failed to play:", err);
-        setIsAudioLoading(false);
-        setCurrentlyPlaying(null);
-      });
+      await playOnlineRadioStream(
+        station.stream,
+        station.streamType === "hls" ? 2 : 1,
+        station.radioId,
+      );
     },
-    [currentlyPlaying, isPlaying],
+    [audioState.audio, currentlyPlaying],
   );
 
   const stopPlayback = useCallback(() => {
-    if (!audioRef.current) return;
-    audioRef.current.pause();
-    audioRef.current.src = "";
+    stopOnlineRadio();
     setCurrentlyPlaying(null);
-    setIsPlaying(false);
-    setIsAudioLoading(false);
-    // Keep selectedStation so user can play again
+    setSelectedStation(null);
   }, []);
 
   const clearSelectedStation = useCallback(() => {
@@ -473,6 +348,23 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       if (data.data) {
         const parsedStations = parseHtmlResponse(data.data);
         setStations(parsedStations);
+
+        // Attempt to rehydrate selected station from in-memory atom (SPA navigation)
+        try {
+          const lastId = audioState?.lastRadioId ?? null;
+          const lastStream = audioState?.lastStream ?? null;
+          let match: NowPlayingStation | undefined;
+          if (lastId) {
+            match = parsedStations.find((s) => s.radioId === lastId);
+          }
+          if (!match && lastStream) {
+            match = parsedStations.find((s) => s.stream === lastStream);
+          }
+          if (match) {
+            setSelectedStation(match);
+            setCurrentlyPlaying(match.radioId);
+          }
+        } catch {}
       } else {
         throw new Error("Invalid response format");
       }
@@ -484,7 +376,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     } finally {
       setIsLoading(false);
     }
-  }, [country]);
+  }, [audioState?.lastRadioId, audioState?.lastStream, country]);
 
   // Fetch data on mount and when country changes
   useEffect(() => {
@@ -910,8 +802,8 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   value={[Math.round(volume * 100)]}
                   onValueChange={(v) => {
                     const percent = v[0] ?? Math.round(volume * 100);
-                    const next = Math.min(1, Math.max(0, percent / 100));
-                    setVolume(next);
+                    const next = Math.min(100, Math.max(0, percent));
+                    setOnlineRadioVolume(next);
                   }}
                   max={100}
                   step={1}
