@@ -63,6 +63,7 @@ interface SomaFMChannel {
 
 const VOLUME_KEY = "widgetSomaFMVolume";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+const WIDGET_ID = "somafm";
 
 export default function WidgetDraggableSomaFM() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -126,9 +127,9 @@ export default function WidgetDraggableSomaFM() {
   // Load position on mount
   useEffect(() => {
     queueMicrotask(() => {
-      const saved = getSavedWidgetPosition("somafm");
+      const saved = getSavedWidgetPosition(WIDGET_ID);
       const initial = saved ??
-        calculateAutoArrangePositions()["somafm"] ?? { x: 0, y: 0 };
+        calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
       setPosition(initial);
       positionRef.current = initial;
       if (containerRef.current)
@@ -140,8 +141,8 @@ export default function WidgetDraggableSomaFM() {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    observeWidget("somafm", el);
-    return () => unobserveWidget("somafm");
+    observeWidget(WIDGET_ID, el);
+    return () => unobserveWidget(WIDGET_ID);
   }, []);
 
   useEffect(() => {
@@ -150,11 +151,11 @@ export default function WidgetDraggableSomaFM() {
         Record<string, { x: number; y: number }>
       >;
       const detail = customEvent.detail || {};
-      if (Object.prototype.hasOwnProperty.call(detail, "somafm")) {
-        const newPos = detail["somafm"];
+      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+        const newPos = detail[WIDGET_ID];
         if (newPos) setPosition(newPos);
       } else if (Object.keys(detail).length > 1) {
-        const newPos = detail["somafm"];
+        const newPos = detail[WIDGET_ID];
         if (newPos) setPosition(newPos);
       }
     };
@@ -193,6 +194,8 @@ export default function WidgetDraggableSomaFM() {
     [handleDragStart],
   );
 
+  const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
+
   useEffect(() => {
     if (!isDragging) return;
 
@@ -225,7 +228,7 @@ export default function WidgetDraggableSomaFM() {
       setIsDragging(false);
       const pos = positionRef.current;
       setPosition(pos);
-      saveWidgetPosition("somafm", pos.x, pos.y);
+      saveWidgetPosition(WIDGET_ID, pos.x, pos.y);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -246,7 +249,7 @@ export default function WidgetDraggableSomaFM() {
   const streamUrl = currentChannel?.id
     ? `https://ice1.somafm.com/${currentChannel.id}-128-mp3`
     : "";
-  const isVisible = isPositionLoaded && visibility.somafm !== false;
+  const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const visibleNowPlaying = selected ? nowPlaying : null;
 
   // Sync audio element volume and persist to localStorage when volume changes
@@ -741,16 +744,16 @@ export default function WidgetDraggableSomaFM() {
         </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem
+          <DropdownMenuItem
           className="cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, somafm: false }));
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, somafm: false }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
@@ -761,9 +764,7 @@ export default function WidgetDraggableSomaFM() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            requestAnimationFrame(() => {
-              resetWidgetPosition("somafm");
-            });
+            requestAnimationFrame(resetPosition);
           }}
         >
           Reset widget position

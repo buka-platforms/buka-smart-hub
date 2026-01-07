@@ -218,6 +218,8 @@ export default function WidgetDraggableWeather() {
     };
   }, [isDragging]);
 
+  const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
+
   // Determine visibility
   const isVisible =
     isPositionLoaded &&
@@ -371,11 +373,11 @@ export default function WidgetDraggableWeather() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, weather: false }));
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, weather: false }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
@@ -393,9 +395,7 @@ export default function WidgetDraggableWeather() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            requestAnimationFrame(() => {
-              resetWidgetPosition("weather");
-            });
+            requestAnimationFrame(resetPosition);
           }}
         >
           Reset widget position
