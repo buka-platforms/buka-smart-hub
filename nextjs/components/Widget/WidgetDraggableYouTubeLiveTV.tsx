@@ -535,7 +535,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
   // Reset position using centralized auto-arrange logic
   const resetPosition = useCallback(() => {
-    resetWidgetPosition("youtubelivetv");
+    resetWidgetPosition(WIDGET_ID);
   }, []);
 
   // Filtered channels
@@ -591,7 +591,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const isFavorite = selectedChannel
     ? favorites.includes(selectedChannel.slug)
     : false;
-  const isVisible = isPositionLoaded && visibility.youtubelivetv !== false;
+  const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
   return (
     <DropdownMenu
@@ -601,7 +601,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
     >
       <div
         ref={containerRef}
-        data-widget-id="youtubelivetv"
+        data-widget-id={WIDGET_ID}
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
@@ -962,17 +962,17 @@ export default function WidgetDraggableYouTubeLiveTV() {
       </div>
 
       {/* Dropdown Menu */}
-      <DropdownMenuContent align="end" sideOffset={6} className="min-w-44">
+        <DropdownMenuContent align="end" sideOffset={6} className="min-w-44">
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, youtubelivetv: false }));
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, youtubelivetv: false }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
