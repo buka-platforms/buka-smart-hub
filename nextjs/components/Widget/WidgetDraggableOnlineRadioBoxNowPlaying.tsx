@@ -622,6 +622,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     };
   }, [isDragging]);
 
+  // Reset position using centralized auto-arrange logic
+  const resetPosition = useCallback(() => {
+    resetWidgetPosition(WIDGET_ID);
+  }, []);
+
   // Save country to localStorage when changed
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -1007,9 +1012,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            requestAnimationFrame(() => {
-              resetWidgetPosition(WIDGET_ID);
-            });
+            requestAnimationFrame(resetPosition);
           }}
           className="cursor-pointer"
         >
