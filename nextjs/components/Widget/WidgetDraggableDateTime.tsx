@@ -7,16 +7,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { T } from "@/lib/app";
-import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
-  ControlFrom,
-  controls,
-  events,
-  position as positionPlugin,
-  useCompartment,
-  useDraggable,
-} from "@neodrag/react";
-import { useWidgetPosition } from "./useWidgetPosition";
+  calculateAutoArrangePositions,
+  getSavedWidgetPosition,
+  observeWidget,
+  resetWidgetPosition,
+  saveWidgetPosition,
+  unobserveWidget,
+} from "@/lib/widget-positions";
 import "@fontsource-variable/rubik";
 import { widgetVisibilityAtom } from "@/data/store";
 import { useAtom } from "jotai";
@@ -28,7 +26,7 @@ import {
   Sunrise,
   Sunset,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const FORMAT_STORAGE_KEY = "widgetDateTimeFormat";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -64,9 +62,15 @@ function format24h(date: Date): string {
   return `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`;
 }
 
+const WIDGET_ID = "time";
+
 export default function WidgetDraggableDateTime() {
-  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
-    useWidgetPosition({ widgetId: "time" });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
@@ -75,6 +79,121 @@ export default function WidgetDraggableDateTime() {
     const saved = localStorage.getItem(FORMAT_STORAGE_KEY);
     return saved === "24h" ? "24h" : "12h";
   });
+
+  // Load position from localStorage on mount
+  useEffect(() => {
+    queueMicrotask(() => {
+      const saved = getSavedWidgetPosition(WIDGET_ID);
+      if (saved) {
+        setPosition(saved);
+      } else {
+        const positions = calculateAutoArrangePositions();
+        setPosition(positions[WIDGET_ID] || { x: 0, y: 0 });
+      }
+      setIsPositionLoaded(true);
+    });
+  }, []);
+
+  // Register with ResizeObserver for automatic layout updates
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    observeWidget(WIDGET_ID, el);
+    return () => unobserveWidget(WIDGET_ID);
+  }, []);
+
+  // Listen for widget position reset events
+  useEffect(() => {
+    const handleReset = (e: Event) => {
+      const customEvent = e as CustomEvent<
+        Record<string, { x: number; y: number }>
+      >;
+      const detail = customEvent.detail || {};
+
+      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+        const newPos = detail[WIDGET_ID];
+        if (newPos) setPosition(newPos);
+      } else if (Object.keys(detail).length > 1) {
+        const newPos = detail[WIDGET_ID];
+        if (newPos) setPosition(newPos);
+      }
+    };
+
+    window.addEventListener("widget-positions-reset", handleReset);
+    return () =>
+      window.removeEventListener("widget-positions-reset", handleReset);
+  }, []);
+
+  // Drag handlers - only for drag handle area
+  const handleDragStart = useCallback(
+    (clientX: number, clientY: number) => {
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: clientX,
+        y: clientY,
+        posX: position.x,
+        posY: position.y,
+      };
+    },
+    [position],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      handleDragStart(e.clientX, e.clientY);
+    },
+    [handleDragStart],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      handleDragStart(touch.clientX, touch.clientY);
+    },
+    [handleDragStart],
+  );
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
+      setPosition({
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      });
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+      setPosition({
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      });
+    };
+
+    const handleEnd = () => {
+      setIsDragging(false);
+      saveWidgetPosition(WIDGET_ID, position.x, position.y);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleEnd);
+    };
+  }, [isDragging, position]);
 
   // Update time every second
   useEffect(() => {
@@ -104,24 +223,6 @@ export default function WidgetDraggableDateTime() {
   const resetPosition = useCallback(() => {
     resetWidgetPosition("time");
   }, []);
-
-  // Reactive position plugin
-  const positionCompartment = useCompartment(
-    () => positionPlugin({ current: position }),
-    [position.x, position.y],
-  );
-
-  useDraggable(draggableRef, () => [
-    controls({
-      allow: ControlFrom.selector("[data-drag-handle]"),
-      block: ControlFrom.selector("a, button"),
-      priority: "allow",
-    }),
-    events({
-      onDragEnd: handleDragEnd,
-    }),
-    positionCompartment,
-  ]);
 
   // Derived values
   const userLocale =
@@ -167,14 +268,18 @@ export default function WidgetDraggableDateTime() {
       modal={false}
     >
       <div
-        ref={draggableRef}
+        ref={containerRef}
         data-widget-id="time"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px)`,
+        }}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isDragging ? "shadow-none" : ""} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "DateTime" Label - Drag Handle */}
         <div
-          data-drag-handle
-          className="flex cursor-grab items-center justify-center border-r border-white/10 px-1 transition-colors hover:bg-white/5 data-[neodrag-state=dragging]:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             Time
