@@ -629,8 +629,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     }
   }, [country]);
 
-  const isVisible =
-    isPositionLoaded && visibility.onlineradioboxnowplaying !== false;
+  const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
   const selectedCountry = COUNTRIES.find((c) => c.code === country);
 
@@ -642,7 +641,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     >
       <div
         ref={containerRef}
-        data-widget-id="onlineradioboxnowplaying"
+        data-widget-id={WIDGET_ID}
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
@@ -983,18 +982,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setVisibility((prev: any) => ({
-              ...prev,
-              onlineradioboxnowplaying: false,
-            }));
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({
-                  ...visibility,
-                  onlineradioboxnowplaying: false,
-                }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
