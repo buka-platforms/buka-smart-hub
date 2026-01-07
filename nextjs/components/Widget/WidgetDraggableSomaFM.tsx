@@ -43,7 +43,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWidgetPosition } from "./useWidgetPosition";
 
 interface SomaFMChannel {
@@ -386,6 +386,19 @@ export default function WidgetDraggableSomaFM() {
                 onPlay={() => {
                   setIsPlaying(true);
                   setIsLoading(false);
+                  try {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (typeof window !== "undefined" && (window as any).gtag) {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      (window as any).gtag("event", "page_view", {
+                        page_title: `SomaFM: ${currentChannel?.title || selected}`,
+                        page_location: window.location.href,
+                        page_path: window.location.pathname,
+                      });
+                    }
+                  } catch {
+                    /* ignore */
+                  }
                 }}
                 onPause={() => setIsPlaying(false)}
                 onEnded={() => setIsPlaying(false)}
