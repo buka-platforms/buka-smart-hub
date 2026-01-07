@@ -47,12 +47,10 @@ export default async function AboutPage() {
       {/* <main className="mt-9 md:px-0"> */}
       <main className="mt-9 w-full">
         <p className="leading-7 not-first:mt-6">
-          {process.env.NEXT_PUBLIC_APP_TITLE} is a platform with several
-          features or apps that you can use to make your day more enjoyable.{" "}
-          {process.env.NEXT_PUBLIC_APP_TITLE} is always improving, add new
-          features and we will make it better.
+          {process.env.NEXT_PUBLIC_APP_TITLE} is a platform to make you happy
+          everyday. We improve, add new features and make it better.
         </p>
-        <h2 className="mt-7 text-base font-medium tracking-tighter md:text-lg">
+        <h2 className="mt-7 text-base font-bold tracking-tighter md:text-lg">
           Who created {process.env.NEXT_PUBLIC_APP_TITLE}?
         </h2>
         <p className="leading-7 not-first:mt-6">
@@ -61,18 +59,26 @@ export default async function AboutPage() {
             className="font-bold underline"
             href="https://sony-ak.com"
             target="_blank"
+            rel="noopener noreferrer"
           >
             Sony AK
+          </a>
+          . Part of{" "}
+          <a
+            className="font-bold underline"
+            href="https://github.com/buka-platforms"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Buka Platforms, Inc.
           </a>{" "}
-          and to make your day a little more enjoyable. Buka is part of Buka
-          Platforms, Inc. Made with love & passion in Jakarta, Indonesia 🇮🇩 🌎
-          Enjoyed everywhere. Feedback and suggestions are always welcome.
+          Made with love & passion in Jakarta, Indonesia, enjoyed everywhere.
         </p>
-        <h2 className="mt-7 text-base font-medium tracking-tighter md:text-lg">
-          Contact {process.env.NEXT_PUBLIC_APP_TITLE}
+        <h2 className="mt-7 text-base font-bold tracking-tighter md:text-lg">
+          Contact us
         </h2>
         <p className="leading-7 not-first:mt-6">
-          Just{" "}
+          Feedback and suggestions are always welcome. Just{" "}
           <Link href="/contact" className="underline">
             go here
           </Link>{" "}
@@ -87,7 +93,7 @@ export default async function AboutPage() {
         <img
           src="/assets/images/illustration_about.svg"
           alt="About"
-          className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+          className="h-50 w-50 md:h-87.5 md:w-87.5"
         />
       </div>
     </>
