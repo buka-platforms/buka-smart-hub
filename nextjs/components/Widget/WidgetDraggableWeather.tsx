@@ -19,7 +19,7 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import useSWR from "swr";
 import { useWidgetPosition } from "./useWidgetPosition";
 
