@@ -136,7 +136,7 @@ export default function WidgetDraggableRadioPlayer() {
   }, [radioStationState.radioStation?.slug]);
 
   const resetPosition = useCallback(() => {
-    resetWidgetPosition("radio");
+    resetWidgetPosition(WIDGET_ID);
   }, []);
 
   const updateVolume = useCallback(
@@ -304,7 +304,7 @@ export default function WidgetDraggableRadioPlayer() {
   const isVisible =
     !!radioStationState.radioStation &&
     isPositionLoaded &&
-    visibility.radio !== false;
+    visibility[WIDGET_ID] !== false;
 
   return (
     <DropdownMenu
@@ -314,7 +314,7 @@ export default function WidgetDraggableRadioPlayer() {
     >
       <div
         ref={containerRef}
-        data-widget-id="radio"
+        data-widget-id={WIDGET_ID}
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
@@ -481,11 +481,11 @@ export default function WidgetDraggableRadioPlayer() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, radio: false }));
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, radio: false }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
