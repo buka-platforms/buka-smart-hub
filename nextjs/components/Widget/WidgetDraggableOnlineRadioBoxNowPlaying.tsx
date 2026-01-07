@@ -39,7 +39,13 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useRef as useRef2,
+  useState,
+} from "react";
 import { useWidgetPosition } from "./useWidgetPosition";
 
 interface NowPlayingStation {
@@ -286,6 +292,37 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     selectedStation?.radioName,
     volume,
   ]);
+
+  // Track last sent track to avoid duplicate GA hits
+  const lastTrackRef = useRef2<string | null>(null);
+
+  // Send GA virtual page_view when track metadata changes while playing
+  useEffect(() => {
+    if (!selectedStation) {
+      lastTrackRef.current = null;
+      return;
+    }
+
+    const trackKey = `${selectedStation.artist || ""} - ${selectedStation.title || ""}`;
+
+    if (isPlaying && trackKey && trackKey !== lastTrackRef.current) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (typeof window !== "undefined" && (window as any).gtag) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).gtag("event", "page_view", {
+            page_title: `OnlineRadioBox: ${selectedStation.radioName || selectedStation.radioId} — ${selectedStation.artist || ""} - ${selectedStation.title || ""}`,
+            page_location: window.location.href,
+            page_path: window.location.pathname,
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    lastTrackRef.current = trackKey;
+  }, [isPlaying, lastTrackRef, selectedStation]);
 
   // Update volume when changed and persist as integer percent (0-100)
   useEffect(() => {
