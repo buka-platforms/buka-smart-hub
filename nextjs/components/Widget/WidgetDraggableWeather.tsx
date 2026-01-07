@@ -57,6 +57,7 @@ export default function WidgetDraggableWeather() {
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const positionRef = useRef(position);
 
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -101,12 +102,12 @@ export default function WidgetDraggableWeather() {
   useEffect(() => {
     queueMicrotask(() => {
       const saved = getSavedWidgetPosition(WIDGET_ID);
-      if (saved) {
-        setPosition(saved);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions[WIDGET_ID] || { x: 0, y: 0 });
-      }
+      const initial = saved ??
+        calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
+      setPosition(initial);
+      positionRef.current = initial;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
       setIsPositionLoaded(true);
     });
   }, []);
@@ -175,30 +176,38 @@ export default function WidgetDraggableWeather() {
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - dragStartRef.current.x;
       const deltaY = e.clientY - dragStartRef.current.y;
-      setPosition({
+      const next = {
         x: dragStartRef.current.posX + deltaX,
         y: dragStartRef.current.posY + deltaY,
-      });
+      };
+      positionRef.current = next;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStartRef.current.x;
       const deltaY = touch.clientY - dragStartRef.current.y;
-      setPosition({
+      const next = {
         x: dragStartRef.current.posX + deltaX,
         y: dragStartRef.current.posY + deltaY,
-      });
+      };
+      positionRef.current = next;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
     };
 
     const handleEnd = () => {
       setIsDragging(false);
-      saveWidgetPosition(WIDGET_ID, position.x, position.y);
+      const pos = positionRef.current;
+      setPosition(pos);
+      saveWidgetPosition(WIDGET_ID, pos.x, pos.y);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleEnd);
 
     return () => {
@@ -207,7 +216,7 @@ export default function WidgetDraggableWeather() {
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleEnd);
     };
-  }, [isDragging, position]);
+  }, [isDragging]);
 
   // Determine visibility
   const isVisible =
@@ -237,7 +246,7 @@ export default function WidgetDraggableWeather() {
         ref={containerRef}
         data-widget-id="weather"
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isDragging ? "shadow-none" : ""} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Weather" Label - Drag Handle */}
         <div
