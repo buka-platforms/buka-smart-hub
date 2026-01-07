@@ -20,15 +20,15 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
-import { resetWidgetPosition } from "@/lib/widget-positions";
 import {
-  ControlFrom,
-  controls,
-  events,
-  position as positionPlugin,
-  useCompartment,
-  useDraggable,
-} from "@neodrag/react";
+  calculateAutoArrangePositions,
+  getSavedWidgetPosition,
+  observeWidget,
+  resetWidgetPosition,
+  saveWidgetPosition,
+  unobserveWidget,
+} from "@/lib/widget-positions";
+// removed neodrag in favor of manual drag handlers
 import { useAtom } from "jotai";
 import {
   Disc3,
@@ -43,8 +43,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useWidgetPosition } from "./useWidgetPosition";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SomaFMChannel {
   id: string;
@@ -66,8 +65,12 @@ const VOLUME_KEY = "widgetSomaFMVolume";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 export default function WidgetDraggableSomaFM() {
-  const { position, isPositionLoaded, draggableRef, handleDragEnd } =
-    useWidgetPosition({ widgetId: "somafm" });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const positionRef = useRef(position);
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [, setLoading] = useState(true);
@@ -120,17 +123,123 @@ export default function WidgetDraggableSomaFM() {
       });
   }, []);
 
-  // Reactive position plugin
-  const positionCompartment = useCompartment(
-    () => positionPlugin({ current: position }),
-    [position.x, position.y],
+  // Load position on mount
+  useEffect(() => {
+    queueMicrotask(() => {
+      const saved = getSavedWidgetPosition("somafm");
+      const initial = saved ??
+        calculateAutoArrangePositions()["somafm"] ?? { x: 0, y: 0 };
+      setPosition(initial);
+      positionRef.current = initial;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
+      setIsPositionLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    observeWidget("somafm", el);
+    return () => unobserveWidget("somafm");
+  }, []);
+
+  useEffect(() => {
+    const handleReset = (e: Event) => {
+      const customEvent = e as CustomEvent<
+        Record<string, { x: number; y: number }>
+      >;
+      const detail = customEvent.detail || {};
+      if (Object.prototype.hasOwnProperty.call(detail, "somafm")) {
+        const newPos = detail["somafm"];
+        if (newPos) setPosition(newPos);
+      } else if (Object.keys(detail).length > 1) {
+        const newPos = detail["somafm"];
+        if (newPos) setPosition(newPos);
+      }
+    };
+
+    window.addEventListener("widget-positions-reset", handleReset);
+    return () =>
+      window.removeEventListener("widget-positions-reset", handleReset);
+  }, []);
+
+  const handleDragStart = useCallback(
+    (clientX: number, clientY: number) => {
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: clientX,
+        y: clientY,
+        posX: position.x,
+        posY: position.y,
+      };
+    },
+    [position],
   );
 
-  useDraggable(draggableRef, () => [
-    controls({ block: ControlFrom.selector("a, button, select") }),
-    events({ onDragEnd: handleDragEnd }),
-    positionCompartment,
-  ]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      handleDragStart(e.clientX, e.clientY);
+    },
+    [handleDragStart],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      handleDragStart(touch.clientX, touch.clientY);
+    },
+    [handleDragStart],
+  );
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
+      const next = {
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      };
+      positionRef.current = next;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+      const next = {
+        x: dragStartRef.current.posX + deltaX,
+        y: dragStartRef.current.posY + deltaY,
+      };
+      positionRef.current = next;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
+    };
+
+    const handleEnd = () => {
+      setIsDragging(false);
+      const pos = positionRef.current;
+      setPosition(pos);
+      saveWidgetPosition("somafm", pos.x, pos.y);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleEnd);
+    };
+  }, [isDragging]);
 
   const currentChannel = channels.find((c) => c.id === selected);
   // Use direct mp3 stream URL as per SomaFM docs
@@ -262,12 +371,17 @@ export default function WidgetDraggableSomaFM() {
       modal={false}
     >
       <div
-        ref={draggableRef}
+        ref={containerRef}
         data-widget-id="somafm"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "SomaFM" Label */}
-        <div className="flex items-center justify-center border-r border-white/10 px-1">
+        <div
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          className={`flex items-center justify-center border-r border-white/10 px-1 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             SomaFM
           </span>
