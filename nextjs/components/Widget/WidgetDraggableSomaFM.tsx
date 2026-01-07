@@ -224,6 +224,37 @@ export default function WidgetDraggableSomaFM() {
     };
   }, [selected, isPlaying]);
 
+  // Track last sent SomaFM track to avoid duplicate GA hits
+  const lastSomaTrackRef = useRef<string | null>(null);
+
+  // Send GA virtual page_view when SomaFM now playing changes while playing
+  useEffect(() => {
+    if (!nowPlaying) {
+      lastSomaTrackRef.current = null;
+      return;
+    }
+
+    const trackKey = `${nowPlaying.artist || ""} - ${nowPlaying.title || ""}`;
+
+    if (isPlaying && trackKey && trackKey !== lastSomaTrackRef.current) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (typeof window !== "undefined" && (window as any).gtag) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).gtag("event", "page_view", {
+            page_title: `SomaFM: ${currentChannel?.title || selected} — ${nowPlaying.artist || ""} - ${nowPlaying.title || ""}`,
+            page_location: window.location.href,
+            page_path: window.location.pathname,
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    lastSomaTrackRef.current = trackKey;
+  }, [currentChannel?.title, isPlaying, nowPlaying, selected]);
+
   return (
     <DropdownMenu
       open={moreMenuOpen}
