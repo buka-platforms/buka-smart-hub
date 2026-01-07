@@ -39,7 +39,7 @@ export default function BookPreview() {
   const randomTopic = topics[Math.floor(Math.random() * topics.length)];
 
   const searchParams = useSearchParams();
-  const queryParam = searchParams.get("q") || randomTopic;
+  const queryParam = searchParams?.get("q") || randomTopic;
 
   const search = useCallback(async (query: string) => {
     if (query.trim().length === 0) {
