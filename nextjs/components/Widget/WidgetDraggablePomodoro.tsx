@@ -24,6 +24,8 @@ import {
   Clock3,
   Coffee,
   FastForward,
+  MessageSquare,
+  MessageSquareOff,
   MoreHorizontal,
   Pause,
   Play,
@@ -41,10 +43,12 @@ const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 interface PomodoroSettings {
   audioEnabled: boolean;
+  notificationEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: PomodoroSettings = {
   audioEnabled: true,
+  notificationEnabled: false,
 };
 
 // Play notification sound using Web Audio API
@@ -87,6 +91,39 @@ function playNotificationSound() {
     setTimeout(() => ctx.close(), 1000);
   } catch {
     /* ignore audio errors */
+  }
+}
+
+// Show browser notification
+function showBrowserNotification(mode: Mode) {
+  if (typeof window === "undefined" || !("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+
+  try {
+    const isFocus = mode === "focus";
+    const title = isFocus ? "🎉 Focus Complete!" : "☕ Break Over!";
+    const body = isFocus
+      ? "Great work! Time for a well-deserved break."
+      : "Ready to get back to work?";
+
+    const notification = new Notification(title, {
+      body,
+      icon: "/assets/icons/icon-192x192.png",
+      badge: "/assets/icons/icon-192x192.png",
+      tag: "pomodoro-timer",
+      requireInteraction: true,
+    });
+
+    // Auto-close after 10 seconds
+    setTimeout(() => notification.close(), 10000);
+
+    // Focus window when notification is clicked
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
+  } catch {
+    /* ignore notification errors */
   }
 }
 
@@ -221,6 +258,11 @@ export default function WidgetDraggablePomodoro() {
     return DEFAULT_SETTINGS;
   });
 
+  // Notification permission state
+  const [notificationPermission, setNotificationPermission] = useState<
+    NotificationPermission | "unsupported"
+  >("default");
+
   // Load saved timer state
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -283,6 +325,15 @@ export default function WidgetDraggablePomodoro() {
     }
   }, [settings]);
 
+  // Check notification permission on mount
+  useEffect(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      queueMicrotask(() => setNotificationPermission("unsupported"));
+      return;
+    }
+    queueMicrotask(() => setNotificationPermission(Notification.permission));
+  }, []);
+
   // Timer tick
   useEffect(() => {
     if (!isRunning) return undefined;
@@ -336,8 +387,18 @@ export default function WidgetDraggablePomodoro() {
       if (settings.audioEnabled) {
         playNotificationSound();
       }
+
+      // Show browser notification
+      if (settings.notificationEnabled) {
+        showBrowserNotification(modeRef.current);
+      }
     });
-  }, [isRunning, remainingSeconds, settings.audioEnabled]);
+  }, [
+    isRunning,
+    remainingSeconds,
+    settings.audioEnabled,
+    settings.notificationEnabled,
+  ]);
 
   // Continue to next phase (called from completion modal)
   const continueToNextPhase = useCallback(() => {
@@ -362,6 +423,29 @@ export default function WidgetDraggablePomodoro() {
   const toggleAudio = useCallback(() => {
     setSettings((prev) => ({ ...prev, audioEnabled: !prev.audioEnabled }));
   }, []);
+
+  // Toggle notification setting (with permission request)
+  const toggleNotification = useCallback(async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+
+    // If currently enabled, just disable
+    if (settings.notificationEnabled) {
+      setSettings((prev) => ({ ...prev, notificationEnabled: false }));
+      return;
+    }
+
+    // If permission not granted, request it
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      if (permission === "granted") {
+        setSettings((prev) => ({ ...prev, notificationEnabled: true }));
+      }
+    } else if (Notification.permission === "granted") {
+      setSettings((prev) => ({ ...prev, notificationEnabled: true }));
+    }
+    // If denied, do nothing (user needs to change in browser settings)
+  }, [settings.notificationEnabled]);
 
   const toggleRun = useCallback(() => {
     setIsRunning((prev) => !prev);
@@ -553,30 +637,6 @@ export default function WidgetDraggablePomodoro() {
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
-              <button
-                onClick={toggleAudio}
-                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
-                  settings.audioEnabled
-                    ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
-                    : "bg-white/10 text-white/50 hover:bg-white/20"
-                }`}
-                title={settings.audioEnabled ? "Sound on" : "Sound off"}
-              >
-                {settings.audioEnabled ? (
-                  <Bell className="h-4 w-4" />
-                ) : (
-                  <BellOff className="h-4 w-4" />
-                )}
-              </button>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="More options"
-                  onContextMenu={(e) => e.preventDefault()}
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
             </div>
           </div>
 
@@ -618,6 +678,70 @@ export default function WidgetDraggablePomodoro() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Action bar */}
+          <div className="border-t border-white/10" />
+          <div className="flex items-center gap-2 px-3 py-2">
+            {/* Audio toggle */}
+            <button
+              onClick={toggleAudio}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+                settings.audioEnabled
+                  ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
+                  : "bg-white/10 text-white/50 hover:bg-white/20"
+              }`}
+              title={settings.audioEnabled ? "Sound on" : "Sound off"}
+            >
+              {settings.audioEnabled ? (
+                <Bell className="h-4 w-4" />
+              ) : (
+                <BellOff className="h-4 w-4" />
+              )}
+            </button>
+
+            {/* Notification toggle */}
+            <button
+              onClick={toggleNotification}
+              disabled={notificationPermission === "unsupported"}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+                notificationPermission === "unsupported"
+                  ? "cursor-not-allowed opacity-40"
+                  : notificationPermission === "denied"
+                    ? "cursor-not-allowed bg-red-500/10 text-red-400/50"
+                    : settings.notificationEnabled
+                      ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
+                      : "bg-white/10 text-white/50 hover:bg-white/20"
+              }`}
+              title={
+                notificationPermission === "unsupported"
+                  ? "Browser notifications not supported"
+                  : notificationPermission === "denied"
+                    ? "Notifications blocked - enable in browser settings"
+                    : settings.notificationEnabled
+                      ? "Browser notifications on"
+                      : "Browser notifications off"
+              }
+            >
+              {settings.notificationEnabled &&
+              notificationPermission === "granted" ? (
+                <MessageSquare className="h-4 w-4" />
+              ) : (
+                <MessageSquareOff className="h-4 w-4" />
+              )}
+            </button>
+
+            <div className="ml-auto">
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="More options"
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+            </div>
           </div>
         </div>
       </div>
