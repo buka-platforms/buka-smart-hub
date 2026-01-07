@@ -476,6 +476,11 @@ export default function WidgetDraggablePomodoro() {
     [mode],
   );
 
+  // Reset position using centralized auto-arrange logic
+  const resetPosition = useCallback(() => {
+    resetWidgetPosition(WIDGET_ID);
+  }, []);
+
   // Reactive position plugin
   // Load position from storage on mount
   useEffect(() => {
@@ -905,7 +910,7 @@ export default function WidgetDraggablePomodoro() {
           onSelect={(e) => {
             e.preventDefault();
             setMoreMenuOpen(false);
-            requestAnimationFrame(() => resetWidgetPosition(WIDGET_ID));
+            requestAnimationFrame(resetPosition);
           }}
           className="cursor-pointer"
         >
