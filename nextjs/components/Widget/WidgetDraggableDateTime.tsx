@@ -113,7 +113,9 @@ export default function WidgetDraggableDateTime() {
 
   useDraggable(draggableRef, () => [
     controls({
+      allow: ControlFrom.selector("[data-drag-handle]"),
       block: ControlFrom.selector("a, button"),
+      priority: "allow",
     }),
     events({
       onDragEnd: handleDragEnd,
@@ -167,10 +169,13 @@ export default function WidgetDraggableDateTime() {
       <div
         ref={draggableRef}
         data-widget-id="time"
-        className={`pointer-events-auto absolute z-50 flex transform-gpu cursor-grab rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:cursor-grabbing data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-[opacity,transform] duration-300 will-change-transform data-[neodrag-state=dragging]:shadow-none data-[neodrag-state=dragging]:transition-none ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        {/* Vertical "DateTime" Label */}
-        <div className="flex items-center justify-center border-r border-white/10 px-1">
+        {/* Vertical "DateTime" Label - Drag Handle */}
+        <div
+          data-drag-handle
+          className="flex cursor-grab items-center justify-center border-r border-white/10 px-1 transition-colors hover:bg-white/5 data-[neodrag-state=dragging]:cursor-grabbing"
+        >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             Time
           </span>
