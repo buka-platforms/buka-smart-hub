@@ -53,6 +53,16 @@ export const onlineRadioBoxAudioStateAtom = atom({
   lastRadioId: null as string | null,
 });
 
+// SomaFM audio state (shared audio controller for SomaFM widget)
+export const somafmAudioStateAtom = atom({
+  isLoading: false,
+  isPlaying: false,
+  audio: undefined as HTMLAudioElement | null | undefined,
+  volume: 0.5,
+  lastStream: null as string | null,
+  lastChannelId: null as string | null,
+});
+
 // Widget Launcher Dock State
 export type WidgetId =
   | "time"

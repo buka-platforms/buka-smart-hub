@@ -19,7 +19,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
-import { widgetVisibilityAtom } from "@/data/store";
+import { somafmAudioStateAtom, widgetVisibilityAtom } from "@/data/store";
+import {
+  attachSomaFMListeners,
+  detachSomaFMListeners,
+  playSomaFMStream,
+  setSomaFMVolume,
+  setupSomaFMAudio,
+  stopSomaFM,
+} from "@/lib/somafm-audio";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -77,20 +85,12 @@ export default function WidgetDraggableSomaFM() {
   const [, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [volume, setVolume] = useState(() => {
-    if (typeof window === "undefined") return 0.5;
-    const saved = localStorage.getItem(VOLUME_KEY);
-    const parsed = Number(saved);
-    if (Number.isFinite(parsed)) {
-      if (parsed === 0) return 0.5;
-      if (parsed > 100) return Math.min(1, Math.max(0, parsed / 100));
-      return Math.min(1, Math.max(0, parsed / 100));
-    }
-    return 0.5;
-  });
+  const [somafmAudioState] = useAtom(somafmAudioStateAtom);
+  const isPlaying = !!somafmAudioState?.isPlaying;
+  const isLoading = !!somafmAudioState?.isLoading;
+  const volume = Number.isFinite(somafmAudioState?.volume)
+    ? somafmAudioState.volume
+    : 0.5;
   const [nowPlaying, setNowPlaying] = useState<{
     title: string;
     artist: string;
@@ -123,6 +123,25 @@ export default function WidgetDraggableSomaFM() {
         setLoading(false);
       });
   }, []);
+
+  // setup shared audio on mount and attach listeners (do not stop audio on unmount)
+  useEffect(() => {
+    setupSomaFMAudio();
+    attachSomaFMListeners();
+    return () => {
+      detachSomaFMListeners();
+    };
+  }, []);
+
+  // If we have an existing last channel in shared audio state, rehydrate selection when channels load
+  useEffect(() => {
+    if (channels.length === 0) return;
+    const last = somafmAudioState?.lastChannelId;
+    if (last) {
+      const found = channels.find((c) => c.id === last);
+      if (found) setSelected(last);
+    }
+  }, [channels, somafmAudioState?.lastChannelId]);
 
   // Load position on mount
   useEffect(() => {
@@ -252,25 +271,7 @@ export default function WidgetDraggableSomaFM() {
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const visibleNowPlaying = selected ? nowPlaying : null;
 
-  // Sync audio element volume and persist to localStorage when volume changes
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(VOLUME_KEY, Math.round(volume * 100).toString());
-    } catch {
-      /* ignore */
-    }
-  }, [volume]);
-
-  // Ensure volume is applied whenever the stream URL changes
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [streamUrl, volume]);
+  // volume persisted and applied via shared audio manager
 
   // Fetch now playing info for selected channel
   useEffect(() => {
@@ -455,14 +456,19 @@ export default function WidgetDraggableSomaFM() {
             {/* Play/Pause Button on right */}
             <button
               disabled={!streamUrl}
-              onClick={() => {
-                if (!audioRef.current) return;
-                if (isPlaying) {
-                  audioRef.current.pause();
-                } else {
-                  setIsLoading(true);
-                  audioRef.current.play();
-                }
+              onClick={async () => {
+                if (!streamUrl) return;
+                try {
+                  if (somafmAudioState?.lastStream === streamUrl) {
+                    if (somafmAudioState?.isPlaying) {
+                      stopSomaFM();
+                    } else {
+                      await playSomaFMStream(streamUrl, selected);
+                    }
+                  } else {
+                    await playSomaFMStream(streamUrl, selected);
+                  }
+                } catch {}
               }}
               className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-white/10" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
               title={isPlaying ? "Pause" : "Play"}
@@ -524,38 +530,7 @@ export default function WidgetDraggableSomaFM() {
             </div>
           )}
 
-          {/* Hidden audio element */}
-          <>
-            {streamUrl && (
-              <audio
-                ref={audioRef}
-                src={streamUrl}
-                preload="none"
-                onPlay={() => {
-                  setIsPlaying(true);
-                  setIsLoading(false);
-                  try {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    if (typeof window !== "undefined" && (window as any).gtag) {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      (window as any).gtag("event", "page_view", {
-                        page_title: `SomaFM: ${currentChannel?.title || selected}`,
-                        page_location: window.location.href,
-                        page_path: window.location.pathname,
-                      });
-                    }
-                  } catch {
-                    /* ignore */
-                  }
-                }}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-                onWaiting={() => setIsLoading(true)}
-                onCanPlay={() => setIsLoading(false)}
-                style={{ display: "none" }}
-              />
-            )}
-          </>
+          {/* audio element managed in shared somafm audio module */}
 
           {/* Separator and action bar */}
           <div className="border-t border-white/10" />
@@ -591,8 +566,9 @@ export default function WidgetDraggableSomaFM() {
                   value={[Math.round(volume * 100)]}
                   onValueChange={(v) => {
                     const percent = v[0] ?? Math.round(volume * 100);
-                    const next = Math.min(1, Math.max(0, percent / 100));
-                    setVolume(next);
+                    try {
+                      setSomaFMVolume(percent);
+                    } catch {}
                   }}
                   max={100}
                   step={1}
@@ -650,17 +626,14 @@ export default function WidgetDraggableSomaFM() {
                         <CommandItem
                           key={c.id}
                           value={c.title}
-                          onSelect={() => {
+                          onSelect={async () => {
                             setSelected(c.id);
-                            setTimeout(() => {
-                              try {
-                                if (audioRef.current) {
-                                  audioRef.current.pause();
-                                  audioRef.current.load();
-                                  audioRef.current.play();
-                                }
-                              } catch {}
-                            }, 0);
+                            try {
+                              await playSomaFMStream(
+                                `https://ice1.somafm.com/${c.id}-128-mp3`,
+                                c.id,
+                              );
+                            } catch {}
                           }}
                           className="group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-blue-500/10"
                         >
