@@ -16,6 +16,7 @@ import {
   Timer,
   Tv,
   X,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -71,6 +72,12 @@ const WIDGETS: {
     label: "Now Playing",
     icon: <Rss className="h-5 w-5" />,
     description: "Live radio now playing list",
+  },
+  {
+    id: "quran",
+    label: "Quran",
+    icon: <BookOpen className="h-5 w-5" />,
+    description: "Read and listen to the Quran",
   },
 ];
 

@@ -43,6 +43,11 @@ const WidgetDraggableOnlineRadioBoxNowPlaying = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableQuran = dynamic(
+  () => import("@/components/Widget/WidgetDraggableQuran"),
+  { ssr: false },
+);
+
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
@@ -135,6 +140,10 @@ export default function WidgetContainer() {
 
       <WidgetWrapper widgetId="pomodoro" visible={visibility["pomodoro"]}>
         <WidgetDraggablePomodoro />
+      </WidgetWrapper>
+
+      <WidgetWrapper widgetId="quran" visible={visibility["quran"]}>
+        <WidgetDraggableQuran />
       </WidgetWrapper>
 
       <WidgetWrapper
