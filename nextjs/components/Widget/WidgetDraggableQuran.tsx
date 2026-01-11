@@ -520,12 +520,18 @@ export default function WidgetDraggableQuran() {
                         key={s.number}
                         value={`${s.number} ${s.englishName}`}
                         onSelect={() => setSelectedSurah(s.number)}
-                        className="cursor-pointer"
+                        className={`cursor-pointer ${
+                          s.number === selectedSurah
+                            ? "bg-white/10 text-white"
+                            : "hover:bg-white/5 hover:text-white"
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex-1 text-left">
                             <div className="font-bold">{`${s.number}. ${s.englishName}`}</div>
-                            <div className="text-[12px] text-white/60">
+                            <div className={`text-[12px] ${
+                              s.number === selectedSurah ? "text-white" : "text-white/60"
+                            }`}>
                               {s.name}
                             </div>
                           </div>
