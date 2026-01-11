@@ -442,7 +442,7 @@ export default function WidgetDraggableQuran() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-8 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20"
+                  className="flex h-8 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white hover:bg-white/20"
                 >
                   {selectedSurah
                     ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
