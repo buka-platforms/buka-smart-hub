@@ -412,6 +412,7 @@ export default function WidgetDraggableQuran() {
                         key={s.number}
                         value={String(s.number)}
                         onSelect={() => setSelectedSurah(s.number)}
+                        className="cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex-1 text-left">
@@ -431,7 +432,7 @@ export default function WidgetDraggableQuran() {
             <div className="ml-auto">
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20"
                   title="More options"
                   onContextMenu={(e) => e.preventDefault()}
                 >
