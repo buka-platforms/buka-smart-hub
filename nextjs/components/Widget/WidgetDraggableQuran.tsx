@@ -13,8 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSurah, getSurahList } from "@/lib/quran-api";
 import { widgetVisibilityAtom } from "@/data/store";
+import { getSurah, getSurahList } from "@/lib/quran-api";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -23,6 +23,7 @@ import {
   saveWidgetPosition,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import { useAtom } from "jotai";
 import {
   ChevronLeft,
   ChevronRight,
@@ -31,7 +32,6 @@ import {
   Pause,
   Play as PlayIcon,
 } from "lucide-react";
-import { useAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "quran";
@@ -61,6 +61,21 @@ export default function WidgetDraggableQuran() {
 
   const textContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const refreshSurahList = useCallback(async () => {
+    try {
+      const list = await getSurahList();
+      setSurahList(list || []);
+      const last =
+        typeof window !== "undefined"
+          ? localStorage.getItem(LAST_SURAH_KEY)
+          : null;
+      const num = last ? Number(last) : (list?.[0]?.number ?? 1);
+      setSelectedSurah(num);
+    } catch (error) {
+      console.error("Failed to refresh surah list:", error);
+    }
+  }, []);
+
   useEffect(() => {
     queueMicrotask(() => {
       const saved = getSavedWidgetPosition(WIDGET_ID);
@@ -73,6 +88,10 @@ export default function WidgetDraggableQuran() {
       setIsPositionLoaded(true);
     });
   }, []);
+
+  useEffect(() => {
+    refreshSurahList();
+  }, [refreshSurahList]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -389,7 +408,7 @@ export default function WidgetDraggableQuran() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="cursor-pointer flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20"
+                  className="flex h-8 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20"
                 >
                   {selectedSurah
                     ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
@@ -466,12 +485,25 @@ export default function WidgetDraggableQuran() {
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={() => {
-            setSurahList([]);
-            setSurahData(null);
-            setSelectedSurah(null);
+            refreshSurahList();
           }}
         >
-          Refresh list
+          Refresh surah list
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={async () => {
+            if (selectedSurah) {
+              try {
+                const data = await getSurah(selectedSurah, "ar.alafasy");
+                setSurahData(data);
+              } catch (error) {
+                console.error("Failed to refresh active surah:", error);
+              }
+            }
+          }}
+        >
+          Refresh active surah
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
