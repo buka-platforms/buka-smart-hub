@@ -442,7 +442,7 @@ export default function WidgetDraggableQuran() {
                       <div
                         key={a.number}
                         data-ayah-index={idx}
-                        className={`group relative p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
+                        className={`group relative p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""} ${idx < (surahData?.ayahs?.length || 0) - 1 ? "border-b border-white/10" : ""}`}
                       >
                         <div className="flex items-start gap-2">
                           <button
