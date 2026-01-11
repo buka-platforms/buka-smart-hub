@@ -6,6 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { T } from "@/lib/app";
 import {
   calculateAutoArrangePositions,
@@ -30,6 +37,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const FORMAT_STORAGE_KEY = "widgetDateTimeFormat";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+const WIDGET_VERSION = "1.0.0";
 
 type TimeFormat = "12h" | "24h";
 
@@ -74,6 +82,7 @@ export default function WidgetDraggableDateTime() {
 
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => {
     if (typeof window === "undefined") return "12h";
@@ -271,11 +280,12 @@ export default function WidgetDraggableDateTime() {
     isPositionLoaded && currentTime !== null && visibility[WIDGET_ID] !== false;
 
   return (
-    <DropdownMenu
-      open={moreMenuOpen}
-      onOpenChange={setMoreMenuOpen}
-      modal={false}
-    >
+    <>
+      <DropdownMenu
+        open={moreMenuOpen}
+        onOpenChange={setMoreMenuOpen}
+        modal={false}
+      >
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
@@ -400,7 +410,32 @@ export default function WidgetDraggableDateTime() {
         >
           Reset widget position
         </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            setMoreMenuOpen(false);
+            setAboutDialogOpen(true);
+          }}
+          className="cursor-pointer"
+        >
+          About widget
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>About Date & Time Widget</DialogTitle>
+          <DialogDescription className="text-left mt-2">
+            Shows current time with friendly greetings and beautiful icons that change with the time of day.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center justify-between pt-4 border-t">
+          <span className="text-sm text-muted-foreground">Version</span>
+          <span className="text-sm font-medium">{WIDGET_VERSION}</span>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
