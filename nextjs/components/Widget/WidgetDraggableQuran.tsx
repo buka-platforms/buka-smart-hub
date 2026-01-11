@@ -470,7 +470,7 @@ export default function WidgetDraggableQuran() {
                     {surahList.map((s: any) => (
                       <CommandItem
                         key={s.number}
-                        value={String(s.number)}
+                        value={`${s.number} ${s.englishName}`}
                         onSelect={() => setSelectedSurah(s.number)}
                         className="cursor-pointer"
                       >
