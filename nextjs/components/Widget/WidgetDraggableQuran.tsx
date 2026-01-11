@@ -30,6 +30,7 @@ import {
   Disc3,
   MoreHorizontal,
   Pause,
+  Play,
   Play as PlayIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -237,6 +238,23 @@ export default function WidgetDraggableQuran() {
     }
   }, [currentAyahIndex, surahData]);
 
+  const playAyah = useCallback(async (ayahIndex: number) => {
+    setCurrentAyahIndex(ayahIndex);
+    // Small delay to allow state update, then play
+    setTimeout(async () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      try {
+        setIsLoading(true);
+        await audio.play();
+        setIsPlaying(true);
+      } catch {
+        setIsPlaying(false);
+        setIsLoading(false);
+      }
+    }, 50);
+  }, []);
+
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -417,17 +435,36 @@ export default function WidgetDraggableQuran() {
                       <div
                         key={a.number}
                         data-ayah-index={idx}
-                        className={`p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
+                        className={`group relative p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
                       >
-                        <div className="text-right text-2xl leading-tight">
-                          {a.text}
-                        </div>
-                        <div className="mt-1 text-xs text-white/60">
-                          Ayah {a.numberInSurah}
+                        <div className="flex items-start gap-2">
+                          <button
+                            onClick={() => playAyah(idx)}
+                            className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all duration-200 ${
+                              idx === currentAyahIndex
+                                ? "bg-white/20 text-white opacity-100"
+                                : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
+                            }`}
+                            title={`Play Ayah ${a.numberInSurah}`}
+                          >
+                            {idx === currentAyahIndex && isPlaying ? (
+                              <Pause className="h-3 w-3" fill="currentColor" />
+                            ) : (
+                              <Play className="h-3 w-3" fill="currentColor" />
+                            )}
+                          </button>
+                          <div className="flex-1">
+                            <div className="text-right text-2xl leading-tight">
+                              {a.text}
+                            </div>
+                            <div className="mt-1 text-xs text-white/60">
+                              Ayah {a.numberInSurah}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )),
-                  [surahData?.ayahs, currentAyahIndex],
+                  [surahData?.ayahs, currentAyahIndex, isPlaying, playAyah],
                 )}
                 {!surahData && (
                   <div className="text-xs text-white/60">Loading…</div>
