@@ -478,7 +478,7 @@ export default function WidgetDraggableQuran() {
 
                 <div
                   ref={textContainerRef}
-                  className="mt-2 max-h-28 space-y-1 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
+                  className="mt-2 max-h-34 space-y-1 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
                 >
                   {useMemo(
                     () =>

@@ -266,7 +266,7 @@ function getWidgetDimensions(widgetId: WidgetId): {
     time: { width: 320, height: 138 },
     radio: { width: 340, height: 148 },
     weather: { width: 290, height: 158 },
-    quran: { width: 340, height: 200 },
+    quran: { width: 340, height: 224 },
     somafm: { width: 360, height: 220 },
     youtubelivetv: { width: 360, height: 280 },
     pomodoro: { width: 340, height: 280 },
