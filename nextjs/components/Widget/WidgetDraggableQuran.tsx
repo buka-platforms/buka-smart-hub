@@ -54,6 +54,7 @@ export default function WidgetDraggableQuran() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
   const textContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -289,7 +290,7 @@ export default function WidgetDraggableQuran() {
   const isVisible = isPositionLoaded;
 
   return (
-    <DropdownMenu modal={false} open={false} onOpenChange={() => {}}>
+    <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
