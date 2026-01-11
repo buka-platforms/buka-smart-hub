@@ -457,7 +457,11 @@ export default function WidgetDraggableQuran() {
               >
                 <Command
                   className="bg-transparent text-white"
-                  value={String(selectedSurah)}
+                  value={
+                    selectedSurah
+                      ? `${selectedSurah} ${surahList.find((s) => s.number === selectedSurah)?.englishName || ""}`
+                      : ""
+                  }
                 >
                   <CommandInput
                     placeholder="Search surah..."
