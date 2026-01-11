@@ -574,7 +574,7 @@ export default function WidgetDraggableQuran() {
                   onChange={(e) => setJumpToAyahValue(e.target.value)}
                   placeholder={`${currentAyahIndex + 1}`}
                   className="h-8 w-16 rounded border border-white/10 bg-white/10 px-2 text-center text-[10px] font-semibold tracking-wide text-white placeholder:text-white/60 focus:border-white/30 focus:outline-none"
-                  title="Jump to Ayah (1-286)"
+                  title={`Jump to Ayah (1-${surahData.ayahs.length})`}
                 />
                 <span className="text-[10px] text-white/60">
                   / {surahData.ayahs.length}
