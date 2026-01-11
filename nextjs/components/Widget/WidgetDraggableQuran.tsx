@@ -94,6 +94,27 @@ export default function WidgetDraggableQuran() {
   }, [refreshSurahList]);
 
   useEffect(() => {
+    const handleReset = (e: Event) => {
+      const customEvent = e as CustomEvent<
+        Record<string, { x: number; y: number }>
+      >;
+      const detail = customEvent.detail || {};
+
+      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+        const newPos = detail[WIDGET_ID];
+        if (newPos) setPosition(newPos);
+      } else if (Object.keys(detail).length > 1) {
+        const newPos = detail[WIDGET_ID];
+        if (newPos) setPosition(newPos);
+      }
+    };
+
+    window.addEventListener("widget-positions-reset", handleReset);
+    return () =>
+      window.removeEventListener("widget-positions-reset", handleReset);
+  }, []);
+
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     observeWidget(WIDGET_ID, el);

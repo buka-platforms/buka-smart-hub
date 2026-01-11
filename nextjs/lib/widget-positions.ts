@@ -140,13 +140,22 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
   observedElements.set(widgetId, element);
   visibleWidgets.add(widgetId);
 
-  // Initial measurement
-  const rect = element.getBoundingClientRect();
-  measuredDimensions.set(widgetId, {
-    width: Math.ceil(rect.width),
-    height: Math.ceil(rect.height),
-    lastUpdate: Date.now(),
-  });
+  // Initial measurement - delay slightly to allow content to load
+  setTimeout(() => {
+    if (observedElements.has(widgetId) && element.isConnected) {
+      const rect = element.getBoundingClientRect();
+      measuredDimensions.set(widgetId, {
+        width: Math.ceil(rect.width),
+        height: Math.ceil(rect.height),
+        lastUpdate: Date.now(),
+      });
+
+      // Trigger layout update if auto-arrange is enabled and no saved positions exist
+      if (isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
+        scheduleLayoutUpdate();
+      }
+    }
+  }, 100);
 }
 
 /**
@@ -257,9 +266,9 @@ function getWidgetDimensions(widgetId: WidgetId): {
     time: { width: 320, height: 138 },
     radio: { width: 340, height: 148 },
     weather: { width: 290, height: 158 },
-    quran: { width: 360, height: 220 },
+    quran: { width: 340, height: 200 },
     somafm: { width: 360, height: 220 },
-    youtubelivetv: { width: 360, height: 310 },
+    youtubelivetv: { width: 360, height: 280 },
     pomodoro: { width: 340, height: 280 },
     onlineradioboxnowplaying: { width: 340, height: 420 },
   };
@@ -476,15 +485,16 @@ export function resetWidgetPosition(widgetId: WidgetId): void {
   }
 
   const positions = calculateAutoArrangePositions();
-  const position = positions[widgetId];
-  if (position) {
-    saveWidgetPosition(widgetId, position.x, position.y);
-    window.dispatchEvent(
-      new CustomEvent("widget-positions-reset", {
-        detail: { [widgetId]: position },
-      }),
-    );
-  }
+
+  // Save all positions to ensure consistency
+  Object.entries(positions).forEach(([id, pos]) => {
+    saveWidgetPosition(id as WidgetId, pos.x, pos.y);
+  });
+
+  // Dispatch event with all positions
+  window.dispatchEvent(
+    new CustomEvent("widget-positions-reset", { detail: positions }),
+  );
 }
 
 /**
