@@ -199,7 +199,10 @@ export default function WidgetDraggableQuran() {
       setIsPlaying(true);
     };
     audio.onwaiting = () => setIsLoading(true);
-    audio.oncanplay = () => setIsLoading(false);
+    audio.oncanplay = () => {
+      setIsLoading(false);
+      // Audio is now ready to play
+    };
     audio.onerror = () => {
       setIsLoading(false);
       setIsPlaying(false);
@@ -264,7 +267,8 @@ export default function WidgetDraggableQuran() {
 
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !audio.src) return; // Ensure audio source is set
+
     try {
       if (isPlaying) {
         audio.pause();
