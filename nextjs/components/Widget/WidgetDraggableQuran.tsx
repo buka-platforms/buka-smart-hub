@@ -447,7 +447,7 @@ export default function WidgetDraggableQuran() {
                         <div className="flex items-start gap-2">
                           <button
                             onClick={() => playAyah(idx)}
-                            className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all duration-200 ${
+                            className={`mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200 ${
                               idx === currentAyahIndex
                                 ? "bg-white/20 text-white opacity-100"
                                 : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
