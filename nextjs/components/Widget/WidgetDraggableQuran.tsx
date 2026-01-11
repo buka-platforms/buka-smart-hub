@@ -551,7 +551,12 @@ export default function WidgetDraggableQuran() {
                         <div className="flex items-center gap-3">
                           <div className="flex-1 text-left">
                             <div className="font-bold">{`${s.number}. ${s.englishName}`}</div>
-                            <div className="text-[12px]">{s.name}</div>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="text-[12px]">{s.name}</div>
+                              <div className="text-[10px] opacity-70">
+                                {s.numberOfAyahs} ayahs
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </CommandItem>
