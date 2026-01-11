@@ -434,7 +434,7 @@ export default function WidgetDraggableQuran() {
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-xs text-white/60">
+                    <div className="text-xs font-semibold text-white/60">
                       {surahData?.englishName || "Surah"}
                     </div>
                     <div className="truncate text-sm font-medium text-white">
