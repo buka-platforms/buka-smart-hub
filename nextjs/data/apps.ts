@@ -37,9 +37,9 @@ export const apps = [
     type: "",
   },
   {
-    path: "/apps/buka-corner",
-    id: "buka-corner",
-    name: "Buka Corner",
+    path: "/apps/buka-knowledge",
+    id: "buka-knowledge",
+    name: "Buka Knowledge",
     description: "Augmented knowledge.",
     image_url: "/assets/images/apps_icon_buka_corner.svg",
     type: "",
