@@ -529,11 +529,7 @@ export default function WidgetDraggableQuran() {
                         <div className="flex items-center gap-3">
                           <div className="flex-1 text-left">
                             <div className="font-bold">{`${s.number}. ${s.englishName}`}</div>
-                            <div className={`text-[12px] ${
-                              s.number === selectedSurah ? "text-white" : "text-white/60"
-                            }`}>
-                              {s.name}
-                            </div>
+                            <div className="text-[12px]">{s.name}</div>
                           </div>
                         </div>
                       </CommandItem>
