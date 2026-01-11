@@ -54,13 +54,6 @@ export default function WidgetDraggableQuran() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [repeat, setRepeat] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("widgetQuranRepeat") === "true";
-    } catch {
-      return false;
-    }
-  });
 
   const textContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -155,11 +148,6 @@ export default function WidgetDraggableQuran() {
     };
     audio.onended = () => {
       setIsPlaying(false);
-      if (repeat) {
-        audio.play().catch(() => {});
-        setIsPlaying(true);
-        return;
-      }
       if (surahData && currentAyahIndex < surahData.ayahs.length - 1) {
         setCurrentAyahIndex((i) => i + 1);
         // Auto-play the next ayah
@@ -191,7 +179,7 @@ export default function WidgetDraggableQuran() {
           target.scrollIntoView({ block: "center", behavior: "smooth" });
       });
     }
-  }, [currentAyahIndex, surahData, repeat]);
+  }, [currentAyahIndex, surahData]);
 
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -336,7 +324,7 @@ export default function WidgetDraggableQuran() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={prevAyah}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                     title="Previous"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -344,7 +332,7 @@ export default function WidgetDraggableQuran() {
 
                   <button
                     onClick={togglePlay}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                     title={isPlaying ? "Pause" : "Play"}
                   >
                     {isLoading ? (
@@ -358,7 +346,7 @@ export default function WidgetDraggableQuran() {
 
                   <button
                     onClick={nextAyah}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                     title="Next"
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -439,21 +427,6 @@ export default function WidgetDraggableQuran() {
                 </Command>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <div className="mx-auto flex gap-2">
-              <button
-                onClick={() => {
-                  const next = !repeat;
-                  setRepeat(next);
-                  try {
-                    localStorage.setItem("widgetQuranRepeat", String(next));
-                  } catch {}
-                }}
-                className={`h-8 rounded-full px-3 text-[11px] ${repeat ? "bg-purple-600 text-white" : "bg-white/5 text-white"}`}
-              >
-                Repeat
-              </button>
-            </div>
 
             <div className="ml-auto">
               <DropdownMenuTrigger asChild>
