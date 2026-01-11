@@ -1,18 +1,18 @@
 "use client";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { T } from "@/lib/app";
 import {
   calculateAutoArrangePositions,
@@ -286,156 +286,157 @@ export default function WidgetDraggableDateTime() {
         onOpenChange={setMoreMenuOpen}
         modal={false}
       >
-      <div
-        ref={containerRef}
-        data-widget-id={WIDGET_ID}
-        style={{
-          transform: `translate(${position.x}px, ${position.y}px)`,
-        }}
-        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-      >
-        {/* Vertical "DateTime" Label - Drag Handle */}
         <div
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          ref={containerRef}
+          data-widget-id={WIDGET_ID}
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px)`,
+          }}
+          className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-            Time
-          </span>
-        </div>
+          {/* Vertical "DateTime" Label - Drag Handle */}
+          <div
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          >
+            <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
+              Time
+            </span>
+          </div>
 
-        {/* Main Column */}
-        <div className="flex w-75 flex-col">
-          {/* DateTime Row */}
-          <div className="flex items-center gap-3 p-3">
-            {/* Time of Day Icon */}
-            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-white/15 to-white/5">
-              <TimeOfDayIcon
-                hour={hour}
-                className="h-8 w-8 text-amber-300/90"
-              />
-            </div>
+          {/* Main Column */}
+          <div className="flex w-75 flex-col">
+            {/* DateTime Row */}
+            <div className="flex items-center gap-3 p-3">
+              {/* Time of Day Icon */}
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-white/15 to-white/5">
+                <TimeOfDayIcon
+                  hour={hour}
+                  className="h-8 w-8 text-amber-300/90"
+                />
+              </div>
 
-            {/* Time Display */}
-            <div className="flex min-w-0 flex-1 flex-col justify-center">
-              <span className="text-xs text-white/60">{greeting}</span>
-              <div className="flex items-baseline gap-1">
-                <span className="font-rubik text-3xl font-light tracking-tight text-white">
-                  {formattedTime}
-                </span>
-                {timeFormat === "12h" && (
-                  <span className="text-sm font-medium text-white/70">
-                    {meridiem}
+              {/* Time Display */}
+              <div className="flex min-w-0 flex-1 flex-col justify-center">
+                <span className="text-xs text-white/60">{greeting}</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-rubik text-3xl font-light tracking-tight text-white">
+                    {formattedTime}
                   </span>
-                )}
-                <span className="ml-0.5 text-xs text-white/40 tabular-nums">
-                  :{seconds}
-                </span>
+                  {timeFormat === "12h" && (
+                    <span className="text-sm font-medium text-white/70">
+                      {meridiem}
+                    </span>
+                  )}
+                  <span className="ml-0.5 text-xs text-white/40 tabular-nums">
+                    :{seconds}
+                  </span>
+                </div>
+              </div>
+
+              {/* Date Info */}
+              <div className="flex shrink-0 flex-col items-end gap-0.5 text-right text-[10px] text-white/50">
+                <div className="flex items-center gap-1" title="Day of week">
+                  <span className="font-medium text-white/70">{dayOfWeek}</span>
+                </div>
+                <div className="flex items-center gap-1" title="Date">
+                  <Calendar className="h-3 w-3" />
+                  <span>{monthDay}</span>
+                </div>
+                <div className="flex items-center gap-1" title="Year">
+                  <span>{year}</span>
+                </div>
               </div>
             </div>
 
-            {/* Date Info */}
-            <div className="flex shrink-0 flex-col items-end gap-0.5 text-right text-[10px] text-white/50">
-              <div className="flex items-center gap-1" title="Day of week">
-                <span className="font-medium text-white/70">{dayOfWeek}</span>
-              </div>
-              <div className="flex items-center gap-1" title="Date">
-                <Calendar className="h-3 w-3" />
-                <span>{monthDay}</span>
-              </div>
-              <div className="flex items-center gap-1" title="Year">
-                <span>{year}</span>
+            {/* Separator and action bar */}
+            <div className="border-t border-white/10" />
+            <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+              <button
+                onClick={toggleTimeFormat}
+                className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
+              >
+                <span>{timeFormat === "12h" ? "24H" : "12H"}</span>
+              </button>
+
+              <div className="ml-auto">
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    title="More options"
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizontal className="h-3.5 w-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
               </div>
             </div>
           </div>
+        </div>
+        <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              setMoreMenuOpen(false);
+              setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
+              try {
+                localStorage.setItem(
+                  WIDGET_VISIBILITY_KEY,
+                  JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                );
+              } catch {}
+            }}
+          >
+            Hide widget
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={toggleTimeFormat}
+            className="cursor-pointer"
+          >
+            Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"} format
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setMoreMenuOpen(false);
+              requestAnimationFrame(() => {
+                resetPosition();
+              });
+            }}
+            className="cursor-pointer"
+          >
+            Reset widget position
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              setMoreMenuOpen(false);
+              setAboutDialogOpen(true);
+            }}
+            className="cursor-pointer"
+          >
+            About widget
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-          {/* Separator and action bar */}
-          <div className="border-t border-white/10" />
-          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <button
-              onClick={toggleTimeFormat}
-              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-              title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
-            >
-              <span>{timeFormat === "12h" ? "24H" : "12H"}</span>
-            </button>
-
-            <div className="ml-auto">
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="More options"
-                  onContextMenu={(e) => e.preventDefault()}
-                >
-                  <MoreHorizontal className="h-3.5 w-3.5" />
-                </button>
-              </DropdownMenuTrigger>
-            </div>
+      <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>About Date & Time Widget</DialogTitle>
+            <DialogDescription className="mt-2 text-left">
+              Shows current time with friendly greetings and beautiful icons
+              that change with the time of day.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-sm text-muted-foreground">Version</span>
+            <span className="text-sm font-medium">{WIDGET_VERSION}</span>
           </div>
-        </div>
-      </div>
-      <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-            try {
-              localStorage.setItem(
-                WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-              );
-            } catch {}
-          }}
-        >
-          Hide widget
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={toggleTimeFormat}
-          className="cursor-pointer"
-        >
-          Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"} format
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            requestAnimationFrame(() => {
-              resetPosition();
-            });
-          }}
-          className="cursor-pointer"
-        >
-          Reset widget position
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={() => {
-            setMoreMenuOpen(false);
-            setAboutDialogOpen(true);
-          }}
-          className="cursor-pointer"
-        >
-          About widget
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-
-    <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>About Date & Time Widget</DialogTitle>
-          <DialogDescription className="text-left mt-2">
-            Shows current time with friendly greetings and beautiful icons that change with the time of day.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-center justify-between pt-4 border-t">
-          <span className="text-sm text-muted-foreground">Version</span>
-          <span className="text-sm font-medium">{WIDGET_VERSION}</span>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
