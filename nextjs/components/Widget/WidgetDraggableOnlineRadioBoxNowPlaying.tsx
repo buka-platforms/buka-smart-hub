@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -64,6 +71,7 @@ interface NowPlayingStation {
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const COUNTRY_KEY = "widgetOnlineRadioBoxNowPlayingCountry";
 const WIDGET_ID = "onlineradioboxnowplaying";
+const WIDGET_VERSION = "1.0.0";
 
 // Supported countries for OnlineRadioBox
 const COUNTRIES = [
@@ -185,6 +193,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   const [stations, setStations] = useState<NowPlayingStation[]>([]);
@@ -906,7 +915,33 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         >
           Reset widget position
         </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            setMoreMenuOpen(false);
+            setAboutDialogOpen(true);
+          }}
+          className="cursor-pointer"
+        >
+          About widget
+        </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>About Radio Now Playing Widget</DialogTitle>
+            <DialogDescription className="mt-2 text-left">
+              Shows currently playing tracks from OnlineRadioBox stations around
+              the world. Select a country to view live radio stations and play
+              music directly from the widget.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-sm text-muted-foreground">Version</span>
+            <span className="text-sm font-medium">{WIDGET_VERSION}</span>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DropdownMenu>
   );
 }
