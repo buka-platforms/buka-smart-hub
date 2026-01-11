@@ -149,11 +149,8 @@ export default function WidgetDraggableQuran() {
         const data = await getSurah(selectedSurah, "ar.alafasy");
         if (!mounted) return;
         setSurahData(data);
-        const last =
-          typeof window !== "undefined"
-            ? localStorage.getItem(LAST_AYAH_KEY)
-            : null;
-        setCurrentAyahIndex(last ? Number(last) : 0);
+        // Always start from the beginning (ayah 1) when switching surahs
+        setCurrentAyahIndex(0);
       } catch {}
     })();
     try {
@@ -458,7 +455,10 @@ export default function WidgetDraggableQuran() {
                 sideOffset={6}
                 className="w-64 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl"
               >
-                <Command className="bg-transparent text-white" value={String(selectedSurah)}>
+                <Command
+                  className="bg-transparent text-white"
+                  value={String(selectedSurah)}
+                >
                   <CommandInput
                     placeholder="Search surah..."
                     className="h-10 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
