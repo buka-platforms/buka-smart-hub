@@ -169,11 +169,19 @@ export default function WidgetDraggableQuran() {
       }
       if (surahData && currentAyahIndex < surahData.ayahs.length - 1) {
         setCurrentAyahIndex((i) => i + 1);
+        // Auto-play the next ayah
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.play().catch(() => {});
+            setIsPlaying(true);
+          }
+        }, 100); // Small delay to allow state update
       }
     };
 
     audio.src = audioUrl;
     audio.preload = "auto";
+    audio.load(); // Ensure audio is loaded
 
     try {
       localStorage.setItem(LAST_AYAH_KEY, String(currentAyahIndex));
