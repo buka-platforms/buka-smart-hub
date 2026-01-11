@@ -473,10 +473,12 @@ export default function WidgetDraggableQuran() {
           className="cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
+            setMoreMenuOpen(false);
+            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
             try {
               localStorage.setItem(
                 WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ [WIDGET_ID]: false }),
+                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
               );
             } catch {}
           }}
@@ -510,6 +512,7 @@ export default function WidgetDraggableQuran() {
           className="cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
+            setMoreMenuOpen(false);
             requestAnimationFrame(() => resetPosition());
           }}
         >
