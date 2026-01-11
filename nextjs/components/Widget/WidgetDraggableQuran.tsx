@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getSurah, getSurahList } from "@/lib/quran-api";
+import { widgetVisibilityAtom } from "@/data/store";
 import {
   calculateAutoArrangePositions,
   getSavedWidgetPosition,
@@ -30,6 +31,7 @@ import {
   Pause,
   Play as PlayIcon,
 } from "lucide-react";
+import { useAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "quran";
@@ -43,6 +45,7 @@ export default function WidgetDraggableQuran() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
@@ -287,7 +290,7 @@ export default function WidgetDraggableQuran() {
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
 
-  const isVisible = isPositionLoaded;
+  const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
   return (
     <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
