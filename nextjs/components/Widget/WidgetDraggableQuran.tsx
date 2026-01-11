@@ -59,6 +59,12 @@ export default function WidgetDraggableQuran() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [autoAdvance, setAutoAdvance] = useState(true);
+  const autoAdvanceRef = useRef(true);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    autoAdvanceRef.current = autoAdvance;
+  }, [autoAdvance]);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [jumpToAyahValue, setJumpToAyahValue] = useState("");
 
@@ -210,7 +216,7 @@ export default function WidgetDraggableQuran() {
     audio.onended = () => {
       setIsPlaying(false);
       if (
-        autoAdvance &&
+        autoAdvanceRef.current &&
         surahData &&
         currentAyahIndex < surahData.ayahs.length - 1
       ) {
@@ -245,11 +251,12 @@ export default function WidgetDraggableQuran() {
           target.scrollIntoView({ block: "center", behavior: "smooth" });
       });
     }
-  }, [currentAyahIndex, surahData, autoAdvance]);
+  }, [currentAyahIndex, surahData]);
 
   const playAyah = useCallback(async (ayahIndex: number) => {
     setCurrentAyahIndex(ayahIndex);
     setAutoAdvance(false); // Individual ayah plays don't auto-advance
+    autoAdvanceRef.current = false;
     // Small delay to allow state update, then play
     setTimeout(async () => {
       const audio = audioRef.current;
@@ -276,6 +283,7 @@ export default function WidgetDraggableQuran() {
         setIsLoading(false);
       } else {
         setAutoAdvance(true); // Main play button enables auto-advance
+        autoAdvanceRef.current = true;
         setIsLoading(true);
         await audio.play();
         setIsPlaying(true);
