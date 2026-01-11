@@ -35,8 +35,6 @@ import {
 import { useAtom } from "jotai";
 import {
   Disc3,
-  ExternalLink,
-  Globe,
   LoaderCircle,
   MoreHorizontal,
   Music,
@@ -819,8 +817,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
                   type="button"
                 >
-                  <Globe className="h-3 w-3" />
-                  {selectedCountry?.code.toUpperCase() || "ID"}
+                  Country: {selectedCountry?.code.toUpperCase() || "ID"}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -855,7 +852,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
               title="Open OnlineRadioBox"
             >
-              <ExternalLink className="h-3 w-3" />
               More
             </a>
 
