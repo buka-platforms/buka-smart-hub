@@ -170,6 +170,7 @@ export default function WidgetDraggableQuran() {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = "";
+        audioRef.current.load(); // Reset audio element
       }
       setIsPlaying(false);
       setIsLoading(false);
@@ -180,6 +181,19 @@ export default function WidgetDraggableQuran() {
     if (!audioRef.current) audioRef.current = new Audio();
     const audio = audioRef.current;
 
+    // Reset audio state before setting new source
+    audio.pause();
+    setIsPlaying(false);
+    setIsLoading(false);
+
+    // Clear previous event listeners
+    audio.onplaying = null;
+    audio.onwaiting = null;
+    audio.oncanplay = null;
+    audio.onerror = null;
+    audio.onended = null;
+
+    // Set up new event listeners
     audio.onplaying = () => {
       setIsLoading(false);
       setIsPlaying(true);
@@ -196,7 +210,7 @@ export default function WidgetDraggableQuran() {
         setCurrentAyahIndex((i) => i + 1);
         // Auto-play the next ayah
         setTimeout(() => {
-          if (audioRef.current) {
+          if (audioRef.current && audioRef.current.src) {
             audioRef.current.play().catch(() => {});
             setIsPlaying(true);
           }
@@ -204,6 +218,7 @@ export default function WidgetDraggableQuran() {
       }
     };
 
+    // Set new source and load
     audio.src = audioUrl;
     audio.preload = "auto";
     audio.load(); // Ensure audio is loaded
@@ -443,7 +458,7 @@ export default function WidgetDraggableQuran() {
                 sideOffset={6}
                 className="w-64 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl"
               >
-                <Command className="bg-transparent text-white">
+                <Command className="bg-transparent text-white" value={String(selectedSurah)}>
                   <CommandInput
                     placeholder="Search surah..."
                     className="h-10 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
