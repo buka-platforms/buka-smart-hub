@@ -54,13 +54,6 @@ export default function WidgetDraggableQuran() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [autoScroll, setAutoScroll] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("widgetQuranAutoScroll") !== "false";
-    } catch {
-      return true;
-    }
-  });
   const [repeat, setRepeat] = useState<boolean>(() => {
     try {
       return localStorage.getItem("widgetQuranRepeat") === "true";
@@ -187,7 +180,7 @@ export default function WidgetDraggableQuran() {
       localStorage.setItem(LAST_AYAH_KEY, String(currentAyahIndex));
     } catch {}
 
-    if (autoScroll && textContainerRef.current) {
+    if (textContainerRef.current) {
       requestAnimationFrame(() => {
         const el = textContainerRef.current;
         if (!el) return;
@@ -198,7 +191,7 @@ export default function WidgetDraggableQuran() {
           target.scrollIntoView({ block: "center", behavior: "smooth" });
       });
     }
-  }, [currentAyahIndex, surahData, repeat, autoScroll]);
+  }, [currentAyahIndex, surahData, repeat]);
 
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -448,18 +441,6 @@ export default function WidgetDraggableQuran() {
             </DropdownMenu>
 
             <div className="mx-auto flex gap-2">
-              <button
-                onClick={() => {
-                  const next = !autoScroll;
-                  setAutoScroll(next);
-                  try {
-                    localStorage.setItem("widgetQuranAutoScroll", String(next));
-                  } catch {}
-                }}
-                className={`h-8 rounded-full px-3 text-[11px] ${autoScroll ? "bg-purple-600 text-white" : "bg-white/5 text-white"}`}
-              >
-                Scroll
-              </button>
               <button
                 onClick={() => {
                   const next = !repeat;
