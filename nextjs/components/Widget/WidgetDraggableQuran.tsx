@@ -385,7 +385,7 @@ export default function WidgetDraggableQuran() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20"
+                  className="cursor-pointer flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20"
                 >
                   {selectedSurah
                     ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
@@ -403,7 +403,7 @@ export default function WidgetDraggableQuran() {
                     placeholder="Search surah..."
                     className="h-10 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
                   />
-                  <CommandList className="max-h-80 overflow-y-auto">
+                  <CommandList className="max-h-80 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
                     <CommandEmpty className="py-6 text-center text-sm text-white/50">
                       No surah found.
                     </CommandEmpty>
