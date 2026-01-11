@@ -32,7 +32,7 @@ import {
   Pause,
   Play as PlayIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const WIDGET_ID = "quran";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -233,18 +233,15 @@ export default function WidgetDraggableQuran() {
   }, []);
 
   // Drag handlers - only for drag handle area
-  const handleDragStart = useCallback(
-    (clientX: number, clientY: number) => {
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: clientX,
-        y: clientY,
-        posX: position.x,
-        posY: position.y,
-      };
-    },
-    [position],
-  );
+  const handleDragStart = useCallback((clientX: number, clientY: number) => {
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: clientX,
+      y: clientY,
+      posX: positionRef.current.x,
+      posY: positionRef.current.y,
+    };
+  }, []);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -323,7 +320,7 @@ export default function WidgetDraggableQuran() {
         <div
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
-          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          className={`flex items-center justify-center border-r border-white/10 px-1 select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             Quran
@@ -381,20 +378,24 @@ export default function WidgetDraggableQuran() {
                 ref={textContainerRef}
                 className="mt-2 max-h-28 space-y-1 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
               >
-                {surahData?.ayahs?.map((a: any, idx: number) => (
-                  <div
-                    key={a.number}
-                    data-ayah-index={idx}
-                    className={`p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
-                  >
-                    <div className="text-right text-2xl leading-tight">
-                      {a.text}
-                    </div>
-                    <div className="mt-1 text-xs text-white/60">
-                      Ayah {a.numberInSurah}
-                    </div>
-                  </div>
-                ))}
+                {useMemo(
+                  () =>
+                    surahData?.ayahs?.map((a: any, idx: number) => (
+                      <div
+                        key={a.number}
+                        data-ayah-index={idx}
+                        className={`p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
+                      >
+                        <div className="text-right text-2xl leading-tight">
+                          {a.text}
+                        </div>
+                        <div className="mt-1 text-xs text-white/60">
+                          Ayah {a.numberInSurah}
+                        </div>
+                      </div>
+                    )),
+                  [surahData?.ayahs, currentAyahIndex],
+                )}
                 {!surahData && (
                   <div className="text-xs text-white/60">Loading…</div>
                 )}
