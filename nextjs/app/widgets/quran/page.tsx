@@ -12,12 +12,17 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-neutral-900 p-8 text-white">
       <div className="max-w-4xl">
-        <h1 className="text-2xl font-semibold mb-4">Quran Widget Demo</h1>
-        <p className="mb-4 text-sm text-white/70">This page demonstrates the draggable Quran widget for reading and listening.</p>
+        <h1 className="mb-4 text-2xl font-semibold">Quran Widget Demo</h1>
+        <p className="mb-4 text-sm text-white/70">
+          This page demonstrates the draggable Quran widget for reading and
+          listening.
+        </p>
         <div className="mb-4">
           <WidgetDraggableQuran />
         </div>
-        <Link href="/" className="text-sm text-white/60 underline">Back</Link>
+        <Link href="/" className="text-sm text-white/60 underline">
+          Back
+        </Link>
       </div>
     </div>
   );

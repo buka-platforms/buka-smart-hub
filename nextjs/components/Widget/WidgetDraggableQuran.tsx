@@ -1,11 +1,36 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { calculateAutoArrangePositions, getSavedWidgetPosition, observeWidget, resetWidgetPosition, saveWidgetPosition, unobserveWidget } from "@/lib/widget-positions";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getSurah, getSurahList } from "@/lib/quran-api";
-import { MoreHorizontal, Play as PlayIcon, Pause, ChevronLeft, ChevronRight, Disc3 } from "lucide-react";
+import {
+  calculateAutoArrangePositions,
+  getSavedWidgetPosition,
+  observeWidget,
+  resetWidgetPosition,
+  saveWidgetPosition,
+  unobserveWidget,
+} from "@/lib/widget-positions";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Disc3,
+  MoreHorizontal,
+  Pause,
+  Play as PlayIcon,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "quran";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -49,10 +74,12 @@ export default function WidgetDraggableQuran() {
   useEffect(() => {
     queueMicrotask(() => {
       const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ?? calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
+      const initial = saved ??
+        calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
       setPosition(initial);
       positionRef.current = initial;
-      if (containerRef.current) containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
       setIsPositionLoaded(true);
     });
   }, []);
@@ -71,8 +98,11 @@ export default function WidgetDraggableQuran() {
         const list = await getSurahList();
         if (!mounted) return;
         setSurahList(list || []);
-        const last = typeof window !== "undefined" ? localStorage.getItem(LAST_SURAH_KEY) : null;
-        const num = last ? Number(last) : list?.[0]?.number ?? 1;
+        const last =
+          typeof window !== "undefined"
+            ? localStorage.getItem(LAST_SURAH_KEY)
+            : null;
+        const num = last ? Number(last) : (list?.[0]?.number ?? 1);
         setSelectedSurah(num);
       } catch {}
     })();
@@ -89,7 +119,10 @@ export default function WidgetDraggableQuran() {
         const data = await getSurah(selectedSurah, "ar.alafasy");
         if (!mounted) return;
         setSurahData(data);
-        const last = typeof window !== "undefined" ? localStorage.getItem(LAST_AYAH_KEY) : null;
+        const last =
+          typeof window !== "undefined"
+            ? localStorage.getItem(LAST_AYAH_KEY)
+            : null;
         setCurrentAyahIndex(last ? Number(last) : 0);
       } catch {}
     })();
@@ -150,8 +183,11 @@ export default function WidgetDraggableQuran() {
       requestAnimationFrame(() => {
         const el = textContainerRef.current;
         if (!el) return;
-        const target = el.querySelector(`[data-ayah-index="${currentAyahIndex}"]`) as HTMLElement | null;
-        if (target) target.scrollIntoView({ block: "center", behavior: "smooth" });
+        const target = el.querySelector(
+          `[data-ayah-index="${currentAyahIndex}"]`,
+        ) as HTMLElement | null;
+        if (target)
+          target.scrollIntoView({ block: "center", behavior: "smooth" });
       });
     }
   }, [currentAyahIndex, surahData, repeat, autoScroll]);
@@ -184,51 +220,60 @@ export default function WidgetDraggableQuran() {
     setCurrentAyahIndex((i) => Math.max(0, i - 1));
   }, []);
 
-  useEffect(() => {
-    const handleStart = (clientX: number, clientY: number) => {
+  // Drag handlers - only for drag handle area
+  const handleDragStart = useCallback(
+    (clientX: number, clientY: number) => {
       setIsDragging(true);
-      dragStartRef.current = { x: clientX, y: clientY, posX: position.x, posY: position.y };
-    };
+      dragStartRef.current = {
+        x: clientX,
+        y: clientY,
+        posX: position.x,
+        posY: position.y,
+      };
+    },
+    [position],
+  );
 
-    const onMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
       e.preventDefault();
-      handleStart(e.clientX, e.clientY);
-    };
-    const onTouchStart = (e: React.TouchEvent) => {
-      const t = e.touches[0];
-      handleStart(t.clientX, t.clientY);
-    };
+      handleDragStart(e.clientX, e.clientY);
+    },
+    [handleDragStart],
+  );
 
-    const el = containerRef.current;
-    if (el) {
-      el.addEventListener("mousedown", onMouseDown as any);
-      el.addEventListener("touchstart", onTouchStart as any, { passive: false } as any);
-    }
-
-    return () => {
-      if (el) {
-        el.removeEventListener("mousedown", onMouseDown as any);
-        el.removeEventListener("touchstart", onTouchStart as any);
-      }
-    };
-  }, [position]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      handleDragStart(touch.clientX, touch.clientY);
+    },
+    [handleDragStart],
+  );
 
   useEffect(() => {
     if (!isDragging) return;
     const handleMove = (e: MouseEvent) => {
       const dx = e.clientX - dragStartRef.current.x;
       const dy = e.clientY - dragStartRef.current.y;
-      const next = { x: dragStartRef.current.posX + dx, y: dragStartRef.current.posY + dy };
+      const next = {
+        x: dragStartRef.current.posX + dx,
+        y: dragStartRef.current.posY + dy,
+      };
       positionRef.current = next;
-      if (containerRef.current) containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
     };
     const handleTouchMove = (e: TouchEvent) => {
       const t = e.touches[0];
       const dx = t.clientX - dragStartRef.current.x;
       const dy = t.clientY - dragStartRef.current.y;
-      const next = { x: dragStartRef.current.posX + dx, y: dragStartRef.current.posY + dy };
+      const next = {
+        x: dragStartRef.current.posX + dx,
+        y: dragStartRef.current.posY + dy,
+      };
       positionRef.current = next;
-      if (containerRef.current) containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
+      if (containerRef.current)
+        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
     };
     const handleEnd = () => {
       setIsDragging(false);
@@ -262,8 +307,15 @@ export default function WidgetDraggableQuran() {
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        <div className="flex items-center justify-center border-r border-white/10 px-1 select-none hover:bg-white/5">
-          <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">Quran</span>
+        {/* Vertical "Quran" Label - Drag Handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        >
+          <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
+            Quran
+          </span>
         </div>
 
         <div className="flex w-80 flex-col">
@@ -271,33 +323,69 @@ export default function WidgetDraggableQuran() {
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-white/60">{surahData?.englishName || "Surah"}</div>
-                  <div className="text-sm font-medium text-white truncate">{surahData?.name || (selectedSurah ? `Surah ${selectedSurah}` : "—")}</div>
+                  <div className="text-xs text-white/60">
+                    {surahData?.englishName || "Surah"}
+                  </div>
+                  <div className="truncate text-sm font-medium text-white">
+                    {surahData?.name ||
+                      (selectedSurah ? `Surah ${selectedSurah}` : "—")}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button onClick={prevAyah} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" title="Previous">
+                  <button
+                    onClick={prevAyah}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                    title="Previous"
+                  >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
 
-                  <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" title={isPlaying ? "Pause" : "Play"}>
-                    {isLoading ? <Disc3 className="h-5 w-5 animate-spin" /> : isPlaying ? <Pause className="h-5 w-5" fill="currentColor" /> : <PlayIcon className="h-5 w-5" fill="currentColor" />}
+                  <button
+                    onClick={togglePlay}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                    title={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isLoading ? (
+                      <Disc3 className="h-5 w-5 animate-spin" />
+                    ) : isPlaying ? (
+                      <Pause className="h-5 w-5" fill="currentColor" />
+                    ) : (
+                      <PlayIcon className="h-5 w-5" fill="currentColor" />
+                    )}
                   </button>
 
-                  <button onClick={nextAyah} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" title="Next">
+                  <button
+                    onClick={nextAyah}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                    title="Next"
+                  >
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              <div ref={textContainerRef} className="mt-2 max-h-28 overflow-auto text-xs text-white/80 space-y-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30">
+              <div
+                ref={textContainerRef}
+                className="mt-2 max-h-28 space-y-1 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
+              >
                 {surahData?.ayahs?.map((a: any, idx: number) => (
-                  <div key={a.number} data-ayah-index={idx} className={`p-1 ${idx === currentAyahIndex ? "bg-white/5 rounded" : ""}`}>
-                    <div className="text-right text-2xl leading-tight">{a.text}</div>
-                    <div className="mt-1 text-xs text-white/60">Ayah {a.numberInSurah}</div>
+                  <div
+                    key={a.number}
+                    data-ayah-index={idx}
+                    className={`p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
+                  >
+                    <div className="text-right text-2xl leading-tight">
+                      {a.text}
+                    </div>
+                    <div className="mt-1 text-xs text-white/60">
+                      Ayah {a.numberInSurah}
+                    </div>
                   </div>
                 ))}
-                {!surahData && <div className="text-xs text-white/60">Loading…</div>}
+                {!surahData && (
+                  <div className="text-xs text-white/60">Loading…</div>
+                )}
               </div>
             </div>
           </div>
@@ -306,22 +394,42 @@ export default function WidgetDraggableQuran() {
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button type="button" className="flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20">
-                  {selectedSurah ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}` : "Select Surah"}
+                <button
+                  type="button"
+                  className="flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-semibold text-white hover:bg-white/20"
+                >
+                  {selectedSurah
+                    ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
+                    : "Select Surah"}
                 </button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end" sideOffset={6} className="w-64 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl">
+              <DropdownMenuContent
+                align="end"
+                sideOffset={6}
+                className="w-64 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl"
+              >
                 <Command className="bg-transparent text-white">
-                  <CommandInput placeholder="Search surah..." className="h-10 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40" />
+                  <CommandInput
+                    placeholder="Search surah..."
+                    className="h-10 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
+                  />
                   <CommandList className="max-h-80 overflow-y-auto">
-                    <CommandEmpty className="py-6 text-center text-sm text-white/50">No surah found.</CommandEmpty>
+                    <CommandEmpty className="py-6 text-center text-sm text-white/50">
+                      No surah found.
+                    </CommandEmpty>
                     {surahList.map((s: any) => (
-                      <CommandItem key={s.number} value={String(s.number)} onSelect={() => setSelectedSurah(s.number)}>
+                      <CommandItem
+                        key={s.number}
+                        value={String(s.number)}
+                        onSelect={() => setSelectedSurah(s.number)}
+                      >
                         <div className="flex items-center gap-3">
                           <div className="flex-1 text-left">
                             <div className="font-bold">{`${s.number}. ${s.englishName}`}</div>
-                            <div className="text-[12px] text-white/60">{s.name}</div>
+                            <div className="text-[12px] text-white/60">
+                              {s.name}
+                            </div>
                           </div>
                         </div>
                       </CommandItem>
@@ -332,13 +440,39 @@ export default function WidgetDraggableQuran() {
             </DropdownMenu>
 
             <div className="mx-auto flex gap-2">
-              <button onClick={() => { const next = !autoScroll; setAutoScroll(next); try { localStorage.setItem("widgetQuranAutoScroll", String(next)); } catch {} }} className={`h-8 rounded-full px-3 text-[11px] ${autoScroll ? "bg-purple-600 text-white" : "bg-white/5 text-white"}`}>Scroll</button>
-              <button onClick={() => { const next = !repeat; setRepeat(next); try { localStorage.setItem("widgetQuranRepeat", String(next)); } catch {} }} className={`h-8 rounded-full px-3 text-[11px] ${repeat ? "bg-purple-600 text-white" : "bg-white/5 text-white"}`}>Repeat</button>
+              <button
+                onClick={() => {
+                  const next = !autoScroll;
+                  setAutoScroll(next);
+                  try {
+                    localStorage.setItem("widgetQuranAutoScroll", String(next));
+                  } catch {}
+                }}
+                className={`h-8 rounded-full px-3 text-[11px] ${autoScroll ? "bg-purple-600 text-white" : "bg-white/5 text-white"}`}
+              >
+                Scroll
+              </button>
+              <button
+                onClick={() => {
+                  const next = !repeat;
+                  setRepeat(next);
+                  try {
+                    localStorage.setItem("widgetQuranRepeat", String(next));
+                  } catch {}
+                }}
+                className={`h-8 rounded-full px-3 text-[11px] ${repeat ? "bg-purple-600 text-white" : "bg-white/5 text-white"}`}
+              >
+                Repeat
+              </button>
             </div>
 
             <div className="ml-auto">
               <DropdownMenuTrigger asChild>
-                <button className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20" title="More options" onContextMenu={(e) => e.preventDefault()}>
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20"
+                  title="More options"
+                  onContextMenu={(e) => e.preventDefault()}
+                >
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </button>
               </DropdownMenuTrigger>
@@ -348,9 +482,39 @@ export default function WidgetDraggableQuran() {
       </div>
 
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem className="cursor-pointer" onSelect={(e) => { e.preventDefault(); try { localStorage.setItem(WIDGET_VISIBILITY_KEY, JSON.stringify({ [WIDGET_ID]: false })); } catch {} }}>Hide widget</DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onSelect={() => { setSurahList([]); setSurahData(null); setSelectedSurah(null); }}>Refresh list</DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onSelect={(e) => { e.preventDefault(); requestAnimationFrame(() => resetPosition()); }}>Reset widget position</DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            try {
+              localStorage.setItem(
+                WIDGET_VISIBILITY_KEY,
+                JSON.stringify({ [WIDGET_ID]: false }),
+              );
+            } catch {}
+          }}
+        >
+          Hide widget
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={() => {
+            setSurahList([]);
+            setSurahData(null);
+            setSelectedSurah(null);
+          }}
+        >
+          Refresh list
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            requestAnimationFrame(() => resetPosition());
+          }}
+        >
+          Reset widget position
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -5,6 +5,7 @@ import { resetAllWidgetPositions } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   AppWindow,
+  BookOpen,
   Clock,
   CloudSun,
   GripVertical,
@@ -16,7 +17,6 @@ import {
   Timer,
   Tv,
   X,
-  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
