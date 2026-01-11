@@ -9,6 +9,13 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -80,6 +87,7 @@ const SELECTED_CHANNEL_KEY = "widgetYouTubeLiveTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetYouTubeLiveTVFavorites";
 const VOLUME_KEY = "widgetYouTubeLiveTVVolume";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+const WIDGET_VERSION = "1.0.0";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {
@@ -109,6 +117,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   // YouTube Player API
@@ -1007,7 +1016,32 @@ export default function WidgetDraggableYouTubeLiveTV() {
         >
           Reset widget position
         </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            setMoreMenuOpen(false);
+            setAboutDialogOpen(true);
+          }}
+          className="cursor-pointer"
+        >
+          About widget
+        </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>About YouTube Live TV Widget</DialogTitle>
+            <DialogDescription className="mt-2 text-left">
+              Watch live YouTube TV channels with favorites, volume control, and
+              fullscreen support. Browse channels by category or country.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-sm text-muted-foreground">Version</span>
+            <span className="text-sm font-medium">{WIDGET_VERSION}</span>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DropdownMenu>
   );
 }
