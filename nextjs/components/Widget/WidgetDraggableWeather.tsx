@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -24,6 +31,7 @@ import useSWR from "swr";
 const UNIT_STORAGE_KEY = "widgetWeatherUnit";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_ID = "weather";
+const WIDGET_VERSION = "1.0.0";
 
 interface WeatherData {
   weather: { icon: string; description: string; main: string }[];
@@ -61,6 +69,7 @@ export default function WidgetDraggableWeather() {
 
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [unit, setUnit] = useState<"metric" | "imperial">(() => {
     if (typeof window === "undefined") return "metric";
     const savedUnit = localStorage.getItem(UNIT_STORAGE_KEY);
@@ -239,168 +248,200 @@ export default function WidgetDraggableWeather() {
   const windLabel = unit === "metric" ? "km/h" : "mph";
 
   return (
-    <DropdownMenu
-      open={moreMenuOpen}
-      onOpenChange={setMoreMenuOpen}
-      modal={false}
-    >
-      <div
-        ref={containerRef}
-        data-widget-id={WIDGET_ID}
-        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+    <>
+      <DropdownMenu
+        open={moreMenuOpen}
+        onOpenChange={setMoreMenuOpen}
+        modal={false}
       >
-        {/* Vertical "Weather" Label - Drag Handle */}
         <div
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          ref={containerRef}
+          data-widget-id={WIDGET_ID}
+          style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+          className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-            Weather
-          </span>
-        </div>
+          {/* Vertical "Weather" Label - Drag Handle */}
+          <div
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          >
+            <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
+              Weather
+            </span>
+          </div>
 
-        {/* Main Column */}
-        <div className="flex w-64 flex-col">
-          {/* Weather Row */}
-          <div className="flex items-center gap-3 p-3">
-            {/* Weather Icon */}
-            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
-              {data && (
-                <img
-                  src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`}
-                  alt={data.weather[0].description}
-                  title={data.weather[0].description}
-                  className="pointer-events-none h-full w-full object-contain"
-                  draggable={false}
-                />
-              )}
-            </div>
-
-            {/* Weather Info */}
-            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              <span className="block truncate text-xs text-white/60">
-                {data?.name}
-                {data?.sys?.country ? `, ${data.sys.country}` : ""}
-              </span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-semibold text-white">
-                  {temperatureValue}°
-                </span>
-                <span className="text-xs text-white/60">{temperatureUnit}</span>
+          {/* Main Column */}
+          <div className="flex w-64 flex-col">
+            {/* Weather Row */}
+            <div className="flex items-center gap-3 p-3">
+              {/* Weather Icon */}
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
+                {data && (
+                  <img
+                    src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`}
+                    alt={data.weather[0].description}
+                    title={data.weather[0].description}
+                    className="pointer-events-none h-full w-full object-contain"
+                    draggable={false}
+                  />
+                )}
               </div>
-              <span
-                className="max-w-full truncate text-xs text-white/70"
-                title={
-                  data?.weather[0].description
+
+              {/* Weather Info */}
+              <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+                <span className="block truncate text-xs text-white/60">
+                  {data?.name}
+                  {data?.sys?.country ? `, ${data.sys.country}` : ""}
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-semibold text-white">
+                    {temperatureValue}°
+                  </span>
+                  <span className="text-xs text-white/60">
+                    {temperatureUnit}
+                  </span>
+                </div>
+                <span
+                  className="max-w-full truncate text-xs text-white/70"
+                  title={
+                    data?.weather[0].description
+                      ? data.weather[0].description.charAt(0).toUpperCase() +
+                        data.weather[0].description.slice(1)
+                      : ""
+                  }
+                >
+                  {data?.weather[0].description
                     ? data.weather[0].description.charAt(0).toUpperCase() +
                       data.weather[0].description.slice(1)
-                    : ""
-                }
-              >
-                {data?.weather[0].description
-                  ? data.weather[0].description.charAt(0).toUpperCase() +
-                    data.weather[0].description.slice(1)
-                  : ""}
-              </span>
-            </div>
-
-            {/* Additional Info */}
-            <div className="flex shrink-0 flex-col gap-1 text-[10px] text-white/50">
-              <div
-                className="flex items-center gap-1"
-                title={`Feels like ${feelsLikeValue}°${temperatureUnit}`}
-              >
-                <Thermometer className="h-3 w-3" />
-                <span>{feelsLikeValue}°</span>
-              </div>
-              <div
-                className="flex items-center gap-1"
-                title={`Humidity ${data?.main.humidity || "--"}%`}
-              >
-                <Droplets className="h-3 w-3" />
-                <span>{data?.main.humidity || "--"}%</span>
-              </div>
-              <div
-                className="flex items-center gap-1"
-                title={`Wind ${windSpeed} ${windLabel}`}
-              >
-                <Wind className="h-3 w-3" />
-                <span>
-                  {windSpeed} {windLabel}
+                    : ""}
                 </span>
               </div>
-            </div>
-          </div>
 
-          {/* Separator and action bar */}
-          <div className="border-t border-white/10" />
-          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <button
-              onClick={toggleUnit}
-              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-              title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
-            >
-              <span>°{unit === "metric" ? "F" : "C"}</span>
-            </button>
-
-            <Link
-              href="/apps/weather"
-              className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-              title="Open weather app"
-            >
-              More
-            </Link>
-
-            <div className="ml-auto">
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="More options"
-                  onContextMenu={(e) => e.preventDefault()}
+              {/* Additional Info */}
+              <div className="flex shrink-0 flex-col gap-1 text-[10px] text-white/50">
+                <div
+                  className="flex items-center gap-1"
+                  title={`Feels like ${feelsLikeValue}°${temperatureUnit}`}
                 >
-                  <MoreHorizontal className="h-3.5 w-3.5" />
-                </button>
-              </DropdownMenuTrigger>
+                  <Thermometer className="h-3 w-3" />
+                  <span>{feelsLikeValue}°</span>
+                </div>
+                <div
+                  className="flex items-center gap-1"
+                  title={`Humidity ${data?.main.humidity || "--"}%`}
+                >
+                  <Droplets className="h-3 w-3" />
+                  <span>{data?.main.humidity || "--"}%</span>
+                </div>
+                <div
+                  className="flex items-center gap-1"
+                  title={`Wind ${windSpeed} ${windLabel}`}
+                >
+                  <Wind className="h-3 w-3" />
+                  <span>
+                    {windSpeed} {windLabel}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Separator and action bar */}
+            <div className="border-t border-white/10" />
+            <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+              <button
+                onClick={toggleUnit}
+                className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
+              >
+                <span>°{unit === "metric" ? "F" : "C"}</span>
+              </button>
+
+              <Link
+                href="/apps/weather"
+                className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                title="Open weather app"
+              >
+                More
+              </Link>
+
+              <div className="ml-auto">
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    title="More options"
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizontal className="h-3.5 w-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-            try {
-              localStorage.setItem(
-                WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-              );
-            } catch {}
-          }}
-        >
-          Hide widget
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => mutate()} className="cursor-pointer">
-          Refresh weather
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={toggleUnit} className="cursor-pointer">
-          Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            requestAnimationFrame(resetPosition);
-          }}
-        >
-          Reset widget position
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              setMoreMenuOpen(false);
+              setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
+              try {
+                localStorage.setItem(
+                  WIDGET_VISIBILITY_KEY,
+                  JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                );
+              } catch {}
+            }}
+          >
+            Hide widget
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => mutate()}
+            className="cursor-pointer"
+          >
+            Refresh weather
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={toggleUnit} className="cursor-pointer">
+            Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              setMoreMenuOpen(false);
+              requestAnimationFrame(resetPosition);
+            }}
+          >
+            Reset widget position
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              setMoreMenuOpen(false);
+              setAboutDialogOpen(true);
+            }}
+            className="cursor-pointer"
+          >
+            About widget
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>About Weather Widget</DialogTitle>
+            <DialogDescription className="mt-2 text-left">
+              Shows current weather conditions, temperature, humidity, and wind
+              speed for your location using OpenWeatherMap data.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-sm text-muted-foreground">Version</span>
+            <span className="text-sm font-medium">{WIDGET_VERSION}</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
