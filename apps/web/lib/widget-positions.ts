@@ -138,7 +138,7 @@ function getResizeObserver(): ResizeObserver | null {
         }
       }
 
-      if (hasChanges && isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
+      if (hasChanges && isAutoArrangeEnabled) {
         // If a final settle timer is active, let it trigger the layout. If
         // not, proceed with the normal debounced schedule.
         if (!finalSettleTimer) scheduleLayoutUpdate();
@@ -187,7 +187,7 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
         pendingInitialMeasurements.delete(widgetId);
         if (pendingInitialMeasurements.size === 0) {
           if (finalSettleTimer) clearTimeout(finalSettleTimer);
-          if (isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
+          if (isAutoArrangeEnabled) {
             finalSettleTimer = setTimeout(() => {
               finalSettleTimer = null;
               scheduleLayoutUpdate();
@@ -278,11 +278,20 @@ function performLayoutUpdate(): void {
 
   const positions = calculateAutoArrangePositions();
 
-  // Save positions and dispatch event
+  // Save positions for widgets that do NOT already have a user-saved position.
   Object.entries(positions).forEach(([id, pos]) => {
-    saveWidgetPosition(id as WidgetId, pos.x, pos.y);
+    const wid = id as WidgetId;
+    const saved = getSavedWidgetPosition(wid);
+    if (!saved) {
+      try {
+        saveWidgetPosition(wid, pos.x, pos.y);
+      } catch {
+        // ignore storage errors
+      }
+    }
   });
 
+  // Always dispatch the full set of positions so the UI can update visually.
   window.dispatchEvent(
     new CustomEvent("widget-positions-reset", { detail: positions }),
   );
@@ -589,6 +598,40 @@ export function clearAllWidgetPositions(): void {
   window.dispatchEvent(
     new CustomEvent("widget-positions-reset", { detail: positions }),
   );
+}
+
+/**
+ * Swap positions between two widgets.
+ * If a widget does not have a saved position, its auto-arranged position
+ * is used as fallback. After swapping, saved positions are updated and
+ * a full layout event is dispatched so the UI can animate the change.
+ */
+export function swapWidgetPositions(a: WidgetId, b: WidgetId): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    const positions = calculateAutoArrangePositions();
+
+    const aSaved = getSavedWidgetPosition(a) ?? positions[a];
+    const bSaved = getSavedWidgetPosition(b) ?? positions[b];
+
+    // Swap and persist
+    saveWidgetPosition(a, bSaved.x, bSaved.y);
+    saveWidgetPosition(b, aSaved.x, aSaved.y);
+
+    // Build detail containing current saved positions for all widgets
+    const detail: Record<string, { x: number; y: number }> = {};
+    Object.keys(WIDGET_POSITION_KEYS).forEach((id) => {
+      const wid = id as WidgetId;
+      const sv = getSavedWidgetPosition(wid) ?? positions[wid];
+      detail[id] = sv;
+    });
+
+    // Dispatch full layout update so components can animate to new slots
+    window.dispatchEvent(new CustomEvent("widget-positions-reset", { detail }));
+  } catch {
+    // ignore storage errors
+  }
 }
 
 /**

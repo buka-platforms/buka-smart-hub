@@ -39,9 +39,9 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
-  saveWidgetPosition,
   triggerLayoutUpdate,
   unobserveWidget,
+  swapWidgetPositions,
 } from "@/lib/widget-positions";
 // removed neodrag in favor of manual drag handlers
 import { useAtom } from "jotai";
@@ -82,11 +82,8 @@ const WIDGET_VERSION = "1.0.0";
 
 export default function WidgetDraggableSomaFM() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
-  const positionRef = useRef(position);
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [, setLoading] = useState(true);
@@ -151,17 +148,8 @@ export default function WidgetDraggableSomaFM() {
     }
   }, [channels, somafmAudioState?.lastChannelId]);
 
-  // Load position on mount
   useEffect(() => {
-    queueMicrotask(() => {
-      const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ?? { x: 0, y: 0 };
-      setPosition(initial);
-      positionRef.current = initial;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
-      setIsPositionLoaded(true);
-    });
+    queueMicrotask(() => setIsPositionLoaded(true));
   }, []);
 
   useEffect(() => {
@@ -180,12 +168,15 @@ export default function WidgetDraggableSomaFM() {
         Record<string, { x: number; y: number }>
       >;
       const detail = customEvent.detail || {};
-      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
-      } else if (Object.keys(detail).length > 1) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
+      // Only update if we do NOT have a saved position
+      if (!getSavedWidgetPosition(WIDGET_ID)) {
+        if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+          const newPos = detail[WIDGET_ID];
+          if (newPos) setPosition(newPos);
+        } else if (Object.keys(detail).length > 1) {
+          const newPos = detail[WIDGET_ID];
+          if (newPos) setPosition(newPos);
+        }
       }
     };
 
@@ -194,84 +185,30 @@ export default function WidgetDraggableSomaFM() {
       window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
-  const handleDragStart = useCallback(
-    (clientX: number, clientY: number) => {
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: clientX,
-        y: clientY,
-        posX: position.x,
-        posY: position.y,
-      };
-    },
-    [position],
-  );
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    e.dataTransfer.setData("text/widget-id", WIDGET_ID);
+    e.dataTransfer.effectAllowed = "move";
+    setIsDragging(true);
+  }, []);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      handleDragStart(e.clientX, e.clientY);
-    },
-    [handleDragStart],
-  );
+  const handleDragEnd = useCallback(() => setIsDragging(false), []);
 
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      const touch = e.touches[0];
-      handleDragStart(touch.clientX, touch.clientY);
-    },
-    [handleDragStart],
-  );
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const source = e.dataTransfer.getData("text/widget-id");
+    if (source && source !== WIDGET_ID) swapWidgetPositions(source as any, WIDGET_ID as any);
+  }, []);
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
 
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStartRef.current.x;
-      const deltaY = e.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartRef.current.x;
-      const deltaY = touch.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-      const pos = positionRef.current;
-      setPosition(pos);
-      saveWidgetPosition(WIDGET_ID, pos.x, pos.y);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleEnd);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleEnd);
-    };
-  }, [isDragging]);
+  // Positioning is handled centrally by the container via layout events.
+  // This component uses swap-based drag/drop on the left label and no
+  // longer performs per-pixel drag transforms itself.
 
   const currentChannel = channels.find((c) => c.id === selected);
   // Use direct mp3 stream URL as per SomaFM docs
@@ -388,14 +325,16 @@ export default function WidgetDraggableSomaFM() {
         <div
           ref={containerRef}
           data-widget-id="somafm"
-          style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-          className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           {/* Vertical "SomaFM" Label */}
           <div
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-            className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
             <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
               SomaFM

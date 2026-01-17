@@ -2,10 +2,10 @@
 
 import { widgetVisibilityAtom } from "@/data/store";
 import type { WidgetId } from "@/lib/widget-positions";
-import { setWidgetVisible, triggerLayoutUpdate } from "@/lib/widget-positions";
+import { setWidgetVisible, triggerLayoutUpdate, getSavedWidgetPosition } from "@/lib/widget-positions";
 import { useAtomValue } from "jotai";
 import dynamic from "next/dynamic";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const WidgetDraggableSomaFM = dynamic(
   () => import("@/components/Widget/WidgetDraggableSomaFM"),
@@ -91,10 +91,52 @@ function WidgetWrapper({
 }) {
   useWidgetVisibilitySync(widgetId, visible);
 
+  // Start with a deterministic default to match server render.
+  // Saved positions are loaded on the client in useEffect below.
+  const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  // Avoid reading localStorage during render to prevent SSR/client
+  // hydration mismatches. Read saved position after mount instead.
+  const [posReady, setPosReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = getSavedWidgetPosition(widgetId);
+      setPos(saved ?? { x: 0, y: 0 });
+    } catch {
+      setPos({ x: 0, y: 0 });
+    } finally {
+      setPosReady(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [widgetId]);
+  useEffect(() => {
+    const handleReset = (e: Event) => {
+      const customEvent = e as CustomEvent<Record<string, { x: number; y: number }>>;
+      const detail = customEvent.detail || {};
+
+      if (Object.prototype.hasOwnProperty.call(detail, widgetId)) {
+        const newPos = detail[widgetId];
+        if (newPos) setPos(newPos);
+      } else if (Object.keys(detail).length > 1) {
+        const newPos = detail[widgetId];
+        if (newPos) setPos(newPos);
+      }
+    };
+
+    window.addEventListener("widget-positions-reset", handleReset);
+    return () => window.removeEventListener("widget-positions-reset", handleReset);
+  }, [widgetId]);
+
   if (!visible) return null;
 
+  // Render with default transform on first render to match SSR.
+  // Apply saved transform once we've read saved positions on the client.
   return (
-    <div className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4">
+    <div
+      className="absolute top-24 left-3 z-20 animate-widget-appear md:top-24 md:left-4"
+      style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+      aria-hidden={!posReady}
+    >
       {children}
     </div>
   );

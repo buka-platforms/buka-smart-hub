@@ -35,7 +35,7 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
-  saveWidgetPosition,
+  swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
@@ -191,8 +191,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const positionRef = useRef(position);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
@@ -415,8 +413,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       const initial = saved ?? { x: 0, y: 0 };
       setPosition(initial);
       positionRef.current = initial;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
       setIsPositionLoaded(true);
     });
   }, []);
@@ -440,13 +436,15 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         Record<string, { x: number; y: number }>
       >;
       const detail = customEvent.detail || {};
-
-      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
-      } else if (Object.keys(detail).length > 1) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
+      // Only update if we do NOT have a saved position
+      if (!getSavedWidgetPosition(WIDGET_ID)) {
+        if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+          const newPos = detail[WIDGET_ID];
+          if (newPos) setPosition(newPos);
+        } else if (Object.keys(detail).length > 1) {
+          const newPos = detail[WIDGET_ID];
+          if (newPos) setPosition(newPos);
+        }
       }
     };
 
@@ -455,86 +453,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
-  // Drag handlers - only start drag from left label
-  const handleDragStart = useCallback(
-    (clientX: number, clientY: number) => {
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: clientX,
-        y: clientY,
-        posX: position.x,
-        posY: position.y,
-      };
-    },
-    [position],
-  );
-
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      handleDragStart(e.clientX, e.clientY);
-    },
-    [handleDragStart],
-  );
-
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      const t = e.touches[0];
-      handleDragStart(t.clientX, t.clientY);
-    },
-    [handleDragStart],
-  );
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    // transitions/shadow are controlled via JSX className using `isDragging`
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStartRef.current.x;
-      const deltaY = e.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      const deltaX = t.clientX - dragStartRef.current.x;
-      const deltaY = t.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-      const pos = positionRef.current;
-      setPosition(pos);
-      saveWidgetPosition(WIDGET_ID, pos.x, pos.y);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleEnd);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleEnd);
-      // no-op: JSX handles transition/shadow classes
-    };
-  }, [isDragging]);
+  // Drag/Drop swap handlers will be attached to the left label below
 
   // Reset position using centralized auto-arrange logic
   const resetPosition = useCallback(() => {
@@ -561,14 +480,28 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical Label */}
         <div
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          draggable
+          onDragStart={(e) => {
+            try {
+              e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
+              if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+            } catch {}
+          }}
+          onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              try {
+                const src = e.dataTransfer?.getData("text/widget-id");
+                if (src && src !== WIDGET_ID) {
+                  swapWidgetPositions(src as any, WIDGET_ID as any);
+                }
+              } catch {}
+            }}
+          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 cursor-grab`}
         >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             Radio Now Playing

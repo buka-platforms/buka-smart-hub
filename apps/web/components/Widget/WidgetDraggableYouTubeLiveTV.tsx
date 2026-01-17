@@ -34,10 +34,10 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
-  saveWidgetPosition,
   triggerLayoutUpdate,
   setWidgetMeasuredHeight,
   unobserveWidget,
+  swapWidgetPositions,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
@@ -97,14 +97,11 @@ export default function WidgetDraggableYouTubeLiveTV() {
     "group cursor-pointer rounded-md px-2 py-1.5 text-white/80 transition-colors hover:bg-white/5 data-[highlighted=true]:bg-white/10 data-[highlighted=true]:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white";
 
   const WIDGET_ID = "youtubelivetv";
-  const containerRef = useRef<HTMLDivElement>(null); // draggable wrapper
+  const containerRef = useRef<HTMLDivElement>(null); // wrapper
   const playerRef = useRef<HTMLDivElement>(null); // player container
 
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const positionRef = useRef(position);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
   // Player state
   const [selectedChannel, setSelectedChannel] = useState<TVChannel | null>(
@@ -163,17 +160,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
     });
   }, []);
 
-  // Load position from storage on mount
+  // Mark position loaded after mount (layout system will place widgets)
   useEffect(() => {
-    queueMicrotask(() => {
-      const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ?? { x: 0, y: 0 };
-      setPosition(initial);
-      positionRef.current = initial;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
-      setIsPositionLoaded(true);
-    });
+    queueMicrotask(() => setIsPositionLoaded(true));
   }, []);
 
   // Observe wrapper for layout adjustments
@@ -196,13 +185,15 @@ export default function WidgetDraggableYouTubeLiveTV() {
         Record<string, { x: number; y: number }>
       >;
       const detail = customEvent.detail || {};
-
-      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
-      } else if (Object.keys(detail).length > 1) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
+      // Only update if we do NOT have a saved position
+      if (!getSavedWidgetPosition(WIDGET_ID)) {
+        if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
+          const newPos = detail[WIDGET_ID];
+          if (newPos) setPosition(newPos);
+        } else if (Object.keys(detail).length > 1) {
+          const newPos = detail[WIDGET_ID];
+          if (newPos) setPosition(newPos);
+        }
       }
     };
 
@@ -211,83 +202,25 @@ export default function WidgetDraggableYouTubeLiveTV() {
       window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
-  // Drag handlers - only start from left label
-  const handleDragStart = useCallback(
-    (clientX: number, clientY: number) => {
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: clientX,
-        y: clientY,
-        posX: position.x,
-        posY: position.y,
-      };
-    },
-    [position],
-  );
+  // Drag/drop handlers (swap behavior)
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    e.dataTransfer.setData("text/widget-id", WIDGET_ID);
+    e.dataTransfer.effectAllowed = "move";
+    setIsDragging(true);
+  }, []);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      handleDragStart(e.clientX, e.clientY);
-    },
-    [handleDragStart],
-  );
+  const handleDragEnd = useCallback(() => setIsDragging(false), []);
 
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      const touch = e.touches[0];
-      handleDragStart(touch.clientX, touch.clientY);
-    },
-    [handleDragStart],
-  );
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
 
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStartRef.current.x;
-      const deltaY = e.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartRef.current.x;
-      const deltaY = touch.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-      const pos = positionRef.current;
-      setPosition(pos);
-      saveWidgetPosition(WIDGET_ID, pos.x, pos.y);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleEnd);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleEnd);
-    };
-  }, [isDragging]);
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const source = e.dataTransfer.getData("text/widget-id");
+    if (source && source !== WIDGET_ID) swapWidgetPositions(source as any, WIDGET_ID as any);
+  }, []);
 
   // Disable pointer events on the embedded player while dragging so iframe doesn't intercept events
   useEffect(() => {
@@ -628,14 +561,16 @@ export default function WidgetDraggableYouTubeLiveTV() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-        className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Live TV" Label - drag handle */}
         <div
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          draggable
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "opacity-60" : "opacity-100"}`}
         >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             YouTube Live TV

@@ -26,9 +26,9 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
-  saveWidgetPosition,
   triggerLayoutUpdate,
   unobserveWidget,
+  swapWidgetPositions,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
@@ -58,8 +58,6 @@ const WIDGET_VERSION = "1.0.0";
 
 export default function WidgetDraggableQuran() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const positionRef = useRef({ x: 0, y: 0 });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
@@ -105,36 +103,15 @@ export default function WidgetDraggableQuran() {
   }, []);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ?? { x: 0, y: 0 };
-      setPosition(initial);
-      positionRef.current = initial;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${initial.x}px, ${initial.y}px)`;
-      setIsPositionLoaded(true);
-    });
+    queueMicrotask(() => setIsPositionLoaded(true));
   }, []);
 
   useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      const detail = customEvent.detail || {};
-
-      if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
-      } else if (Object.keys(detail).length > 1) {
-        const newPos = detail[WIDGET_ID];
-        if (newPos) setPosition(newPos);
-      }
-    };
-
-    window.addEventListener("widget-positions-reset", handleReset);
-    return () =>
-      window.removeEventListener("widget-positions-reset", handleReset);
+    // Components no longer directly set pixel positions on reset events.
+    // The container will reflow widgets based on the layout dispatch.
+    const noop = () => {};
+    window.addEventListener("widget-positions-reset", noop);
+    return () => window.removeEventListener("widget-positions-reset", noop);
   }, []);
 
   useEffect(() => {
@@ -356,77 +333,25 @@ export default function WidgetDraggableQuran() {
     [jumpToAyahValue, jumpToAyah],
   );
 
-  // Drag handlers - only for drag handle area
-  const handleDragStart = useCallback((clientX: number, clientY: number) => {
+  // Drag/drop swap handlers
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    e.dataTransfer.setData("text/widget-id", WIDGET_ID);
+    e.dataTransfer.effectAllowed = "move";
     setIsDragging(true);
-    dragStartRef.current = {
-      x: clientX,
-      y: clientY,
-      posX: positionRef.current.x,
-      posY: positionRef.current.y,
-    };
   }, []);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      handleDragStart(e.clientX, e.clientY);
-    },
-    [handleDragStart],
-  );
+  const handleDragEnd = useCallback(() => setIsDragging(false), []);
 
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      const touch = e.touches[0];
-      handleDragStart(touch.clientX, touch.clientY);
-    },
-    [handleDragStart],
-  );
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
 
-  useEffect(() => {
-    if (!isDragging) return;
-    const handleMove = (e: MouseEvent) => {
-      const dx = e.clientX - dragStartRef.current.x;
-      const dy = e.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + dx,
-        y: dragStartRef.current.posY + dy,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-    const handleTouchMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      const dx = t.clientX - dragStartRef.current.x;
-      const dy = t.clientY - dragStartRef.current.y;
-      const next = {
-        x: dragStartRef.current.posX + dx,
-        y: dragStartRef.current.posY + dy,
-      };
-      positionRef.current = next;
-      if (containerRef.current)
-        containerRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
-    };
-    const handleEnd = () => {
-      setIsDragging(false);
-      const p = positionRef.current;
-      setPosition(p);
-      saveWidgetPosition(WIDGET_ID, p.x, p.y);
-    };
-
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleEnd);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleEnd);
-    };
-  }, [isDragging]);
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const source = e.dataTransfer.getData("text/widget-id");
+    if (source && source !== WIDGET_ID) swapWidgetPositions(source as any, WIDGET_ID as any);
+  }, []);
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
 
@@ -438,14 +363,16 @@ export default function WidgetDraggableQuran() {
         <div
           ref={containerRef}
           data-widget-id={WIDGET_ID}
-          style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-          className={`pointer-events-auto absolute z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           {/* Vertical "Quran" Label - Drag Handle */}
           <div
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-            className={`flex items-center justify-center border-r border-white/10 px-1 select-none hover:bg-white/5 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className={`flex items-center justify-center border-r border-white/10 px-1 select-none hover:bg-white/5 ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
             <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
               Quran

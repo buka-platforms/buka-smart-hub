@@ -3,7 +3,6 @@
 import {
   getSavedWidgetPosition,
   observeWidget,
-  saveWidgetPosition,
   triggerLayoutUpdate,
   unobserveWidget,
   type WidgetId,
@@ -17,8 +16,6 @@ interface UseWidgetPositionOptions {
 interface UseWidgetPositionReturn {
   position: { x: number; y: number };
   isPositionLoaded: boolean;
-  draggableRef: React.RefObject<HTMLDivElement | null>;
-  handleDragEnd: (data: { offset: { x: number; y: number } }) => void;
 }
 
 /**
@@ -30,52 +27,25 @@ interface UseWidgetPositionReturn {
  * - Listening for position reset events
  * - Saving position on drag end
  */
-export function useWidgetPosition({
-  widgetId,
-}: UseWidgetPositionOptions): UseWidgetPositionReturn {
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
+export function useWidgetPosition({ widgetId }: UseWidgetPositionOptions): UseWidgetPositionReturn {
+  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
 
   // Load position from localStorage on mount
   useEffect(() => {
     const saved = getSavedWidgetPosition(widgetId);
-
-    // If there's a saved position use it. Otherwise defer to the
-    // auto-arrange logic that runs after widgets have been measured.
-    // Using the on-mount auto-calculation caused races where multiple
-    // widgets used fallback sizes and overlapped on fresh profiles.
-    if (saved) {
-      setPosition(saved);
-    } else {
-      setPosition({ x: 0, y: 0 });
-    }
-
+    setPosition(saved ?? { x: 0, y: 0 });
     setIsPositionLoaded(true);
   }, [widgetId]);
 
   // Register with ResizeObserver for automatic layout updates
   useEffect(() => {
-    const el = draggableRef.current;
-    if (!el) return;
-
-    observeWidget(widgetId, el);
-
-    // Ask the layout system to recalculate after we register the element.
-    // This ensures positions are computed from real measurements instead
-    // of optimistic fallbacks.
+    // The consumer should register their element via observeWidget when
+    // they have a DOM ref. This hook focuses on position state and
+    // listening for layout reset events.
     try {
       triggerLayoutUpdate();
-    } catch {
-      // ignore
-    }
-
-    return () => {
-      unobserveWidget(widgetId);
-    };
+    } catch {}
   }, [widgetId]);
 
   // Listen for widget position reset events
@@ -106,20 +76,5 @@ export function useWidgetPosition({
       window.removeEventListener("widget-positions-reset", handleReset);
   }, [widgetId]);
 
-  // Handle drag end to save position
-  const handleDragEnd = useCallback(
-    (data: { offset: { x: number; y: number } }) => {
-      const newPosition = { x: data.offset.x, y: data.offset.y };
-      setPosition(newPosition);
-      saveWidgetPosition(widgetId, newPosition.x, newPosition.y);
-    },
-    [widgetId],
-  );
-
-  return {
-    position,
-    isPositionLoaded,
-    draggableRef,
-    handleDragEnd,
-  };
+  return { position, isPositionLoaded };
 }
