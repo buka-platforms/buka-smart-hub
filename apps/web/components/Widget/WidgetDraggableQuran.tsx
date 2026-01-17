@@ -519,7 +519,7 @@ export default function WidgetDraggableQuran() {
                             data-ayah-index={idx}
                             className={`group relative px-2 py-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
                           >
-                            <div className="flex items-start gap-2">
+                            <div className="flex items-start gap-2 py-1">
                               <button
                                 onClick={() => playAyah(idx)}
                                 className={`mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200 ${
