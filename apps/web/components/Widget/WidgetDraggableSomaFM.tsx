@@ -343,7 +343,7 @@ export default function WidgetDraggableSomaFM() {
           </div>
 
           {/* Main Column */}
-          <div className="flex w-85 flex-col">
+          <div className="flex w-full flex-col">
             {/* Player Row: Channel Art, Info, Play Button and Volume on right */}
             <div className="flex items-center gap-3 p-3">
               {/* Channel Art */}

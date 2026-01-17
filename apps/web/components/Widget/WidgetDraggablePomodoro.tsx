@@ -586,7 +586,7 @@ export default function WidgetDraggablePomodoro() {
           </div>
 
           {/* Main column */}
-          <div className="relative flex w-85 flex-col">
+          <div className="relative flex w-full flex-col">
             {/* Completion Modal Overlay */}
             {showCompletion && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">

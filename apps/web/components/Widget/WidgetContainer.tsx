@@ -111,7 +111,10 @@ function WidgetWrapper({
         pageBreakInside: "avoid",
       }}
     >
-      <div className="inline-block w-full mb-3">{children}</div>
+      <div className="inline-block w-full mb-3">
+        {/* Outer container caps each widget to `w-85` and centers it in the column */}
+        <div className="w-85 mx-auto">{children}</div>
+      </div>
     </div>
   );
 }
