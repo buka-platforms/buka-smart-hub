@@ -508,40 +508,48 @@ export default function WidgetDraggableQuran() {
                   {useMemo(
                     () =>
                       surahData?.ayahs?.map((a: any, idx: number) => (
-                        <div
-                          key={a.number}
-                          data-ayah-index={idx}
-                          className={`group relative p-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""} ${idx < (surahData?.ayahs?.length || 0) - 1 ? "border-b border-white/10" : ""}`}
-                        >
-                          <div className="flex items-start gap-2">
-                            <button
-                              onClick={() => playAyah(idx)}
-                              className={`mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200 ${
-                                idx === currentAyahIndex
-                                  ? "bg-white/20 text-white opacity-100"
-                                  : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
-                              }`}
-                              title={`Play Ayah ${a.numberInSurah}`}
-                            >
-                              {idx === currentAyahIndex && isPlaying ? (
-                                <Pause
-                                  className="h-3 w-3"
-                                  fill="currentColor"
-                                />
-                              ) : (
-                                <Play className="h-3 w-3" fill="currentColor" />
-                              )}
-                            </button>
-                            <div className="flex-1">
-                              <div className="text-right text-2xl leading-tight">
-                                {a.text}
-                              </div>
-                              <div className="mt-1 text-xs text-white/60">
-                                Ayah {a.numberInSurah}
+                        <>
+                          <div
+                            key={a.number}
+                            data-ayah-index={idx}
+                            className={`group relative px-2 py-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <button
+                                onClick={() => playAyah(idx)}
+                                className={`mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200 ${
+                                  idx === currentAyahIndex
+                                    ? "bg-white/20 text-white opacity-100"
+                                    : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
+                                }`}
+                                title={`Play Ayah ${a.numberInSurah}`}
+                              >
+                                {idx === currentAyahIndex && isPlaying ? (
+                                  <Pause
+                                    className="h-3 w-3"
+                                    fill="currentColor"
+                                  />
+                                ) : (
+                                  <Play
+                                    className="h-3 w-3"
+                                    fill="currentColor"
+                                  />
+                                )}
+                              </button>
+                              <div className="flex-1">
+                                <div className="text-right text-2xl leading-tight">
+                                  {a.text}
+                                </div>
+                                <div className="mt-1 text-xs text-white/60">
+                                  Ayah {a.numberInSurah}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                          {idx < (surahData?.ayahs?.length || 0) - 1 && (
+                            <div className="border-b border-white/10 py-px" />
+                          )}
+                        </>
                       )),
                     [surahData?.ayahs, currentAyahIndex, isPlaying, playAyah],
                   )}
