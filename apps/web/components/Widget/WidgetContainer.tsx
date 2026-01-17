@@ -138,7 +138,7 @@ export default function WidgetContainer() {
       <WidgetLauncherDock />
 
       {/* Widgets - rendered in slot order (flex flow). */}
-      <div className="pointer-events-auto flex flex-wrap gap-3 p-3">
+      <div className="pointer-events-auto flex flex-wrap gap-3 p-4">
         {order.map((id) => {
           switch (id) {
             case "time":
