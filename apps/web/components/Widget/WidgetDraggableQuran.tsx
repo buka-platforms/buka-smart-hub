@@ -34,6 +34,8 @@ import { useAtom } from "jotai";
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Disc3,
   MoreHorizontal,
   Pause,
@@ -312,6 +314,15 @@ export default function WidgetDraggableQuran() {
     setCurrentAyahIndex((i) => Math.max(0, i - 1));
   }, []);
 
+  const jumpToFirstAyah = useCallback(() => {
+    setCurrentAyahIndex(0);
+  }, []);
+
+  const jumpToLastAyah = useCallback(() => {
+    if (!surahData) return;
+    setCurrentAyahIndex(surahData.ayahs.length - 1);
+  }, [surahData]);
+
   const jumpToAyah = useCallback(
     (ayahNumber: number) => {
       if (!surahData || ayahNumber < 1 || ayahNumber > surahData.ayahs.length)
@@ -445,6 +456,13 @@ export default function WidgetDraggableQuran() {
 
                   <div className="flex items-center gap-2">
                     <button
+                      onClick={jumpToFirstAyah}
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                      title="First Ayah"
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </button>
+                    <button
                       onClick={prevAyah}
                       className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                       title="Previous"
@@ -472,6 +490,13 @@ export default function WidgetDraggableQuran() {
                       title="Next"
                     >
                       <ChevronRight className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={jumpToLastAyah}
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                      title="Last Ayah"
+                    >
+                      <ChevronsRight className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
