@@ -1032,7 +1032,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       </DropdownMenuContent>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>About YouTube Live TV Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">

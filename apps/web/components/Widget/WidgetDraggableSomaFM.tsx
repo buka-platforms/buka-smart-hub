@@ -147,7 +147,7 @@ export default function WidgetDraggableSomaFM() {
     const last = somafmAudioState?.lastChannelId;
     if (last) {
       const found = channels.find((c) => c.id === last);
-      if (found) setSelected(last);
+      if (found) queueMicrotask(() => setSelected(last));
     }
   }, [channels, somafmAudioState?.lastChannelId]);
 
@@ -770,7 +770,7 @@ export default function WidgetDraggableSomaFM() {
       </DropdownMenu>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>About SomaFM Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">

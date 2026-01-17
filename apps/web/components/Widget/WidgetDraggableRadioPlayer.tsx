@@ -548,7 +548,7 @@ export default function WidgetDraggableRadioPlayer() {
       </DropdownMenu>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>About Radio Player Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
