@@ -508,9 +508,8 @@ export default function WidgetDraggableQuran() {
                   {useMemo(
                     () =>
                       surahData?.ayahs?.map((a: any, idx: number) => (
-                        <>
+                        <div key={a.number}>
                           <div
-                            key={a.number}
                             data-ayah-index={idx}
                             className={`group relative px-2 py-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
                           >
@@ -549,7 +548,7 @@ export default function WidgetDraggableQuran() {
                           {idx < (surahData?.ayahs?.length || 0) - 1 && (
                             <div className="border-b border-white/10" />
                           )}
-                        </>
+                        </div>
                       )),
                     [surahData?.ayahs, currentAyahIndex, isPlaying, playAyah],
                   )}
