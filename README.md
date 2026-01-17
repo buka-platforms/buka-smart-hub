@@ -6,8 +6,7 @@ Buka Smart Hub repository.
 
 ## Screenshot
 
-<img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/d96649e7-f5b2-4ee7-a9fd-31db440e1b7e" />
-
+<img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/3acbfa01-9311-4d72-ab28-d4b8ba32d580" />
 
 ## Demo
 https://buka.sh
