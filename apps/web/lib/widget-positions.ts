@@ -66,6 +66,7 @@ interface WidgetDimensions {
 
 const measuredDimensions: Map<WidgetId, WidgetDimensions> = new Map();
 const visibleWidgets: Set<WidgetId> = new Set();
+const pendingInitialMeasurements: Set<WidgetId> = new Set();
 
 // ResizeObserver instance (singleton)
 let resizeObserver: ResizeObserver | null = null;
@@ -139,6 +140,7 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
   observer.observe(element);
   observedElements.set(widgetId, element);
   visibleWidgets.add(widgetId);
+  pendingInitialMeasurements.add(widgetId); // Mark as pending initial measurement
 
   // Initial measurement - delay slightly to allow content to load
   setTimeout(() => {
@@ -149,6 +151,7 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
         height: Math.ceil(rect.height),
         lastUpdate: Date.now(),
       });
+      pendingInitialMeasurements.delete(widgetId); // Mark as measurement complete
 
       // Trigger layout update if auto-arrange is enabled and no saved positions exist
       if (isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
@@ -199,7 +202,20 @@ function scheduleLayoutUpdate(): void {
 
   layoutDebounce = setTimeout(() => {
     layoutDebounce = null;
-    performLayoutUpdate();
+
+    // Check if all visible widgets have valid measured heights
+    const allWidgetsMeasured = Array.from(visibleWidgets).every((widgetId) => {
+      const dims = measuredDimensions.get(widgetId);
+      return dims && dims.height > 0;
+    });
+
+    // Only perform layout update if all widgets are measured and no pending initial measurements
+    if (allWidgetsMeasured && pendingInitialMeasurements.size === 0) {
+      performLayoutUpdate();
+    } else {
+      // If not all widgets are measured, try again after a short delay
+      scheduleLayoutUpdate();
+    }
   }, CONFIG.DEBOUNCE_MS);
 }
 
