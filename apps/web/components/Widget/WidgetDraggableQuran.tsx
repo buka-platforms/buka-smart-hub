@@ -547,7 +547,7 @@ export default function WidgetDraggableQuran() {
                             </div>
                           </div>
                           {idx < (surahData?.ayahs?.length || 0) - 1 && (
-                            <div className="border-b border-white/10 py-px" />
+                            <div className="border-b border-white/10" />
                           )}
                         </>
                       )),
