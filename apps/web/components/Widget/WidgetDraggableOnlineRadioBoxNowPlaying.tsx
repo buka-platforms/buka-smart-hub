@@ -480,7 +480,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto w-full box-border flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical Label */}
         <div
@@ -509,7 +509,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         </div>
 
         {/* Main Column */}
-        <div className="flex w-full flex-col">
+        <div className="flex w-full flex-col truncate">
           {/* Header */}
           <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
             <div className="flex items-center gap-2">

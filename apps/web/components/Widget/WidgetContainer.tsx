@@ -111,9 +111,9 @@ function WidgetWrapper({
         pageBreakInside: "avoid",
       }}
     >
-      <div className="inline-block w-full mb-3">
+      <div className="mb-3 inline-block w-full">
         {/* Outer container caps each widget to `w-85` and centers it in the column */}
-        <div className="w-85 mx-auto">{children}</div>
+        <div className="mx-auto w-85">{children}</div>
       </div>
     </div>
   );
@@ -152,7 +152,7 @@ export default function WidgetContainer() {
 
       {/* Widgets - rendered in slot order using CSS multi-column masonry. */}
       <div
-        className="pointer-events-auto p-4 columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5"
+        className="pointer-events-auto columns-1 p-4 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5"
         style={{ columnGap: "1rem" }}
       >
         {order.map((id) => {

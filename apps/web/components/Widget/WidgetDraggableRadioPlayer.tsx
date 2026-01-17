@@ -288,7 +288,7 @@ export default function WidgetDraggableRadioPlayer() {
           </div>
 
           {/* Main Column */}
-          <div className="flex w-full flex-col">
+          <div className="flex w-full flex-col truncate">
             {/* Player Row */}
             <div className="flex items-center gap-3 p-3">
               {/* Cover Art */}

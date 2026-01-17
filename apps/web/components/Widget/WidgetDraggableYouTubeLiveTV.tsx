@@ -579,7 +579,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
         </div>
 
         {/* Main Column */}
-        <div className="flex w-full flex-col">
+        <div className="flex w-full flex-col truncate">
           {/* Channel Header */}
           <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
             {/* Channel Logo */}
