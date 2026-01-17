@@ -42,7 +42,13 @@ import {
   Play,
   Play as PlayIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const WIDGET_ID = "quran";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -503,12 +509,12 @@ export default function WidgetDraggableQuran() {
 
                 <div
                   ref={textContainerRef}
-                  className="mt-2 max-h-34 space-y-1 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
+                  className="mt-2 max-h-34 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
                 >
                   {useMemo(
                     () =>
                       surahData?.ayahs?.map((a: any, idx: number) => (
-                        <div key={a.number}>
+                        <React.Fragment key={a.number}>
                           <div
                             data-ayah-index={idx}
                             className={`group relative px-2 py-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
@@ -546,9 +552,9 @@ export default function WidgetDraggableQuran() {
                             </div>
                           </div>
                           {idx < (surahData?.ayahs?.length || 0) - 1 && (
-                            <div className="border-b border-white/10" />
+                            <div className="my-1 border-b border-white/10" />
                           )}
-                        </div>
+                        </React.Fragment>
                       )),
                     [surahData?.ayahs, currentAyahIndex, isPlaying, playAyah],
                   )}
