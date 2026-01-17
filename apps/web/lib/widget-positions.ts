@@ -32,6 +32,9 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   onlineradioboxnowplaying: "widgetOnlineRadioBoxNowPlayingPosition",
 };
 
+// Order storage key for slot-based layout
+const WIDGET_ORDER_KEY = "widgetOrder";
+
 // Priority order for widgets - higher priority widgets get placed first
 // This determines visual hierarchy in the masonry grid
 const WIDGET_PRIORITY: WidgetId[] = [
@@ -442,6 +445,45 @@ export function calculateAutoArrangePositions(): Record<
 }
 
 /**
+ * Get saved widget order (slot-based). Returns default priority order if none saved.
+ */
+export function getWidgetOrder(): WidgetId[] {
+  if (typeof window === "undefined") return WIDGET_PRIORITY.slice();
+  try {
+    const raw = localStorage.getItem(WIDGET_ORDER_KEY);
+    if (!raw) return WIDGET_PRIORITY.slice();
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      // Validate contents and fill missing widgets with defaults
+      const set = new Set(parsed as string[]);
+      const result: WidgetId[] = [];
+      for (const id of parsed) {
+        if (WIDGET_PRIORITY.includes(id as WidgetId)) result.push(id as WidgetId);
+      }
+      for (const id of WIDGET_PRIORITY) {
+        if (!set.has(id)) result.push(id);
+      }
+      return result;
+    }
+  } catch {
+    /* ignore */
+  }
+  return WIDGET_PRIORITY.slice();
+}
+
+/**
+ * Persist a widget order
+ */
+export function saveWidgetOrder(order: WidgetId[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(WIDGET_ORDER_KEY, JSON.stringify(order));
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
  * Get saved position from localStorage for a specific widget
  */
 export function getSavedWidgetPosition(
@@ -539,6 +581,10 @@ export function resetAllWidgetPositions(): void {
       // Ignore
     }
   });
+  // Clear saved order as well
+  try {
+    localStorage.removeItem(WIDGET_ORDER_KEY);
+  } catch {}
 
   // Calculate positions based on actual widget measurements
   const positions = calculateAutoArrangePositions();
@@ -566,6 +612,11 @@ export function resetWidgetPosition(widgetId: WidgetId): void {
   } catch {
     // Ignore
   }
+
+  // Also clear any saved order so user can get default ordering
+  try {
+    localStorage.removeItem(WIDGET_ORDER_KEY);
+  } catch {}
 
   const positions = calculateAutoArrangePositions();
 
@@ -609,26 +660,21 @@ export function clearAllWidgetPositions(): void {
 export function swapWidgetPositions(a: WidgetId, b: WidgetId): void {
   if (typeof window === "undefined") return;
 
+  // New behavior: swap slot order instead of pixel coordinates.
   try {
-    const positions = calculateAutoArrangePositions();
+    const order = getWidgetOrder();
+    const aIndex = order.indexOf(a);
+    const bIndex = order.indexOf(b);
+    if (aIndex === -1 || bIndex === -1) return;
 
-    const aSaved = getSavedWidgetPosition(a) ?? positions[a];
-    const bSaved = getSavedWidgetPosition(b) ?? positions[b];
+    // Swap in-place
+    const next = order.slice();
+    next[aIndex] = order[bIndex];
+    next[bIndex] = order[aIndex];
 
-    // Swap and persist
-    saveWidgetPosition(a, bSaved.x, bSaved.y);
-    saveWidgetPosition(b, aSaved.x, aSaved.y);
-
-    // Build detail containing current saved positions for all widgets
-    const detail: Record<string, { x: number; y: number }> = {};
-    Object.keys(WIDGET_POSITION_KEYS).forEach((id) => {
-      const wid = id as WidgetId;
-      const sv = getSavedWidgetPosition(wid) ?? positions[wid];
-      detail[id] = sv;
-    });
-
-    // Dispatch full layout update so components can animate to new slots
-    window.dispatchEvent(new CustomEvent("widget-positions-reset", { detail }));
+    // Persist and notify
+    saveWidgetOrder(next);
+    window.dispatchEvent(new CustomEvent("widget-order-changed", { detail: next }));
   } catch {
     // ignore storage errors
   }
