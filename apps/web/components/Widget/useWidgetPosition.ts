@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  calculateAutoArrangePositions,
   getSavedWidgetPosition,
   observeWidget,
   saveWidgetPosition,
+  triggerLayoutUpdate,
   unobserveWidget,
   type WidgetId,
 } from "@/lib/widget-positions";
@@ -43,15 +43,18 @@ export function useWidgetPosition({
   // Load position from localStorage on mount
   useEffect(() => {
     const saved = getSavedWidgetPosition(widgetId);
-    queueMicrotask(() => {
-      if (saved) {
-        setPosition(saved);
-      } else {
-        const positions = calculateAutoArrangePositions();
-        setPosition(positions[widgetId] || { x: 0, y: 0 });
-      }
-      setIsPositionLoaded(true);
-    });
+
+    // If there's a saved position use it. Otherwise defer to the
+    // auto-arrange logic that runs after widgets have been measured.
+    // Using the on-mount auto-calculation caused races where multiple
+    // widgets used fallback sizes and overlapped on fresh profiles.
+    if (saved) {
+      setPosition(saved);
+    } else {
+      setPosition({ x: 0, y: 0 });
+    }
+
+    setIsPositionLoaded(true);
   }, [widgetId]);
 
   // Register with ResizeObserver for automatic layout updates
@@ -60,6 +63,15 @@ export function useWidgetPosition({
     if (!el) return;
 
     observeWidget(widgetId, el);
+
+    // Ask the layout system to recalculate after we register the element.
+    // This ensures positions are computed from real measurements instead
+    // of optimistic fallbacks.
+    try {
+      triggerLayoutUpdate();
+    } catch {
+      // ignore
+    }
 
     return () => {
       unobserveWidget(widgetId);

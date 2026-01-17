@@ -28,11 +28,11 @@ import {
 } from "@/data/store";
 import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
 import {
-  calculateAutoArrangePositions,
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
   saveWidgetPosition,
+  triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -170,8 +170,7 @@ export default function WidgetDraggableRadioPlayer() {
   useEffect(() => {
     queueMicrotask(() => {
       const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ??
-        calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
+      const initial = saved ?? { x: 0, y: 0 };
       setPosition(initial);
       positionRef.current = initial;
       // apply initial transform to DOM to avoid visual jump
@@ -188,6 +187,9 @@ export default function WidgetDraggableRadioPlayer() {
     if (!el) return;
 
     observeWidget(WIDGET_ID, el);
+    try {
+      triggerLayoutUpdate();
+    } catch {}
 
     return () => unobserveWidget(WIDGET_ID);
   }, []);

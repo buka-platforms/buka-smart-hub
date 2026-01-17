@@ -36,11 +36,11 @@ import {
   stopSomaFM,
 } from "@/lib/somafm-audio";
 import {
-  calculateAutoArrangePositions,
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
   saveWidgetPosition,
+  triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
 // removed neodrag in favor of manual drag handlers
@@ -155,8 +155,7 @@ export default function WidgetDraggableSomaFM() {
   useEffect(() => {
     queueMicrotask(() => {
       const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ??
-        calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
+      const initial = saved ?? { x: 0, y: 0 };
       setPosition(initial);
       positionRef.current = initial;
       if (containerRef.current)
@@ -169,6 +168,9 @@ export default function WidgetDraggableSomaFM() {
     const el = containerRef.current;
     if (!el) return;
     observeWidget(WIDGET_ID, el);
+    try {
+      triggerLayoutUpdate();
+    } catch {}
     return () => unobserveWidget(WIDGET_ID);
   }, []);
 

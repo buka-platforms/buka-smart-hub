@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
-  calculateAutoArrangePositions,
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
   saveWidgetPosition,
+  triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
@@ -495,8 +495,7 @@ export default function WidgetDraggablePomodoro() {
   useEffect(() => {
     queueMicrotask(() => {
       const saved = getSavedWidgetPosition(WIDGET_ID);
-      const initial = saved ??
-        calculateAutoArrangePositions()[WIDGET_ID] ?? { x: 0, y: 0 };
+      const initial = saved ?? { x: 0, y: 0 };
       setPosition(initial);
       positionRef.current = initial;
       if (containerRef.current)
@@ -510,6 +509,9 @@ export default function WidgetDraggablePomodoro() {
     const el = containerRef.current;
     if (!el) return;
     observeWidget(WIDGET_ID, el);
+    try {
+      triggerLayoutUpdate();
+    } catch {}
     return () => unobserveWidget(WIDGET_ID);
   }, []);
 
