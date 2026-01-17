@@ -1,6 +1,7 @@
 import {
   backgroundImageStateAtom,
   jotaiStore,
+  radioAudioStateAtom,
   radioStationStateAtom,
 } from "@/data/store";
 import type { RadioStation } from "@/data/type";
@@ -78,10 +79,11 @@ const getExternalTrackDetails = async () => {
           metadataExists: true,
         }));
 
-        // Only if $exposedTrackTitle and $exposedTrackArtist are not ""
+        // Only if $exposedTrackTitle and $exposedTrackArtist are not "" and radio is playing
         if (
           jotaiStore.get(radioStationStateAtom).exposedTitle !== "" &&
-          jotaiStore.get(radioStationStateAtom).exposedArtist !== ""
+          jotaiStore.get(radioStationStateAtom).exposedArtist !== "" &&
+          jotaiStore.get(radioAudioStateAtom).isPlaying
         ) {
           // Send virtual page view event to Google Analytics
           if (window && window.gtag) {
@@ -214,10 +216,11 @@ const getTrackMetadata = async () => {
         // Initialize the audio visualization again
         initAudioVisualization();
 
-        // Only if $exposedTrackTitle and $exposedTrackArtist are not ""
+        // Only if $exposedTrackTitle and $exposedTrackArtist are not "" and radio is playing
         if (
           jotaiStore.get(radioStationStateAtom).exposedTitle !== "" &&
-          jotaiStore.get(radioStationStateAtom).exposedArtist !== ""
+          jotaiStore.get(radioStationStateAtom).exposedArtist !== "" &&
+          jotaiStore.get(radioAudioStateAtom).isPlaying
         ) {
           // Send virtual page view event to Google Analytics
           if (window && window.gtag) {
