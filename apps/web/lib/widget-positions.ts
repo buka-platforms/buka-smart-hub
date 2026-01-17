@@ -55,6 +55,7 @@ const CONFIG = {
   MAX_COLUMNS: 4, // Maximum number of columns
   DEBOUNCE_MS: 100, // Debounce time for layout recalculation
   ANIMATION_DURATION: 300, // CSS transition duration in ms
+  SETTLE_MS: 200, // Wait this long after initial measurements complete
 };
 
 // Cached measured dimensions for each widget
@@ -74,6 +75,10 @@ const observedElements: Map<WidgetId, HTMLElement> = new Map();
 
 // Debounce timer for layout recalculation
 let layoutDebounce: ReturnType<typeof setTimeout> | null = null;
+// Final settle timer to wait a short period after all initial measurements
+// complete before performing the first layout. This prevents layout from
+// running too early while async content (images, API data) is still settling.
+let finalSettleTimer: ReturnType<typeof setTimeout> | null = null;
 let isAutoArrangeEnabled = true;
 
 /**
@@ -109,12 +114,30 @@ function getResizeObserver(): ResizeObserver | null {
             height: Math.ceil(height),
             lastUpdate: Date.now(),
           });
+          // When ResizeObserver reports the element size, consider the
+          // initial measurement for that widget confirmed so initial
+          // pending flags don't prevent layout.
+          if (pendingInitialMeasurements.has(widgetId)) {
+            pendingInitialMeasurements.delete(widgetId);
+          }
+          // If no more pending initial measurements, start a short settle
+          // timer before triggering the layout so async content can finish
+          // rendering (images, API-driven height changes).
+          if (pendingInitialMeasurements.size === 0) {
+            if (finalSettleTimer) clearTimeout(finalSettleTimer);
+            finalSettleTimer = setTimeout(() => {
+              finalSettleTimer = null;
+              scheduleLayoutUpdate();
+            }, CONFIG.SETTLE_MS);
+          }
           hasChanges = true;
         }
       }
 
       if (hasChanges && isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
-        scheduleLayoutUpdate();
+        // If a final settle timer is active, let it trigger the layout. If
+        // not, proceed with the normal debounced schedule.
+        if (!finalSettleTimer) scheduleLayoutUpdate();
       }
     });
   }
@@ -143,6 +166,9 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
   pendingInitialMeasurements.add(widgetId); // Mark as pending initial measurement
 
   // Initial measurement - delay slightly to allow content to load
+  // We rely on ResizeObserver to confirm and clear the "pending" flag.
+  // If ResizeObserver is not available (older browsers), clear the
+  // pending flag after a slightly longer timeout.
   setTimeout(() => {
     if (observedElements.has(widgetId) && element.isConnected) {
       const rect = element.getBoundingClientRect();
@@ -151,14 +177,25 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
         height: Math.ceil(rect.height),
         lastUpdate: Date.now(),
       });
-      pendingInitialMeasurements.delete(widgetId); // Mark as measurement complete
+
+      // If ResizeObserver isn't present, treat this as the confirmation
+      if (!getResizeObserver()) {
+        pendingInitialMeasurements.delete(widgetId);
+        if (pendingInitialMeasurements.size === 0) {
+          if (finalSettleTimer) clearTimeout(finalSettleTimer);
+          finalSettleTimer = setTimeout(() => {
+            finalSettleTimer = null;
+            scheduleLayoutUpdate();
+          }, CONFIG.SETTLE_MS);
+        }
+      }
 
       // Trigger layout update if auto-arrange is enabled and no saved positions exist
       if (isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
         scheduleLayoutUpdate();
       }
     }
-  }, 100);
+  }, 200);
 }
 
 /**
@@ -196,6 +233,14 @@ export function setWidgetVisible(widgetId: WidgetId, visible: boolean): void {
  * Schedule a debounced layout update
  */
 function scheduleLayoutUpdate(): void {
+  // If a final settle timer is active it means we're already waiting for a
+  // short settle period before the initial layout — clear it because an
+  // explicit schedule should take precedence.
+  if (finalSettleTimer) {
+    clearTimeout(finalSettleTimer);
+    finalSettleTimer = null;
+  }
+
   if (layoutDebounce) {
     clearTimeout(layoutDebounce);
   }
@@ -313,11 +358,14 @@ export function calculateAutoArrangePositions(): Record<
 
   if (typeof window === "undefined") return positions;
 
-  // Get visible widgets in priority order
+  // Get widgets in priority order. Use DOM presence as the primary signal so
+  // elements that exist but haven't yet registered with the ResizeObserver
+  // (or been added to `visibleWidgets`) are still considered during the
+  // initial auto-arrange calculation. This prevents later-mounting widgets
+  // from being ignored and causing overlapping placements.
   const widgetsToLayout = WIDGET_PRIORITY.filter((id) => {
-    // Check if widget is visible (in DOM and visibility state)
     const el = document.querySelector(`[data-widget-id="${id}"]`);
-    return el && visibleWidgets.has(id);
+    return !!el;
   });
 
   if (widgetsToLayout.length === 0) return positions;
