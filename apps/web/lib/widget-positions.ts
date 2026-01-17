@@ -458,7 +458,8 @@ export function getWidgetOrder(): WidgetId[] {
       const set = new Set(parsed as string[]);
       const result: WidgetId[] = [];
       for (const id of parsed) {
-        if (WIDGET_PRIORITY.includes(id as WidgetId)) result.push(id as WidgetId);
+        if (WIDGET_PRIORITY.includes(id as WidgetId))
+          result.push(id as WidgetId);
       }
       for (const id of WIDGET_PRIORITY) {
         if (!set.has(id)) result.push(id);
@@ -534,9 +535,7 @@ export function hasAnyWidgetPosition(): boolean {
       if (saved) {
         const parsed = JSON.parse(saved);
         return (
-          parsed &&
-          typeof parsed.x === "number" &&
-          typeof parsed.y === "number"
+          parsed && typeof parsed.x === "number" && typeof parsed.y === "number"
         );
       }
     } catch {
@@ -674,7 +673,9 @@ export function swapWidgetPositions(a: WidgetId, b: WidgetId): void {
 
     // Persist and notify
     saveWidgetOrder(next);
-    window.dispatchEvent(new CustomEvent("widget-order-changed", { detail: next }));
+    window.dispatchEvent(
+      new CustomEvent("widget-order-changed", { detail: next }),
+    );
   } catch {
     // ignore storage errors
   }
