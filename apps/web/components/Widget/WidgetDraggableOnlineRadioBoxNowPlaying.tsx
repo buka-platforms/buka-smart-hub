@@ -35,11 +35,11 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
+  setWidgetMeasuredHeight,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
-import { setWidgetMeasuredHeight } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   Disc3,
@@ -480,7 +480,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical Label */}
         <div
@@ -492,16 +492,16 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
             } catch {}
           }}
           onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              try {
-                const src = e.dataTransfer?.getData("text/widget-id");
-                if (src && src !== WIDGET_ID) {
-                  swapWidgetPositions(src as any, WIDGET_ID as any);
-                }
-              } catch {}
-            }}
-          className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 cursor-grab`}
+          onDrop={(e) => {
+            e.preventDefault();
+            try {
+              const src = e.dataTransfer?.getData("text/widget-id");
+              if (src && src !== WIDGET_ID) {
+                swapWidgetPositions(src as any, WIDGET_ID as any);
+              }
+            } catch {}
+          }}
+          className={`flex cursor-grab items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5`}
         >
           <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
             Radio Now Playing
@@ -509,7 +509,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         </div>
 
         {/* Main Column */}
-        <div className="flex w-80 flex-col">
+        <div className="flex w-85 flex-col">
           {/* Header */}
           <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
             <div className="flex items-center gap-2">

@@ -27,8 +27,13 @@ interface UseWidgetPositionReturn {
  * - Listening for position reset events
  * - Saving position on drag end
  */
-export function useWidgetPosition({ widgetId }: UseWidgetPositionOptions): UseWidgetPositionReturn {
-  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+export function useWidgetPosition({
+  widgetId,
+}: UseWidgetPositionOptions): UseWidgetPositionReturn {
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
 
   // Load position from localStorage on mount

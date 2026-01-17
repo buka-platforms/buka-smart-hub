@@ -148,20 +148,20 @@ export default function WidgetLauncherDock() {
 
   return (
     <div
-      className={`pointer-events-auto z-50 flex transform-gpu cursor-pointer overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-200 will-change-transform justify-self-start ml-3 md:ml-4 mt-5 md:mt-5 ${
+      className={`pointer-events-auto z-50 mt-5 ml-3 flex transform-gpu cursor-pointer justify-self-start overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-200 will-change-transform md:mt-5 md:ml-4 ${
         isExpanded ? "flex-col" : "flex-row"
       } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       style={{ justifySelf: "start" }}
     >
       {/* Drag Handle - Visual indicator for dragging */}
-        <div
-          className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors select-none hover:bg-white/10 hover:text-white/70 ${
-            isExpanded ? "border-b px-3 py-2" : "border-r p-3"
-          }`}
-        >
-          <GripVertical className={isExpanded ? "h-4 w-4" : "h-5 w-5"} />
-          {isExpanded && <span className="ml-2 text-xs font-medium">Dock</span>}
-        </div>
+      <div
+        className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors select-none hover:bg-white/10 hover:text-white/70 ${
+          isExpanded ? "border-b px-3 py-2" : "border-r p-3"
+        }`}
+      >
+        <GripVertical className={isExpanded ? "h-4 w-4" : "h-5 w-5"} />
+        {isExpanded && <span className="ml-2 text-xs font-medium">Dock</span>}
+      </div>
 
       {/* Mini Dock Mode */}
       {!isExpanded && (
@@ -285,7 +285,7 @@ export default function WidgetLauncherDock() {
           </div>
 
           {/* Footer */}
-            <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
+          <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
             <Link
               href="/apps"
               title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}

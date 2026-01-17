@@ -31,9 +31,9 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
+  swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
-  swapWidgetPositions,
 } from "@/lib/widget-positions";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -288,7 +288,7 @@ export default function WidgetDraggableRadioPlayer() {
           </div>
 
           {/* Main Column */}
-          <div className="flex w-80 flex-col">
+          <div className="flex w-85 flex-col">
             {/* Player Row */}
             <div className="flex items-center gap-3 p-3">
               {/* Cover Art */}

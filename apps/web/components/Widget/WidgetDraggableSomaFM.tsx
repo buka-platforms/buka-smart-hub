@@ -39,9 +39,9 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
+  swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
-  swapWidgetPositions,
 } from "@/lib/widget-positions";
 // removed neodrag in favor of manual drag handlers
 import { useAtom } from "jotai";
@@ -201,7 +201,8 @@ export default function WidgetDraggableSomaFM() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
-    if (source && source !== WIDGET_ID) swapWidgetPositions(source as any, WIDGET_ID as any);
+    if (source && source !== WIDGET_ID)
+      swapWidgetPositions(source as any, WIDGET_ID as any);
   }, []);
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);

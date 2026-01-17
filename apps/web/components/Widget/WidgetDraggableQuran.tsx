@@ -26,9 +26,9 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
+  swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
-  swapWidgetPositions,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
@@ -350,7 +350,8 @@ export default function WidgetDraggableQuran() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
-    if (source && source !== WIDGET_ID) swapWidgetPositions(source as any, WIDGET_ID as any);
+    if (source && source !== WIDGET_ID)
+      swapWidgetPositions(source as any, WIDGET_ID as any);
   }, []);
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
@@ -379,7 +380,7 @@ export default function WidgetDraggableQuran() {
             </span>
           </div>
 
-          <div className="flex w-80 flex-col">
+          <div className="flex w-85 flex-col">
             <div className="flex items-center gap-3 p-3">
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-center justify-between">

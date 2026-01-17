@@ -236,10 +236,10 @@ export default function WidgetDraggableDateTime() {
         modal={false}
       >
         <div
-            ref={containerRef}
-            data-widget-id={WIDGET_ID}
-            className={`pointer-events-auto z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-          >
+          ref={containerRef}
+          data-widget-id={WIDGET_ID}
+          className={`pointer-events-auto z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        >
           {/* Vertical "DateTime" Label - Drag Handle */}
           <div
             draggable
@@ -259,7 +259,7 @@ export default function WidgetDraggableDateTime() {
                 }
               } catch {}
             }}
-            className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 cursor-grab`}
+            className={`flex cursor-grab items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5`}
           >
             <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
               Time
@@ -267,7 +267,7 @@ export default function WidgetDraggableDateTime() {
           </div>
 
           {/* Main Column */}
-          <div className="flex w-75 flex-col">
+          <div className="flex w-85 flex-col">
             {/* DateTime Row */}
             <div className="flex items-center gap-3 p-3">
               {/* Time of Day Icon */}

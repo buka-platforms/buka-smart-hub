@@ -34,10 +34,10 @@ import {
   getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
-  triggerLayoutUpdate,
   setWidgetMeasuredHeight,
-  unobserveWidget,
   swapWidgetPositions,
+  triggerLayoutUpdate,
+  unobserveWidget,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
@@ -219,7 +219,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
-    if (source && source !== WIDGET_ID) swapWidgetPositions(source as any, WIDGET_ID as any);
+    if (source && source !== WIDGET_ID)
+      swapWidgetPositions(source as any, WIDGET_ID as any);
   }, []);
 
   // Disable pointer events on the embedded player while dragging so iframe doesn't intercept events

@@ -2,7 +2,11 @@
 
 import { widgetVisibilityAtom } from "@/data/store";
 import type { WidgetId } from "@/lib/widget-positions";
-import { setWidgetVisible, triggerLayoutUpdate, getWidgetOrder } from "@/lib/widget-positions";
+import {
+  getWidgetOrder,
+  setWidgetVisible,
+  triggerLayoutUpdate,
+} from "@/lib/widget-positions";
 import { useAtomValue } from "jotai";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
@@ -93,7 +97,13 @@ function WidgetWrapper({
 
   if (!visible) return null;
 
-  return <div className="animate-widget-appear">{children}</div>;
+  // Wrap widget without forcing a fixed width here — widgets include
+  // their own left label + main column widths (e.g. `w-80`/`w-85`).
+  return (
+    <div className="animate-widget-appear">
+      <div className="flex-none">{children}</div>
+    </div>
+  );
 }
 
 /**
@@ -112,11 +122,18 @@ export default function WidgetContainer() {
     };
 
     window.addEventListener("widget-order-changed", onOrder as EventListener);
-    return () => window.removeEventListener("widget-order-changed", onOrder as EventListener);
+    return () =>
+      window.removeEventListener(
+        "widget-order-changed",
+        onOrder as EventListener,
+      );
   }, []);
 
   return (
-    <div className="pointer-events-none z-20" style={{ gridTemplateRows: "auto 1fr", display: "grid" }}>
+    <div
+      className="pointer-events-none z-20"
+      style={{ gridTemplateRows: "auto 1fr", display: "grid" }}
+    >
       {/* Widget Launcher Dock */}
       <WidgetLauncherDock />
 
