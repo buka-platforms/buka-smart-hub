@@ -39,6 +39,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import { setWidgetMeasuredHeight } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   Disc3,
@@ -394,6 +395,18 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
     return () => clearInterval(intervalId);
   }, [fetchNowPlaying]);
+
+  // Measure widget after stations/load state changes so layout uses accurate height
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const raf = requestAnimationFrame(() => {
+      setTimeout(() => {
+        const h = containerRef.current?.getBoundingClientRect().height ?? 0;
+        if (h > 0) setWidgetMeasuredHeight(WIDGET_ID, h);
+      }, 60);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [stations.length, selectedStation, isLoading, isPositionLoaded]);
 
   // Load position from storage on mount
   useEffect(() => {

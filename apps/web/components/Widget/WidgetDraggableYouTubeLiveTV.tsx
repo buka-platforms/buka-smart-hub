@@ -36,6 +36,7 @@ import {
   resetWidgetPosition,
   saveWidgetPosition,
   triggerLayoutUpdate,
+  setWidgetMeasuredHeight,
   unobserveWidget,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
@@ -450,6 +451,18 @@ export default function WidgetDraggableYouTubeLiveTV() {
       }
     };
   }, [isPlayerReady, selectedChannel]);
+
+  // Measure widget after player/channel changes to ensure height is accurate
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const raf = requestAnimationFrame(() => {
+      setTimeout(() => {
+        const h = containerRef.current?.getBoundingClientRect().height ?? 0;
+        if (h > 0) setWidgetMeasuredHeight(WIDGET_ID, h);
+      }, 80);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [selectedChannel, isPlayerReady, isPositionLoaded, isPlaying]);
 
   // Apply volume/mute to the iframe player with rAF batching to reduce per-tick work
   const applyPlayerVolume = useCallback((nextVolume: number) => {

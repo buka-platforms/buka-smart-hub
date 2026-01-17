@@ -125,10 +125,14 @@ function getResizeObserver(): ResizeObserver | null {
           // rendering (images, API-driven height changes).
           if (pendingInitialMeasurements.size === 0) {
             if (finalSettleTimer) clearTimeout(finalSettleTimer);
-            finalSettleTimer = setTimeout(() => {
-              finalSettleTimer = null;
-              scheduleLayoutUpdate();
-            }, CONFIG.SETTLE_MS);
+            // Only schedule the final settle layout if auto-arrange is enabled
+            // and there are no user-saved widget positions. Respect manual placements.
+            if (isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
+              finalSettleTimer = setTimeout(() => {
+                finalSettleTimer = null;
+                scheduleLayoutUpdate();
+              }, CONFIG.SETTLE_MS);
+            }
           }
           hasChanges = true;
         }
@@ -183,10 +187,12 @@ export function observeWidget(widgetId: WidgetId, element: HTMLElement): void {
         pendingInitialMeasurements.delete(widgetId);
         if (pendingInitialMeasurements.size === 0) {
           if (finalSettleTimer) clearTimeout(finalSettleTimer);
-          finalSettleTimer = setTimeout(() => {
-            finalSettleTimer = null;
-            scheduleLayoutUpdate();
-          }, CONFIG.SETTLE_MS);
+          if (isAutoArrangeEnabled && !hasAnyWidgetPosition()) {
+            finalSettleTimer = setTimeout(() => {
+              finalSettleTimer = null;
+              scheduleLayoutUpdate();
+            }, CONFIG.SETTLE_MS);
+          }
         }
       }
 
@@ -477,9 +483,9 @@ export function hasAnyWidgetPosition(): boolean {
       if (saved) {
         const parsed = JSON.parse(saved);
         return (
+          parsed &&
           typeof parsed.x === "number" &&
-          typeof parsed.y === "number" &&
-          (parsed.x !== 0 || parsed.y !== 0)
+          typeof parsed.y === "number"
         );
       }
     } catch {
@@ -502,6 +508,10 @@ export function setAutoArrangeEnabled(enabled: boolean): void {
  */
 export function triggerLayoutUpdate(): void {
   if (typeof window === "undefined") return;
+  // If the user has any saved widget positions, respect those manual placements
+  // and do not run an automatic re-arrange which would overwrite them.
+  if (hasAnyWidgetPosition()) return;
+
   scheduleLayoutUpdate();
 }
 
