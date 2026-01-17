@@ -116,7 +116,7 @@ export default function WidgetContainer() {
   }, []);
 
   return (
-    <div className="pointer-events-none z-20">
+    <div className="pointer-events-none z-20" style={{ gridTemplateRows: "auto 1fr", display: "grid" }}>
       {/* Widget Launcher Dock */}
       <WidgetLauncherDock />
 

@@ -85,121 +85,8 @@ const WIDGETS: {
 const MINI_DOCK_COUNT = 3;
 
 export default function WidgetLauncherDock() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
-
-  // Load position and visibility from localStorage
-  useEffect(() => {
-    queueMicrotask(() => {
-      try {
-        // Load dock position
-        const savedPosition = localStorage.getItem(DOCK_POSITION_KEY);
-        if (savedPosition) {
-          const parsed = JSON.parse(savedPosition);
-          if (typeof parsed.x === "number" && typeof parsed.y === "number") {
-            setPosition(parsed);
-          }
-        }
-
-        // Load widget visibility
-        const savedVisibility = localStorage.getItem(WIDGET_VISIBILITY_KEY);
-        if (savedVisibility) {
-          const parsed = JSON.parse(savedVisibility);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setVisibility((prev: any) => ({ ...prev, ...parsed }));
-        }
-      } catch {
-        // Ignore errors
-      }
-      setIsPositionLoaded(true);
-    });
-  }, [setVisibility]);
-
-  // Custom drag handlers
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      // Don't drag if clicking on a button or interactive element
-      if ((e.target as HTMLElement).closest("button, a, input")) {
-        return;
-      }
-      e.preventDefault();
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: e.clientX,
-        y: e.clientY,
-        posX: position.x,
-        posY: position.y,
-      };
-    },
-    [position],
-  );
-
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      // Don't drag if touching a button or interactive element
-      if ((e.target as HTMLElement).closest("button, a, input")) {
-        return;
-      }
-      const touch = e.touches[0];
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        posX: position.x,
-        posY: position.y,
-      };
-    },
-    [position],
-  );
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStartRef.current.x;
-      const deltaY = e.clientY - dragStartRef.current.y;
-      setPosition({
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      });
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartRef.current.x;
-      const deltaY = touch.clientY - dragStartRef.current.y;
-      setPosition({
-        x: dragStartRef.current.posX + deltaX,
-        y: dragStartRef.current.posY + deltaY,
-      });
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-      try {
-        localStorage.setItem(DOCK_POSITION_KEY, JSON.stringify(position));
-      } catch {
-        // Ignore errors
-      }
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleTouchMove);
-    document.addEventListener("touchend", handleEnd);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleEnd);
-    };
-  }, [isDragging, position]);
 
   // Toggle widget visibility
   const toggleWidget = useCallback(
@@ -221,15 +108,8 @@ export default function WidgetLauncherDock() {
     [setVisibility],
   );
 
-  // Reset dock position
-  const resetPosition = useCallback(() => {
-    setPosition({ x: 0, y: 0 });
-    try {
-      localStorage.setItem(DOCK_POSITION_KEY, JSON.stringify({ x: 0, y: 0 }));
-    } catch {
-      // Ignore errors
-    }
-  }, []);
+  // Reset dock position (no-op for static dock)
+  const resetPosition = useCallback(() => {}, []);
 
   // Get widgets to show in mini dock
   const miniDockWidgets = WIDGETS.slice(0, MINI_DOCK_COUNT);
@@ -238,8 +118,8 @@ export default function WidgetLauncherDock() {
   // Count visible widgets
   const visibleCount = Object.values(visibility).filter(Boolean).length;
 
-  // Always render so ref is attached, use opacity to hide when not loaded
-  const isVisible = isPositionLoaded;
+  // Always render
+  const isVisible = true;
 
   // Close expanded dock when clicking outside or pressing Escape
   useEffect(() => {
@@ -268,28 +148,20 @@ export default function WidgetLauncherDock() {
 
   return (
     <div
-      ref={containerRef}
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
-      style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
-      }}
-      className={`pointer-events-auto absolute top-5 left-3 z-50 flex transform-gpu cursor-grab overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-200 will-change-transform md:top-5 md:left-4 ${
-        isDragging ? "cursor-grabbing" : ""
-      } ${isExpanded ? "flex-col" : "flex-row"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`pointer-events-auto z-50 flex transform-gpu cursor-pointer overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-200 will-change-transform justify-self-start ml-3 md:ml-4 mt-5 md:mt-5 ${
+        isExpanded ? "flex-col" : "flex-row"
+      } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      style={{ justifySelf: "start" }}
     >
       {/* Drag Handle - Visual indicator for dragging */}
-      <div
-        className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors select-none hover:bg-white/10 hover:text-white/70 ${
-          isExpanded ? "border-b px-3 py-2" : "border-r p-3"
-        }`}
-        title="Drag to move dock"
-      >
-        <GripVertical className={isExpanded ? "h-4 w-4" : "h-5 w-5"} />
-        {isExpanded && (
-          <span className="ml-2 text-xs font-medium">Drag to move</span>
-        )}
-      </div>
+        <div
+          className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors select-none hover:bg-white/10 hover:text-white/70 ${
+            isExpanded ? "border-b px-3 py-2" : "border-r p-3"
+          }`}
+        >
+          <GripVertical className={isExpanded ? "h-4 w-4" : "h-5 w-5"} />
+          {isExpanded && <span className="ml-2 text-xs font-medium">Dock</span>}
+        </div>
 
       {/* Mini Dock Mode */}
       {!isExpanded && (
@@ -413,7 +285,7 @@ export default function WidgetLauncherDock() {
           </div>
 
           {/* Footer */}
-          <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
+            <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
             <Link
               href="/apps"
               title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
@@ -438,7 +310,7 @@ export default function WidgetLauncherDock() {
               onClick={resetPosition}
               className="w-full cursor-pointer rounded-lg bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white"
             >
-              Reset dock position
+              Reset dock (static)
             </button>
           </div>
         </div>
