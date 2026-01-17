@@ -99,9 +99,19 @@ function WidgetWrapper({
 
   // Wrap widget without forcing a fixed width here — widgets include
   // their own left label + main column widths (e.g. `w-80`/`w-85`).
+  // Use `break-inside: avoid` with an inline-block child so items
+  // flow into CSS columns for a Pinterest-like masonry layout.
   return (
-    <div className="animate-widget-appear">
-      <div className="flex-none">{children}</div>
+    <div
+      className="animate-widget-appear"
+      style={{
+        breakInside: "avoid",
+        WebkitColumnBreakInside: "avoid",
+        MozColumnBreakInside: "avoid",
+        pageBreakInside: "avoid",
+      }}
+    >
+      <div className="inline-block w-full mb-3">{children}</div>
     </div>
   );
 }
@@ -137,8 +147,11 @@ export default function WidgetContainer() {
       {/* Widget Launcher Dock */}
       <WidgetLauncherDock />
 
-      {/* Widgets - rendered in slot order (flex flow). */}
-      <div className="pointer-events-auto flex flex-wrap gap-3 p-4">
+      {/* Widgets - rendered in slot order using CSS multi-column masonry. */}
+      <div
+        className="pointer-events-auto p-4 columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5"
+        style={{ columnGap: "1rem" }}
+      >
         {order.map((id) => {
           switch (id) {
             case "time":
