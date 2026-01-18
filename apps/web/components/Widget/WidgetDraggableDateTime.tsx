@@ -22,6 +22,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import type { WidgetId } from "@/lib/widget-positions";
 import "@fontsource-variable/rubik";
 import { widgetVisibilityAtom } from "@/data/store";
 import { useAtom } from "jotai";
@@ -136,31 +137,8 @@ export default function WidgetDraggableDateTime() {
       window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
-  // Drag/Drop swap handlers will be attached to the left label below
-  const handleDragStart = useCallback((e: React.DragEvent) => {
-    try {
-      e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
-      if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-    } catch {}
-    setIsDragging(true);
-  }, []);
-
+  // Drag state handler for visual feedback
   const handleDragEnd = useCallback(() => setIsDragging(false), []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    try {
-      const src = e.dataTransfer?.getData("text/widget-id");
-      if (src && src !== WIDGET_ID) {
-        swapWidgetPositions(src as any, WIDGET_ID as any);
-      }
-    } catch {}
-  }, []);
 
   // Update time every second
   useEffect(() => {
@@ -259,7 +237,10 @@ export default function WidgetDraggableDateTime() {
                 try {
                   const src = e.dataTransfer?.getData("text/widget-id");
                   if (src && src !== WIDGET_ID)
-                    swapWidgetPositions(src as any, WIDGET_ID as any);
+                    swapWidgetPositions(
+                      src as unknown as WidgetId,
+                      WIDGET_ID as unknown as WidgetId,
+                    );
                 } catch {}
               }}
               className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
