@@ -112,8 +112,8 @@ function WidgetWrapper({
   return (
     <div className="animate-widget-appear" style={wrapperStyle}>
       <div className="mb-3 inline-block w-full">
-        {/* Outer container caps each widget to `w-85` and centers it in the column */}
-        <div className="mx-auto w-85">{children}</div>
+        {/* Make widget fill the column width so horizontal gaps are consistent */}
+        <div className="w-full">{children}</div>
       </div>
     </div>
   );
@@ -145,15 +145,21 @@ export default function WidgetContainer() {
   return (
     <div
       className="pointer-events-none z-20"
-      style={{ gridTemplateRows: "auto 1fr", display: "grid" }}
+      style={{
+        gridTemplateRows: "auto 1fr",
+        display: "grid",
+        width: "100%",
+        boxSizing: "border-box",
+        overflowX: "hidden",
+      }}
     >
       {/* Widget Launcher Dock */}
       <WidgetLauncherDock />
 
       {/* Widgets - rendered in slot order using CSS multi-column masonry. */}
       <div
-        className="pointer-events-auto columns-1 p-4 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5"
-        style={{ columnGap: "1rem" }}
+        className="pointer-events-auto p-4"
+        style={{ columnGap: "12px", columnWidth: "280px" }}
       >
         {order.map((id) => {
           switch (id) {
