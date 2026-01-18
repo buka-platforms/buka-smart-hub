@@ -96,23 +96,21 @@ function WidgetWrapper({
   useWidgetVisibilitySync(widgetId, visible);
 
   if (!visible) return null;
-
   // Wrap widget without forcing a fixed width here — widgets include
   // their own left label + main column widths (e.g. `w-80`/`w-85`).
   // Use `break-inside: avoid` with an inline-block child so items
   // flow into CSS columns for a Pinterest-like masonry layout.
+  const wrapperStyle: React.CSSProperties & Record<string, string> = {
+    // standard
+    breakInside: "avoid",
+    // vendor-prefixed properties
+    WebkitColumnBreakInside: "avoid",
+    MozColumnBreakInside: "avoid",
+    pageBreakInside: "avoid",
+  };
+
   return (
-    <div
-      className="animate-widget-appear"
-      style={
-        {
-          breakInside: "avoid",
-          WebkitColumnBreakInside: "avoid",
-          MozColumnBreakInside: "avoid",
-          pageBreakInside: "avoid",
-        } as any
-      }
-    >
+    <div className="animate-widget-appear" style={wrapperStyle}>
       <div className="mb-3 inline-block w-full">
         {/* Outer container caps each widget to `w-85` and centers it in the column */}
         <div className="mx-auto w-85">{children}</div>
