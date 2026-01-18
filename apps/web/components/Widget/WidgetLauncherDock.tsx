@@ -8,7 +8,6 @@ import {
   BookOpen,
   Clock,
   CloudSun,
-  GripVertical,
   LayoutGrid,
   LayoutTemplate,
   Music,
@@ -81,7 +80,7 @@ const WIDGETS: {
 ];
 
 // Mini dock shows first N widgets
-const MINI_DOCK_COUNT = 3;
+const MINI_DOCK_COUNT = 4;
 
 export default function WidgetLauncherDock() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -154,15 +153,7 @@ export default function WidgetLauncherDock() {
       ref={containerRef}
       style={{ justifySelf: "start" }}
     >
-      {/* Drag Handle - Visual indicator for dragging */}
-      <div
-        className={`flex shrink-0 items-center justify-center border-white/10 text-white/40 transition-colors select-none hover:bg-white/10 hover:text-white/70 ${
-          isExpanded ? "border-b px-3 py-2" : "border-r p-3"
-        }`}
-      >
-        <GripVertical className={isExpanded ? "h-4 w-4" : "h-5 w-5"} />
-        {isExpanded && <span className="ml-2 text-xs font-medium">Dock</span>}
-      </div>
+      {/* (removed) drag handle: no longer relevant */}
 
       {/* Mini Dock Mode */}
       {!isExpanded && (
