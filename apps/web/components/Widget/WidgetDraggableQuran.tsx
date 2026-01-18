@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { widgetVisibilityAtom } from "@/data/store";
 import { getSurah, getSurahList } from "@/lib/quran-api";
+import type { WidgetId } from "@/lib/widget-positions";
 import {
-  getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
   swapWidgetPositions,
@@ -63,7 +63,7 @@ export default function WidgetDraggableQuran() {
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
 
-  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  // dragStartRef was unused; removed to avoid lint/TS warnings
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [surahList, setSurahList] = useState<any[]>([]);
@@ -351,7 +351,7 @@ export default function WidgetDraggableQuran() {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
     if (source && source !== WIDGET_ID)
-      swapWidgetPositions(source as any, WIDGET_ID as any);
+      swapWidgetPositions(source as WidgetId, WIDGET_ID);
   }, []);
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
