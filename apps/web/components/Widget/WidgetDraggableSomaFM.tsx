@@ -328,18 +328,16 @@ export default function WidgetDraggableSomaFM() {
           data-widget-id="somafm"
           className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          {/* Vertical "SomaFM" Label */}
+          {/* Top Title - Drag Handle */}
           <div
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5 ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-              SomaFM
-            </span>
+            <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">SomaFM</span>
           </div>
 
           {/* Main Column */}

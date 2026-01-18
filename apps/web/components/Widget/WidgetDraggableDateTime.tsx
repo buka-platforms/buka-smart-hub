@@ -240,34 +240,31 @@ export default function WidgetDraggableDateTime() {
           data-widget-id={WIDGET_ID}
           className={`pointer-events-auto z-50 flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          {/* Vertical "DateTime" Label - Drag Handle */}
-          <div
-            draggable
-            onDragStart={(e) => {
-              try {
-                e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
-                if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-              } catch {}
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              try {
-                const src = e.dataTransfer?.getData("text/widget-id");
-                if (src && src !== WIDGET_ID) {
-                  swapWidgetPositions(src as any, WIDGET_ID as any);
-                }
-              } catch {}
-            }}
-            className={`flex cursor-grab items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5`}
-          >
-            <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-              Time
-            </span>
-          </div>
+          {/* Top Title - Drag Handle */}
 
           {/* Main Column */}
           <div className="flex w-full flex-col">
+            <div
+              draggable
+              onDragStart={(e) => {
+                try {
+                  e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
+                  if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+                } catch {}
+              }}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                try {
+                  const src = e.dataTransfer?.getData("text/widget-id");
+                  if (src && src !== WIDGET_ID) swapWidgetPositions(src as any, WIDGET_ID as any);
+                } catch {}
+              }}
+              className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
+            >
+              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">Time</span>
+            </div>
             {/* DateTime Row */}
             <div className="flex items-center gap-3 p-3">
               {/* Time of Day Icon */}

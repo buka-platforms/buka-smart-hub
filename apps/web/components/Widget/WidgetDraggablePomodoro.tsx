@@ -200,6 +200,8 @@ export default function WidgetDraggablePomodoro() {
   const positionRef = useRef(position);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
 
+  const [isDragging, setIsDragging] = useState(false);
+
   // Ref to track latest mode for use inside callbacks (avoids stale closure)
   const modeRef = useRef<Mode>("focus");
 
@@ -559,34 +561,34 @@ export default function WidgetDraggablePomodoro() {
           data-widget-id={WIDGET_ID}
           className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          {/* Vertical label */}
-          <div
-            draggable
-            onDragStart={(e) => {
-              try {
-                e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
-                if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-              } catch {}
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              try {
-                const src = e.dataTransfer?.getData("text/widget-id");
-                if (src && src !== WIDGET_ID) {
-                  swapWidgetPositions(src as any, WIDGET_ID as any);
-                }
-              } catch {}
-            }}
-            className={`flex cursor-grab items-center justify-center border-r border-white/10 px-1 transition-colors select-none hover:bg-white/5`}
-          >
-            <span className="transform-[rotate(180deg)] text-[10px] font-semibold tracking-widest text-white/50 uppercase [writing-mode:vertical-rl]">
-              Pomodoro
-            </span>
-          </div>
+          {/* Top Title - Drag Handle */}
 
-          {/* Main column */}
           <div className="relative flex w-full flex-col">
+            <div
+              draggable
+              onDragStart={(e) => {
+                try {
+                  e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
+                  if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+                } catch {}
+              }}
+              onDragEnd={(e) => {
+                try {
+                  setIsDragging(false);
+                } catch {}
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                try {
+                  const src = e.dataTransfer?.getData("text/widget-id");
+                  if (src && src !== WIDGET_ID) swapWidgetPositions(src as any, WIDGET_ID as any);
+                } catch {}
+              }}
+              className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
+            >
+              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">Pomodoro</span>
+            </div>
             {/* Completion Modal Overlay */}
             {showCompletion && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">
