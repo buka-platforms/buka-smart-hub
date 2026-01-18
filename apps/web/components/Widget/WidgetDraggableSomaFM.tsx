@@ -348,7 +348,7 @@ export default function WidgetDraggableSomaFM() {
             {/* Main Column */}
             <div className="flex w-full flex-col">
               <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
-                <div className="flex items-center gap-3">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   {/* Channel Art */}
                   <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
                     {visibleNowPlaying?.albumArt ? (
