@@ -2,12 +2,10 @@
 
 import {
   getSavedWidgetPosition,
-  observeWidget,
   triggerLayoutUpdate,
-  unobserveWidget,
   type WidgetId,
 } from "@/lib/widget-positions";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface UseWidgetPositionOptions {
   widgetId: WidgetId;
@@ -30,18 +28,10 @@ interface UseWidgetPositionReturn {
 export function useWidgetPosition({
   widgetId,
 }: UseWidgetPositionOptions): UseWidgetPositionReturn {
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
-
-  // Load position from localStorage on mount
-  useEffect(() => {
-    const saved = getSavedWidgetPosition(widgetId);
-    setPosition(saved ?? { x: 0, y: 0 });
-    setIsPositionLoaded(true);
-  }, [widgetId]);
+  const [position, setPosition] = useState<{ x: number; y: number }>(
+    () => getSavedWidgetPosition(widgetId) ?? { x: 0, y: 0 },
+  );
+  const [isPositionLoaded] = useState(true);
 
   // Register with ResizeObserver for automatic layout updates
   useEffect(() => {
