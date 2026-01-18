@@ -483,9 +483,10 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         data-widget-id={WIDGET_ID}
         className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        {/* Top Title - Drag Handle */}
-        <div
-          className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
+        <div className="relative flex w-full flex-col">
+          {/* Top Title - Drag Handle */}
+          <div
+            className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
           draggable
           onDragStart={(e) => {
             try {
@@ -827,6 +828,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
             </div>
           </div>
         </div>
+      </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
         <DropdownMenuItem
