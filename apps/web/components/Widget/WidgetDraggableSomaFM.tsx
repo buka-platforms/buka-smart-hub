@@ -459,31 +459,37 @@ export default function WidgetDraggableSomaFM() {
                       {currentChannel.description}
                     </div>
                   )}
-                  <div className="mt-1 flex items-center gap-3 text-[10px] text-white/50">
-                    <span
-                      className="flex items-center gap-1"
-                      title={`DJ: ${currentChannel.dj}`}
-                    >
+                  <div className="mt-1 flex flex-nowrap items-center gap-3 text-[10px] text-white/50">
+                    <span className="flex min-w-0 items-center gap-1">
                       <User className="inline-block h-3 w-3" />
-                      {currentChannel.dj}
+                      <span
+                        className="truncate"
+                        title={`DJ: ${currentChannel.dj}`}
+                      >
+                        {currentChannel.dj}
+                      </span>
                     </span>
                     <span className="opacity-50">•</span>
-                    <span
-                      className="flex items-center gap-1"
-                      title={`Listeners: ${currentChannel.listeners}`}
-                    >
+                    <span className="flex min-w-0 items-center gap-1">
                       <Users className="inline-block h-3 w-3" />
-                      {currentChannel.listeners}
+                      <span
+                        className="whitespace-nowrap"
+                        title={`Listeners: ${currentChannel.listeners}`}
+                      >
+                        {currentChannel.listeners}
+                      </span>
                     </span>
                     {currentChannel.genre && (
                       <>
                         <span className="opacity-50">•</span>
-                        <span
-                          className="flex items-center gap-1"
-                          title={`Genre: ${currentChannel.genre.replace(/\|/g, ", ")}`}
-                        >
+                        <span className="flex min-w-0 items-center gap-1">
                           <Music2 className="inline-block h-3 w-3" />
-                          {currentChannel.genre.replace(/\|/g, ", ")}
+                          <span
+                            className="truncate"
+                            title={`Genre: ${currentChannel.genre.replace(/\|/g, ", ")}`}
+                          >
+                            {currentChannel.genre.replace(/\|/g, ", ")}
+                          </span>
                         </span>
                       </>
                     )}
