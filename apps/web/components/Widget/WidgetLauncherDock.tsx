@@ -21,7 +21,6 @@ import {
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const DOCK_POSITION_KEY = "widgetLauncherDockPosition";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
 // Widget configuration
