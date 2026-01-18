@@ -61,7 +61,7 @@ export const playSomaFMStream = async (
       lastStream: streamUrl,
       lastChannelId: channelId ?? null,
     }));
-  } catch (err) {
+  } catch {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
       ...prev,
