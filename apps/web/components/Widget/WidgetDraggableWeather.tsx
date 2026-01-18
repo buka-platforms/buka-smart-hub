@@ -22,6 +22,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom, useAtomValue } from "jotai";
 import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
 import Link from "next/link";
@@ -173,7 +174,7 @@ export default function WidgetDraggableWeather() {
     const source = e.dataTransfer.getData("text/widget-id");
     if (source && source !== WIDGET_ID) {
       // perform swap
-      swapWidgetPositions(source as any, WIDGET_ID as any);
+      swapWidgetPositions(source as WidgetId, WIDGET_ID as WidgetId);
     }
   }, []);
 
