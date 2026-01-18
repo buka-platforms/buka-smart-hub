@@ -380,7 +380,7 @@ export default function WidgetDraggableQuran() {
             </span>
           </div>
 
-          <div className="flex w-full flex-col truncate">
+          <div className="flex w-full flex-col">
             <div className="flex items-center gap-3 p-3">
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-center justify-between">
