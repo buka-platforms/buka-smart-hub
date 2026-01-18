@@ -330,8 +330,8 @@ export default function WidgetDraggableSomaFM() {
           data-widget-id="somafm"
           className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          {/* Top Title + Main Column */}
           <div className="relative flex w-full flex-col">
+            {/* Top Title (drag handle) */}
             <div
               draggable
               onDragStart={handleDragStart}
@@ -340,140 +340,112 @@ export default function WidgetDraggableSomaFM() {
               onDrop={handleDrop}
               className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
             >
-              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">
-                SomaFM
-              </span>
-              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">
-                SomaFM
-              </span>
-              {/* Channel Art */}
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
-                {visibleNowPlaying?.albumArt ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className="pointer-events-none h-full w-full object-contain"
-                    src={visibleNowPlaying.albumArt}
-                    alt={
-                      visibleNowPlaying.title ||
-                      currentChannel?.title ||
-                      "SomaFM"
-                    }
-                    loading="lazy"
-                    draggable={false}
-                  />
-                ) : currentChannel && currentChannel.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className="pointer-events-none h-full w-full object-contain"
-                    src={currentChannel.image}
-                    alt={currentChannel.title}
-                    loading="lazy"
-                    draggable={false}
-                  />
-                ) : (
-                  <LoaderCircle className="h-8 w-8 animate-spin text-white/40" />
-                )}
-              </div>
+              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">SomaFM</span>
+            </div>
 
-              {/* Channel Info */}
-              <div className="flex min-w-0 flex-auto flex-col justify-center gap-0.5">
-                {currentChannel && (
-                  <span
-                    className="truncate text-xs font-semibold text-white/60"
-                    title={currentChannel.title}
-                  >
-                    {currentChannel.title}
-                  </span>
-                )}
-                {visibleNowPlaying && (
-                  <span
-                    className="truncate text-sm font-medium text-white"
-                    title={visibleNowPlaying.title}
-                  >
-                    {visibleNowPlaying.title}
-                  </span>
-                )}
-                {visibleNowPlaying && (
-                  <span
-                    className="truncate text-xs text-white/70"
-                    title={`${visibleNowPlaying.artist}${visibleNowPlaying.album ? ` — ${visibleNowPlaying.album}` : ""}`}
-                  >
-                    {visibleNowPlaying.artist}
-                    {visibleNowPlaying.album
-                      ? ` — ${visibleNowPlaying.album}`
-                      : ""}
-                  </span>
-                )}
+            {/* Main Column */}
+            <div className="flex w-full flex-col">
+            <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
+              <div className="flex items-center gap-3">
+                {/* Channel Art */}
+                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
+                  {visibleNowPlaying?.albumArt ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="pointer-events-none h-full w-full object-contain"
+                      src={visibleNowPlaying.albumArt}
+                      alt={visibleNowPlaying.title || currentChannel?.title || "SomaFM"}
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  ) : currentChannel && currentChannel.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="pointer-events-none h-full w-full object-contain"
+                      src={currentChannel.image}
+                      alt={currentChannel.title}
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  ) : (
+                    <LoaderCircle className="h-8 w-8 animate-spin text-white/40" />
+                  )}
+                </div>
+
+                {/* Channel Info */}
+                <div className="flex min-w-0 flex-auto flex-col justify-center gap-0.5">
+                  {currentChannel && (
+                    <span className="truncate text-xs font-semibold text-white/60" title={currentChannel.title}>
+                      {currentChannel.title}
+                    </span>
+                  )}
+                  {visibleNowPlaying && (
+                    <span className="truncate text-sm font-medium text-white" title={visibleNowPlaying.title}>
+                      {visibleNowPlaying.title}
+                    </span>
+                  )}
+                  {visibleNowPlaying && (
+                    <span className="truncate text-xs text-white/70" title={`${visibleNowPlaying.artist}${visibleNowPlaying.album ? ` — ${visibleNowPlaying.album}` : ""}`}>
+                      {visibleNowPlaying.artist}
+                      {visibleNowPlaying.album ? ` — ${visibleNowPlaying.album}` : ""}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Play/Pause Button on right */}
-              <button
-                disabled={!streamUrl}
-                onClick={async () => {
-                  if (!streamUrl) return;
-                  try {
-                    if (somafmAudioState?.lastStream === streamUrl) {
-                      if (somafmAudioState?.isPlaying) {
-                        stopSomaFM();
+              <div>
+                <button
+                  disabled={!streamUrl}
+                  onClick={async () => {
+                    if (!streamUrl) return;
+                    try {
+                      if (somafmAudioState?.lastStream === streamUrl) {
+                        if (somafmAudioState?.isPlaying) {
+                          stopSomaFM();
+                        } else {
+                          await playSomaFMStream(streamUrl, selected);
+                        }
                       } else {
                         await playSomaFMStream(streamUrl, selected);
                       }
-                    } else {
-                      await playSomaFMStream(streamUrl, selected);
-                    }
-                  } catch {}
-                }}
-                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-white/10" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
-                title={isPlaying ? "Pause" : "Play"}
-              >
-                {isLoading ? (
-                  <Disc3 className="h-10 w-10 animate-spin" />
-                ) : isPlaying ? (
-                  <Pause className="h-5 w-5" fill="currentColor" />
-                ) : (
-                  <PlayIcon className="h-5 w-5" fill="currentColor" />
-                )}
-              </button>
+                    } catch {}
+                  }}
+                  className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-white/10" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
+                  title={isPlaying ? "Pause" : "Play"}
+                >
+                  {isLoading ? (
+                    <Disc3 className="h-10 w-10 animate-spin" />
+                  ) : isPlaying ? (
+                    <Pause className="h-5 w-5" fill="currentColor" />
+                  ) : (
+                    <PlayIcon className="h-5 w-5" fill="currentColor" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {currentChannel && (
               <div className="px-3 pb-3 text-xs text-white">
                 {currentChannel.description && (
-                  <div
-                    className="mt-1 overflow-hidden leading-snug text-white/70"
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 1,
-                      WebkitBoxOrient: "vertical",
-                    }}
-                    title={currentChannel.description}
-                  >
+                  <div className="mt-1 overflow-hidden leading-snug text-white/70" style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }} title={currentChannel.description}>
                     {currentChannel.description}
                   </div>
                 )}
                 <div className="mt-1 flex items-center gap-3 text-[10px] text-white/50">
-                  <span
-                    className="flex items-center gap-1"
-                    title={`DJ: ${currentChannel.dj}`}
-                  >
+                  <span className="flex items-center gap-1" title={`DJ: ${currentChannel.dj}`}>
                     <User className="inline-block h-3 w-3" />
                     {currentChannel.dj}
                   </span>
                   <span className="opacity-50">•</span>
-                  <span
-                    className="flex items-center gap-1"
-                    title={`Listeners: ${currentChannel.listeners}`}
-                  >
+                  <span className="flex items-center gap-1" title={`Listeners: ${currentChannel.listeners}`}>
                     <Users className="inline-block h-3 w-3" />
                     {currentChannel.listeners}
                   </span>
                   {currentChannel.genre && (
                     <>
                       <span className="opacity-50">•</span>
-                      <span
-                        className="flex items-center gap-1"
-                        title={`Genre: ${currentChannel.genre.replace(/\|/g, ", ")}`}
-                      >
+                      <span className="flex items-center gap-1" title={`Genre: ${currentChannel.genre.replace(/\|/g, ", ")}`}>
                         <Music2 className="inline-block h-3 w-3" />
                         {currentChannel.genre.replace(/\|/g, ", ")}
                       </span>
@@ -668,6 +640,7 @@ export default function WidgetDraggableSomaFM() {
                   </button>
                 </DropdownMenuTrigger>
               </div>
+            </div>
             </div>
           </div>
         </div>
