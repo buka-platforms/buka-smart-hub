@@ -338,9 +338,9 @@ export default function WidgetDraggableSomaFM() {
               onDragEnd={handleDragEnd}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
+              className={`flex items-center h-8 w-full px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
             >
-              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">SomaFM</span>
+              <span className="flex-1 text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">SomaFM</span>
             </div>
 
             {/* Main Column */}
