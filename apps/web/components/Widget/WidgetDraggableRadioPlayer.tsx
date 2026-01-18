@@ -35,6 +35,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   Heart,
@@ -234,8 +235,16 @@ export default function WidgetDraggableRadioPlayer() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
+    const isWidgetId = (s: string | null): s is WidgetId => {
+      if (!s) return false;
+      // Basic runtime guard: check if an element with that data-widget-id exists
+      return !!document.querySelector(`[data-widget-id="${s}"]`);
+    };
+
     if (source && source !== WIDGET_ID) {
-      swapWidgetPositions(source as any, WIDGET_ID as any);
+      if (isWidgetId(source)) {
+        swapWidgetPositions(source as WidgetId, WIDGET_ID as WidgetId);
+      }
     }
   }, []);
 
