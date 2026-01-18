@@ -238,7 +238,7 @@ export default function WidgetDraggableDateTime() {
         <div
           ref={containerRef}
           data-widget-id={WIDGET_ID}
-          className={`pointer-events-auto z-50 flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`pointer-events-auto z-50 flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           {/* Vertical "DateTime" Label - Drag Handle */}
           <div
@@ -267,7 +267,7 @@ export default function WidgetDraggableDateTime() {
           </div>
 
           {/* Main Column */}
-          <div className="flex w-full flex-col truncate">
+          <div className="flex w-full flex-col">
             {/* DateTime Row */}
             <div className="flex items-center gap-3 p-3">
               {/* Time of Day Icon */}

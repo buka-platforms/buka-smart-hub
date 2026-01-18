@@ -557,7 +557,7 @@ export default function WidgetDraggablePomodoro() {
         <div
           ref={containerRef}
           data-widget-id={WIDGET_ID}
-          className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-opacity duration-300 will-change-transform ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           {/* Vertical label */}
           <div
@@ -586,7 +586,7 @@ export default function WidgetDraggablePomodoro() {
           </div>
 
           {/* Main column */}
-          <div className="relative flex w-full flex-col truncate">
+          <div className="relative flex w-full flex-col">
             {/* Completion Modal Overlay */}
             {showCompletion && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">

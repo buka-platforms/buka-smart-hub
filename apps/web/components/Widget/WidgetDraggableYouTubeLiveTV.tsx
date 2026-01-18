@@ -562,7 +562,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex transform-gpu rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 backdrop-blur-md will-change-transform ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex overflow-hidden rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Vertical "Live TV" Label - drag handle */}
         <div
@@ -579,7 +579,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
         </div>
 
         {/* Main Column */}
-        <div className="flex w-full flex-col truncate">
+        <div className="flex w-full flex-col">
           {/* Channel Header */}
           <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
             {/* Channel Logo */}
@@ -797,9 +797,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
             ref={playerRef}
             className="relative aspect-video overflow-hidden bg-black"
           >
-            {/* Gradient overlay for controls visibility */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-linear-to-t from-black/80 to-transparent" />
-
             {/* Loading state */}
             {!selectedChannel && (
               <div className="absolute inset-0 flex items-center justify-center">

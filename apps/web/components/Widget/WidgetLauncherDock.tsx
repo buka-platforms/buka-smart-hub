@@ -148,7 +148,7 @@ export default function WidgetLauncherDock() {
 
   return (
     <div
-      className={`pointer-events-auto z-50 mt-5 ml-3 flex transform-gpu cursor-pointer justify-self-start overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 backdrop-blur-xl transition-opacity duration-200 will-change-transform md:mt-5 md:ml-4 ${
+      className={`pointer-events-auto z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 transition-opacity duration-200 md:mt-5 md:ml-4 ${
         isExpanded ? "flex-col" : "flex-row"
       } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       style={{ justifySelf: "start" }}
