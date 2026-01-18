@@ -582,12 +582,15 @@ export default function WidgetDraggablePomodoro() {
                 e.preventDefault();
                 try {
                   const src = e.dataTransfer?.getData("text/widget-id");
-                  if (src && src !== WIDGET_ID) swapWidgetPositions(src as any, WIDGET_ID as any);
+                  if (src && src !== WIDGET_ID)
+                    swapWidgetPositions(src as any, WIDGET_ID as any);
                 } catch {}
               }}
-              className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
+              className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
             >
-              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">Pomodoro</span>
+              <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+                Pomodoro
+              </span>
             </div>
             {/* Completion Modal Overlay */}
             {showCompletion && (

@@ -567,191 +567,143 @@ export default function WidgetDraggableYouTubeLiveTV() {
         className={`pointer-events-auto flex overflow-hidden rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <div className="relative flex w-full flex-col">
-        {/* Top Title - Drag Handle */}
-        <div
-          draggable
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          className={`flex items-center h-8 w-full px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
-        >
-          <span className="flex-1 text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">YouTube Live TV</span>
-        </div>
+          {/* Top Title - Drag Handle */}
+          <div
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className={`flex h-8 w-full cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+          >
+            <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+              YouTube Live TV
+            </span>
+          </div>
 
-        {/* Main Column */}
-        <div className="flex w-full flex-col">
-          {/* Channel Header */}
-          <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
-            {/* Channel Logo */}
-            {selectedChannel?.logo_url && (
-              <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded bg-white/10">
-                <img
-                  src={selectedChannel.logo_url}
-                  alt={selectedChannel.name}
-                  className="h-full w-full object-contain"
-                  loading="lazy"
-                  draggable={false}
-                />
+          {/* Main Column */}
+          <div className="flex w-full flex-col">
+            {/* Channel Header */}
+            <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+              {/* Channel Logo */}
+              {selectedChannel?.logo_url && (
+                <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded bg-white/10">
+                  <img
+                    src={selectedChannel.logo_url}
+                    alt={selectedChannel.name}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                </div>
+              )}
+
+              {/* Channel Info */}
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-xs font-semibold text-white">
+                  {selectedChannel?.name || "Select Channel"}
+                </span>
+                <span className="truncate text-[10px] text-white/50">
+                  {selectedChannel?.country} • {selectedChannel?.category}
+                </span>
               </div>
-            )}
 
-            {/* Channel Info */}
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-xs font-semibold text-white">
-                {selectedChannel?.name || "Select Channel"}
-              </span>
-              <span className="truncate text-[10px] text-white/50">
-                {selectedChannel?.country} • {selectedChannel?.category}
-              </span>
-            </div>
+              {/* Live Badge */}
+              <div className="flex items-center gap-1 rounded-full bg-red-500/20 px-2 py-0.5">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+                <span className="text-[10px] font-bold text-red-400 uppercase">
+                  Live
+                </span>
+              </div>
 
-            {/* Live Badge */}
-            <div className="flex items-center gap-1 rounded-full bg-red-500/20 px-2 py-0.5">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
-              <span className="text-[10px] font-bold text-red-400 uppercase">
-                Live
-              </span>
-            </div>
-
-            {/* Channel Picker */}
-            <Popover
-              open={channelPickerOpen}
-              onOpenChange={setChannelPickerOpen}
-            >
-              <PopoverTrigger asChild>
-                <button
-                  className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                  title="Change channel"
-                >
-                  <Tv className="h-3 w-3" />
-                  <ChevronDown className="h-3 w-3" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                sideOffset={8}
-                className="w-96 rounded-lg border border-white/10 bg-[#0c0c10]/95 p-0 shadow-2xl backdrop-blur-xl"
+              {/* Channel Picker */}
+              <Popover
+                open={channelPickerOpen}
+                onOpenChange={setChannelPickerOpen}
               >
-                <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
-                  <div className="flex items-center gap-2 border-b border-white/10 p-2">
-                    <CommandInput
-                      placeholder="Search channels..."
-                      className="h-8 flex-1 text-sm text-white placeholder:text-white/40"
-                    />
-                    {/* Country Filter */}
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors ${
-                            countryFilter
-                              ? "border-purple-500/50 bg-purple-500/20 text-purple-400"
-                              : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
-                          }`}
-                          title="Filter by country"
-                        >
-                          <Globe className="h-4 w-4" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        align="end"
-                        className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-                      >
-                        <button
-                          onClick={() => setCountryFilter(null)}
-                          className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${
-                            !countryFilter
-                              ? "bg-purple-500/20 text-purple-400"
-                              : "text-white/70"
-                          }`}
-                        >
-                          All Countries
-                        </button>
-                        {countries.map((country) => (
+                <PopoverTrigger asChild>
+                  <button
+                    className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                    title="Change channel"
+                  >
+                    <Tv className="h-3 w-3" />
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-96 rounded-lg border border-white/10 bg-[#0c0c10]/95 p-0 shadow-2xl backdrop-blur-xl"
+                >
+                  <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+                    <div className="flex items-center gap-2 border-b border-white/10 p-2">
+                      <CommandInput
+                        placeholder="Search channels..."
+                        className="h-8 flex-1 text-sm text-white placeholder:text-white/40"
+                      />
+                      {/* Country Filter */}
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <button
-                            key={country}
-                            onClick={() => setCountryFilter(country)}
+                            className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors ${
+                              countryFilter
+                                ? "border-purple-500/50 bg-purple-500/20 text-purple-400"
+                                : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                            }`}
+                            title="Filter by country"
+                          >
+                            <Globe className="h-4 w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="end"
+                          className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+                        >
+                          <button
+                            onClick={() => setCountryFilter(null)}
                             className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${
-                              countryFilter === country
+                              !countryFilter
                                 ? "bg-purple-500/20 text-purple-400"
                                 : "text-white/70"
                             }`}
                           >
-                            <Flag className="h-3 w-3" />
-                            {country}
+                            All Countries
                           </button>
-                        ))}
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <CommandList className="max-h-72 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-                    <CommandEmpty className="px-3 py-2 text-xs text-white/60">
-                      No channels found.
-                    </CommandEmpty>
+                          {countries.map((country) => (
+                            <button
+                              key={country}
+                              onClick={() => setCountryFilter(country)}
+                              className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${
+                                countryFilter === country
+                                  ? "bg-purple-500/20 text-purple-400"
+                                  : "text-white/70"
+                              }`}
+                            >
+                              <Flag className="h-3 w-3" />
+                              {country}
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <CommandList className="max-h-72 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+                      <CommandEmpty className="px-3 py-2 text-xs text-white/60">
+                        No channels found.
+                      </CommandEmpty>
 
-                    {/* Favorites Section */}
-                    {favoriteChannels.length > 0 && (
-                      <CommandGroup
-                        heading={
-                          <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
-                            Favorites
-                          </span>
-                        }
-                      >
-                        {favoriteChannels.map((channel) => (
-                          <CommandItem
-                            key={channel.id}
-                            // value={`${channel.name} ${channel.country}`}
-                            value={`${channel.slug}`}
-                            onSelect={() => selectChannel(channel)}
-                            className={commandItemClass}
-                          >
-                            <div className="flex w-full items-center gap-3">
-                              {channel.logo_url && (
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
-                                  <img
-                                    src={channel.logo_url}
-                                    alt={channel.name}
-                                    className="h-full w-full object-contain"
-                                    draggable={false}
-                                  />
-                                </div>
-                              )}
-                              <div className="flex min-w-0 flex-1 flex-col">
-                                <span className="truncate text-[13px] font-medium text-white">
-                                  {channel.name}
-                                </span>
-                                <span className="truncate text-[11px] text-white/50">
-                                  {channel.country}
-                                </span>
-                              </div>
-                              <Heart
-                                className="h-3.5 w-3.5 text-pink-400"
-                                fill="currentColor"
-                              />
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    )}
-
-                    {/* Categorized Channels */}
-                    {sortedCategories.map((category) => {
-                      const channels = filteredChannels[category];
-                      if (!channels || channels.length === 0) return null;
-                      return (
+                      {/* Favorites Section */}
+                      {favoriteChannels.length > 0 && (
                         <CommandGroup
-                          key={category}
                           heading={
                             <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
-                              {category}
+                              Favorites
                             </span>
                           }
                         >
-                          {channels.map((channel) => (
+                          {favoriteChannels.map((channel) => (
                             <CommandItem
                               key={channel.id}
-                              // value={`${channel.name} ${channel.country} ${channel.category}`}
+                              // value={`${channel.name} ${channel.country}`}
                               value={`${channel.slug}`}
                               onSelect={() => selectChannel(channel)}
                               className={commandItemClass}
@@ -775,150 +727,202 @@ export default function WidgetDraggableYouTubeLiveTV() {
                                     {channel.country}
                                   </span>
                                 </div>
-                                {favorites.includes(channel.slug) && (
-                                  <Heart
-                                    className="h-3.5 w-3.5 text-pink-400"
-                                    fill="currentColor"
-                                  />
-                                )}
+                                <Heart
+                                  className="h-3.5 w-3.5 text-pink-400"
+                                  fill="currentColor"
+                                />
                               </div>
                             </CommandItem>
                           ))}
                         </CommandGroup>
-                      );
-                    })}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+                      )}
 
-          {/* Video Player Area */}
-          <div
-            ref={playerRef}
-            className="relative aspect-video overflow-hidden bg-black"
-          >
-            {/* Loading state */}
-            {!selectedChannel && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-2 text-white/50">
-                  <Tv className="h-10 w-10" />
-                  <span className="text-xs">Select a channel to watch</span>
-                </div>
-              </div>
-            )}
-          </div>
+                      {/* Categorized Channels */}
+                      {sortedCategories.map((category) => {
+                        const channels = filteredChannels[category];
+                        if (!channels || channels.length === 0) return null;
+                        return (
+                          <CommandGroup
+                            key={category}
+                            heading={
+                              <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                                {category}
+                              </span>
+                            }
+                          >
+                            {channels.map((channel) => (
+                              <CommandItem
+                                key={channel.id}
+                                // value={`${channel.name} ${channel.country} ${channel.category}`}
+                                value={`${channel.slug}`}
+                                onSelect={() => selectChannel(channel)}
+                                className={commandItemClass}
+                              >
+                                <div className="flex w-full items-center gap-3">
+                                  {channel.logo_url && (
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                                      <img
+                                        src={channel.logo_url}
+                                        alt={channel.name}
+                                        className="h-full w-full object-contain"
+                                        draggable={false}
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex min-w-0 flex-1 flex-col">
+                                    <span className="truncate text-[13px] font-medium text-white">
+                                      {channel.name}
+                                    </span>
+                                    <span className="truncate text-[11px] text-white/50">
+                                      {channel.country}
+                                    </span>
+                                  </div>
+                                  {favorites.includes(channel.slug) && (
+                                    <Heart
+                                      className="h-3.5 w-3.5 text-pink-400"
+                                      fill="currentColor"
+                                    />
+                                  )}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        );
+                      })}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
 
-          {/* Player Controls */}
-          <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2">
-            {/* Play/Pause */}
-            <button
-              onClick={togglePlay}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-              title={isPlaying ? "Pause" : "Play"}
+            {/* Video Player Area */}
+            <div
+              ref={playerRef}
+              className="relative aspect-video overflow-hidden bg-black"
             >
-              {isPlaying ? (
-                <Pause className="h-4 w-4" fill="currentColor" />
-              ) : (
-                <PlayIcon className="h-4 w-4" fill="currentColor" />
+              {/* Loading state */}
+              {!selectedChannel && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2 text-white/50">
+                    <Tv className="h-10 w-10" />
+                    <span className="text-xs">Select a channel to watch</span>
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
-            {/* Volume */}
-            <Popover>
-              <PopoverTrigger asChild>
+            {/* Player Controls */}
+            <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2">
+              {/* Play/Pause */}
+              <button
+                onClick={togglePlay}
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? (
+                  <Pause className="h-4 w-4" fill="currentColor" />
+                ) : (
+                  <PlayIcon className="h-4 w-4" fill="currentColor" />
+                )}
+              </button>
+
+              {/* Volume */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    title="Volume"
+                  >
+                    {volume === 0 ? (
+                      <VolumeX className="h-4 w-4" />
+                    ) : volume < 50 ? (
+                      <Volume1 className="h-4 w-4" />
+                    ) : (
+                      <Volume2 className="h-4 w-4" />
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  sideOffset={6}
+                  className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                >
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                    <span>Volume</span>
+                    <span className="text-white/60">{volume}%</span>
+                  </div>
+                  <Slider
+                    value={[volume]}
+                    onValueChange={(v) => updateVolume(v[0] ?? volume)}
+                    onValueCommit={(v) => handleVolumeCommit(v[0] ?? volume)}
+                    max={100}
+                    step={1}
+                    className="cursor-pointer"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Favorite */}
+              <button
+                onClick={toggleFavorite}
+                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
+                  isFavorite
+                    ? "border-pink-400/60 bg-pink-500/30 text-pink-400"
+                    : "border-white/10 bg-white/10 text-white hover:bg-white/20"
+                }`}
+                title={
+                  isFavorite ? "Remove from favorites" : "Add to favorites"
+                }
+              >
+                <Heart
+                  className="h-3.5 w-3.5"
+                  fill={isFavorite ? "currentColor" : "none"}
+                />
+              </button>
+
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Fullscreen */}
+              <button
+                onClick={toggleFullscreen}
+                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
+                  isFullscreen
+                    ? "border-purple-400/60 bg-purple-500/30 text-purple-400"
+                    : "border-white/10 bg-white/10 text-white hover:bg-white/20"
+                }`}
+                title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-3.5 w-3.5" />
+                ) : (
+                  <Maximize2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+
+              {/* Channel Page Link */}
+              {selectedChannel && (
+                <Link
+                  href={`/tv/${selectedChannel.slug}`}
+                  className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                  title="Open channel page"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span className="hidden sm:inline">Details</span>
+                </Link>
+              )}
+
+              {/* More Options */}
+              <DropdownMenuTrigger asChild>
                 <button
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="Volume"
+                  title="More options"
                 >
-                  {volume === 0 ? (
-                    <VolumeX className="h-4 w-4" />
-                  ) : volume < 50 ? (
-                    <Volume1 className="h-4 w-4" />
-                  ) : (
-                    <Volume2 className="h-4 w-4" />
-                  )}
+                  <MoreHorizontal className="h-3.5 w-3.5" />
                 </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                sideOffset={6}
-                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
-              >
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                  <span>Volume</span>
-                  <span className="text-white/60">{volume}%</span>
-                </div>
-                <Slider
-                  value={[volume]}
-                  onValueChange={(v) => updateVolume(v[0] ?? volume)}
-                  onValueCommit={(v) => handleVolumeCommit(v[0] ?? volume)}
-                  max={100}
-                  step={1}
-                  className="cursor-pointer"
-                />
-              </PopoverContent>
-            </Popover>
-
-            {/* Favorite */}
-            <button
-              onClick={toggleFavorite}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
-                isFavorite
-                  ? "border-pink-400/60 bg-pink-500/30 text-pink-400"
-                  : "border-white/10 bg-white/10 text-white hover:bg-white/20"
-              }`}
-              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
-              <Heart
-                className="h-3.5 w-3.5"
-                fill={isFavorite ? "currentColor" : "none"}
-              />
-            </button>
-
-            {/* Spacer */}
-            <div className="flex-1" />
-
-            {/* Fullscreen */}
-            <button
-              onClick={toggleFullscreen}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
-                isFullscreen
-                  ? "border-purple-400/60 bg-purple-500/30 text-purple-400"
-                  : "border-white/10 bg-white/10 text-white hover:bg-white/20"
-              }`}
-              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-            >
-              {isFullscreen ? (
-                <Minimize2 className="h-3.5 w-3.5" />
-              ) : (
-                <Maximize2 className="h-3.5 w-3.5" />
-              )}
-            </button>
-
-            {/* Channel Page Link */}
-            {selectedChannel && (
-              <Link
-                href={`/tv/${selectedChannel.slug}`}
-                className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                title="Open channel page"
-              >
-                <ExternalLink className="h-3 w-3" />
-                <span className="hidden sm:inline">Details</span>
-              </Link>
-            )}
-
-            {/* More Options */}
-            <DropdownMenuTrigger asChild>
-              <button
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                title="More options"
-              >
-                <MoreHorizontal className="h-3.5 w-3.5" />
-              </button>
-            </DropdownMenuTrigger>
+              </DropdownMenuTrigger>
+            </div>
           </div>
-        </div>
         </div>
       </div>
 

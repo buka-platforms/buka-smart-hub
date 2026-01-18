@@ -104,12 +104,14 @@ function WidgetWrapper({
   return (
     <div
       className="animate-widget-appear"
-      style={{
-        breakInside: "avoid",
-        WebkitColumnBreakInside: "avoid",
-        MozColumnBreakInside: "avoid",
-        pageBreakInside: "avoid",
-      } as any}
+      style={
+        {
+          breakInside: "avoid",
+          WebkitColumnBreakInside: "avoid",
+          MozColumnBreakInside: "avoid",
+          pageBreakInside: "avoid",
+        } as any
+      }
     >
       <div className="mb-3 inline-block w-full">
         {/* Outer container caps each widget to `w-85` and centers it in the column */}

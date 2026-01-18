@@ -486,349 +486,349 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
         <div className="relative flex w-full flex-col">
           {/* Top Title - Drag Handle */}
           <div
-            className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
-          draggable
-          onDragStart={(e) => {
-            try {
-              e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
-              if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-            } catch {}
-            setIsDragging(true);
-          }}
-          onDragEnd={() => setIsDragging(false)}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            try {
-              const src = e.dataTransfer?.getData("text/widget-id");
-              if (src && src !== WIDGET_ID)
-                swapWidgetPositions(src as any, WIDGET_ID as any);
-            } catch {}
-          }}
-        >
-          <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">
-            Radio Now Playing
-          </span>
-        </div>
-
-        {/* Main Column */}
-        <div className="flex w-full flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
-            <div className="flex items-center gap-2">
-              <Radio className="h-4 w-4 text-white/70" />
-              <span className="text-xs font-semibold text-white/90">
-                Live Radio
-              </span>
-              {selectedCountry && (
-                <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">
-                  {selectedCountry.name}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={fetchNowPlaying}
-                disabled={isLoading}
-                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white/80 disabled:cursor-not-allowed disabled:opacity-50"
-                title="Refresh"
-              >
-                <RefreshCw
-                  className={`h-3 w-3 ${isLoading ? "animate-spin" : ""}`}
-                />
-              </button>
-            </div>
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            draggable
+            onDragStart={(e) => {
+              try {
+                e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
+                if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+              } catch {}
+              setIsDragging(true);
+            }}
+            onDragEnd={() => setIsDragging(false)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              try {
+                const src = e.dataTransfer?.getData("text/widget-id");
+                if (src && src !== WIDGET_ID)
+                  swapWidgetPositions(src as any, WIDGET_ID as any);
+              } catch {}
+            }}
+          >
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+              Radio Now Playing
+            </span>
           </div>
 
-          {/* Selected Station Player */}
-          {selectedStation && (
-            <div className="border-b border-white/10 bg-white/5 px-3 py-3">
-              <div className="flex items-center gap-3">
-                {/* Cover Art */}
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg">
-                  {selectedStation.trackImg ? (
-                    <img
-                      src={selectedStation.trackImg}
-                      alt={`${selectedStation.artist} - ${selectedStation.title}`}
-                      className="h-full w-full object-cover"
-                      draggable={false}
-                    />
-                  ) : selectedStation.radioImg ? (
-                    <img
-                      src={selectedStation.radioImg}
-                      alt={selectedStation.radioName}
-                      className="h-full w-full object-contain p-1"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <Music className="h-5 w-5 text-white/30" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Track Info */}
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span
-                    className="truncate text-xs font-semibold text-white"
-                    title={selectedStation.title}
-                  >
-                    {selectedStation.title || "Unknown Title"}
+          {/* Main Column */}
+          <div className="flex w-full flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <Radio className="h-4 w-4 text-white/70" />
+                <span className="text-xs font-semibold text-white/90">
+                  Live Radio
+                </span>
+                {selectedCountry && (
+                  <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">
+                    {selectedCountry.name}
                   </span>
-                  <span
-                    className="truncate text-[11px] text-white/70"
-                    title={selectedStation.artist}
-                  >
-                    {selectedStation.artist || "Unknown Artist"}
-                  </span>
-                  <span
-                    className="truncate text-[10px] text-white/50"
-                    title={selectedStation.radioName}
-                  >
-                    {selectedStation.radioName}
-                  </span>
-                </div>
-
-                {/* Play/Pause Button */}
-                <button
-                  onClick={() => playStation(selectedStation)}
-                  className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black transition-all hover:scale-105 hover:bg-green-400"
-                  title={isPlaying ? "Pause" : "Play"}
-                >
-                  {isAudioLoading ? (
-                    <Disc3 className="h-5 w-5 animate-spin" />
-                  ) : isPlaying ? (
-                    <Pause className="h-5 w-5" fill="currentColor" />
-                  ) : (
-                    <Play className="h-5 w-5" fill="currentColor" />
-                  )}
-                </button>
-
-                {/* Close Button */}
-                <button
-                  onClick={clearSelectedStation}
-                  className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
-                  title="Close"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
+                )}
               </div>
-            </div>
-          )}
-
-          {/* Station List */}
-          <div className="max-h-64 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-            {isLoading && stations.length === 0 ? (
-              <div className="flex items-center justify-center py-8">
-                <LoaderCircle className="h-6 w-6 animate-spin text-white/40" />
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-                <span className="text-xs text-red-400/80">{error}</span>
+              <div className="flex items-center gap-1">
                 <button
                   onClick={fetchNowPlaying}
-                  className="text-xs text-white/50 underline hover:text-white/80"
+                  disabled={isLoading}
+                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white/80 disabled:cursor-not-allowed disabled:opacity-50"
+                  title="Refresh"
                 >
-                  Try again
+                  <RefreshCw
+                    className={`h-3 w-3 ${isLoading ? "animate-spin" : ""}`}
+                  />
                 </button>
               </div>
-            ) : stations.length === 0 ? (
-              <div className="flex items-center justify-center py-8">
-                <span className="text-xs text-white/50">
-                  No stations currently playing
-                </span>
-              </div>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {stations.map((station) => {
-                  const isThisPlaying = currentlyPlaying === station.radioId;
-                  const isThisLoading = isThisPlaying && isAudioLoading;
+            </div>
 
-                  return (
-                    <div
-                      key={station.radioId}
-                      className={`group flex items-center gap-2 px-3 py-2 transition-colors hover:bg-white/5 ${isThisPlaying ? "bg-white/5" : ""}`}
+            {/* Selected Station Player */}
+            {selectedStation && (
+              <div className="border-b border-white/10 bg-white/5 px-3 py-3">
+                <div className="flex items-center gap-3">
+                  {/* Cover Art */}
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg">
+                    {selectedStation.trackImg ? (
+                      <img
+                        src={selectedStation.trackImg}
+                        alt={`${selectedStation.artist} - ${selectedStation.title}`}
+                        className="h-full w-full object-cover"
+                        draggable={false}
+                      />
+                    ) : selectedStation.radioImg ? (
+                      <img
+                        src={selectedStation.radioImg}
+                        alt={selectedStation.radioName}
+                        className="h-full w-full object-contain p-1"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Music className="h-5 w-5 text-white/30" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Track Info */}
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span
+                      className="truncate text-xs font-semibold text-white"
+                      title={selectedStation.title}
                     >
-                      {/* Cover Art - Clean, no overlay */}
-                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-white/10">
-                        {station.trackImg ? (
-                          <img
-                            src={station.trackImg}
-                            alt={`${station.artist} - ${station.title}`}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                            draggable={false}
-                          />
-                        ) : station.radioImg ? (
-                          <img
-                            src={station.radioImg}
-                            alt={station.radioName}
-                            className="h-full w-full object-contain p-1"
-                            loading="lazy"
-                            draggable={false}
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Music className="h-4 w-4 text-white/30" />
-                          </div>
-                        )}
-                      </div>
+                      {selectedStation.title || "Unknown Title"}
+                    </span>
+                    <span
+                      className="truncate text-[11px] text-white/70"
+                      title={selectedStation.artist}
+                    >
+                      {selectedStation.artist || "Unknown Artist"}
+                    </span>
+                    <span
+                      className="truncate text-[10px] text-white/50"
+                      title={selectedStation.radioName}
+                    >
+                      {selectedStation.radioName}
+                    </span>
+                  </div>
 
-                      {/* Track Info - Takes remaining space, truncates */}
-                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span
-                          className={`truncate text-[11px] font-medium ${isThisPlaying ? "text-green-400" : "text-white/90"}`}
-                          title={station.title}
-                        >
-                          {station.title || "Unknown Title"}
-                        </span>
-                        <span
-                          className="truncate text-[10px] text-white/60"
-                          title={station.artist}
-                        >
-                          {station.artist || "Unknown Artist"}
-                        </span>
-                        <span
-                          className="truncate text-[9px] text-white/40"
-                          title={station.radioName}
-                        >
-                          {station.radioName}
-                        </span>
-                      </div>
+                  {/* Play/Pause Button */}
+                  <button
+                    onClick={() => playStation(selectedStation)}
+                    className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black transition-all hover:scale-105 hover:bg-green-400"
+                    title={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isAudioLoading ? (
+                      <Disc3 className="h-5 w-5 animate-spin" />
+                    ) : isPlaying ? (
+                      <Pause className="h-5 w-5" fill="currentColor" />
+                    ) : (
+                      <Play className="h-5 w-5" fill="currentColor" />
+                    )}
+                  </button>
 
-                      {/* Play/Pause Button - Right side */}
-                      <button
-                        onClick={() => playStation(station)}
-                        className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
-                          isThisPlaying
-                            ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
-                            : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
-                        }`}
-                        title={
-                          isThisPlaying && isPlaying
-                            ? "Pause"
-                            : `Play ${station.radioName}`
-                        }
-                      >
-                        {isThisLoading ? (
-                          <Disc3 className="h-4 w-4 animate-spin" />
-                        ) : isThisPlaying && isPlaying ? (
-                          <Pause className="h-4 w-4" fill="currentColor" />
-                        ) : (
-                          <Play className="h-4 w-4" fill="currentColor" />
-                        )}
-                      </button>
-                    </div>
-                  );
-                })}
+                  {/* Close Button */}
+                  <button
+                    onClick={clearSelectedStation}
+                    className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
+                    title="Close"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Action Bar */}
-          <div className="border-t border-white/10" />
-          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            {/* Volume Control */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="Volume"
-                >
-                  {volume === 0 ? (
-                    <VolumeX className="h-4 w-4" />
-                  ) : volume < 0.5 ? (
-                    <Volume1 className="h-4 w-4" />
-                  ) : (
-                    <Volume2 className="h-4 w-4" />
-                  )}
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                sideOffset={6}
-                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
-              >
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                  <span>Volume</span>
-                  <span className="text-white/60">
-                    {Math.round(volume * 100)}%
+            {/* Station List */}
+            <div className="max-h-64 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+              {isLoading && stations.length === 0 ? (
+                <div className="flex items-center justify-center py-8">
+                  <LoaderCircle className="h-6 w-6 animate-spin text-white/40" />
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+                  <span className="text-xs text-red-400/80">{error}</span>
+                  <button
+                    onClick={fetchNowPlaying}
+                    className="text-xs text-white/50 underline hover:text-white/80"
+                  >
+                    Try again
+                  </button>
+                </div>
+              ) : stations.length === 0 ? (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-xs text-white/50">
+                    No stations currently playing
                   </span>
                 </div>
-                <Slider
-                  value={[Math.round(volume * 100)]}
-                  onValueChange={(v) => {
-                    const percent = v[0] ?? Math.round(volume * 100);
-                    const next = Math.min(100, Math.max(0, percent));
-                    setOnlineRadioVolume(next);
-                  }}
-                  max={100}
-                  step={1}
-                  className="cursor-pointer"
-                />
-              </PopoverContent>
-            </Popover>
+              ) : (
+                <div className="divide-y divide-white/5">
+                  {stations.map((station) => {
+                    const isThisPlaying = currentlyPlaying === station.radioId;
+                    const isThisLoading = isThisPlaying && isAudioLoading;
 
-            {/* Country Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                  type="button"
-                >
-                  Country: {selectedCountry?.code.toUpperCase() || "ID"}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="max-h-64 overflow-y-auto rounded-md border border-white/10 bg-black/90 p-2 text-white shadow-lg [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-              >
-                {COUNTRIES.map((c) => (
-                  <DropdownMenuItem
-                    key={c.code}
-                    onSelect={() => setCountry(c.code)}
-                    className={`group cursor-pointer ${country === c.code ? "bg-white/10" : ""}`}
+                    return (
+                      <div
+                        key={station.radioId}
+                        className={`group flex items-center gap-2 px-3 py-2 transition-colors hover:bg-white/5 ${isThisPlaying ? "bg-white/5" : ""}`}
+                      >
+                        {/* Cover Art - Clean, no overlay */}
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-white/10">
+                          {station.trackImg ? (
+                            <img
+                              src={station.trackImg}
+                              alt={`${station.artist} - ${station.title}`}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                              draggable={false}
+                            />
+                          ) : station.radioImg ? (
+                            <img
+                              src={station.radioImg}
+                              alt={station.radioName}
+                              className="h-full w-full object-contain p-1"
+                              loading="lazy"
+                              draggable={false}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                              <Music className="h-4 w-4 text-white/30" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Track Info - Takes remaining space, truncates */}
+                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span
+                            className={`truncate text-[11px] font-medium ${isThisPlaying ? "text-green-400" : "text-white/90"}`}
+                            title={station.title}
+                          >
+                            {station.title || "Unknown Title"}
+                          </span>
+                          <span
+                            className="truncate text-[10px] text-white/60"
+                            title={station.artist}
+                          >
+                            {station.artist || "Unknown Artist"}
+                          </span>
+                          <span
+                            className="truncate text-[9px] text-white/40"
+                            title={station.radioName}
+                          >
+                            {station.radioName}
+                          </span>
+                        </div>
+
+                        {/* Play/Pause Button - Right side */}
+                        <button
+                          onClick={() => playStation(station)}
+                          className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
+                            isThisPlaying
+                              ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
+                              : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
+                          }`}
+                          title={
+                            isThisPlaying && isPlaying
+                              ? "Pause"
+                              : `Play ${station.radioName}`
+                          }
+                        >
+                          {isThisLoading ? (
+                            <Disc3 className="h-4 w-4 animate-spin" />
+                          ) : isThisPlaying && isPlaying ? (
+                            <Pause className="h-4 w-4" fill="currentColor" />
+                          ) : (
+                            <Play className="h-4 w-4" fill="currentColor" />
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Action Bar */}
+            <div className="border-t border-white/10" />
+            <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+              {/* Volume Control */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    title="Volume"
                   >
-                    <span
-                      className={`mr-2 w-6 text-xs uppercase ${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/50 group-hover:text-gray-950"}`}
-                    >
-                      {c.code}
-                    </span>
-                    <span
-                      className={`${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/90 group-hover:text-gray-950"}`}
-                    >
-                      {c.name}
-                    </span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <a
-              href={`https://onlineradiobox.com/${country}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-              title="Open OnlineRadioBox"
-            >
-              More
-            </a>
-
-            <div className="ml-auto">
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="More options"
-                  onContextMenu={(e) => e.preventDefault()}
+                    {volume === 0 ? (
+                      <VolumeX className="h-4 w-4" />
+                    ) : volume < 0.5 ? (
+                      <Volume1 className="h-4 w-4" />
+                    ) : (
+                      <Volume2 className="h-4 w-4" />
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  sideOffset={6}
+                  className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
                 >
-                  <MoreHorizontal className="h-3.5 w-3.5" />
-                </button>
-              </DropdownMenuTrigger>
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                    <span>Volume</span>
+                    <span className="text-white/60">
+                      {Math.round(volume * 100)}%
+                    </span>
+                  </div>
+                  <Slider
+                    value={[Math.round(volume * 100)]}
+                    onValueChange={(v) => {
+                      const percent = v[0] ?? Math.round(volume * 100);
+                      const next = Math.min(100, Math.max(0, percent));
+                      setOnlineRadioVolume(next);
+                    }}
+                    max={100}
+                    step={1}
+                    className="cursor-pointer"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Country Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                    type="button"
+                  >
+                    Country: {selectedCountry?.code.toUpperCase() || "ID"}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="max-h-64 overflow-y-auto rounded-md border border-white/10 bg-black/90 p-2 text-white shadow-lg [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+                >
+                  {COUNTRIES.map((c) => (
+                    <DropdownMenuItem
+                      key={c.code}
+                      onSelect={() => setCountry(c.code)}
+                      className={`group cursor-pointer ${country === c.code ? "bg-white/10" : ""}`}
+                    >
+                      <span
+                        className={`mr-2 w-6 text-xs uppercase ${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/50 group-hover:text-gray-950"}`}
+                      >
+                        {c.code}
+                      </span>
+                      <span
+                        className={`${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/90 group-hover:text-gray-950"}`}
+                      >
+                        {c.name}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <a
+                href={`https://onlineradiobox.com/${country}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                title="Open OnlineRadioBox"
+              >
+                More
+              </a>
+
+              <div className="ml-auto">
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    title="More options"
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizontal className="h-3.5 w-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
         <DropdownMenuItem
