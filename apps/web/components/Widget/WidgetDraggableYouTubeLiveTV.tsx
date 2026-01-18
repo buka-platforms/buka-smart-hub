@@ -31,13 +31,14 @@ import { widgetVisibilityAtom } from "@/data/store";
 import { tv } from "@/data/tv";
 import type { TVChannel } from "@/data/type";
 import {
-  getSavedWidgetPosition,
   observeWidget,
   resetWidgetPosition,
   setWidgetMeasuredHeight,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
+  WIDGET_POSITION_KEYS,
+  type WidgetId,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
@@ -102,8 +103,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const positionRef = useRef(position);
 
   // Player state
   const [selectedChannel, setSelectedChannel] = useState<TVChannel | null>(
@@ -182,21 +181,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
   // Listen for global reset events
   useEffect(() => {
-    const handleReset = (e: Event) => {
-      const customEvent = e as CustomEvent<
-        Record<string, { x: number; y: number }>
-      >;
-      const detail = customEvent.detail || {};
-      // Only update if we do NOT have a saved position
-      if (!getSavedWidgetPosition(WIDGET_ID)) {
-        if (Object.prototype.hasOwnProperty.call(detail, WIDGET_ID)) {
-          const newPos = detail[WIDGET_ID];
-          if (newPos) setPosition(newPos);
-        } else if (Object.keys(detail).length > 1) {
-          const newPos = detail[WIDGET_ID];
-          if (newPos) setPosition(newPos);
-        }
-      }
+    const handleReset = () => {
+      // No local position state is kept by this component; layout system
+      // will position widgets via the global layout manager.
     };
 
     window.addEventListener("widget-positions-reset", handleReset);
@@ -221,8 +208,14 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
-    if (source && source !== WIDGET_ID)
-      swapWidgetPositions(source as any, WIDGET_ID as any);
+    // Ensure the dragged id is a known widget id before swapping
+    if (
+      source &&
+      source !== WIDGET_ID &&
+      Object.prototype.hasOwnProperty.call(WIDGET_POSITION_KEYS, source)
+    ) {
+      swapWidgetPositions(source as WidgetId, WIDGET_ID as WidgetId);
+    }
   }, []);
 
   // Disable pointer events on the embedded player while dragging so iframe doesn't intercept events
