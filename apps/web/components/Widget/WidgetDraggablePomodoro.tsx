@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { widgetVisibilityAtom } from "@/data/store";
+import type { WidgetId } from "@/lib/widget-positions";
 import {
   getSavedWidgetPosition,
   observeWidget,
@@ -572,7 +573,7 @@ export default function WidgetDraggablePomodoro() {
                   if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
                 } catch {}
               }}
-              onDragEnd={(e) => {
+              onDragEnd={() => {
                 try {
                   setIsDragging(false);
                 } catch {}
@@ -583,7 +584,7 @@ export default function WidgetDraggablePomodoro() {
                 try {
                   const src = e.dataTransfer?.getData("text/widget-id");
                   if (src && src !== WIDGET_ID)
-                    swapWidgetPositions(src as any, WIDGET_ID as any);
+                    swapWidgetPositions(src as WidgetId, WIDGET_ID as WidgetId);
                 } catch {}
               }}
               className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
