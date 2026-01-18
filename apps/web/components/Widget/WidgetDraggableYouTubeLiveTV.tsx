@@ -102,6 +102,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const positionRef = useRef(position);
 
   // Player state
   const [selectedChannel, setSelectedChannel] = useState<TVChannel | null>(

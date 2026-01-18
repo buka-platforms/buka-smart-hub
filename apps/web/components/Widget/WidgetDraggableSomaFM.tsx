@@ -84,6 +84,8 @@ export default function WidgetDraggableSomaFM() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const positionRef = useRef(position);
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [, setLoading] = useState(true);
@@ -328,22 +330,22 @@ export default function WidgetDraggableSomaFM() {
           data-widget-id="somafm"
           className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
-          {/* Top Title - Drag Handle */}
-          <div
-            draggable
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
-          >
-            <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">SomaFM</span>
-          </div>
-
-          {/* Main Column */}
-          <div className="flex w-full flex-col">
-            {/* Player Row: Channel Art, Info, Play Button and Volume on right */}
-            <div className="flex items-center gap-3 p-3">
+          {/* Top Title + Main Column */}
+          <div className="relative flex w-full flex-col">
+            <div
+              draggable
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              className={`flex items-center h-8 px-3 gap-2 cursor-move select-none border-b border-white/10 ${isDragging ? "opacity-60" : "opacity-100"}`}
+            >
+              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">
+                SomaFM
+              </span>
+              <span className="text-[10px] font-semibold tracking-widest text-white/50 uppercase leading-none">
+                SomaFM
+              </span>
               {/* Channel Art */}
               <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
                 {visibleNowPlaying?.albumArt ? (

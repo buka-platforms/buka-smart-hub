@@ -87,6 +87,7 @@ const MINI_DOCK_COUNT = 3;
 export default function WidgetLauncherDock() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Toggle widget visibility
   const toggleWidget = useCallback(
@@ -151,6 +152,7 @@ export default function WidgetLauncherDock() {
       className={`pointer-events-auto z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 transition-opacity duration-200 md:mt-5 md:ml-4 ${
         isExpanded ? "flex-col" : "flex-row"
       } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      ref={containerRef}
       style={{ justifySelf: "start" }}
     >
       {/* Drag Handle - Visual indicator for dragging */}
