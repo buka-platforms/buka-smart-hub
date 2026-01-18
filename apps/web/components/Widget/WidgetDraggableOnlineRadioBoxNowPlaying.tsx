@@ -40,6 +40,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   Disc3,
@@ -502,7 +503,10 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               try {
                 const src = e.dataTransfer?.getData("text/widget-id");
                 if (src && src !== WIDGET_ID)
-                  swapWidgetPositions(src as any, WIDGET_ID as any);
+                  swapWidgetPositions(
+                    src as unknown as WidgetId,
+                    WIDGET_ID as unknown as WidgetId,
+                  );
               } catch {}
             }}
           >
