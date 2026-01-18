@@ -43,6 +43,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
 } from "@/lib/widget-positions";
+import type { WidgetId } from "@/lib/widget-positions";
 // removed neodrag in favor of manual drag handlers
 import { useAtom } from "jotai";
 import {
@@ -84,8 +85,8 @@ export default function WidgetDraggableSomaFM() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const positionRef = useRef(position);
+  const [, setPosition] = useState({ x: 0, y: 0 });
+  // positionRef removed — positioning handled centrally by layout manager
   const [channels, setChannels] = useState<SomaFMChannel[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [, setLoading] = useState(true);
@@ -202,9 +203,10 @@ export default function WidgetDraggableSomaFM() {
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    const source = e.dataTransfer.getData("text/widget-id");
-    if (source && source !== WIDGET_ID)
-      swapWidgetPositions(source as any, WIDGET_ID as any);
+    const source = e.dataTransfer.getData("text/widget-id") as string;
+    if (source && source !== WIDGET_ID) {
+      swapWidgetPositions(source as unknown as WidgetId, WIDGET_ID as WidgetId);
+    }
   }, []);
 
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
