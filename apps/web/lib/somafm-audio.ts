@@ -187,10 +187,14 @@ export const detachSomaFMListeners = () => {
   try {
     if (handlePlayRef) audio.removeEventListener("playing", handlePlayRef);
     if (handlePauseRef) audio.removeEventListener("pause", handlePauseRef);
-    if (handleWaitingRef) audio.removeEventListener("waiting", handleWaitingRef);
-    if (handleStalledRef) audio.removeEventListener("stalled", handleStalledRef);
-    if (handleCanPlayRef) audio.removeEventListener("canplay", handleCanPlayRef);
-    if (handleCanPlayThroughRef) audio.removeEventListener("canplaythrough", handleCanPlayThroughRef);
+    if (handleWaitingRef)
+      audio.removeEventListener("waiting", handleWaitingRef);
+    if (handleStalledRef)
+      audio.removeEventListener("stalled", handleStalledRef);
+    if (handleCanPlayRef)
+      audio.removeEventListener("canplay", handleCanPlayRef);
+    if (handleCanPlayThroughRef)
+      audio.removeEventListener("canplaythrough", handleCanPlayThroughRef);
     if (handleErrorRef) audio.removeEventListener("error", handleErrorRef);
     if (handleEndedRef) audio.removeEventListener("ended", handleEndedRef);
     handlePlayRef = null;
