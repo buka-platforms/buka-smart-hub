@@ -20,6 +20,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
 import { getSurah, getSurahList } from "@/lib/quran-api";
 import type { WidgetId } from "@/lib/widget-positions";
@@ -41,6 +47,9 @@ import {
   Pause,
   Play,
   Play as PlayIcon,
+  Volume1,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import React, {
   useCallback,
@@ -54,6 +63,8 @@ const WIDGET_ID = "quran";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const LAST_SURAH_KEY = "widgetQuranLastSurah";
 const LAST_AYAH_KEY = "widgetQuranLastAyah";
+const VOLUME_KEY = "widgetQuranVolume";
+const MUTE_KEY = "widgetQuranMuted";
 const WIDGET_VERSION = "1.0.0";
 
 export default function WidgetDraggableQuran() {
@@ -75,6 +86,24 @@ export default function WidgetDraggableQuran() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [volume, setVolume] = useState(() => {
+    if (typeof window === "undefined") return 100;
+    try {
+      const stored = localStorage.getItem(VOLUME_KEY);
+      if (stored !== null && !Number.isNaN(Number(stored)))
+        return Number(stored);
+    } catch {}
+    return 100;
+  });
+  const [isMuted, setIsMuted] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const stored = localStorage.getItem(MUTE_KEY);
+      return stored === "1";
+    } catch {
+      return false;
+    }
+  });
   const [autoAdvance, setAutoAdvance] = useState(true);
   const autoAdvanceRef = useRef(true);
 
@@ -82,6 +111,16 @@ export default function WidgetDraggableQuran() {
   useEffect(() => {
     autoAdvanceRef.current = autoAdvance;
   }, [autoAdvance]);
+
+  // apply volume/mute to audio element when it exists
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      audio.volume = Math.max(0, Math.min(1, volume / 100));
+      audio.muted = isMuted || volume === 0;
+    } catch {}
+  }, [volume, isMuted]);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [jumpToAyahValue, setJumpToAyahValue] = useState("");
 
@@ -253,24 +292,31 @@ export default function WidgetDraggableQuran() {
     }
   }, [currentAyahIndex, surahData]);
 
-  const playAyah = useCallback(async (ayahIndex: number) => {
-    setCurrentAyahIndex(ayahIndex);
-    setAutoAdvance(false); // Individual ayah plays don't auto-advance
-    autoAdvanceRef.current = false;
-    // Small delay to allow state update, then play
-    setTimeout(async () => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      try {
-        setIsLoading(true);
-        await audio.play();
-        setIsPlaying(true);
-      } catch {
-        setIsPlaying(false);
-        setIsLoading(false);
-      }
-    }, 50);
-  }, []);
+  const playAyah = useCallback(
+    async (ayahIndex: number) => {
+      setCurrentAyahIndex(ayahIndex);
+      setAutoAdvance(false); // Individual ayah plays don't auto-advance
+      autoAdvanceRef.current = false;
+      // Small delay to allow state update, then play
+      setTimeout(async () => {
+        const audio = audioRef.current;
+        if (!audio) return;
+        try {
+          setIsLoading(true);
+          try {
+            audio.volume = Math.max(0, Math.min(1, volume / 100));
+            audio.muted = isMuted || volume === 0;
+          } catch {}
+          await audio.play();
+          setIsPlaying(true);
+        } catch {
+          setIsPlaying(false);
+          setIsLoading(false);
+        }
+      }, 50);
+    },
+    [volume, isMuted],
+  );
 
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -285,6 +331,10 @@ export default function WidgetDraggableQuran() {
         setAutoAdvance(true); // Main play button enables auto-advance
         autoAdvanceRef.current = true;
         setIsLoading(true);
+        try {
+          audio.volume = Math.max(0, Math.min(1, volume / 100));
+          audio.muted = isMuted || volume === 0;
+        } catch {}
         await audio.play();
         setIsPlaying(true);
       }
@@ -292,7 +342,21 @@ export default function WidgetDraggableQuran() {
       setIsPlaying(false);
       setIsLoading(false);
     }
-  }, [isPlaying]);
+  }, [isPlaying, volume, isMuted]);
+
+  const updateVolume = useCallback((v: number) => {
+    const next = Math.max(0, Math.min(100, Math.round(v)));
+    setVolume(next);
+    try {
+      if (audioRef.current)
+        audioRef.current.volume = Math.max(0, Math.min(1, next / 100));
+    } catch {}
+    try {
+      localStorage.setItem(VOLUME_KEY, String(next));
+    } catch {}
+    // if volume raised above 0, ensure not muted
+    if (next > 0) setIsMuted(false);
+  }, []);
 
   const nextAyah = useCallback(() => {
     if (!surahData) return;
@@ -379,7 +443,7 @@ export default function WidgetDraggableQuran() {
             <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
               Quran
             </span>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
               <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -585,6 +649,41 @@ export default function WidgetDraggableQuran() {
 
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="Volume"
+                >
+                  {volume === 0 ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : volume < 50 ? (
+                    <Volume1 className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={6}
+                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+              >
+                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <span>Volume</span>
+                  <span className="text-white/60">{Math.round(volume)}%</span>
+                </div>
+                <Slider
+                  value={[volume]}
+                  onValueChange={(v) => updateVolume(v[0] ?? volume)}
+                  max={100}
+                  step={1}
+                  className="cursor-pointer"
+                />
+              </PopoverContent>
+            </Popover>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
