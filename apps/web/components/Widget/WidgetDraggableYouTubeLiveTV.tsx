@@ -43,7 +43,6 @@ import {
 import { useAtom } from "jotai";
 import {
   ChevronDown,
-  ExternalLink,
   Flag,
   Globe,
   Heart,
