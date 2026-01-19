@@ -478,7 +478,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <div className="relative flex w-full flex-col">
           {/* Top Title - Drag Handle */}

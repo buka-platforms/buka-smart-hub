@@ -555,7 +555,7 @@ export default function WidgetDraggablePomodoro() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Top Title - Drag Handle */}
 
@@ -567,6 +567,7 @@ export default function WidgetDraggablePomodoro() {
                 e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
                 if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
               } catch {}
+              setIsDragging(true);
             }}
             onDragEnd={() => {
               try {
