@@ -592,6 +592,18 @@ export default function WidgetDraggablePomodoro() {
               <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
                 Pomodoro
               </span>
+              <div className="ml-auto">
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label="More options"
+                    className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    title="More options"
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizontal className="h-2.5 w-2.5" />
+                  </button>
+                </DropdownMenuTrigger>
+              </div>
             </div>
             {/* Completion Modal Overlay */}
             {showCompletion && (
@@ -804,18 +816,6 @@ export default function WidgetDraggablePomodoro() {
                   <MessageSquareOff className="h-4 w-4" />
                 )}
               </button>
-
-              <div className="ml-auto">
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                    title="More options"
-                    onContextMenu={(e) => e.preventDefault()}
-                  >
-                    <MoreHorizontal className="h-3.5 w-3.5" />
-                  </button>
-                </DropdownMenuTrigger>
-              </div>
             </div>
           </div>
         </div>
