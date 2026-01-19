@@ -897,10 +897,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
               {selectedChannel && (
                 <Link
                   href={`/tv/${selectedChannel.slug}`}
-                  className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                  className="flex h-8 items-center justify-center gap-0 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
                   title="Open channel page"
                 >
-                  <ExternalLink className="h-3 w-3" />
                   <span className="hidden sm:inline">Details</span>
                 </Link>
               )}
