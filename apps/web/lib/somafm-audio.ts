@@ -4,6 +4,12 @@ const VOLUME_KEY = `widgetSomaFMVolume`;
 
 let handlePlayRef: (() => void) | null = null;
 let handlePauseRef: (() => void) | null = null;
+let handleWaitingRef: (() => void) | null = null;
+let handleStalledRef: (() => void) | null = null;
+let handleCanPlayRef: (() => void) | null = null;
+let handleCanPlayThroughRef: (() => void) | null = null;
+let handleErrorRef: (() => void) | null = null;
+let handleEndedRef: (() => void) | null = null;
 
 export const setupSomaFMAudio = () => {
   const state = jotaiStore.get(somafmAudioStateAtom);
@@ -125,8 +131,53 @@ export const attachSomaFMListeners = () => {
       isPlaying: false,
     }));
 
+  handleWaitingRef = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
+      ...prev,
+      isLoading: true,
+    }));
+  handleStalledRef = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
+      ...prev,
+      isLoading: true,
+    }));
+  handleCanPlayRef = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
+      ...prev,
+      isLoading: false,
+    }));
+  handleCanPlayThroughRef = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
+      ...prev,
+      isLoading: false,
+    }));
+  handleErrorRef = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
+      ...prev,
+      isLoading: false,
+      isPlaying: false,
+    }));
+  handleEndedRef = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
+      ...prev,
+      isLoading: false,
+      isPlaying: false,
+    }));
+
   audio.addEventListener("playing", handlePlayRef);
   audio.addEventListener("pause", handlePauseRef);
+  audio.addEventListener("waiting", handleWaitingRef);
+  audio.addEventListener("stalled", handleStalledRef);
+  audio.addEventListener("canplay", handleCanPlayRef);
+  audio.addEventListener("canplaythrough", handleCanPlayThroughRef);
+  audio.addEventListener("error", handleErrorRef);
+  audio.addEventListener("ended", handleEndedRef);
 };
 
 export const detachSomaFMListeners = () => {
@@ -136,8 +187,20 @@ export const detachSomaFMListeners = () => {
   try {
     if (handlePlayRef) audio.removeEventListener("playing", handlePlayRef);
     if (handlePauseRef) audio.removeEventListener("pause", handlePauseRef);
+    if (handleWaitingRef) audio.removeEventListener("waiting", handleWaitingRef);
+    if (handleStalledRef) audio.removeEventListener("stalled", handleStalledRef);
+    if (handleCanPlayRef) audio.removeEventListener("canplay", handleCanPlayRef);
+    if (handleCanPlayThroughRef) audio.removeEventListener("canplaythrough", handleCanPlayThroughRef);
+    if (handleErrorRef) audio.removeEventListener("error", handleErrorRef);
+    if (handleEndedRef) audio.removeEventListener("ended", handleEndedRef);
     handlePlayRef = null;
     handlePauseRef = null;
+    handleWaitingRef = null;
+    handleStalledRef = null;
+    handleCanPlayRef = null;
+    handleCanPlayThroughRef = null;
+    handleErrorRef = null;
+    handleEndedRef = null;
   } catch {}
 };
 
