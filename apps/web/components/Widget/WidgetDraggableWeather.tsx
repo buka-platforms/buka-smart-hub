@@ -200,32 +200,32 @@ export default function WidgetDraggableWeather() {
 
   return (
     <>
-      <DropdownMenu
-        open={moreMenuOpen}
-        onOpenChange={setMoreMenuOpen}
-        modal={false}
+      <div
+        ref={containerRef}
+        data-widget-id={WIDGET_ID}
+        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        <div
-          ref={containerRef}
-          data-widget-id={WIDGET_ID}
-          className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        >
-          {/* Top Title - Drag Handle */}
+        {/* Top Title - Drag Handle */}
 
-          {/* Main Column */}
-          <div className="flex w-full flex-col">
-            <div
-              draggable
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
-            >
-              <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
-                Weather
-              </span>
-              <div className="ml-auto">
+        {/* Main Column */}
+        <div className="flex w-full flex-col">
+          <div
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+          >
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+              Weather
+            </span>
+            <div className="ml-auto">
+              <DropdownMenu
+                open={moreMenuOpen}
+                onOpenChange={setMoreMenuOpen}
+                modal={false}
+              >
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
@@ -236,149 +236,157 @@ export default function WidgetDraggableWeather() {
                     <MoreHorizontal className="h-2.5 w-2.5" />
                   </button>
                 </DropdownMenuTrigger>
-              </div>
-            </div>
-            {/* Weather Row */}
-            <div className="flex items-center gap-3 p-3">
-              {/* Weather Icon */}
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
-                {data && (
-                  <img
-                    src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`}
-                    alt={data.weather[0].description}
-                    title={data.weather[0].description}
-                    className="pointer-events-none h-full w-full object-contain"
-                    draggable={false}
-                  />
-                )}
-              </div>
-
-              {/* Weather Info */}
-              <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-                <span className="block truncate text-xs text-white/60">
-                  {data?.name}
-                  {data?.sys?.country ? `, ${data.sys.country}` : ""}
-                </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-semibold text-white">
-                    {temperatureValue}°
-                  </span>
-                  <span className="text-xs text-white/60">
-                    {temperatureUnit}
-                  </span>
-                </div>
-                <span
-                  className="max-w-full truncate text-xs text-white/70"
-                  title={
-                    data?.weather[0].description
-                      ? data.weather[0].description.charAt(0).toUpperCase() +
-                        data.weather[0].description.slice(1)
-                      : ""
-                  }
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={6}
+                  className="min-w-40"
                 >
-                  {data?.weather[0].description
-                    ? data.weather[0].description.charAt(0).toUpperCase() +
-                      data.weather[0].description.slice(1)
-                    : ""}
-                </span>
-              </div>
-
-              {/* Additional Info */}
-              <div className="flex shrink-0 flex-col gap-1 text-[10px] text-white/50">
-                <div
-                  className="flex items-center gap-1"
-                  title={`Feels like ${feelsLikeValue}°${temperatureUnit}`}
-                >
-                  <Thermometer className="h-3 w-3" />
-                  <span>{feelsLikeValue}°</span>
-                </div>
-                <div
-                  className="flex items-center gap-1"
-                  title={`Humidity ${data?.main.humidity || "--"}%`}
-                >
-                  <Droplets className="h-3 w-3" />
-                  <span>{data?.main.humidity || "--"}%</span>
-                </div>
-                <div
-                  className="flex items-center gap-1"
-                  title={`Wind ${windSpeed} ${windLabel}`}
-                >
-                  <Wind className="h-3 w-3" />
-                  <span>
-                    {windSpeed} {windLabel}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Separator and action bar */}
-            <div className="border-t border-white/10" />
-            <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-              <button
-                onClick={toggleUnit}
-                className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
-              >
-                <span>°{unit === "metric" ? "F" : "C"}</span>
-              </button>
-
-              <Link
-                href="/apps/weather"
-                className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                title="Open weather app"
-              >
-                More
-              </Link>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      setVisibility((prev) => ({
+                        ...prev,
+                        [WIDGET_ID]: false,
+                      }));
+                      try {
+                        localStorage.setItem(
+                          WIDGET_VISIBILITY_KEY,
+                          JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                        );
+                      } catch {}
+                    }}
+                  >
+                    Hide widget
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => mutate()}
+                    className="cursor-pointer"
+                  >
+                    Refresh weather
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={toggleUnit}
+                    className="cursor-pointer"
+                  >
+                    Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      requestAnimationFrame(resetPosition);
+                    }}
+                  >
+                    Reset widget position
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setMoreMenuOpen(false);
+                      setAboutDialogOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    About widget
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
+          {/* Weather Row */}
+          <div className="flex items-center gap-3 p-3">
+            {/* Weather Icon */}
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
+              {data && (
+                <img
+                  src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`}
+                  alt={data.weather[0].description}
+                  title={data.weather[0].description}
+                  className="pointer-events-none h-full w-full object-contain"
+                  draggable={false}
+                />
+              )}
+            </div>
+
+            {/* Weather Info */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+              <span className="block truncate text-xs text-white/60">
+                {data?.name}
+                {data?.sys?.country ? `, ${data.sys.country}` : ""}
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-semibold text-white">
+                  {temperatureValue}°
+                </span>
+                <span className="text-xs text-white/60">{temperatureUnit}</span>
+              </div>
+              <span
+                className="max-w-full truncate text-xs text-white/70"
+                title={
+                  data?.weather[0].description
+                    ? data.weather[0].description.charAt(0).toUpperCase() +
+                      data.weather[0].description.slice(1)
+                    : ""
+                }
+              >
+                {data?.weather[0].description
+                  ? data.weather[0].description.charAt(0).toUpperCase() +
+                    data.weather[0].description.slice(1)
+                  : ""}
+              </span>
+            </div>
+
+            {/* Additional Info */}
+            <div className="flex shrink-0 flex-col gap-1 text-[10px] text-white/50">
+              <div
+                className="flex items-center gap-1"
+                title={`Feels like ${feelsLikeValue}°${temperatureUnit}`}
+              >
+                <Thermometer className="h-3 w-3" />
+                <span>{feelsLikeValue}°</span>
+              </div>
+              <div
+                className="flex items-center gap-1"
+                title={`Humidity ${data?.main.humidity || "--"}%`}
+              >
+                <Droplets className="h-3 w-3" />
+                <span>{data?.main.humidity || "--"}%</span>
+              </div>
+              <div
+                className="flex items-center gap-1"
+                title={`Wind ${windSpeed} ${windLabel}`}
+              >
+                <Wind className="h-3 w-3" />
+                <span>
+                  {windSpeed} {windLabel}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Separator and action bar */}
+          <div className="border-t border-white/10" />
+          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            <button
+              onClick={toggleUnit}
+              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
+            >
+              <span>°{unit === "metric" ? "F" : "C"}</span>
+            </button>
+
+            <Link
+              href="/apps/weather"
+              className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              title="Open weather app"
+            >
+              More
+            </Link>
+          </div>
         </div>
-        <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-              try {
-                localStorage.setItem(
-                  WIDGET_VISIBILITY_KEY,
-                  JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-                );
-              } catch {}
-            }}
-          >
-            Hide widget
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => mutate()}
-            className="cursor-pointer"
-          >
-            Refresh weather
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={toggleUnit} className="cursor-pointer">
-            Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              requestAnimationFrame(resetPosition);
-            }}
-          >
-            Reset widget position
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              setMoreMenuOpen(false);
-              setAboutDialogOpen(true);
-            }}
-            className="cursor-pointer"
-          >
-            About widget
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      </div>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">

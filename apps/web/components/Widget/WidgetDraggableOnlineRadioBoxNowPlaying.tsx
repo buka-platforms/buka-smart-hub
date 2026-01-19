@@ -474,11 +474,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const selectedCountry = COUNTRIES.find((c) => c.code === country);
 
   return (
-    <DropdownMenu
-      open={moreMenuOpen}
-      onOpenChange={setMoreMenuOpen}
-      modal={false}
-    >
+    <>
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
@@ -514,16 +510,76 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               Radio Now Playing
             </span>
             <div className="ml-auto">
-              <DropdownMenuTrigger asChild>
-                <button
-                  aria-label="More options"
-                  className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
-                  title="More options"
-                  onContextMenu={(e) => e.preventDefault()}
+              <DropdownMenu
+                open={moreMenuOpen}
+                onOpenChange={setMoreMenuOpen}
+                modal={false}
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label="More options"
+                    className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    title="More options"
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizontal className="h-2.5 w-2.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={6}
+                  className="min-w-40"
                 >
-                  <MoreHorizontal className="h-2.5 w-2.5" />
-                </button>
-              </DropdownMenuTrigger>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      setVisibility((prev) => ({
+                        ...prev,
+                        [WIDGET_ID]: false,
+                      }));
+                      try {
+                        localStorage.setItem(
+                          WIDGET_VISIBILITY_KEY,
+                          JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                        );
+                      } catch {}
+                    }}
+                  >
+                    Hide widget
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      fetchNowPlaying();
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Refresh now
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      requestAnimationFrame(resetPosition);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Reset widget position
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setMoreMenuOpen(false);
+                      setAboutDialogOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    About widget
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
@@ -834,53 +890,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           </div>
         </div>
       </div>
-      <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-            try {
-              localStorage.setItem(
-                WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-              );
-            } catch {}
-          }}
-        >
-          Hide widget
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            fetchNowPlaying();
-          }}
-          className="cursor-pointer"
-        >
-          Refresh now
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            requestAnimationFrame(resetPosition);
-          }}
-          className="cursor-pointer"
-        >
-          Reset widget position
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={() => {
-            setMoreMenuOpen(false);
-            setAboutDialogOpen(true);
-          }}
-          className="cursor-pointer"
-        >
-          About widget
-        </DropdownMenuItem>
-      </DropdownMenuContent>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
@@ -898,6 +907,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           </div>
         </DialogContent>
       </Dialog>
-    </DropdownMenu>
+    </>
   );
 }

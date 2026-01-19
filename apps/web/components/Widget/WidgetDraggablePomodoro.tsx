@@ -552,47 +552,47 @@ export default function WidgetDraggablePomodoro() {
 
   return (
     <>
-      <DropdownMenu
-        open={moreMenuOpen}
-        onOpenChange={setMoreMenuOpen}
-        modal={false}
+      <div
+        ref={containerRef}
+        data-widget-id={WIDGET_ID}
+        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        <div
-          ref={containerRef}
-          data-widget-id={WIDGET_ID}
-          className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 transition-opacity duration-300 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        >
-          {/* Top Title - Drag Handle */}
+        {/* Top Title - Drag Handle */}
 
-          <div className="relative flex w-full flex-col">
-            <div
-              draggable
-              onDragStart={(e) => {
-                try {
-                  e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
-                  if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-                } catch {}
-              }}
-              onDragEnd={() => {
-                try {
-                  setIsDragging(false);
-                } catch {}
-              }}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                try {
-                  const src = e.dataTransfer?.getData("text/widget-id");
-                  if (src && src !== WIDGET_ID)
-                    swapWidgetPositions(src as WidgetId, WIDGET_ID as WidgetId);
-                } catch {}
-              }}
-              className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
-            >
-              <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
-                Pomodoro
-              </span>
-              <div className="ml-auto">
+        <div className="relative flex w-full flex-col">
+          <div
+            draggable
+            onDragStart={(e) => {
+              try {
+                e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
+                if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+              } catch {}
+            }}
+            onDragEnd={() => {
+              try {
+                setIsDragging(false);
+              } catch {}
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              try {
+                const src = e.dataTransfer?.getData("text/widget-id");
+                if (src && src !== WIDGET_ID)
+                  swapWidgetPositions(src as WidgetId, WIDGET_ID as WidgetId);
+              } catch {}
+            }}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+          >
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+              Pomodoro
+            </span>
+            <div className="ml-auto">
+              <DropdownMenu
+                open={moreMenuOpen}
+                onOpenChange={setMoreMenuOpen}
+                modal={false}
+              >
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
@@ -603,286 +603,292 @@ export default function WidgetDraggablePomodoro() {
                     <MoreHorizontal className="h-2.5 w-2.5" />
                   </button>
                 </DropdownMenuTrigger>
-              </div>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={6}
+                  className="min-w-40"
+                >
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      setVisibility((prev) => ({
+                        ...prev,
+                        [WIDGET_ID]: false,
+                      }));
+                      try {
+                        localStorage.setItem(
+                          WIDGET_VISIBILITY_KEY,
+                          JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                        );
+                      } catch {}
+                    }}
+                  >
+                    Hide widget
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      resetCurrent();
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Reset current session
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      setIsRunning(false);
+                      modeRef.current = "focus";
+                      setModeState("focus");
+                      setRemainingSeconds(durations.focus * 60);
+                      setFocusStreak(0);
+                      setCompletedFocus(0);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Reset all progress
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      requestAnimationFrame(resetPosition);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Reset widget position
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setMoreMenuOpen(false);
+                      setAboutDialogOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    About widget
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            {/* Completion Modal Overlay */}
-            {showCompletion && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">
-                <div className="flex flex-col items-center gap-3 px-4 text-center">
-                  {/* Icon */}
-                  <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-full ${
+          </div>
+          {/* Completion Modal Overlay */}
+          {showCompletion && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-3 px-4 text-center">
+                {/* Icon */}
+                <div
+                  className={`flex h-14 w-14 items-center justify-center rounded-full ${
+                    completedMode === "focus"
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-purple-500/20 text-purple-400"
+                  }`}
+                >
+                  {completedMode === "focus" ? (
+                    <CheckCircle2 className="h-7 w-7" />
+                  ) : (
+                    <Coffee className="h-7 w-7" />
+                  )}
+                </div>
+
+                {/* Message */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-lg font-semibold text-white">
+                    {completedMode === "focus"
+                      ? "Focus Complete!"
+                      : "Break Over!"}
+                  </span>
+                  <span className="text-sm text-white/60">
+                    {completedMode === "focus"
+                      ? "Great work! Ready for a break?"
+                      : "Time to get back to work!"}
+                  </span>
+                </div>
+
+                {/* Buttons */}
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={continueToNextPhase}
+                    className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
                       completedMode === "focus"
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-purple-500/20 text-purple-400"
+                        ? "bg-purple-500 text-white hover:bg-purple-400"
+                        : "bg-green-500 text-white hover:bg-green-400"
                     }`}
                   >
                     {completedMode === "focus" ? (
-                      <CheckCircle2 className="h-7 w-7" />
+                      <>
+                        <Coffee className="h-4 w-4" /> Take Break
+                      </>
                     ) : (
-                      <Coffee className="h-7 w-7" />
+                      <>
+                        <Zap className="h-4 w-4" /> Start Focus
+                      </>
                     )}
-                  </div>
+                  </button>
 
-                  {/* Message */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-lg font-semibold text-white">
-                      {completedMode === "focus"
-                        ? "Focus Complete!"
-                        : "Break Over!"}
-                    </span>
-                    <span className="text-sm text-white/60">
-                      {completedMode === "focus"
-                        ? "Great work! Ready for a break?"
-                        : "Time to get back to work!"}
-                    </span>
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="mt-2 flex gap-2">
+                  {completedMode === "focus" && (
                     <button
-                      onClick={continueToNextPhase}
-                      className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
-                        completedMode === "focus"
-                          ? "bg-purple-500 text-white hover:bg-purple-400"
-                          : "bg-green-500 text-white hover:bg-green-400"
-                      }`}
+                      onClick={skipBreak}
+                      className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/20"
                     >
-                      {completedMode === "focus" ? (
-                        <>
-                          <Coffee className="h-4 w-4" /> Take Break
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-4 w-4" /> Start Focus
-                        </>
-                      )}
+                      <FastForward className="h-4 w-4" /> Skip Break
                     </button>
-
-                    {completedMode === "focus" && (
-                      <button
-                        onClick={skipBreak}
-                        className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/20"
-                      >
-                        <FastForward className="h-4 w-4" /> Skip Break
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/10 text-white/80">
-                  <Clock3 className="h-4 w-4" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-white">
-                    {modeLabel(mode)}
-                  </span>
-                  <span className="text-[11px] text-white/50">
-                    Sessions: {completedFocus} • Streak: {focusStreak}/4
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] text-white/50">
-                <div className="h-1.5 w-14 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-purple-500"
-                    style={{ width: `${progress}%` }}
-                  />
+                  )}
                 </div>
               </div>
             </div>
-
-            <div className="flex items-baseline justify-between px-3 pt-3">
+          )}
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/10 text-white/80">
+                <Clock3 className="h-4 w-4" />
+              </div>
               <div className="flex flex-col">
-                <span className="font-mono text-4xl font-semibold text-white tabular-nums">
-                  {formatted}
+                <span className="text-xs font-semibold text-white">
+                  {modeLabel(mode)}
                 </span>
                 <span className="text-[11px] text-white/50">
-                  {isRunning ? "Running" : "Paused"}
+                  Sessions: {completedFocus} • Streak: {focusStreak}/4
                 </span>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={toggleRun}
-                  className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${isRunning ? "bg-red-500/20 text-red-200 hover:bg-red-500/30" : "bg-green-500/20 text-green-200 hover:bg-green-500/30"}`}
-                  title={isRunning ? "Pause" : "Start"}
-                >
-                  {isRunning ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                </button>
-                <button
-                  onClick={resetCurrent}
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                  title="Reset current session"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </button>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-white/50">
+              <div className="h-1.5 w-14 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-purple-500"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
             </div>
+          </div>
 
-            <div className="mt-2 grid grid-cols-3 gap-2 px-3 pb-3 text-[11px] text-white/70">
-              {(
-                [
-                  ["focus", "Focus"],
-                  ["short_break", "Short"],
-                  ["long_break", "Long"],
-                ] as [Mode, string][]
-              ).map(([key, label]) => (
-                <div
-                  key={key}
-                  className={`flex flex-col rounded-md border border-white/10 bg-white/5 p-2 ${mode === key ? "ring-1 ring-purple-500/50" : ""}`}
-                  onClick={() => switchMode(key)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") switchMode(key);
-                  }}
-                >
-                  <div className="flex items-center justify-between text-[10px] text-white/60">
-                    <span>{label}</span>
-                    <TimerReset className="h-3 w-3 text-white/40" />
-                  </div>
-                  <div className="mt-1 flex items-center gap-1">
-                    <input
-                      type="number"
-                      min={1}
-                      max={180}
-                      value={durations[key]}
-                      onChange={(e) =>
-                        setCustomDuration(key, Number(e.target.value))
-                      }
-                      className="h-8 w-full rounded-md border border-white/10 bg-black/30 px-2 text-xs text-white outline-none focus:border-purple-500/60"
-                      title={`Minutes for ${label.toLowerCase()}`}
-                    />
-                    <span className="text-[10px] text-white/50">min</span>
-                  </div>
-                </div>
-              ))}
+          <div className="flex items-baseline justify-between px-3 pt-3">
+            <div className="flex flex-col">
+              <span className="font-mono text-4xl font-semibold text-white tabular-nums">
+                {formatted}
+              </span>
+              <span className="text-[11px] text-white/50">
+                {isRunning ? "Running" : "Paused"}
+              </span>
             </div>
-
-            {/* Action bar */}
-            <div className="border-t border-white/10" />
-            <div className="flex items-center gap-2 px-3 py-2">
-              {/* Audio toggle */}
+            <div className="flex gap-2">
               <button
-                onClick={toggleAudio}
-                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
-                  settings.audioEnabled
-                    ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
-                    : "bg-white/10 text-white/50 hover:bg-white/20"
-                }`}
-                title={settings.audioEnabled ? "Sound on" : "Sound off"}
+                onClick={toggleRun}
+                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${isRunning ? "bg-red-500/20 text-red-200 hover:bg-red-500/30" : "bg-green-500/20 text-green-200 hover:bg-green-500/30"}`}
+                title={isRunning ? "Pause" : "Start"}
               >
-                {settings.audioEnabled ? (
-                  <Bell className="h-4 w-4" />
+                {isRunning ? (
+                  <Pause className="h-4 w-4" />
                 ) : (
-                  <BellOff className="h-4 w-4" />
+                  <Play className="h-4 w-4" />
                 )}
               </button>
-
-              {/* Notification toggle */}
               <button
-                onClick={toggleNotification}
-                disabled={notificationPermission === "unsupported"}
-                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
-                  notificationPermission === "unsupported"
-                    ? "cursor-not-allowed opacity-40"
-                    : notificationPermission === "denied"
-                      ? "cursor-not-allowed bg-red-500/10 text-red-400/50"
-                      : settings.notificationEnabled
-                        ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
-                        : "bg-white/10 text-white/50 hover:bg-white/20"
-                }`}
-                title={
-                  notificationPermission === "unsupported"
-                    ? "Browser notifications not supported"
-                    : notificationPermission === "denied"
-                      ? "Notifications blocked - enable in browser settings"
-                      : settings.notificationEnabled
-                        ? "Browser notifications on"
-                        : "Browser notifications off"
-                }
+                onClick={resetCurrent}
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                title="Reset current session"
               >
-                {settings.notificationEnabled &&
-                notificationPermission === "granted" ? (
-                  <MessageSquare className="h-4 w-4" />
-                ) : (
-                  <MessageSquareOff className="h-4 w-4" />
-                )}
+                <RotateCcw className="h-4 w-4" />
               </button>
             </div>
           </div>
-        </div>
 
-        <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-              try {
-                localStorage.setItem(
-                  WIDGET_VISIBILITY_KEY,
-                  JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-                );
-              } catch {}
-            }}
-          >
-            Hide widget
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              resetCurrent();
-            }}
-            className="cursor-pointer"
-          >
-            Reset current session
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              setIsRunning(false);
-              modeRef.current = "focus";
-              setModeState("focus");
-              setRemainingSeconds(durations.focus * 60);
-              setFocusStreak(0);
-              setCompletedFocus(0);
-            }}
-            className="cursor-pointer"
-          >
-            Reset all progress
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              requestAnimationFrame(resetPosition);
-            }}
-            className="cursor-pointer"
-          >
-            Reset widget position
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              setMoreMenuOpen(false);
-              setAboutDialogOpen(true);
-            }}
-            className="cursor-pointer"
-          >
-            About widget
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <div className="mt-2 grid grid-cols-3 gap-2 px-3 pb-3 text-[11px] text-white/70">
+            {(
+              [
+                ["focus", "Focus"],
+                ["short_break", "Short"],
+                ["long_break", "Long"],
+              ] as [Mode, string][]
+            ).map(([key, label]) => (
+              <div
+                key={key}
+                className={`flex flex-col rounded-md border border-white/10 bg-white/5 p-2 ${mode === key ? "ring-1 ring-purple-500/50" : ""}`}
+                onClick={() => switchMode(key)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") switchMode(key);
+                }}
+              >
+                <div className="flex items-center justify-between text-[10px] text-white/60">
+                  <span>{label}</span>
+                  <TimerReset className="h-3 w-3 text-white/40" />
+                </div>
+                <div className="mt-1 flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={1}
+                    max={180}
+                    value={durations[key]}
+                    onChange={(e) =>
+                      setCustomDuration(key, Number(e.target.value))
+                    }
+                    className="h-8 w-full rounded-md border border-white/10 bg-black/30 px-2 text-xs text-white outline-none focus:border-purple-500/60"
+                    title={`Minutes for ${label.toLowerCase()}`}
+                  />
+                  <span className="text-[10px] text-white/50">min</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Action bar */}
+          <div className="border-t border-white/10" />
+          <div className="flex items-center gap-2 px-3 py-2">
+            {/* Audio toggle */}
+            <button
+              onClick={toggleAudio}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+                settings.audioEnabled
+                  ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
+                  : "bg-white/10 text-white/50 hover:bg-white/20"
+              }`}
+              title={settings.audioEnabled ? "Sound on" : "Sound off"}
+            >
+              {settings.audioEnabled ? (
+                <Bell className="h-4 w-4" />
+              ) : (
+                <BellOff className="h-4 w-4" />
+              )}
+            </button>
+
+            {/* Notification toggle */}
+            <button
+              onClick={toggleNotification}
+              disabled={notificationPermission === "unsupported"}
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+                notificationPermission === "unsupported"
+                  ? "cursor-not-allowed opacity-40"
+                  : notificationPermission === "denied"
+                    ? "cursor-not-allowed bg-red-500/10 text-red-400/50"
+                    : settings.notificationEnabled
+                      ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
+                      : "bg-white/10 text-white/50 hover:bg-white/20"
+              }`}
+              title={
+                notificationPermission === "unsupported"
+                  ? "Browser notifications not supported"
+                  : notificationPermission === "denied"
+                    ? "Notifications blocked - enable in browser settings"
+                    : settings.notificationEnabled
+                      ? "Browser notifications on"
+                      : "Browser notifications off"
+              }
+            >
+              {settings.notificationEnabled &&
+              notificationPermission === "granted" ? (
+                <MessageSquare className="h-4 w-4" />
+              ) : (
+                <MessageSquareOff className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">

@@ -548,11 +548,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
   return (
-    <DropdownMenu
-      open={moreMenuOpen}
-      onOpenChange={setMoreMenuOpen}
-      modal={false}
-    >
+    <>
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
@@ -572,15 +568,83 @@ export default function WidgetDraggableYouTubeLiveTV() {
               YouTube Live TV
             </span>
             <div className="ml-auto">
-              <DropdownMenuTrigger asChild>
-                <button
-                  aria-label="More options"
-                  className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
-                  title="More options"
+              <DropdownMenu
+                open={moreMenuOpen}
+                onOpenChange={setMoreMenuOpen}
+                modal={false}
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label="More options"
+                    className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    title="More options"
+                  >
+                    <MoreHorizontal className="h-2.5 w-2.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={6}
+                  className="min-w-44"
                 >
-                  <MoreHorizontal className="h-2.5 w-2.5" />
-                </button>
-              </DropdownMenuTrigger>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      setVisibility((prev) => ({
+                        ...prev,
+                        [WIDGET_ID]: false,
+                      }));
+                      try {
+                        localStorage.setItem(
+                          WIDGET_VISIBILITY_KEY,
+                          JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                        );
+                      } catch {}
+                    }}
+                  >
+                    Hide widget
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={toggleFavorite}
+                    className="cursor-pointer gap-2"
+                  >
+                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  </DropdownMenuItem>
+                  {selectedChannel && (
+                    <DropdownMenuItem asChild className="cursor-pointer gap-2">
+                      <Link href={`/tv/${selectedChannel.slug}`}>
+                        Open channel page
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2">
+                    <Link href="/apps/tv">Browse all channels</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      requestAnimationFrame(() => {
+                        resetPosition();
+                      });
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Reset widget position
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setMoreMenuOpen(false);
+                      setAboutDialogOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    About widget
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
@@ -920,63 +984,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
         </div>
       </div>
 
-      {/* Dropdown Menu */}
-      <DropdownMenuContent align="end" sideOffset={6} className="min-w-44">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-            try {
-              localStorage.setItem(
-                WIDGET_VISIBILITY_KEY,
-                JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-              );
-            } catch {}
-          }}
-        >
-          Hide widget
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onSelect={toggleFavorite}
-          className="cursor-pointer gap-2"
-        >
-          {isFavorite ? "Remove from favorites" : "Add to favorites"}
-        </DropdownMenuItem>
-        {selectedChannel && (
-          <DropdownMenuItem asChild className="cursor-pointer gap-2">
-            <Link href={`/tv/${selectedChannel.slug}`}>Open channel page</Link>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem asChild className="cursor-pointer gap-2">
-          <Link href="/apps/tv">Browse all channels</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            setMoreMenuOpen(false);
-            // Delay reset until after dropdown closes to avoid scroll jump
-            requestAnimationFrame(() => {
-              resetPosition();
-            });
-          }}
-          className="cursor-pointer"
-        >
-          Reset widget position
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={() => {
-            setMoreMenuOpen(false);
-            setAboutDialogOpen(true);
-          }}
-          className="cursor-pointer"
-        >
-          About widget
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
@@ -992,7 +999,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
           </div>
         </DialogContent>
       </Dialog>
-    </DropdownMenu>
+    </>
   );
 }
 
