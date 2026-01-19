@@ -208,47 +208,47 @@ export default function WidgetDraggableDateTime() {
 
   return (
     <>
-      <DropdownMenu
-        open={moreMenuOpen}
-        onOpenChange={setMoreMenuOpen}
-        modal={false}
+      <div
+        ref={containerRef}
+        data-widget-id={WIDGET_ID}
+        className={`pointer-events-auto z-50 flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        <div
-          ref={containerRef}
-          data-widget-id={WIDGET_ID}
-          className={`pointer-events-auto z-50 flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        >
-          {/* Top Title - Drag Handle */}
+        {/* Top Title - Drag Handle */}
 
-          {/* Main Column */}
-          <div className="flex w-full flex-col">
-            <div
-              draggable
-              onDragStart={(e) => {
-                try {
-                  e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
-                  if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-                } catch {}
-              }}
-              onDragEnd={handleDragEnd}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                try {
-                  const src = e.dataTransfer?.getData("text/widget-id");
-                  if (src && src !== WIDGET_ID)
-                    swapWidgetPositions(
-                      src as unknown as WidgetId,
-                      WIDGET_ID as unknown as WidgetId,
-                    );
-                } catch {}
-              }}
-              className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
-            >
-              <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
-                Time
-              </span>
-              <div className="ml-auto">
+        {/* Main Column */}
+        <div className="flex w-full flex-col">
+          <div
+            draggable
+            onDragStart={(e) => {
+              try {
+                e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
+                if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+              } catch {}
+            }}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              try {
+                const src = e.dataTransfer?.getData("text/widget-id");
+                if (src && src !== WIDGET_ID)
+                  swapWidgetPositions(
+                    src as unknown as WidgetId,
+                    WIDGET_ID as unknown as WidgetId,
+                  );
+              } catch {}
+            }}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+          >
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+              Time
+            </span>
+            <div className="ml-auto">
+              <DropdownMenu
+                open={moreMenuOpen}
+                onOpenChange={setMoreMenuOpen}
+                modal={false}
+              >
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
@@ -259,110 +259,118 @@ export default function WidgetDraggableDateTime() {
                     <MoreHorizontal className="h-2.5 w-2.5" />
                   </button>
                 </DropdownMenuTrigger>
-              </div>
-            </div>
-            {/* DateTime Row */}
-            <div className="flex items-center gap-3 p-3">
-              {/* Time of Day Icon */}
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-white/15 to-white/5">
-                <TimeOfDayIcon
-                  hour={hour}
-                  className="h-8 w-8 text-amber-300/90"
-                />
-              </div>
-
-              {/* Time Display */}
-              <div className="flex min-w-0 flex-1 flex-col justify-center">
-                <span className="text-xs text-white/60">{greeting}</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-rubik text-3xl font-light tracking-tight text-white">
-                    {formattedTime}
-                  </span>
-                  {timeFormat === "12h" && (
-                    <span className="text-sm font-medium text-white/70">
-                      {meridiem}
-                    </span>
-                  )}
-                  <span className="ml-0.5 text-xs text-white/40 tabular-nums">
-                    :{seconds}
-                  </span>
-                </div>
-              </div>
-
-              {/* Date Info */}
-              <div className="flex shrink-0 flex-col items-end gap-0.5 text-right text-[10px] text-white/50">
-                <div className="flex items-center gap-1" title="Day of week">
-                  <span className="font-medium text-white/70">{dayOfWeek}</span>
-                </div>
-                <div className="flex items-center gap-1" title="Date">
-                  <Calendar className="h-3 w-3" />
-                  <span>{monthDay}</span>
-                </div>
-                <div className="flex items-center gap-1" title="Year">
-                  <span>{year}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Separator and action bar */}
-            <div className="border-t border-white/10" />
-            <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-              <button
-                onClick={toggleTimeFormat}
-                className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
-              >
-                <span>{timeFormat === "12h" ? "24H" : "12H"}</span>
-              </button>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={6}
+                  className="min-w-40"
+                >
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      setVisibility((prev) => ({
+                        ...prev,
+                        [WIDGET_ID]: false,
+                      }));
+                      try {
+                        localStorage.setItem(
+                          WIDGET_VISIBILITY_KEY,
+                          JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                        );
+                      } catch {}
+                    }}
+                  >
+                    Hide widget
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={toggleTimeFormat}
+                    className="cursor-pointer"
+                  >
+                    Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"}{" "}
+                    format
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setMoreMenuOpen(false);
+                      requestAnimationFrame(() => {
+                        resetPosition();
+                      });
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Reset widget position
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setMoreMenuOpen(false);
+                      setAboutDialogOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    About widget
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
+          {/* DateTime Row */}
+          <div className="flex items-center gap-3 p-3">
+            {/* Time of Day Icon */}
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-white/15 to-white/5">
+              <TimeOfDayIcon
+                hour={hour}
+                className="h-8 w-8 text-amber-300/90"
+              />
+            </div>
+
+            {/* Time Display */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center">
+              <span className="text-xs text-white/60">{greeting}</span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-rubik text-3xl font-light tracking-tight text-white">
+                  {formattedTime}
+                </span>
+                {timeFormat === "12h" && (
+                  <span className="text-sm font-medium text-white/70">
+                    {meridiem}
+                  </span>
+                )}
+                <span className="ml-0.5 text-xs text-white/40 tabular-nums">
+                  :{seconds}
+                </span>
+              </div>
+            </div>
+
+            {/* Date Info */}
+            <div className="flex shrink-0 flex-col items-end gap-0.5 text-right text-[10px] text-white/50">
+              <div className="flex items-center gap-1" title="Day of week">
+                <span className="font-medium text-white/70">{dayOfWeek}</span>
+              </div>
+              <div className="flex items-center gap-1" title="Date">
+                <Calendar className="h-3 w-3" />
+                <span>{monthDay}</span>
+              </div>
+              <div className="flex items-center gap-1" title="Year">
+                <span>{year}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Separator and action bar */}
+          <div className="border-t border-white/10" />
+          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            <button
+              onClick={toggleTimeFormat}
+              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
+            >
+              <span>{timeFormat === "12h" ? "24H" : "12H"}</span>
+            </button>
+          </div>
         </div>
-        <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
-              try {
-                localStorage.setItem(
-                  WIDGET_VISIBILITY_KEY,
-                  JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
-                );
-              } catch {}
-            }}
-          >
-            Hide widget
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={toggleTimeFormat}
-            className="cursor-pointer"
-          >
-            Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"} format
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setMoreMenuOpen(false);
-              requestAnimationFrame(() => {
-                resetPosition();
-              });
-            }}
-            className="cursor-pointer"
-          >
-            Reset widget position
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              setMoreMenuOpen(false);
-              setAboutDialogOpen(true);
-            }}
-            className="cursor-pointer"
-          >
-            About widget
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      </div>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
