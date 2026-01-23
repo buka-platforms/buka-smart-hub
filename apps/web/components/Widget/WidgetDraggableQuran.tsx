@@ -544,51 +544,8 @@ export default function WidgetDraggableQuran() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={jumpToFirstAyah}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                    title="First Ayah"
-                  >
-                    <ChevronsLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={prevAyah}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                    title="Previous"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-
-                  <button
-                    onClick={togglePlay}
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                    title={isPlaying ? "Pause" : "Play"}
-                  >
-                    {isLoading ? (
-                      <Disc3 className="h-5 w-5 animate-spin" />
-                    ) : isPlaying ? (
-                      <Pause className="h-5 w-5" fill="currentColor" />
-                    ) : (
-                      <PlayIcon className="h-5 w-5" fill="currentColor" />
-                    )}
-                  </button>
-
-                  <button
-                    onClick={nextAyah}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                    title="Next"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={jumpToLastAyah}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                    title="Last Ayah"
-                  >
-                    <ChevronsRight className="h-4 w-4" />
-                  </button>
-                </div>
+                {/* Main transport controls moved below the surah text for better layout */}
+                <div className="flex items-center gap-2" />
               </div>
 
               <div
@@ -644,6 +601,57 @@ export default function WidgetDraggableQuran() {
                   <div className="text-xs text-white/60">Loading…</div>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Centered transport controls moved below the surah text */}
+          <div className="px-3 py-2">
+            <div className="mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-md bg-white/3 p-2">
+              <button
+                onClick={jumpToFirstAyah}
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title="First Ayah"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </button>
+
+              <button
+                onClick={prevAyah}
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title="Previous"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              <button
+                onClick={togglePlay}
+                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isLoading ? (
+                  <Disc3 className="h-5 w-5 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="h-5 w-5" fill="currentColor" />
+                ) : (
+                  <PlayIcon className="h-5 w-5" fill="currentColor" />
+                )}
+              </button>
+
+              <button
+                onClick={nextAyah}
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title="Next"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+
+              <button
+                onClick={jumpToLastAyah}
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title="Last Ayah"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
