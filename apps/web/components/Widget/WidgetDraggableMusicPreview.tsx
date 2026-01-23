@@ -235,7 +235,7 @@ export default function WidgetDraggableMusicPreview() {
           </div>
         </div>
 
-        <div className="flex max-h-72 w-full flex-col overflow-hidden">
+        <div className="flex w-full flex-col">
           <div className="px-3 py-2">
             <div className="flex items-center gap-1">
               <input
@@ -312,7 +312,7 @@ export default function WidgetDraggableMusicPreview() {
             </div>
           </div>
 
-          <div className="border-t border-white/10" />
+          <div className="-mx-3 border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <Popover>
               <PopoverTrigger asChild>
