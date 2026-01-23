@@ -12,7 +12,9 @@ import {
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
+  WIDGET_POSITION_KEYS,
 } from "@/lib/widget-positions";
+import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   MoreHorizontal,
@@ -23,16 +25,30 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type DragEvent,
+} from "react";
 
-const WIDGET_VISIBILITY_KEY = "widgetVisibility";
-const WIDGET_ID = "musicpreview" as const;
-const WIDGET_VERSION = "1.0.0";
+const WIDGET_ID: WidgetId = "musicpreview";
 
 type ITunesTrack = {
   trackId: number;
   trackName: string;
   artistName: string;
+  collectionName?: string;
+  artworkUrl100?: string;
+  previewUrl?: string;
+  trackTimeMillis?: number;
+};
+
+type RawITunesResult = {
+  trackId?: number;
+  trackName?: string;
+  artistName?: string;
   collectionName?: string;
   artworkUrl100?: string;
   previewUrl?: string;
@@ -74,16 +90,19 @@ export default function WidgetDraggableMusicPreview() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.85);
-  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom as any);
+  const [visibility] = useAtom(widgetVisibilityAtom as any) as [
+    Record<WidgetId, boolean | undefined>,
+    (v: unknown) => void,
+  ];
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    observeWidget(WIDGET_ID as any, el);
+    observeWidget(WIDGET_ID, el);
     try {
       triggerLayoutUpdate();
     } catch {}
-    return () => unobserveWidget(WIDGET_ID as any);
+    return () => unobserveWidget(WIDGET_ID);
   }, []);
 
   useEffect(() => {
@@ -122,10 +141,10 @@ export default function WidgetDraggableMusicPreview() {
       const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=8`;
       const res = await fetch(url);
       const json = await res.json();
-      const items = (json.results || []).map((r: any) => ({
-        trackId: r.trackId,
-        trackName: r.trackName,
-        artistName: r.artistName,
+      const items = (json.results || []).map((r: RawITunesResult) => ({
+        trackId: r.trackId ?? 0,
+        trackName: r.trackName ?? "",
+        artistName: r.artistName ?? "",
         collectionName: r.collectionName,
         artworkUrl100: r.artworkUrl100,
         previewUrl: r.previewUrl,
@@ -173,22 +192,24 @@ export default function WidgetDraggableMusicPreview() {
     [isPlaying, pausePreview, playPreview],
   );
 
-  const handleDragStart = useCallback((e: React.DragEvent) => {
+  const handleDragStart = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("text/widget-id", WIDGET_ID);
     e.dataTransfer.effectAllowed = "move";
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const source = e.dataTransfer.getData("text/widget-id") as string;
-    if (source && source !== WIDGET_ID) {
-      swapWidgetPositions(source as any, WIDGET_ID as any);
+    const source = e.dataTransfer.getData("text/widget-id");
+    const isWidgetId = (v: string): v is WidgetId =>
+      Object.prototype.hasOwnProperty.call(WIDGET_POSITION_KEYS, v);
+    if (isWidgetId(source) && source !== WIDGET_ID) {
+      swapWidgetPositions(source, WIDGET_ID);
     }
   }, []);
 
   // resetPosition removed — Reset button intentionally omitted
 
-  const isVisible = visibility[WIDGET_ID as any] !== false;
+  const isVisible = visibility[WIDGET_ID] !== false;
 
   return (
     <div
@@ -230,7 +251,7 @@ export default function WidgetDraggableMusicPreview() {
             />
             <button
               onClick={() => void search(query)}
-              className="flex h-10 items-center justify-center rounded-md bg-white/5 px-3 text-sm font-semibold text-white/80"
+              className="flex h-10 cursor-pointer items-center justify-center rounded-md bg-white/5 px-3 text-sm font-semibold text-white/80"
             >
               Search
             </button>
