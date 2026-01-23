@@ -236,7 +236,7 @@ export default function WidgetDraggableMusicPreview() {
         </div>
 
         <div className="flex max-h-72 w-full flex-col overflow-hidden px-3 py-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -244,11 +244,11 @@ export default function WidgetDraggableMusicPreview() {
                 if (e.key === "Enter") void search(query);
               }}
               placeholder="Search tracks, artists, albums..."
-              className="w-full rounded-md border border-white/10 bg-black/90 px-3 py-2 text-sm text-white placeholder:text-white/40"
+              className="w-full rounded-md border border-white/10 bg-black/90 px-2 py-1.5 text-xs text-white placeholder:text-white/40"
             />
             <button
               onClick={() => void search(query)}
-              className="flex h-10 cursor-pointer items-center justify-center rounded-md bg-white/5 px-3 text-sm font-semibold text-white/80"
+              className="flex h-8 cursor-pointer items-center justify-center rounded-md bg-white/5 px-2 text-xs font-semibold text-white/80"
             >
               Search
             </button>
@@ -259,10 +259,10 @@ export default function WidgetDraggableMusicPreview() {
               {results.map((t) => (
                 <div
                   key={t.trackId}
-                  className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-white/5"
+                  className="flex cursor-pointer items-center gap-2 rounded-md p-1.5 hover:bg-white/5"
                   onClick={() => void handleSelect(t)}
                 >
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-white/5">
+                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-white/5">
                     {t.artworkUrl100 ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -272,15 +272,15 @@ export default function WidgetDraggableMusicPreview() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-white/30">
-                        <Music className="h-6 w-6" />
+                        <Music className="h-5 w-5" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold text-white">
+                    <div className="truncate text-xs font-semibold text-white">
                       {t.trackName}
                     </div>
-                    <div className="truncate text-xs text-white/60">
+                    <div className="truncate text-[11px] text-white/60">
                       {t.artistName}
                       {t.collectionName ? ` • ${t.collectionName}` : ""}
                     </div>
@@ -291,7 +291,7 @@ export default function WidgetDraggableMusicPreview() {
                         e.stopPropagation();
                         void handleSelect(t);
                       }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/80"
+                      className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-white/80"
                       title={
                         isPlaying && audioRef.current?.src === t.previewUrl
                           ? "Pause"
@@ -299,9 +299,9 @@ export default function WidgetDraggableMusicPreview() {
                       }
                     >
                       {isPlaying && audioRef.current?.src === t.previewUrl ? (
-                        <Pause className="h-4 w-4" />
+                        <Pause className="h-3.5 w-3.5" />
                       ) : (
-                        <PlayIcon className="h-4 w-4" />
+                        <PlayIcon className="h-3.5 w-3.5" />
                       )}
                     </button>
                   </div>
