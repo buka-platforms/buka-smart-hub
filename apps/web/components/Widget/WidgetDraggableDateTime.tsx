@@ -252,7 +252,7 @@ export default function WidgetDraggableDateTime() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
