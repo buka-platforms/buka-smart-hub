@@ -15,7 +15,7 @@ import {
   WIDGET_POSITION_KEYS,
 } from "@/lib/widget-positions";
 import type { WidgetId } from "@/lib/widget-positions";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import {
   MoreHorizontal,
   Music,
@@ -90,10 +90,7 @@ export default function WidgetDraggableMusicPreview() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.85);
-  const [visibility] = useAtom(widgetVisibilityAtom as any) as [
-    Record<WidgetId, boolean | undefined>,
-    (v: unknown) => void,
-  ];
+  const visibility = useAtomValue(widgetVisibilityAtom);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -128,7 +125,7 @@ export default function WidgetDraggableMusicPreview() {
       audio.removeEventListener("timeupdate", onTime);
       audio.removeEventListener("ended", onEnd);
     };
-  }, [audioRef.current]);
+  }, []);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -215,7 +212,7 @@ export default function WidgetDraggableMusicPreview() {
     <div
       ref={containerRef}
       data-widget-id="musicpreview"
-      className={`pointer-events-auto flex w-full max-w-full rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15`}
+      className={`pointer-events-auto flex w-full max-w-full rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       <div className="relative flex w-full flex-col">
         <div
