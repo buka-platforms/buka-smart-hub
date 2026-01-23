@@ -264,11 +264,10 @@ export default function WidgetDraggableRadioPlayer() {
 
   const stationName = radioStationState.radioStation?.name || "";
 
-  // Always render the element so the ref is attached, but hide when no station or position not loaded
-  const isVisible =
-    !!radioStationState.radioStation &&
-    isPositionLoaded &&
-    visibility[WIDGET_ID] !== false;
+  const hasStation = !!radioStationState.radioStation;
+
+  // Always render the element so the ref is attached; show loading UI when no station yet
+  const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
   return (
     <>
@@ -415,7 +414,18 @@ export default function WidgetDraggableRadioPlayer() {
 
             {/* Play/Stop Button */}
             <div className="shrink-0">
-              {radioAudioState.isLoading ? (
+              {!hasStation ? (
+                <button
+                  className="flex h-10 w-10 cursor-not-allowed items-center justify-center rounded-full bg-white/5 text-white/50"
+                  title="Loading"
+                  aria-disabled
+                >
+                  <Loading
+                    className="h-5 w-5 animate-spin text-white/80"
+                    color="#f5f5f5"
+                  />
+                </button>
+              ) : radioAudioState.isLoading ? (
                 <Loading
                   className="h-10 w-10 animate-spin text-white/80"
                   color="#f5f5f5"
@@ -444,9 +454,10 @@ export default function WidgetDraggableRadioPlayer() {
           <div className="border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
-              onClick={toggleFavorite}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
+              onClick={hasStation ? toggleFavorite : undefined}
+              className={`flex h-8 w-8 ${hasStation ? "cursor-pointer" : "cursor-not-allowed opacity-60"} items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
               title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              aria-disabled={!hasStation}
             >
               <Heart
                 className="h-3.5 w-3.5"
@@ -458,8 +469,9 @@ export default function WidgetDraggableRadioPlayer() {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className={`flex h-8 w-8 ${hasStation ? "cursor-pointer" : "cursor-not-allowed opacity-60"} items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20`}
                   title="Volume"
+                  aria-disabled={!hasStation}
                 >
                   {volume === 0 ? (
                     <VolumeX className="h-4 w-4" />
@@ -485,6 +497,7 @@ export default function WidgetDraggableRadioPlayer() {
                   max={100}
                   step={1}
                   className="cursor-pointer"
+                  disabled={!hasStation}
                 />
               </PopoverContent>
             </Popover>
