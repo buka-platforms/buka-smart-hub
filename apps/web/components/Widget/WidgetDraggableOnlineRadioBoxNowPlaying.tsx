@@ -774,7 +774,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                           className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                             isThisPlaying
                               ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
-                              : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white sm:opacity-0 sm:group-hover:opacity-100"
+                              : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
                           }`}
                           title={
                             isThisPlaying && isPlaying
