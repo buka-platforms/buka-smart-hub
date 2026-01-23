@@ -1,0 +1,354 @@
+"use client";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
+import { widgetVisibilityAtom } from "@/data/store";
+import {
+  observeWidget,
+  swapWidgetPositions,
+  triggerLayoutUpdate,
+  unobserveWidget,
+} from "@/lib/widget-positions";
+import { useAtom } from "jotai";
+import {
+  MoreHorizontal,
+  Music,
+  Pause,
+  Play as PlayIcon,
+  Volume1,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+const WIDGET_ID = "musicpreview" as const;
+const WIDGET_VERSION = "1.0.0";
+
+type ITunesTrack = {
+  trackId: number;
+  trackName: string;
+  artistName: string;
+  collectionName?: string;
+  artworkUrl100?: string;
+  previewUrl?: string;
+  trackTimeMillis?: number;
+};
+
+export default function WidgetDraggableMusicPreview() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Curated list of 20 popular artists for a pleasant random default search
+  const TOP_ARTISTS = [
+    "Taylor Swift",
+    "Drake",
+    "The Weeknd",
+    "Adele",
+    "Beyoncé",
+    "Ed Sheeran",
+    "Billie Eilish",
+    "Kendrick Lamar",
+    "Coldplay",
+    "Bruno Mars",
+    "Ariana Grande",
+    "Post Malone",
+    "Imagine Dragons",
+    "Dua Lipa",
+    "Rihanna",
+    "Justin Bieber",
+    "Lady Gaga",
+    "Eminem",
+    "Shakira",
+    "Maroon 5",
+  ];
+
+  const [query, setQuery] = useState(() => {
+    const idx = Math.floor(Math.random() * TOP_ARTISTS.length);
+    return TOP_ARTISTS[idx];
+  });
+  const [results, setResults] = useState<ITunesTrack[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [volume, setVolume] = useState(0.85);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom as any);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    observeWidget(WIDGET_ID as any, el);
+    try {
+      triggerLayoutUpdate();
+    } catch {}
+    return () => unobserveWidget(WIDGET_ID as any);
+  }, []);
+
+  useEffect(() => {
+    // load initial results
+    void search(query);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTime = () => {
+      if (!audio || !audio.duration) return setProgress(0);
+      setProgress((audio.currentTime / (audio.duration || 1)) * 100);
+    };
+    const onEnd = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("ended", onEnd);
+    return () => {
+      audio.removeEventListener("timeupdate", onTime);
+      audio.removeEventListener("ended", onEnd);
+    };
+  }, [audioRef.current]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = volume;
+  }, [volume]);
+
+  const search = useCallback(async (q: string) => {
+    try {
+      const term = encodeURIComponent(q || "");
+      const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=8`;
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = (json.results || []).map((r: any) => ({
+        trackId: r.trackId,
+        trackName: r.trackName,
+        artistName: r.artistName,
+        collectionName: r.collectionName,
+        artworkUrl100: r.artworkUrl100,
+        previewUrl: r.previewUrl,
+        trackTimeMillis: r.trackTimeMillis,
+      }));
+      setResults(items);
+    } catch {
+      setResults([]);
+    }
+  }, []);
+
+  const playPreview = useCallback(async (previewUrl?: string) => {
+    if (!previewUrl) return;
+    if (!audioRef.current) audioRef.current = new Audio();
+    const audio = audioRef.current;
+    if (audio.src !== previewUrl) {
+      audio.pause();
+      audio.src = previewUrl;
+      audio.currentTime = 0;
+    }
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch {
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const pausePreview = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setIsPlaying(false);
+  }, []);
+
+  const handleSelect = useCallback(
+    async (t: ITunesTrack) => {
+      if (!t.previewUrl) return;
+      if (isPlaying && audioRef.current?.src === t.previewUrl) {
+        pausePreview();
+      } else {
+        await playPreview(t.previewUrl);
+      }
+    },
+    [isPlaying, pausePreview, playPreview],
+  );
+
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    e.dataTransfer.setData("text/widget-id", WIDGET_ID);
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const source = e.dataTransfer.getData("text/widget-id") as string;
+    if (source && source !== WIDGET_ID) {
+      swapWidgetPositions(source as any, WIDGET_ID as any);
+    }
+  }, []);
+
+  // resetPosition removed — Reset button intentionally omitted
+
+  const isVisible = visibility[WIDGET_ID as any] !== false;
+
+  return (
+    <div
+      ref={containerRef}
+      data-widget-id="musicpreview"
+      className={`pointer-events-auto flex w-full max-w-full rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15`}
+    >
+      <div className="relative flex w-full flex-col">
+        <div
+          draggable
+          onDragStart={handleDragStart}
+          onDrop={handleDrop}
+          className="flex h-8 w-full cursor-move items-center gap-2 border-b border-white/10 px-3 select-none"
+        >
+          <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            Music Preview
+          </span>
+          <div>
+            <button
+              aria-label="More"
+              className="flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50"
+              title="More"
+            >
+              <MoreHorizontal className="h-2.5 w-2.5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex max-h-72 w-full flex-col overflow-hidden px-3 py-2">
+          <div className="flex items-center gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void search(query);
+              }}
+              placeholder="Search tracks, artists, albums..."
+              className="w-full rounded-md border border-white/10 bg-black/90 px-3 py-2 text-sm text-white placeholder:text-white/40"
+            />
+            <button
+              onClick={() => void search(query)}
+              className="flex h-10 items-center justify-center rounded-md bg-white/5 px-3 text-sm font-semibold text-white/80"
+            >
+              Search
+            </button>
+          </div>
+
+          <div className="mt-3 max-h-48 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+            <div className="space-y-2">
+              {results.map((t) => (
+                <div
+                  key={t.trackId}
+                  className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-white/5"
+                  onClick={() => void handleSelect(t)}
+                >
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-white/5">
+                    {t.artworkUrl100 ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={t.artworkUrl100}
+                        alt={t.trackName}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-white/30">
+                        <Music className="h-6 w-6" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-white">
+                      {t.trackName}
+                    </div>
+                    <div className="truncate text-xs text-white/60">
+                      {t.artistName}
+                      {t.collectionName ? ` • ${t.collectionName}` : ""}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleSelect(t);
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/80"
+                      title={
+                        isPlaying && audioRef.current?.src === t.previewUrl
+                          ? "Pause"
+                          : "Play"
+                      }
+                    >
+                      {isPlaying && audioRef.current?.src === t.previewUrl ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <PlayIcon className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-white/10" />
+          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  title="Volume"
+                >
+                  {volume === 0 ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : volume < 0.5 ? (
+                    <Volume1 className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={6}
+                className="flex w-36 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+              >
+                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <span>Volume</span>
+                  <span className="text-white/60">
+                    {Math.round(volume * 100)}%
+                  </span>
+                </div>
+                <Slider
+                  value={[Math.round(volume * 100)]}
+                  onValueChange={(v) =>
+                    setVolume((v[0] ?? Math.round(volume * 100)) / 100)
+                  }
+                  max={100}
+                  step={1}
+                  className="cursor-pointer"
+                />
+              </PopoverContent>
+            </Popover>
+
+            <div className="flex-1">
+              <div className="h-2 w-full rounded-full bg-white/10">
+                <div
+                  className="h-2 rounded-full bg-purple-600"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Reset button removed per request */}
+          </div>
+
+          {/* hidden audio element */}
+          <audio ref={audioRef} preload="none" />
+        </div>
+      </div>
+    </div>
+  );
+}

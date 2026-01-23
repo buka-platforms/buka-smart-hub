@@ -60,6 +60,12 @@ const WIDGETS: {
     description: "SomaFM streaming radio player",
   },
   {
+    id: "musicpreview",
+    label: "Music Preview",
+    icon: <Music className="h-5 w-5" />,
+    description: "Search and preview track samples",
+  },
+  {
     id: "youtubelivetv",
     label: "Live TV",
     icon: <Tv className="h-5 w-5" />,

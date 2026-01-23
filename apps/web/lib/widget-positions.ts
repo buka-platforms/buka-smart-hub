@@ -15,6 +15,7 @@ export type WidgetId =
   | "radio"
   | "time"
   | "somafm"
+  | "musicpreview"
   | "youtubelivetv"
   | "quran"
   | "pomodoro"
@@ -27,6 +28,7 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   time: "widgetDateTimePosition",
   quran: "widgetQuranPosition",
   somafm: "widgetSomaFMPosition",
+  musicpreview: "widgetMusicPreviewPosition",
   youtubelivetv: "widgetYouTubeLiveTVPosition",
   pomodoro: "widgetPomodoroPosition",
   onlineradioboxnowplaying: "widgetOnlineRadioBoxNowPlayingPosition",
@@ -40,6 +42,7 @@ const WIDGET_ORDER_KEY = "widgetOrder";
 const WIDGET_PRIORITY: WidgetId[] = [
   "time", // Most important - always top-left
   "radio", // Primary audio control
+  "musicpreview",
   "quran",
   "weather", // Quick glance info
   "pomodoro", // Productivity tool
@@ -345,6 +348,7 @@ function getWidgetDimensions(widgetId: WidgetId): {
     time: { width: 320, height: 138 },
     radio: { width: 340, height: 148 },
     weather: { width: 290, height: 158 },
+    musicpreview: { width: 340, height: 180 },
     quran: { width: 340, height: 224 },
     somafm: { width: 360, height: 220 },
     youtubelivetv: { width: 360, height: 280 },
@@ -366,6 +370,7 @@ export function calculateAutoArrangePositions(): Record<
   const positions: Record<WidgetId, { x: number; y: number }> = {
     time: { x: 0, y: 0 },
     radio: { x: 0, y: 0 },
+    musicpreview: { x: 0, y: 0 },
     quran: { x: 0, y: 0 },
     weather: { x: 0, y: 0 },
     somafm: { x: 0, y: 0 },
