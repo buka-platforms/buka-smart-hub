@@ -518,7 +518,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-[1.25rem] cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -774,7 +774,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                           className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                             isThisPlaying
                               ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
-                              : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
+                              : "bg-white/10 text-white/60 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-white/20 hover:text-white"
                           }`}
                           title={
                             isThisPlaying && isPlaying
