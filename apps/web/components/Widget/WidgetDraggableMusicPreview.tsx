@@ -342,7 +342,11 @@ export default function WidgetDraggableMusicPreview() {
                           e.stopPropagation();
                           void handleSelect(t);
                         }}
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-white/80"
+                        className={`pointer-events-auto z-10 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
+                          isPlaying && audioRef.current?.src === t.previewUrl
+                            ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
+                            : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                        }`}
                         title={
                           isPlaying && audioRef.current?.src === t.previewUrl
                             ? "Pause"
@@ -350,9 +354,9 @@ export default function WidgetDraggableMusicPreview() {
                         }
                       >
                         {isPlaying && audioRef.current?.src === t.previewUrl ? (
-                          <Pause className="h-3.5 w-3.5" />
+                          <Pause className="h-4 w-4" fill="currentColor" />
                         ) : (
-                          <PlayIcon className="h-3.5 w-3.5" />
+                          <PlayIcon className="h-4 w-4" fill="currentColor" />
                         )}
                       </button>
                     </div>
