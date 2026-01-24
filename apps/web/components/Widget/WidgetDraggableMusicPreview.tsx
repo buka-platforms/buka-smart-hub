@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -9,13 +15,14 @@ import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
   observeWidget,
+  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
   WIDGET_POSITION_KEYS,
 } from "@/lib/widget-positions";
 import type { WidgetId } from "@/lib/widget-positions";
-import { useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import {
   MoreHorizontal,
   Music,
@@ -90,7 +97,9 @@ export default function WidgetDraggableMusicPreview() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.85);
-  const visibility = useAtomValue(widgetVisibilityAtom);
+  const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
   useEffect(() => {
     const el = containerRef.current;
@@ -224,14 +233,55 @@ export default function WidgetDraggableMusicPreview() {
           <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
             Music Preview
           </span>
-          <div>
-            <button
-              aria-label="More"
-              className="flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50"
-              title="More"
+          <div className="ml-auto">
+            <DropdownMenu
+              open={moreMenuOpen}
+              onOpenChange={setMoreMenuOpen}
+              modal={false}
             >
-              <MoreHorizontal className="h-2.5 w-2.5" />
-            </button>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="More options"
+                  className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                  title="More options"
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <MoreHorizontal className="h-2.5 w-2.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={6}
+                className="min-w-40"
+              >
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setMoreMenuOpen(false);
+                    setVisibility((prev) => ({ ...prev, [WIDGET_ID]: false }));
+                    try {
+                      localStorage.setItem(
+                        WIDGET_VISIBILITY_KEY,
+                        JSON.stringify({ ...visibility, [WIDGET_ID]: false }),
+                      );
+                    } catch {}
+                  }}
+                >
+                  Hide widget
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setMoreMenuOpen(false);
+                    requestAnimationFrame(() => resetWidgetPosition(WIDGET_ID));
+                  }}
+                >
+                  Reset widget position
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
