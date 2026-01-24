@@ -195,6 +195,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   const [stations, setStations] = useState<NowPlayingStation[]>([]);
@@ -419,6 +420,13 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     });
   }, []);
 
+  // Detect touch-capable devices to avoid enabling HTML5 draggable on them
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setIsTouchDevice(Boolean(touch));
+  }, []);
+
   // Register with ResizeObserver for automatic layout updates
   useEffect(() => {
     const el = containerRef.current;
@@ -484,8 +492,9 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           {/* Top Title - Drag Handle */}
           <div
             className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
-            draggable
+            draggable={!isTouchDevice}
             onDragStart={(e) => {
+              if (isTouchDevice) return;
               try {
                 e.dataTransfer?.setData("text/widget-id", WIDGET_ID);
                 if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
@@ -663,8 +672,9 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
                   {/* Play/Pause Button */}
                   <button
+                    type="button"
                     onClick={() => playStation(selectedStation)}
-                    className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black transition-all hover:scale-105 hover:bg-green-400"
+                    className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black transition-all hover:scale-105 hover:bg-green-400 pointer-events-auto z-10"
                     title={isPlaying ? "Pause" : "Play"}
                   >
                     {isAudioLoading ? (
@@ -689,7 +699,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
             )}
 
             {/* Station List */}
-            <div className="max-h-64 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+            <div
+              className="max-h-64 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+                draggable={false}
+                style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+            >
               {isLoading && stations.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <LoaderCircle className="h-6 w-6 animate-spin text-white/40" />
@@ -703,12 +717,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   >
                     Try again
                   </button>
-                </div>
-              ) : stations.length === 0 ? (
-                <div className="flex items-center justify-center py-8">
-                  <span className="text-xs text-white/50">
-                    No stations currently playing
-                  </span>
                 </div>
               ) : (
                 <div className="divide-y divide-white/5">
@@ -770,12 +778,14 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
                         {/* Play/Pause Button - Right side */}
                         <button
+                          type="button"
                           onClick={() => playStation(station)}
-                          className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
+                          className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all pointer-events-auto z-10 ${
                             isThisPlaying
                               ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
                               : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
                           }`}
+                          style={{ touchAction: "pan-y" }}
                           title={
                             isThisPlaying && isPlaying
                               ? "Pause"
