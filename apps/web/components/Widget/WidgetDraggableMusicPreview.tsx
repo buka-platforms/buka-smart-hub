@@ -96,10 +96,23 @@ export default function WidgetDraggableMusicPreview() {
   const [results, setResults] = useState<ITunesTrack[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [volume, setVolume] = useState(0.85);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const WIDGET_VISIBILITY_KEY = "widgetVisibility";
+
+  // Match existing widgets: store volume as 0-100 integer under a descriptive key
+  const WIDGET_VOLUME_KEY = "widgetMusicPreviewVolume";
+
+  const [volume, setVolume] = useState<number>(() => {
+    try {
+      const raw = localStorage.getItem(WIDGET_VOLUME_KEY);
+      if (raw != null) {
+        const n = Number(raw);
+        if (!Number.isNaN(n)) return Math.min(Math.max(n / 100, 0), 1);
+      }
+    } catch {}
+    return 0.5;
+  });
 
   useEffect(() => {
     const el = containerRef.current;
@@ -139,6 +152,10 @@ export default function WidgetDraggableMusicPreview() {
   useEffect(() => {
     if (!audioRef.current) return;
     audioRef.current.volume = volume;
+    try {
+      // Persist as 0-100 integer to match other widgets
+      localStorage.setItem(WIDGET_VOLUME_KEY, String(Math.round(volume * 100)));
+    } catch {}
   }, [volume]);
 
   const search = useCallback(async (q: string) => {
