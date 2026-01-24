@@ -144,7 +144,7 @@ export default function WidgetDraggableMusicPreview() {
   const search = useCallback(async (q: string) => {
     try {
       const term = encodeURIComponent(q || "");
-      const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=8`;
+      const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=20`;
       const res = await fetch(url);
       const json = await res.json();
       const items = (json.results || []).map((r: RawITunesResult) => ({
@@ -408,9 +408,9 @@ export default function WidgetDraggableMusicPreview() {
             </Popover>
 
             <div className="flex-1">
-              <div className="h-2 w-full rounded-full bg-white/10">
+              <div className="h-1.5 w-full rounded-full bg-white/10">
                 <div
-                  className="h-2 rounded-full bg-purple-600"
+                  className="h-1.5 rounded-full bg-purple-600"
                   style={{ width: `${progress}%` }}
                 />
               </div>
