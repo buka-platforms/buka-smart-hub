@@ -113,9 +113,6 @@ export default function WidgetLauncherDock() {
     [setVisibility],
   );
 
-  // Reset dock position (no-op for static dock)
-  const resetPosition = useCallback(() => {}, []);
-
   // Get widgets to show in mini dock
   const miniDockWidgets = WIDGETS.slice(0, MINI_DOCK_COUNT);
   const allWidgets = WIDGETS;
@@ -304,12 +301,7 @@ export default function WidgetLauncherDock() {
               <LayoutTemplate className="mr-1 inline-block h-3 w-3" />
               Auto-arrange widgets
             </button>
-            <button
-              onClick={resetPosition}
-              className="w-full cursor-pointer rounded-lg bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              Reset dock (static)
-            </button>
+            {/* Dock is static; per-widget reset handled in each widget */}
           </div>
         </div>
       )}
