@@ -75,7 +75,7 @@ export default function WidgetDraggableMusicPreview() {
   // Curated list of 20 popular artists for a pleasant random default search
   const TOP_ARTISTS = [
     "Taylor Swift",
-    "Drake",
+    "Micheal Jackson",
     "The Weeknd",
     "Adele",
     "Beyoncé",
