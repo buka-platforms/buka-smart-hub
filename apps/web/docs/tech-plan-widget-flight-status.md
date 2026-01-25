@@ -1,10 +1,10 @@
 ## Flight status API — Tech plan
 
-**Purpose:** Fetch flight status/details for a flight (example: QZ264 on 2026-01-19) from an AviationStack-style endpoint. This document will inform a future widget implementation.
+**Purpose:** Fetch flight status/details for a flight (example: QZ264 on 2026-01-19) from Buka's flight-status API. This document will inform a future widget implementation.
 
 **HTTP**: GET
 
-**Endpoint (example):** `https://aviationstack.com/flight_api.php`
+**Endpoint (example):** `https://api1.buka.sh/flight-status?flight_number=QZ264&flight_date=2026-01-19`
 
 **Query parameters:**
 
@@ -80,9 +80,9 @@
 
 ```sh
 curl -sS \
-	-H "Accept: application/json" \
-	-H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0" \
-	"https://aviationstack.com/flight_api.php?airline=&flight_number=QZ264&flight_date=2026-01-19"
+  -H "Accept: application/json" \
+  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0" \
+  "https://api1.buka.sh/flight-status?flight_number=QZ264&flight_date=2026-01-19"
 ```
 
 ---
