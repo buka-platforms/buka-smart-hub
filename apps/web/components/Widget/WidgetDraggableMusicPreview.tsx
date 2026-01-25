@@ -345,10 +345,20 @@ export default function WidgetDraggableMusicPreview() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-semibold text-white">
+                      <div
+                        className="truncate text-xs font-semibold text-white"
+                        title={t.trackName}
+                      >
                         {t.trackName}
                       </div>
-                      <div className="truncate text-[11px] text-white/60">
+                      <div
+                        className="truncate text-[11px] text-white/60"
+                        title={
+                          t.collectionName
+                            ? `${t.artistName} • ${t.collectionName}`
+                            : t.artistName
+                        }
+                      >
                         {t.artistName}
                         {t.collectionName ? ` • ${t.collectionName}` : ""}
                       </div>
