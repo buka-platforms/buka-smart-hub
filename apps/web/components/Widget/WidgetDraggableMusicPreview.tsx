@@ -258,7 +258,7 @@ export default function WidgetDraggableMusicPreview() {
     <div
       ref={containerRef}
       data-widget-id="musicpreview"
-      className={`pointer-events-auto flex w-full max-w-full rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`pointer-events-auto flex w-full max-w-full overflow-hidden rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       <div className="relative flex w-full flex-col">
         <div
