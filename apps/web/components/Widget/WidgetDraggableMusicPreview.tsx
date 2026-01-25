@@ -229,6 +229,17 @@ export default function WidgetDraggableMusicPreview() {
     e.dataTransfer.effectAllowed = "move";
   }, []);
 
+  const handleDragEnd = useCallback(() => {
+    // no-op for now; kept for parity with other widgets
+  }, []);
+
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    try {
+      e.dataTransfer.dropEffect = "move";
+    } catch {}
+  }, []);
+
   const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
@@ -253,6 +264,8 @@ export default function WidgetDraggableMusicPreview() {
         <div
           draggable
           onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
           onDrop={handleDrop}
           className="flex h-8 w-full cursor-move items-center gap-2 border-b border-white/10 px-3 select-none"
         >
