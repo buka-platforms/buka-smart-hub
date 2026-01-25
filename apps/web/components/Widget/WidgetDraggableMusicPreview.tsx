@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -98,10 +105,12 @@ export default function WidgetDraggableMusicPreview() {
   const [progress, setProgress] = useState(0);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
   // Match existing widgets: store volume as 0-100 integer under a descriptive key
   const WIDGET_VOLUME_KEY = "widgetMusicPreviewVolume";
+  const WIDGET_VERSION = "1.0.0";
 
   const [volume, setVolume] = useState<number>(() => {
     try {
@@ -297,6 +306,15 @@ export default function WidgetDraggableMusicPreview() {
                 >
                   Reset widget position
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setMoreMenuOpen(false);
+                    setAboutDialogOpen(true);
+                  }}
+                  className="cursor-pointer"
+                >
+                  About widget
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -448,6 +466,22 @@ export default function WidgetDraggableMusicPreview() {
 
           {/* hidden audio element */}
           <audio ref={audioRef} preload="none" />
+          <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+            <DialogContent className="sm:max-w-106.25">
+              <DialogHeader>
+                <DialogTitle>About Music Preview Widget</DialogTitle>
+                <DialogDescription className="mt-2 text-left">
+                  Search the iTunes catalog and preview track samples. Includes
+                  volume control with persistent settings and a simple progress
+                  indicator.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center justify-between border-t pt-4">
+                <span className="text-sm text-muted-foreground">Version</span>
+                <span className="text-sm font-medium">{WIDGET_VERSION}</span>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
