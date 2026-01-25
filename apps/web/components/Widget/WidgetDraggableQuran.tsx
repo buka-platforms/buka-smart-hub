@@ -421,6 +421,10 @@ export default function WidgetDraggableQuran() {
   const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
+  const activeSurahName =
+    surahData?.englishName ||
+    surahData?.name ||
+    (selectedSurah ? String(selectedSurah) : "");
 
   return (
     <>
@@ -506,7 +510,9 @@ export default function WidgetDraggableQuran() {
                       }
                     }}
                   >
-                    Refresh active surah
+                    {activeSurahName
+                      ? `Refresh Surah ${activeSurahName}`
+                      : "Refresh Surah"}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer"
