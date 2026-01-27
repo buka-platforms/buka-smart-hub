@@ -72,6 +72,12 @@ const WIDGETS: {
     description: "Watch live TV channels",
   },
   {
+    id: "iptv",
+    label: "IPTV",
+    icon: <Tv className="h-5 w-5" />,
+    description: "Live TV / IPTV",
+  },
+  {
     id: "onlineradioboxnowplaying",
     label: "Now Playing",
     icon: <Rss className="h-5 w-5" />,

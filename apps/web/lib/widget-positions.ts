@@ -16,6 +16,7 @@ export type WidgetId =
   | "time"
   | "somafm"
   | "musicpreview"
+  | "iptv"
   | "youtubelivetv"
   | "quran"
   | "pomodoro"
@@ -29,6 +30,7 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   quran: "widgetQuranPosition",
   somafm: "widgetSomaFMPosition",
   musicpreview: "widgetMusicPreviewPosition",
+  iptv: "widgetIptvPosition",
   youtubelivetv: "widgetYouTubeLiveTVPosition",
   pomodoro: "widgetPomodoroPosition",
   onlineradioboxnowplaying: "widgetOnlineRadioBoxNowPlayingPosition",
@@ -45,6 +47,7 @@ const WIDGET_PRIORITY: WidgetId[] = [
   "musicpreview",
   "quran",
   "weather", // Quick glance info
+  "iptv",
   "pomodoro", // Productivity tool
   "somafm", // Secondary audio
   "youtubelivetv", // Video content (larger)
@@ -350,6 +353,7 @@ function getWidgetDimensions(widgetId: WidgetId): {
     weather: { width: 290, height: 158 },
     musicpreview: { width: 340, height: 180 },
     quran: { width: 340, height: 224 },
+    iptv: { width: 360, height: 240 },
     somafm: { width: 360, height: 220 },
     youtubelivetv: { width: 360, height: 280 },
     pomodoro: { width: 340, height: 280 },
@@ -373,6 +377,7 @@ export function calculateAutoArrangePositions(): Record<
     musicpreview: { x: 0, y: 0 },
     quran: { x: 0, y: 0 },
     weather: { x: 0, y: 0 },
+    iptv: { x: 0, y: 0 },
     somafm: { x: 0, y: 0 },
     youtubelivetv: { x: 0, y: 0 },
     pomodoro: { x: 0, y: 0 },

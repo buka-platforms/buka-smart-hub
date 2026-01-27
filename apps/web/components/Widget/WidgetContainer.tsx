@@ -57,6 +57,11 @@ const WidgetDraggableQuran = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableIPTV = dynamic(
+  () => import("@/components/Widget/WidgetDraggableIPTV"),
+  { ssr: false },
+);
+
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
@@ -220,6 +225,12 @@ export default function WidgetContainer() {
               return (
                 <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
                   <WidgetDraggableMusicPreview />
+                </WidgetWrapper>
+              );
+            case "iptv":
+              return (
+                <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
+                  <WidgetDraggableIPTV />
                 </WidgetWrapper>
               );
             default:
