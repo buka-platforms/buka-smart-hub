@@ -28,6 +28,7 @@ import {
   triggerLayoutUpdate,
   unobserveWidget,
   WIDGET_POSITION_KEYS,
+  setWidgetMeasuredHeight,
 } from "@/lib/widget-positions";
 import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
@@ -38,6 +39,12 @@ import {
   Tv,
   Volume2,
   VolumeX,
+  ChevronDown,
+  Heart,
+  Maximize2,
+  Minimize2,
+  Flag,
+  Globe,
 } from "lucide-react";
 import {
   useCallback,
@@ -63,6 +70,7 @@ type Channel = {
 export default function WidgetDraggableIPTV() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = useRef<HTMLDivElement | null>(null);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
@@ -73,6 +81,14 @@ export default function WidgetDraggableIPTV() {
   const [isPlaying, setIsPlaying] = useState(false);
   const WIDGET_VOLUME_KEY = "widgetIptvVolume";
   const WIDGET_VERSION = "1.0.0";
+  const SELECTED_CHANNEL_KEY = "widgetIptvSelectedChannel";
+  const FAVORITES_KEY = "widgetIptvFavorites";
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [channelPickerOpen, setChannelPickerOpen] = useState(false);
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPositionLoaded, setIsPositionLoaded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [volume, setVolume] = useState<number>(() => {
     try {
@@ -94,6 +110,40 @@ export default function WidgetDraggableIPTV() {
     } catch {}
     return () => unobserveWidget(WIDGET_ID);
   }, []);
+
+  // Load saved state (selected channel and favorites)
+  useEffect(() => {
+    queueMicrotask(() => {
+      try {
+        const saved = localStorage.getItem(SELECTED_CHANNEL_KEY);
+        if (saved) {
+          const ch = channels.find((c) => c.id === saved);
+          if (ch) setSelected(ch);
+        }
+        const savedFav = localStorage.getItem(FAVORITES_KEY);
+        if (savedFav) setFavorites(JSON.parse(savedFav));
+      } catch {
+        // ignore
+      }
+    });
+  }, [channels]);
+
+  // Mark position loaded so layout system can place widgets
+  useEffect(() => {
+    queueMicrotask(() => setIsPositionLoaded(true));
+  }, []);
+
+  // Measure widget height after player/channel changes
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const raf = requestAnimationFrame(() => {
+      setTimeout(() => {
+        const h = containerRef.current?.getBoundingClientRect().height ?? 0;
+        if (h > 0) setWidgetMeasuredHeight(WIDGET_ID, h);
+      }, 80);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [selected, isPlaying, isPositionLoaded, query]);
 
   useEffect(() => {
     setFiltered(
