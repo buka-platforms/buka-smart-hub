@@ -2,12 +2,14 @@ export const iptv = [
   {
     id: "cgtn_documentary",
     name: "CGTN Documentary",
-    stream_url: "https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8",
-    logo_url: "https://upload.wikimedia.org/wikipedia/commons/d/d6/CGTN_Documentary_logo.png",
+    stream_url:
+      "https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/d/d6/CGTN_Documentary_logo.png",
     category: "Documentary",
     country: "China",
     language: "English",
-    status: "active"
+    status: "active",
   },
   {
     id: "nautical_channel",
@@ -17,6 +19,6 @@ export const iptv = [
     category: "Nautical",
     country: "United Kingdom",
     language: "English",
-    status: "active"
-  }
+    status: "active",
+  },
 ];

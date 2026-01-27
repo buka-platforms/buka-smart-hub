@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import {
   Dialog,
@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
+import { iptv } from "@/data/iptv";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
   observeWidget,
@@ -32,14 +33,19 @@ import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
   MoreHorizontal,
-  Tv,
-  Play as PlayIcon,
   Pause,
+  Play as PlayIcon,
+  Tv,
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { iptv } from "@/data/iptv";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type DragEvent,
+} from "react";
 
 const WIDGET_ID = "iptv" as unknown as WidgetId;
 
@@ -217,7 +223,11 @@ export default function WidgetDraggableIPTV() {
             IPTV
           </span>
           <div className="ml-auto">
-            <DropdownMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen} modal={false}>
+            <DropdownMenu
+              open={moreMenuOpen}
+              onOpenChange={setMoreMenuOpen}
+              modal={false}
+            >
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="More options"
@@ -228,7 +238,11 @@ export default function WidgetDraggableIPTV() {
                   <MoreHorizontal className="h-2.5 w-2.5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
+              <DropdownMenuContent
+                align="end"
+                sideOffset={6}
+                className="min-w-40"
+              >
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onSelect={(e) => {
@@ -290,17 +304,21 @@ export default function WidgetDraggableIPTV() {
             </div>
 
             <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="space-y-2 max-h-60 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20">
+              <div className="max-h-60 space-y-2 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20">
                 {filtered.map((c) => (
                   <div
                     key={c.id}
-                    className={`flex cursor-pointer items-center gap-2 rounded-md p-1.5 hover:bg-white/5 ${selected?.id === c.id ? "ring-1 ring-white/10 bg-white/3" : ""}`}
+                    className={`flex cursor-pointer items-center gap-2 rounded-md p-1.5 hover:bg-white/5 ${selected?.id === c.id ? "bg-white/3 ring-1 ring-white/10" : ""}`}
                     onClick={() => void selectChannel(c)}
                   >
                     <div className="h-10 w-14 shrink-0 overflow-hidden rounded-sm bg-white/5">
                       {c.logo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={c.logo_url} alt={c.name} className="h-full w-full object-cover" />
+                        <img
+                          src={c.logo_url}
+                          alt={c.name}
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-white/30">
                           <Tv className="h-5 w-5" />
@@ -308,10 +326,16 @@ export default function WidgetDraggableIPTV() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-semibold text-white" title={c.name}>
+                      <div
+                        className="truncate text-xs font-semibold text-white"
+                        title={c.name}
+                      >
                         {c.name}
                       </div>
-                      <div className="truncate text-[11px] text-white/60" title={`${c.country ?? ""} • ${c.language ?? ""}`}>
+                      <div
+                        className="truncate text-[11px] text-white/60"
+                        title={`${c.country ?? ""} • ${c.language ?? ""}`}
+                      >
                         {c.category ? `${c.category} • ` : ""}
                         {c.country ?? ""} {c.language ? `• ${c.language}` : ""}
                       </div>
@@ -323,9 +347,15 @@ export default function WidgetDraggableIPTV() {
                           void selectChannel(c);
                         }}
                         className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${isPlaying && selected?.id === c.id ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50" : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"}`}
-                        title={isPlaying && selected?.id === c.id ? "Pause" : "Play"}
+                        title={
+                          isPlaying && selected?.id === c.id ? "Pause" : "Play"
+                        }
                       >
-                        {isPlaying && selected?.id === c.id ? <Pause className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
+                        {isPlaying && selected?.id === c.id ? (
+                          <Pause className="h-4 w-4" />
+                        ) : (
+                          <PlayIcon className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -341,28 +371,47 @@ export default function WidgetDraggableIPTV() {
                     playsInline
                     // preload="metadata"
                   />
-                  <div className="absolute left-2 top-2 flex items-center gap-2">
+                  <div className="absolute top-2 left-2 flex items-center gap-2">
                     <button
                       onClick={() => void handlePlayPause()}
                       className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
                       title={isPlaying ? "Pause" : "Play"}
                     >
-                      {isPlaying ? <Pause className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
+                      {isPlaying ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <PlayIcon className="h-4 w-4" />
+                      )}
                     </button>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10" title="Volume">
-                          {volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                        <button
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
+                          title="Volume"
+                        >
+                          {volume === 0 ? (
+                            <VolumeX className="h-4 w-4" />
+                          ) : (
+                            <Volume2 className="h-4 w-4" />
+                          )}
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent align="start" sideOffset={6} className="flex w-36 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg">
+                      <PopoverContent
+                        align="start"
+                        sideOffset={6}
+                        className="flex w-36 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                      >
                         <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
                           <span>Volume</span>
-                          <span className="text-white/60">{Math.round(volume * 100)}%</span>
+                          <span className="text-white/60">
+                            {Math.round(volume * 100)}%
+                          </span>
                         </div>
                         <Slider
                           value={[Math.round(volume * 100)]}
-                          onValueChange={(v) => setVolume((v[0] ?? Math.round(volume * 100)) / 100)}
+                          onValueChange={(v) =>
+                            setVolume((v[0] ?? Math.round(volume * 100)) / 100)
+                          }
                           max={100}
                           step={1}
                           className="cursor-pointer"
@@ -371,13 +420,19 @@ export default function WidgetDraggableIPTV() {
                     </Popover>
                   </div>
 
-                  <div className="absolute right-2 top-2 text-right text-xs text-white/60">
-                    <div className="font-semibold">{selected?.name ?? "No channel selected"}</div>
-                    <div className="text-[11px]">{selected?.country ?? ""} {selected?.language ? `• ${selected?.language}` : ""}</div>
+                  <div className="absolute top-2 right-2 text-right text-xs text-white/60">
+                    <div className="font-semibold">
+                      {selected?.name ?? "No channel selected"}
+                    </div>
+                    <div className="text-[11px]">
+                      {selected?.country ?? ""}{" "}
+                      {selected?.language ? `• ${selected?.language}` : ""}
+                    </div>
                   </div>
                 </div>
                 <div className="mt-2 text-[11px] text-white/60">
-                  Tip: Click a channel to select. Click play to start the stream. Some browsers require native HLS support or hls.js.
+                  Tip: Click a channel to select. Click play to start the
+                  stream. Some browsers require native HLS support or hls.js.
                 </div>
               </div>
             </div>
@@ -385,7 +440,9 @@ export default function WidgetDraggableIPTV() {
 
           <div className="-mx-3 border-t border-white/10" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <div className="flex-1 text-white/60 text-[11px]">Live IPTV — {filtered.length} channels</div>
+            <div className="flex-1 text-[11px] text-white/60">
+              Live IPTV — {filtered.length} channels
+            </div>
             <div className="flex items-center gap-2">
               {/* Reset button */}
               <button
@@ -404,7 +461,9 @@ export default function WidgetDraggableIPTV() {
               <DialogHeader>
                 <DialogTitle>About IPTV Widget</DialogTitle>
                 <DialogDescription className="mt-2 text-left">
-                  Stream live channels defined in your data store. Supports basic playback, volume persistence, and channel selection. HLS playback will use hls.js when available.
+                  Stream live channels defined in your data store. Supports
+                  basic playback, volume persistence, and channel selection. HLS
+                  playback will use hls.js when available.
                 </DialogDescription>
               </DialogHeader>
               <div className="flex items-center justify-between border-t pt-4">
@@ -418,4 +477,3 @@ export default function WidgetDraggableIPTV() {
     </div>
   );
 }
-
