@@ -23,7 +23,7 @@ const WidgetDraggableWeather = dynamic(
 );
 
 const WidgetDraggableRadioPlayer = dynamic(
-  () => import("@/components/Widget/WidgetDraggableRadioPlayer"),
+  () => import("@/components/Widget/WidgetDraggableRadio"),
   { ssr: false },
 );
 
