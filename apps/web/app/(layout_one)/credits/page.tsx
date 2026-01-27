@@ -95,7 +95,7 @@ export default async function CreditsPage() {
                   IDE
                 </td>
                 <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
-                  Visual Studio Code Insiders
+                  Visual Studio Code Insiders, Cursor
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
@@ -142,10 +142,18 @@ export default async function CreditsPage() {
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
                 <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
-                  Code steroids
+                  AI tools
                 </td>
                 <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
                   ChatGPT, GitHub Copilot Pro
+                </td>
+              </tr>
+              <tr className="m-0 border-t p-0 even:bg-muted">
+                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                  AI models
+                </td>
+                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                  GPT-5 Mini, Opus 4.5
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
