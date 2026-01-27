@@ -43,32 +43,31 @@ export default async function CreditsPage() {
         /{" "}
       </PageHeaderInfo>
       <h1 className="hidden">{pageDescription}</h1>
-      {/* <main className="mt-9 md:px-0"> */}
       <main className="mt-9 w-full">
         <div className="my-6 w-full overflow-y-auto">
           <table className="w-full">
             <tbody>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   UI icons
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Lucide
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   UI facades
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Tailwind CSS, shadcn/ui, Unsplash, Storyset, IconScout
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Buka Smart Hub logo
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   <a
                     rel="noopener"
                     target="_blank"
@@ -83,93 +82,93 @@ export default async function CreditsPage() {
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Web framework & library
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Next.js, React
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   IDE
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Visual Studio Code Insiders, Cursor
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Code repository
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   GitHub
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Languages
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   JavaScript, TypeScript, PHP
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Database & APIs
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   MySQL, Directus, Redis, Memcached
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Infrastructure & hosting
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Contabo, Cloudflare, Docker, Docker Mailserver, n8n, Nginx,
                   Nginx Proxy Manager, Node.js, Ubuntu, Vercel
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Development hardware
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   MSI, Logitech, LG, Soundtech, Intel, NVIDIA, Royal Kludge,
                   Huawei, Xiaomi
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   AI tools
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   ChatGPT, GitHub Copilot Pro
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   AI models
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   GPT-5 Mini, Opus 4.5
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Snacks and drinks
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Good Day Mocacinno, Dilmah Earl Grey, Gudang Garam
                   International, Ichi Ocha, Chitato, Gorengan and others
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   Investors
                 </td>
-                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
                   <a rel="noopener" target="_blank" href="https://sony-ak.com">
                     Sony AK
                   </a>
