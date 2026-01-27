@@ -94,6 +94,7 @@ const countries = [
 const SELECTED_CHANNEL_KEY = "widgetIPTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetIPTVFavorites";
 const VOLUME_KEY = "widgetIPTVVolume";
+const QUALITY_KEY = "widgetIPTVQuality";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "1.0.0";
 
@@ -113,6 +114,10 @@ export default function WidgetDraggableIPTV() {
   const [selectedChannel, setSelectedChannel] = useState<IPTVChannel | null>(
     null,
   );
+  const [qualityOptions, setQualityOptions] = useState<any[]>([]);
+  const [selectedQuality, setSelectedQuality] = useState<
+    number | "auto" | null
+  >(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(100);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -121,6 +126,7 @@ export default function WidgetDraggableIPTV() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   const hlsRef = useRef<Hls | null>(null);
@@ -145,6 +151,11 @@ export default function WidgetDraggableIPTV() {
         if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
         const savedVolume = localStorage.getItem(VOLUME_KEY);
         if (savedVolume) setVolume(Number(savedVolume));
+        const savedQuality = localStorage.getItem(QUALITY_KEY);
+        if (savedQuality) {
+          if (savedQuality === "auto") setSelectedQuality("auto");
+          else setSelectedQuality(Number(savedQuality));
+        }
       } catch {
         /* ignore */
       }
@@ -214,6 +225,8 @@ export default function WidgetDraggableIPTV() {
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !selectedChannel) return;
+    // show loader while new channel is being prepared
+    setIsLoading(true);
 
     // Clean up previous hls
     if (hlsRef.current) {
@@ -233,6 +246,63 @@ export default function WidgetDraggableIPTV() {
       try {
         hls.loadSource(src);
         hls.attachMedia(video);
+        // expose available quality levels and track switches
+        const onLevelsUpdated = () => {
+          try {
+            const levels = hls.levels ?? [];
+            setQualityOptions(levels);
+
+            // If user previously selected a quality, apply it now.
+            try {
+              const saved = localStorage.getItem(QUALITY_KEY);
+              if (saved) {
+                if (saved === "auto") {
+                  hls.currentLevel = -1;
+                  setSelectedQuality("auto");
+                } else {
+                  const n = Number(saved);
+                  if (!Number.isNaN(n) && n >= 0 && n < levels.length) {
+                    hls.currentLevel = n;
+                    setSelectedQuality(n);
+                  }
+                }
+                return;
+              }
+            } catch {
+              // ignore localStorage errors
+            }
+
+            // default to auto when levels appear and no saved selection
+            if (levels.length > 0 && selectedQuality === null) {
+              hls.currentLevel = -1;
+              setSelectedQuality("auto");
+            }
+          } catch {
+            // ignore
+          }
+        };
+
+        const onLevelSwitched = (_ev: any, data: any) => {
+          try {
+            setSelectedQuality(
+              typeof data?.level === "number" ? data.level : null,
+            );
+          } catch {}
+        };
+
+        updateLevels: {
+          onLevelsUpdated();
+        }
+        hls.on(Hls.Events.LEVELS_UPDATED, onLevelsUpdated);
+        hls.on(Hls.Events.LEVEL_SWITCHED, onLevelSwitched);
+
+        // cleanup handlers when destroying HLS instance later
+        const _cleanupHlsHandlers = () => {
+          try {
+            hls.off(Hls.Events.LEVELS_UPDATED, onLevelsUpdated);
+            hls.off(Hls.Events.LEVEL_SWITCHED, onLevelSwitched);
+          } catch {}
+        };
       } catch {
         // ignore
       }
@@ -250,14 +320,35 @@ export default function WidgetDraggableIPTV() {
       requestAnimationFrame(() => setIsPlaying(false));
     }
 
-    const onPlay = () => setIsPlaying(true);
+    const onPlay = () => {
+      setIsPlaying(true);
+      setIsLoading(false);
+    };
     const onPause = () => setIsPlaying(false);
+    const onCanPlay = () => setIsLoading(false);
+    const onLoadedData = () => setIsLoading(false);
+    const onWaiting = () => setIsLoading(true);
+    const onStalled = () => setIsLoading(true);
+    const onError = () => setIsLoading(false);
+
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("loadeddata", onLoadedData);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("stalled", onStalled);
+    video.addEventListener("error", onError);
 
     return () => {
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
+      try {
+        video.removeEventListener("play", onPlay);
+        video.removeEventListener("pause", onPause);
+        video.removeEventListener("canplay", onCanPlay);
+        video.removeEventListener("loadeddata", onLoadedData);
+        video.removeEventListener("waiting", onWaiting);
+        video.removeEventListener("stalled", onStalled);
+        video.removeEventListener("error", onError);
+      } catch {}
       if (hlsRef.current) {
         try {
           hlsRef.current.destroy();
@@ -403,6 +494,47 @@ export default function WidgetDraggableIPTV() {
     ? favorites.includes(selectedChannel.id)
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
+
+  const qualityLabel = (q: number | "auto" | null) => {
+    if (q === null) return "Quality";
+    if (q === "auto") return "Auto";
+    const level = qualityOptions[q];
+    if (!level) return "Custom";
+    if (level.height) return `${level.height}p`;
+    if (level.bitrate) return `${Math.round(level.bitrate / 1000)}kbps`;
+    return `Level ${q}`;
+  };
+
+  const selectQuality = useCallback((q: number | "auto") => {
+    const hls = hlsRef.current;
+    try {
+      // Persist selection even if hls instance not ready yet.
+      try {
+        if (q === "auto") {
+          localStorage.setItem(QUALITY_KEY, "auto");
+        } else {
+          localStorage.setItem(QUALITY_KEY, String(q));
+        }
+      } catch {}
+
+      if (!hls) {
+        // HLS instance not available yet; we'll apply when levels load.
+        setSelectedQuality(q);
+        return;
+      }
+
+      if (q === "auto") {
+        hls.currentLevel = -1;
+        setSelectedQuality("auto");
+        return;
+      }
+
+      hls.currentLevel = q;
+      setSelectedQuality(q);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   return (
     <>
@@ -712,6 +844,11 @@ export default function WidgetDraggableIPTV() {
                 className="h-full w-full object-cover"
                 playsInline
               />
+              {isLoading && selectedChannel && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" />
+                </div>
+              )}
               {!selectedChannel && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="flex flex-col items-center gap-2 text-white/50">
