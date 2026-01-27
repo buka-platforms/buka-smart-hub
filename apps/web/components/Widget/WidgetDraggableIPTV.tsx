@@ -798,15 +798,7 @@ export default function WidgetDraggableIPTV() {
                 )}
               </button>
 
-              {selectedChannel && (
-                <Link
-                  href={`/tv/${selectedChannel.id}`}
-                  className="flex h-8 items-center justify-center gap-0 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                  title="Open channel page"
-                >
-                  <span className="hidden sm:inline">Details</span>
-                </Link>
-              )}
+              {/* Details button removed */}
             </div>
           </div>
         </div>
