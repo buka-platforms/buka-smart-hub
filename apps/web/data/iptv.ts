@@ -113,4 +113,60 @@ export const iptv = [
     language: "English",
     status: "active",
   },
+  {
+    id: "wion",
+    name: "WION",
+    stream_url: "https://op-group1-swiftservehd-1.dens.tv/h/h91/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/WION_news_Logo.svg/960px-WION_news_Logo.svg.png",
+    category: "News",
+    country: "India",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "trt_world",
+    name: "TRT World",
+    stream_url: "https://op-group1-swiftservehd-1.dens.tv/h/h156/S4/mnf.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/TRT_World_logosu.png/960px-TRT_World_logosu.png",
+    category: "News",
+    country: "Turkey",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "sky_news_arabia",
+    name: "Sky News Arabia",
+    stream_url: "https://stream.skynewsarabia.com/ott/ott.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/en/thumb/f/fd/Sky_News_Arabia_2022_logo.svg/960px-Sky_News_Arabia_2022_logo.svg.png",
+    category: "News",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "sky_news",
+    name: "Sky News",
+    stream_url:
+      "https://linear417-gb-hls3-prd-ak.cdn.skycdp.com/100e/Content/HLS_004_1080_30/Live/channel(skynews)/index_1080.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/Sky_News_logo.svg/960px-Sky_News_logo.svg.png",
+    category: "News",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "yahoo_finance",
+    name: "Yahoo! Finance",
+    stream_url: "https://yahoo-samsung.amagi.tv/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Yahoo%21_Finance_logo_2021.png/960px-Yahoo%21_Finance_logo_2021.png",
+    category: "Business",
+    country: "United States",
+    language: "English",
+    status: "active",
+  },
 ];
