@@ -79,4 +79,38 @@ export const iptv = [
     language: "English",
     status: "active",
   },
+  {
+    id: "mystery_tv",
+    name: "Mystery TV",
+    stream_url: "https://aenetworks-mysterytv-rakuten.amagi.tv/playlist.m3u8",
+    logo_url:
+      "https://hearstnetworkscorp.s3.eu-west-2.amazonaws.com/s3fs-public/styles/brand_desktop/public/2025-03/Mystery_TV_1380%20x%201080.jpg?VersionId=Mz649bZ_fNnx2J81YGKp7QmTOBJurFQD&itok=9Ex3p5Oq",
+    category: "Documentary",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "ufc",
+    name: "UFC",
+    stream_url:
+      "https://linear-893.frequency.stream/dist/xumo/893/hls/master/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/UFC_Logo.svg/960px-UFC_Logo.svg.png",
+    category: "Sports",
+    country: "United States",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "motorvision_plus",
+    name: "Motorvision+",
+    stream_url: "https://op-group1-swiftservehd-1.dens.tv/h/h09/01.m3u8",
+    logo_url:
+      "https://motorvision.tv/wp-content/uploads/2023/09/MV_Logo_positiv_light_background-3-300x68.png",
+    category: "Automotive",
+    country: "Germany",
+    language: "English",
+    status: "active",
+  },
 ];
