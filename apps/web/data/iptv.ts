@@ -180,4 +180,16 @@ export const iptv = [
     language: "English",
     status: "active",
   },
+  {
+    id: "reuters",
+    name: "Reuters",
+    stream_url:
+      "https://amg00453-reuters-amg00453c1-samsung-de-2111.playouts.now.amagi.tv/playlist/amg00453-reuters-reuters-samsungde/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Reuters_Logo.svg/960px-Reuters_Logo.svg.png",
+    category: "News",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
 ];
