@@ -159,6 +159,17 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "rt_english",
+    name: "RT (English)",
+    stream_url: "https://rt-glb.rttv.com/live/rtnews/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_%D1%82%D0%B5%D0%BB%D0%B5%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB%D0%B0_RT_Doc.png/913px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_%D1%82%D0%B5%D0%BB%D0%B5%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB%D0%B0_RT_Doc.png",
+    category: "News",
+    country: "Russia",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "yahoo_finance",
     name: "Yahoo! Finance",
     stream_url: "https://yahoo-samsung.amagi.tv/playlist.m3u8",
