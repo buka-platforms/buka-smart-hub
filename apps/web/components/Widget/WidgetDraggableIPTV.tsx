@@ -601,9 +601,7 @@ export default function WidgetDraggableIPTV() {
                   >
                     {isFavorite ? "Remove from favorites" : "Add to favorites"}
                   </DropdownMenuItem>
-                  {selectedChannel && (
-                    <></>
-                  )}
+                  {selectedChannel && <></>}
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
