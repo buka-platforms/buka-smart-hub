@@ -186,7 +186,7 @@ export const iptv = [
     stream_url:
       "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8",
     logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Deutsche_Welle_logo_2019.svg/1024px-Deutsche_Welle_logo_2019.svg.png",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Deutsche_Welle_Logo.svg/960px-Deutsche_Welle_Logo.svg.png",
     category: "News",
     country: "Germany",
     language: "English",
