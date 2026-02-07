@@ -181,6 +181,29 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "dw",
+    name: "DW",
+    stream_url:
+      "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Deutsche_Welle_logo_2019.svg/1024px-Deutsche_Welle_logo_2019.svg.png",
+    category: "News",
+    country: "Germany",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "france24",
+    name: "France 24",
+    stream_url: "https://op-group1-swiftservesd-1.dens.tv/s/s22/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/France_24_logo_%282013%29.svg/960px-France_24_logo_%282013%29.svg.png",
+    category: "News",
+    country: "France",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "reuters",
     name: "Reuters",
     stream_url:
