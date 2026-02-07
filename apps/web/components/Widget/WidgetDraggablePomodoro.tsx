@@ -894,7 +894,7 @@ export default function WidgetDraggablePomodoro() {
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
-            <DialogTitle>About Pomodoro Timer Widget</DialogTitle>
+            <DialogTitle>About Pomodoro Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
               A productivity timer that helps you maintain focus through timed
               work sessions and breaks. Features customizable durations, audio
