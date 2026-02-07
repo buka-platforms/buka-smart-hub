@@ -612,13 +612,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   >
                     {isFavorite ? "Remove from favorites" : "Add to favorites"}
                   </DropdownMenuItem>
-                  {selectedChannel && (
-                    <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                      <Link href={`/tv/${selectedChannel.slug}`}>
-                        Open channel page
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
+                  {/* Open channel page removed */}
                   <DropdownMenuItem asChild className="cursor-pointer gap-2">
                     <Link href="/apps/tv">Browse all channels</Link>
                   </DropdownMenuItem>
@@ -967,16 +961,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                 )}
               </button>
 
-              {/* Channel Page Link */}
-              {selectedChannel && (
-                <Link
-                  href={`/tv/${selectedChannel.slug}`}
-                  className="flex h-8 items-center justify-center gap-0 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                  title="Open channel page"
-                >
-                  <span className="hidden sm:inline">Details</span>
-                </Link>
-              )}
+              {/* Channel Page Link removed */}
 
               {/* More Options */}
             </div>

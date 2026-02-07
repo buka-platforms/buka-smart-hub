@@ -602,15 +602,8 @@ export default function WidgetDraggableIPTV() {
                     {isFavorite ? "Remove from favorites" : "Add to favorites"}
                   </DropdownMenuItem>
                   {selectedChannel && (
-                    <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                      <Link href={`/tv/${selectedChannel.id}`}>
-                        Open channel page
-                      </Link>
-                    </DropdownMenuItem>
+                    <></>
                   )}
-                  <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                    <Link href="/apps/tv">Browse all channels</Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
