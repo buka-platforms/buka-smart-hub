@@ -530,7 +530,7 @@ export const tv = [
   {
     id: "sen",
     slug: "sen",
-    country: "",
+    country: "United Kingdom",
     name: "Sen's Live TV",
     short_description: "Earth and space live TV.",
     long_description:
