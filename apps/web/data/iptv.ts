@@ -227,4 +227,16 @@ export const iptv = [
     language: "Dutch",
     status: "active",
   },
+  {
+    id: "stingray_hit_list",
+    name: "Stingray Hit List",
+    stream_url:
+      "https://lotus.stingray.com/manifest/ose-107ads-montreal/samsungtvplus/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Stingray_Music_logo.svg/960px-Stingray_Music_logo.svg.png",
+    category: "Music",
+    country: "Canada",
+    language: "English",
+    status: "active",
+  },
 ];
