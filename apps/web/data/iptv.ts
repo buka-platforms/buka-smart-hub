@@ -62,7 +62,7 @@ export const iptv = [
     stream_url:
       "https://amg00170-curiositystream-amg00170c3-rakuten-us-2289.playouts.now.amagi.tv/playlist/amg00170-curiositystreamllcfast-curiositynowrow-rakutenus/playlist.m3u8",
     logo_url:
-      "https://press.curiositystream.com/wp-content/uploads/2022/06/CuriosityNow_Wordmark_Stack_1C_Black.png",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Curiosity_Channel_Logo_2023.svg/960px-Curiosity_Channel_Logo_2023.svg.png",
     category: "Knowledge",
     country: "United States",
     language: "English",
