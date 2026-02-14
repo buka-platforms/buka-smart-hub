@@ -215,4 +215,16 @@ export const iptv = [
     language: "English",
     status: "active",
   },
+  {
+    id: "q_music",
+    name: "Q Music",
+    stream_url:
+      "https://live-video.dpgmedia.net/e087512ad0c32643/out/v1/82d59bbe343b4d0896f829c59da82dc0/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Qmusic_logo.svg/960px-Qmusic_logo.svg.png",
+    category: "Music",
+    country: "Belgium",
+    language: "Dutch",
+    status: "active",
+  },
 ];
