@@ -3,7 +3,6 @@ import {
   InternalTvLink,
 } from "@/app/(layout_one)/apps/tv/links";
 import ClientSideOperationOnPage from "@/components/General/ClientSideOperationOnPage";
-import RadioPanelFooter from "@/components/General/RadioPanelFooter";
 import SignedInHeader from "@/components/General/SignedInHeader";
 import YouTubeIframePlayer from "@/components/General/YouTubeIframePlayer";
 import { tv } from "@/data/tv";
@@ -204,7 +203,6 @@ export default async function TvDetailPage({
           />
         </div>
         <div className="h-64"></div>
-        <RadioPanelFooter />
       </div>
     </>
   );

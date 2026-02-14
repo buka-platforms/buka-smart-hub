@@ -1,5 +1,4 @@
 import AppsLink from "@/components/General/AppsLink";
-import RadioPanelFooter from "@/components/General/RadioPanelFooter";
 import SignedInHeader from "@/components/General/SignedInHeader";
 import { getRequestHeaders } from "@/lib/header";
 import { checkUserSession } from "@/lib/user";
@@ -30,7 +29,6 @@ export default async function LayoutOne({
           <div className="h-64"></div>
         )}
         <AppsLink />
-        <RadioPanelFooter />
       </div>
     </>
   );
