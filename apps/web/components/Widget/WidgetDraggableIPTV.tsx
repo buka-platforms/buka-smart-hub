@@ -56,7 +56,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import Link from "next/link";
+// Link import removed (unused)
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // Basic IPTV channel shape
@@ -108,7 +108,14 @@ export default function WidgetDraggableIPTV() {
   const playerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const jwElRef = useRef<HTMLDivElement | null>(null);
-  const jwInstanceRef = useRef<any | null>(null);
+  type JWPlayerInstance = {
+    remove?: () => void;
+    on?: (event: string, cb: (...args: unknown[]) => void) => void;
+    setVolume?: (v: number) => void;
+    play?: () => void;
+    pause?: () => void;
+  };
+  const jwInstanceRef = useRef<JWPlayerInstance | null>(null);
   const [jwLoaded, setJwLoaded] = useState(false);
 
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
@@ -117,7 +124,7 @@ export default function WidgetDraggableIPTV() {
   const [selectedChannel, setSelectedChannel] = useState<IPTVChannel | null>(
     null,
   );
-  const [qualityOptions, setQualityOptions] = useState<any[]>([]);
+  
   const [selectedQuality, setSelectedQuality] = useState<
     number | "auto" | null
   >(null);
@@ -138,16 +145,17 @@ export default function WidgetDraggableIPTV() {
   const pendingVolumeRef = useRef<number | null>(null);
   const prevPlayerPointerRef = useRef<string | null>(null);
 
-  const JW_KEY = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
+  const JW_KEY = process.env.NEXT_PUBLIC_JWPLAYER_KEY || "";
 
   // Load JW Player script from public assets and set key when available
   useEffect(() => {
     try {
-      if ((window as any).jwplayer) {
+      const win = window as unknown as { jwplayer?: { key?: string } };
+      if (win.jwplayer) {
         try {
-          (window as any).jwplayer.key = JW_KEY;
+          win.jwplayer.key = JW_KEY;
         } catch {}
-        setJwLoaded(true);
+        queueMicrotask(() => setJwLoaded(true));
         return;
       }
     } catch {}
@@ -160,15 +168,16 @@ export default function WidgetDraggableIPTV() {
     s.async = true;
     s.onload = () => {
       try {
-        if ((window as any).jwplayer) (window as any).jwplayer.key = JW_KEY;
+        const win = window as unknown as { jwplayer?: { key?: string } };
+        if (win.jwplayer) win.jwplayer.key = JW_KEY;
       } catch {}
-      setJwLoaded(Boolean((window as any).jwplayer));
+      queueMicrotask(() => setJwLoaded(Boolean((window as unknown as { jwplayer?: unknown }).jwplayer)));
     };
     document.body.appendChild(s);
     return () => {
       // keep script loaded for session; do not remove
     };
-  }, []);
+  }, [JW_KEY]);
 
   // Load saved state
   useEffect(() => {
@@ -259,10 +268,11 @@ export default function WidgetDraggableIPTV() {
   // Initialize video / hls or JW Player when channel changes
   useEffect(() => {
     if (!selectedChannel) return;
-    setIsLoading(true);
+    queueMicrotask(() => setIsLoading(true));
 
     // If JW Player is loaded, prefer using it
-    if (jwLoaded && (window as any).jwplayer) {
+    const winAny = window as unknown as { jwplayer?: unknown };
+    if (jwLoaded && winAny.jwplayer) {
       // cleanup any existing HLS instance
       if (hlsRef.current) {
         try {
@@ -271,20 +281,20 @@ export default function WidgetDraggableIPTV() {
         hlsRef.current = null;
       }
 
-      // remove previous jw instance
-      if (jwInstanceRef.current) {
+      // remove previous jw instance (call remove only if available)
+      if (jwInstanceRef.current && typeof jwInstanceRef.current.remove === "function") {
         try {
           jwInstanceRef.current.remove();
         } catch {}
-        jwInstanceRef.current = null;
       }
+      jwInstanceRef.current = null;
 
       try {
         const container = jwElRef.current ?? undefined;
         if (container) {
           // clear container
           container.innerHTML = "";
-          const setupConfig: any = {
+          const setupConfig: Record<string, unknown> = {
             file: selectedChannel.stream_url,
             width: "100%",
             height: "100%",
@@ -295,43 +305,51 @@ export default function WidgetDraggableIPTV() {
             },
           };
 
-          const instance = (window as any).jwplayer(container).setup(setupConfig);
-          jwInstanceRef.current = instance;
+          const win = window as unknown as {
+            jwplayer?: (container?: unknown) => { setup?: (cfg?: unknown) => JWPlayerInstance };
+          };
+          let instance: JWPlayerInstance | undefined;
+          if (typeof win.jwplayer === "function") {
+            const creator = win.jwplayer as (container?: unknown) => { setup?: (cfg?: unknown) => JWPlayerInstance };
+            const created = creator(container);
+            instance = created?.setup ? created.setup(setupConfig) : undefined;
+          }
+          jwInstanceRef.current = instance ?? null;
 
-          instance.on && instance.on("ready", () => {
-            try {
-              setIsLoading(false);
-              // apply saved volume
-              instance.setVolume && instance.setVolume(volume);
-              if (shouldAutoPlayRef.current) {
-                instance.play && instance.play();
-                shouldAutoPlayRef.current = false;
-              }
-            } catch {}
-          });
-
-          instance.on && instance.on("play", () => setIsPlaying(true));
-          instance.on && instance.on("pause", () => setIsPlaying(false));
-          instance.on && instance.on("error", () => setIsLoading(false));
+          if (instance && instance.on) {
+            instance.on("ready", () => {
+              try {
+                queueMicrotask(() => setIsLoading(false));
+                if (instance.setVolume) instance.setVolume(volume);
+                if (shouldAutoPlayRef.current) {
+                  if (instance.play) instance.play();
+                  shouldAutoPlayRef.current = false;
+                }
+              } catch {}
+            });
+            instance.on("play", () => setIsPlaying(true));
+            instance.on("pause", () => setIsPlaying(false));
+            instance.on("error", () => queueMicrotask(() => setIsLoading(false)));
+          }
         }
       } catch {
-        setIsLoading(false);
+        queueMicrotask(() => setIsLoading(false));
       }
 
       return () => {
-        if (jwInstanceRef.current) {
+        if (jwInstanceRef.current && typeof jwInstanceRef.current.remove === "function") {
           try {
             jwInstanceRef.current.remove();
           } catch {}
-          jwInstanceRef.current = null;
         }
+        jwInstanceRef.current = null;
       };
     }
 
     // JW not available — fallback to existing HLS flow
     const video = videoRef.current;
     if (!video) {
-      setIsLoading(false);
+      queueMicrotask(() => setIsLoading(false));
       return;
     }
 
@@ -357,7 +375,7 @@ export default function WidgetDraggableIPTV() {
         const onLevelsUpdated = () => {
           try {
             const levels = hls.levels ?? [];
-            setQualityOptions(levels);
+            // levels are available on the Hls instance via hls.levels
 
             try {
               const saved = localStorage.getItem(QUALITY_KEY);
@@ -383,9 +401,10 @@ export default function WidgetDraggableIPTV() {
           } catch {}
         };
 
-        const onLevelSwitched = (_ev: any, data: any) => {
+        const onLevelSwitched = (_ev: unknown, data: unknown) => {
           try {
-            setSelectedQuality(typeof data?.level === "number" ? data.level : null);
+            const level = (data as { level?: number } | null)?.level;
+            setSelectedQuality(typeof level === "number" ? level : null);
           } catch {}
         };
 
@@ -441,7 +460,7 @@ export default function WidgetDraggableIPTV() {
         hlsRef.current = null;
       }
     };
-  }, [selectedChannel, jwLoaded]);
+  }, [selectedChannel, jwLoaded, selectedQuality, volume]);
 
   // measure height
   useEffect(() => {
@@ -496,8 +515,11 @@ export default function WidgetDraggableIPTV() {
     try {
       const jw = jwInstanceRef.current;
       if (jw) {
-        if (isPlaying) jw.pause && jw.pause();
-        else jw.play && jw.play();
+        if (isPlaying) {
+          if (jw.pause) jw.pause();
+        } else {
+          if (jw.play) jw.play();
+        }
         return;
       }
       const video = videoRef.current;
@@ -591,46 +613,7 @@ export default function WidgetDraggableIPTV() {
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
-  const qualityLabel = (q: number | "auto" | null) => {
-    if (q === null) return "Quality";
-    if (q === "auto") return "Auto";
-    const level = qualityOptions[q];
-    if (!level) return "Custom";
-    if (level.height) return `${level.height}p`;
-    if (level.bitrate) return `${Math.round(level.bitrate / 1000)}kbps`;
-    return `Level ${q}`;
-  };
-
-  const selectQuality = useCallback((q: number | "auto") => {
-    const hls = hlsRef.current;
-    try {
-      // Persist selection even if hls instance not ready yet.
-      try {
-        if (q === "auto") {
-          localStorage.setItem(QUALITY_KEY, "auto");
-        } else {
-          localStorage.setItem(QUALITY_KEY, String(q));
-        }
-      } catch {}
-
-      if (!hls) {
-        // HLS instance not available yet; we'll apply when levels load.
-        setSelectedQuality(q);
-        return;
-      }
-
-      if (q === "auto") {
-        hls.currentLevel = -1;
-        setSelectedQuality("auto");
-        return;
-      }
-
-      hls.currentLevel = q;
-      setSelectedQuality(q);
-    } catch {
-      // ignore
-    }
-  }, []);
+  
 
   return (
     <>
