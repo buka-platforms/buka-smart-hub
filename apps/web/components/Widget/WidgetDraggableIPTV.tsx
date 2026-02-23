@@ -107,6 +107,9 @@ export default function WidgetDraggableIPTV() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const jwElRef = useRef<HTMLDivElement | null>(null);
+  const jwInstanceRef = useRef<any | null>(null);
+  const [jwLoaded, setJwLoaded] = useState(false);
 
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -134,6 +137,38 @@ export default function WidgetDraggableIPTV() {
   const volumeRafRef = useRef<number | null>(null);
   const pendingVolumeRef = useRef<number | null>(null);
   const prevPlayerPointerRef = useRef<string | null>(null);
+
+  const JW_KEY = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
+
+  // Load JW Player script from public assets and set key when available
+  useEffect(() => {
+    try {
+      if ((window as any).jwplayer) {
+        try {
+          (window as any).jwplayer.key = JW_KEY;
+        } catch {}
+        setJwLoaded(true);
+        return;
+      }
+    } catch {}
+
+    const src = "/assets/js/jwplayer.8.27.1.js";
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) return;
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.onload = () => {
+      try {
+        if ((window as any).jwplayer) (window as any).jwplayer.key = JW_KEY;
+      } catch {}
+      setJwLoaded(Boolean((window as any).jwplayer));
+    };
+    document.body.appendChild(s);
+    return () => {
+      // keep script loaded for session; do not remove
+    };
+  }, []);
 
   // Load saved state
   useEffect(() => {
@@ -221,12 +256,84 @@ export default function WidgetDraggableIPTV() {
     }
   }, [isDragging]);
 
-  // Initialize video / hls when channel changes
+  // Initialize video / hls or JW Player when channel changes
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !selectedChannel) return;
-    // show loader while new channel is being prepared
+    if (!selectedChannel) return;
     setIsLoading(true);
+
+    // If JW Player is loaded, prefer using it
+    if (jwLoaded && (window as any).jwplayer) {
+      // cleanup any existing HLS instance
+      if (hlsRef.current) {
+        try {
+          hlsRef.current.destroy();
+        } catch {}
+        hlsRef.current = null;
+      }
+
+      // remove previous jw instance
+      if (jwInstanceRef.current) {
+        try {
+          jwInstanceRef.current.remove();
+        } catch {}
+        jwInstanceRef.current = null;
+      }
+
+      try {
+        const container = jwElRef.current ?? undefined;
+        if (container) {
+          // clear container
+          container.innerHTML = "";
+          const setupConfig: any = {
+            file: selectedChannel.stream_url,
+            width: "100%",
+            height: "100%",
+            autostart: shouldAutoPlayRef.current || false,
+            controls: true,
+            skin: {
+              name: "seven",
+            },
+          };
+
+          const instance = (window as any).jwplayer(container).setup(setupConfig);
+          jwInstanceRef.current = instance;
+
+          instance.on && instance.on("ready", () => {
+            try {
+              setIsLoading(false);
+              // apply saved volume
+              instance.setVolume && instance.setVolume(volume);
+              if (shouldAutoPlayRef.current) {
+                instance.play && instance.play();
+                shouldAutoPlayRef.current = false;
+              }
+            } catch {}
+          });
+
+          instance.on && instance.on("play", () => setIsPlaying(true));
+          instance.on && instance.on("pause", () => setIsPlaying(false));
+          instance.on && instance.on("error", () => setIsLoading(false));
+        }
+      } catch {
+        setIsLoading(false);
+      }
+
+      return () => {
+        if (jwInstanceRef.current) {
+          try {
+            jwInstanceRef.current.remove();
+          } catch {}
+          jwInstanceRef.current = null;
+        }
+      };
+    }
+
+    // JW not available — fallback to existing HLS flow
+    const video = videoRef.current;
+    if (!video) {
+      setIsLoading(false);
+      return;
+    }
 
     // Clean up previous hls
     if (hlsRef.current) {
@@ -252,7 +359,6 @@ export default function WidgetDraggableIPTV() {
             const levels = hls.levels ?? [];
             setQualityOptions(levels);
 
-            // If user previously selected a quality, apply it now.
             try {
               const saved = localStorage.getItem(QUALITY_KEY);
               if (saved) {
@@ -268,50 +374,29 @@ export default function WidgetDraggableIPTV() {
                 }
                 return;
               }
-            } catch {
-              // ignore localStorage errors
-            }
+            } catch {}
 
-            // default to auto when levels appear and no saved selection
             if (levels.length > 0 && selectedQuality === null) {
               hls.currentLevel = -1;
               setSelectedQuality("auto");
             }
-          } catch {
-            // ignore
-          }
+          } catch {}
         };
 
         const onLevelSwitched = (_ev: any, data: any) => {
           try {
-            setSelectedQuality(
-              typeof data?.level === "number" ? data.level : null,
-            );
+            setSelectedQuality(typeof data?.level === "number" ? data.level : null);
           } catch {}
         };
 
-        updateLevels: {
-          onLevelsUpdated();
-        }
+        onLevelsUpdated();
         hls.on(Hls.Events.LEVELS_UPDATED, onLevelsUpdated);
         hls.on(Hls.Events.LEVEL_SWITCHED, onLevelSwitched);
-
-        // cleanup handlers when destroying HLS instance later
-        const _cleanupHlsHandlers = () => {
-          try {
-            hls.off(Hls.Events.LEVELS_UPDATED, onLevelsUpdated);
-            hls.off(Hls.Events.LEVEL_SWITCHED, onLevelSwitched);
-          } catch {}
-        };
-      } catch {
-        // ignore
-      }
+      } catch {}
     } else {
-      // Fallback: set src and hope for the best
       video.src = src;
     }
 
-    // Autoplay if was playing before selection (set state asynchronously)
     if (shouldAutoPlayRef.current) {
       video.play().catch(() => {});
       requestAnimationFrame(() => setIsPlaying(true));
@@ -356,7 +441,7 @@ export default function WidgetDraggableIPTV() {
         hlsRef.current = null;
       }
     };
-  }, [selectedChannel]);
+  }, [selectedChannel, jwLoaded]);
 
   // measure height
   useEffect(() => {
@@ -382,6 +467,11 @@ export default function WidgetDraggableIPTV() {
       const v = Math.max(0, Math.min(100, pending));
       video.volume = v / 100;
       video.muted = v <= 0;
+      // Apply to JW Player instance if present
+      try {
+        const inst = jwInstanceRef.current;
+        if (inst && inst.setVolume) inst.setVolume(v);
+      } catch {}
     });
   }, []);
 
@@ -403,9 +493,15 @@ export default function WidgetDraggableIPTV() {
   );
 
   const togglePlay = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
     try {
+      const jw = jwInstanceRef.current;
+      if (jw) {
+        if (isPlaying) jw.pause && jw.pause();
+        else jw.play && jw.play();
+        return;
+      }
+      const video = videoRef.current;
+      if (!video) return;
       if (isPlaying) video.pause();
       else video.play();
     } catch {}
@@ -830,11 +926,15 @@ export default function WidgetDraggableIPTV() {
               ref={playerRef}
               className="relative aspect-video overflow-hidden bg-black"
             >
-              <video
-                ref={videoRef}
-                className="h-full w-full object-cover"
-                playsInline
-              />
+              {jwLoaded ? (
+                <div ref={jwElRef} className="h-full w-full" />
+              ) : (
+                <video
+                  ref={videoRef}
+                  className="h-full w-full object-cover"
+                  playsInline
+                />
+              )}
               {isLoading && selectedChannel && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" />
