@@ -294,12 +294,26 @@ export default function WidgetDraggableIPTV() {
         if (container) {
           // clear container
           container.innerHTML = "";
+          // show channel logo as container background (contain) so it doesn't get cropped
+          try {
+            if (selectedChannel?.logo_url) {
+              container.style.backgroundImage = `url('${selectedChannel.logo_url}')`;
+              container.style.backgroundSize = "contain";
+              container.style.backgroundPosition = "center";
+              container.style.backgroundRepeat = "no-repeat";
+              container.style.backgroundColor = "black";
+            } else {
+              container.style.backgroundImage = "";
+            }
+          } catch {}
           const setupConfig: Record<string, unknown> = {
             file: selectedChannel.stream_url,
             width: "100%",
             height: "100%",
             autostart: shouldAutoPlayRef.current || false,
             controls: true,
+            // show channel logo as poster/frame when available
+            image: selectedChannel.logo_url ?? undefined,
             skin: {
               name: "seven",
             },
@@ -914,10 +928,32 @@ export default function WidgetDraggableIPTV() {
               ) : (
                 <video
                   ref={videoRef}
-                  className="h-full w-full object-cover"
+                  poster={selectedChannel?.logo_url ?? undefined}
+                  className={`h-full w-full ${isPlaying ? "object-cover" : "object-contain"}`}
                   playsInline
                 />
               )}
+                {/* Poster/frame image shown while loading or when paused */}
+                {selectedChannel && (!isPlaying || isLoading) && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center bg-black"
+                    style={{ zIndex: 5 }}
+                  >
+                    {selectedChannel.logo_url ? (
+                      <img
+                        src={selectedChannel.logo_url}
+                        alt={selectedChannel.name}
+                        draggable={false}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-white/50">
+                        <Tv className="h-10 w-10" />
+                        <span className="text-xs">{selectedChannel.name}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               {isLoading && selectedChannel && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" />
