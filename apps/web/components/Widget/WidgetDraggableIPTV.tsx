@@ -124,7 +124,7 @@ export default function WidgetDraggableIPTV() {
   const [selectedChannel, setSelectedChannel] = useState<IPTVChannel | null>(
     null,
   );
-  
+
   const [selectedQuality, setSelectedQuality] = useState<
     number | "auto" | null
   >(null);
@@ -171,7 +171,11 @@ export default function WidgetDraggableIPTV() {
         const win = window as unknown as { jwplayer?: { key?: string } };
         if (win.jwplayer) win.jwplayer.key = JW_KEY;
       } catch {}
-      queueMicrotask(() => setJwLoaded(Boolean((window as unknown as { jwplayer?: unknown }).jwplayer)));
+      queueMicrotask(() =>
+        setJwLoaded(
+          Boolean((window as unknown as { jwplayer?: unknown }).jwplayer),
+        ),
+      );
     };
     document.body.appendChild(s);
     return () => {
@@ -282,7 +286,10 @@ export default function WidgetDraggableIPTV() {
       }
 
       // remove previous jw instance (call remove only if available)
-      if (jwInstanceRef.current && typeof jwInstanceRef.current.remove === "function") {
+      if (
+        jwInstanceRef.current &&
+        typeof jwInstanceRef.current.remove === "function"
+      ) {
         try {
           jwInstanceRef.current.remove();
         } catch {}
@@ -295,16 +302,24 @@ export default function WidgetDraggableIPTV() {
           // clear container
           container.innerHTML = "";
           // show channel logo as container background (contain) so it doesn't get cropped
+          // clear any previous inline background styles; we'll show a controlled
+          // poster overlay instead to avoid JWPlayer skin interactions.
           try {
-            if (selectedChannel?.logo_url) {
-              container.style.backgroundImage = `url('${selectedChannel.logo_url}')`;
-              container.style.backgroundSize = "contain";
-              container.style.backgroundPosition = "center";
-              container.style.backgroundRepeat = "no-repeat";
-              container.style.backgroundColor = "black";
-            } else {
-              container.style.backgroundImage = "";
-            }
+            container.style.backgroundImage = "";
+            container.style.padding = "";
+            // cast to a more specific shape to avoid `any` lint errors
+            (
+              container.style as unknown as CSSStyleDeclaration & {
+                backgroundOrigin?: string;
+                backgroundClip?: string;
+              }
+            ).backgroundOrigin = "";
+            (
+              container.style as unknown as CSSStyleDeclaration & {
+                backgroundOrigin?: string;
+                backgroundClip?: string;
+              }
+            ).backgroundClip = "";
           } catch {}
           const setupConfig: Record<string, unknown> = {
             file: selectedChannel.stream_url,
@@ -320,11 +335,15 @@ export default function WidgetDraggableIPTV() {
           };
 
           const win = window as unknown as {
-            jwplayer?: (container?: unknown) => { setup?: (cfg?: unknown) => JWPlayerInstance };
+            jwplayer?: (container?: unknown) => {
+              setup?: (cfg?: unknown) => JWPlayerInstance;
+            };
           };
           let instance: JWPlayerInstance | undefined;
           if (typeof win.jwplayer === "function") {
-            const creator = win.jwplayer as (container?: unknown) => { setup?: (cfg?: unknown) => JWPlayerInstance };
+            const creator = win.jwplayer as (container?: unknown) => {
+              setup?: (cfg?: unknown) => JWPlayerInstance;
+            };
             const created = creator(container);
             instance = created?.setup ? created.setup(setupConfig) : undefined;
           }
@@ -343,7 +362,9 @@ export default function WidgetDraggableIPTV() {
             });
             instance.on("play", () => setIsPlaying(true));
             instance.on("pause", () => setIsPlaying(false));
-            instance.on("error", () => queueMicrotask(() => setIsLoading(false)));
+            instance.on("error", () =>
+              queueMicrotask(() => setIsLoading(false)),
+            );
           }
         }
       } catch {
@@ -351,7 +372,10 @@ export default function WidgetDraggableIPTV() {
       }
 
       return () => {
-        if (jwInstanceRef.current && typeof jwInstanceRef.current.remove === "function") {
+        if (
+          jwInstanceRef.current &&
+          typeof jwInstanceRef.current.remove === "function"
+        ) {
           try {
             jwInstanceRef.current.remove();
           } catch {}
@@ -626,8 +650,6 @@ export default function WidgetDraggableIPTV() {
     ? favorites.includes(selectedChannel.id)
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
-
-  
 
   return (
     <>
@@ -933,18 +955,20 @@ export default function WidgetDraggableIPTV() {
                   playsInline
                 />
               )}
-                {/* Poster/frame image shown while loading or when paused */}
-                {selectedChannel && (!isPlaying || isLoading) && (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center bg-black"
-                    style={{ zIndex: 5 }}
-                  >
+              {/* Poster/frame image shown while loading or when paused */}
+              {selectedChannel && (!isPlaying || isLoading) && (
+                <div
+                  className="absolute inset-0 flex items-center justify-center bg-black p-2"
+                  style={{ zIndex: 20 }}
+                >
+                  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded bg-black">
                     {selectedChannel.logo_url ? (
                       <img
                         src={selectedChannel.logo_url}
                         alt={selectedChannel.name}
                         draggable={false}
-                        className="max-h-full max-w-full object-contain"
+                        className="h-full w-full object-contain"
+                        style={{ display: "block", padding: 8 }}
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-white/50">
@@ -953,9 +977,10 @@ export default function WidgetDraggableIPTV() {
                       </div>
                     )}
                   </div>
-                )}
+                </div>
+              )}
               {isLoading && selectedChannel && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
+                <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" />
                 </div>
               )}
