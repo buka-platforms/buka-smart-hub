@@ -225,6 +225,39 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "cgtn_french",
+    name: "CGTN French",
+    stream_url: "https://dash4.antik.sk/live/test_cgtn_fra_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/7/78/CGTN_-_fran%C3%A7ais.png",
+    category: "News",
+    country: "China",
+    language: "French",
+    status: "active",
+  },
+  {
+    id: "cgtn_arabic",
+    name: "CGTN Arabic",
+    stream_url: "https://dash3.antik.sk/live/test_cgtn_arb_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/9/97/CGTN_arabic.png",
+    category: "News",
+    country: "China",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "cgtn",
+    name: "CGTN",
+    stream_url: "https://dash4.antik.sk/live/test_cgtn/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/CGTN.svg/960px-CGTN.svg.png",
+    category: "News",
+    country: "China",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "al_jazeera_english",
     name: "Al Jazeera English",
     stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
