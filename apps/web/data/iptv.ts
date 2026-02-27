@@ -91,6 +91,87 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "movie_sphere_uk",
+    name: "Movie Sphere UK",
+    stream_url: "https://moviesphereuk-samsunguk.amagi.tv/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/MovieSphere_Gold_2025_logo.svg/960px-MovieSphere_Gold_2025_logo.svg.png",
+    category: "Movies",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "rakuten_tv_thrillers_uk",
+    name: "Rakuten TV Thrillers UK",
+    stream_url:
+      "https://thriller-rakuten-tv-uk.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6482/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rakuten_TV_logo.svg/960px-Rakuten_TV_logo.svg.png",
+    category: "Movies",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "rakuten_tv_sci_fi_uk",
+    name: "Rakuten TV Sci-Fi UK",
+    stream_url:
+      "https://sci-fi-rakuten-tv-uk.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6241/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rakuten_TV_logo.svg/960px-Rakuten_TV_logo.svg.png",
+    category: "Movies",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "rakuten_tv_action_movies_uk",
+    name: "Rakuten TV Action Movies UK",
+    stream_url:
+      "https://54045f0c40fd442c8b06df076aaf1e85.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6065/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rakuten_TV_logo.svg/960px-Rakuten_TV_logo.svg.png",
+    category: "Movies",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "rakuten_top_movies_uk",
+    name: "Rakuten Top Movies UK",
+    stream_url:
+      "https://0145451975a64b35866170fd2e8fa486.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-5987/master.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rakuten_TV_logo.svg/960px-Rakuten_TV_logo.svg.png",
+    category: "Movies",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "filmzie",
+    name: "Filmzie",
+    stream_url: "https://filmzie-filmzie-1-eu.rakuten.wurl.tv/playlist.m3u8",
+    logo_url:
+      "https://filmzie.com/blog/wp-content/uploads/2024/05/filmzie-logo-RGB-transparent.png",
+    category: "Movies",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "time_line",
+    name: "History Hit",
+    stream_url: "https://timeline-samsung-uk.amagi.tv/playlist.m3u8",
+    logo_url:
+      "https://www.historyhit.com/app/uploads/2021/10/Logo_Light-1-1.png?x15201",
+    category: "Documentary",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "ufc",
     name: "UFC",
     stream_url:
@@ -266,6 +347,17 @@ export const iptv = [
     category: "News",
     country: "China",
     language: "Chinese",
+    status: "active",
+  },
+  {
+    id: "cnbc_asia",
+    name: "CNBC Asia",
+    stream_url: "https://liveh34.vtvprime.vn/hls/CNBC/03.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/CNBC_2023.svg/960px-CNBC_2023.svg.png",
+    category: "Business",
+    country: "Singapore",
+    language: "English",
     status: "active",
   },
   {
