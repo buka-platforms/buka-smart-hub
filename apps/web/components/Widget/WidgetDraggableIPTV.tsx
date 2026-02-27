@@ -138,10 +138,12 @@ export default function WidgetDraggableIPTV() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasRenderedFrame, setHasRenderedFrame] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   const hlsRef = useRef<Hls | null>(null);
   const shouldAutoPlayRef = useRef(false);
+  const playIntentRef = useRef(false);
   const volumeRafRef = useRef<number | null>(null);
   const pendingVolumeRef = useRef<number | null>(null);
   const prevPlayerPointerRef = useRef<string | null>(null);
@@ -273,7 +275,8 @@ export default function WidgetDraggableIPTV() {
   // Initialize video / hls or JW Player when channel changes
   useEffect(() => {
     if (!selectedChannel) return;
-    queueMicrotask(() => setIsLoading(true));
+    queueMicrotask(() => setIsLoading(shouldAutoPlayRef.current));
+    queueMicrotask(() => setHasRenderedFrame(false));
 
     // If JW Player is loaded, prefer using it
     const winAny = window as unknown as { jwplayer?: unknown };
@@ -366,19 +369,27 @@ export default function WidgetDraggableIPTV() {
               } catch {}
             });
             instance.on("play", () => {
+              playIntentRef.current = true;
               setIsPlaying(true);
               setIsLoading(false);
             });
             instance.on("pause", () => {
               setIsPlaying(false);
+              setIsLoading(playIntentRef.current);
+            });
+            instance.on("buffer", () => queueMicrotask(() => setIsLoading(true)));
+            instance.on("firstFrame", () => {
+              setHasRenderedFrame(true);
               setIsLoading(false);
             });
-            instance.on("error", () =>
-              queueMicrotask(() => setIsLoading(false)),
-            );
+            instance.on("error", () => {
+              playIntentRef.current = false;
+              queueMicrotask(() => setIsLoading(false));
+            });
           }
         }
       } catch {
+        playIntentRef.current = false;
         queueMicrotask(() => setIsLoading(false));
       }
 
@@ -466,28 +477,47 @@ export default function WidgetDraggableIPTV() {
     }
 
     if (shouldAutoPlayRef.current) {
-      video.play().catch(() => {});
-      requestAnimationFrame(() => setIsPlaying(true));
+      playIntentRef.current = true;
+      video.play().catch(() => {
+        playIntentRef.current = false;
+        setIsLoading(false);
+      });
       shouldAutoPlayRef.current = false;
     } else {
       requestAnimationFrame(() => setIsPlaying(false));
     }
 
     const onPlay = () => {
+      playIntentRef.current = true;
       setIsPlaying(true);
       setIsLoading(false);
     };
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => {
+      setIsPlaying(false);
+      setIsLoading(playIntentRef.current);
+    };
     const onCanPlay = () => setIsLoading(false);
-    const onLoadedData = () => setIsLoading(false);
+    const onLoadedData = () => {
+      setHasRenderedFrame(true);
+      setIsLoading(false);
+    };
+    const onPlaying = () => {
+      if (video.readyState >= 2) setHasRenderedFrame(true);
+      setIsLoading(false);
+    };
     const onWaiting = () => setIsLoading(true);
     const onStalled = () => setIsLoading(true);
-    const onError = () => setIsLoading(false);
+    const onError = () => {
+      playIntentRef.current = false;
+      setIsLoading(false);
+      setHasRenderedFrame(false);
+    };
 
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
     video.addEventListener("canplay", onCanPlay);
     video.addEventListener("loadeddata", onLoadedData);
+    video.addEventListener("playing", onPlaying);
     video.addEventListener("waiting", onWaiting);
     video.addEventListener("stalled", onStalled);
     video.addEventListener("error", onError);
@@ -498,6 +528,7 @@ export default function WidgetDraggableIPTV() {
         video.removeEventListener("pause", onPause);
         video.removeEventListener("canplay", onCanPlay);
         video.removeEventListener("loadeddata", onLoadedData);
+        video.removeEventListener("playing", onPlaying);
         video.removeEventListener("waiting", onWaiting);
         video.removeEventListener("stalled", onStalled);
         video.removeEventListener("error", onError);
@@ -549,10 +580,12 @@ export default function WidgetDraggableIPTV() {
 
   const selectChannel = useCallback(
     (channel: IPTVChannel) => {
-      const wasPlaying = isPlaying;
+      const wasPlaying = isPlaying || playIntentRef.current;
       shouldAutoPlayRef.current = wasPlaying;
+      playIntentRef.current = wasPlaying;
       setIsPlaying(false);
       setIsLoading(wasPlaying);
+      setHasRenderedFrame(false);
       setSelectedChannel(channel);
       setChannelPickerOpen(false);
       try {
@@ -567,9 +600,11 @@ export default function WidgetDraggableIPTV() {
       const jw = jwInstanceRef.current;
       if (jw) {
         if (isPlaying) {
+          playIntentRef.current = false;
           setIsLoading(false);
           if (jw.pause) jw.pause();
         } else {
+          playIntentRef.current = true;
           setIsLoading(true);
           if (jw.play) jw.play();
         }
@@ -578,11 +613,16 @@ export default function WidgetDraggableIPTV() {
       const video = videoRef.current;
       if (!video) return;
       if (isPlaying) {
+        playIntentRef.current = false;
         setIsLoading(false);
         video.pause();
       } else {
+        playIntentRef.current = true;
         setIsLoading(true);
-        video.play().catch(() => setIsLoading(false));
+        video.play().catch(() => {
+          playIntentRef.current = false;
+          setIsLoading(false);
+        });
       }
     } catch {}
   }, [isPlaying]);
@@ -671,6 +711,12 @@ export default function WidgetDraggableIPTV() {
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const isPlayActionLoading = isLoading && !isPlaying;
+  const showPosterFrame = Boolean(
+    selectedChannel && (!isPlaying || isLoading || !hasRenderedFrame),
+  );
+  const showPosterSpinner = Boolean(
+    selectedChannel && (isLoading || (isPlaying && !hasRenderedFrame)),
+  );
 
   return (
     <>
@@ -977,7 +1023,7 @@ export default function WidgetDraggableIPTV() {
                 />
               )}
               {/* Poster/frame image shown while loading or when paused */}
-              {selectedChannel && (!isPlaying || isLoading) && (
+              {showPosterFrame && (
                 <div
                   className="absolute inset-0 flex items-center justify-center bg-black p-2"
                   style={{ zIndex: 20 }}
@@ -1000,7 +1046,7 @@ export default function WidgetDraggableIPTV() {
                   </div>
                 </div>
               )}
-              {isLoading && selectedChannel && (
+              {showPosterSpinner && (
                 <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" />
                 </div>
