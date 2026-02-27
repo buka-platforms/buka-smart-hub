@@ -67,15 +67,22 @@ interface IPTVChannel {
 const iptvChannels = iptv as IPTVChannel[];
 
 // Group channels by category
-const groupedChannels = iptvChannels.reduce(
-  (acc, channel) => {
-    const category = channel.category || "Other";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(channel);
-    return acc;
-  },
-  {} as Record<string, IPTVChannel[]>,
-);
+const groupedChannels = Object.fromEntries(
+  Object.entries(
+    iptvChannels.reduce(
+      (acc, channel) => {
+        const category = channel.category || "Other";
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(channel);
+        return acc;
+      },
+      {} as Record<string, IPTVChannel[]>,
+    ),
+  ).map(([category, channels]) => [
+    category,
+    [...channels].sort((a, b) => a.name.localeCompare(b.name)),
+  ]),
+) as Record<string, IPTVChannel[]>;
 
 const sortedCategories = Object.keys(groupedChannels).sort();
 const countries = [
