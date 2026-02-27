@@ -46,6 +46,7 @@ import {
   Flag,
   Globe,
   Heart,
+  Loader2,
   Maximize2,
   Minimize2,
   MoreHorizontal,
@@ -352,7 +353,11 @@ export default function WidgetDraggableIPTV() {
           if (instance && instance.on) {
             instance.on("ready", () => {
               try {
-                queueMicrotask(() => setIsLoading(false));
+                // Keep loading state while auto-play is pending; clear only once
+                // actual playback starts (play event).
+                if (!shouldAutoPlayRef.current) {
+                  queueMicrotask(() => setIsLoading(false));
+                }
                 if (instance.setVolume) instance.setVolume(volume);
                 if (shouldAutoPlayRef.current) {
                   if (instance.play) instance.play();
@@ -360,8 +365,14 @@ export default function WidgetDraggableIPTV() {
                 }
               } catch {}
             });
-            instance.on("play", () => setIsPlaying(true));
-            instance.on("pause", () => setIsPlaying(false));
+            instance.on("play", () => {
+              setIsPlaying(true);
+              setIsLoading(false);
+            });
+            instance.on("pause", () => {
+              setIsPlaying(false);
+              setIsLoading(false);
+            });
             instance.on("error", () =>
               queueMicrotask(() => setIsLoading(false)),
             );
@@ -538,8 +549,10 @@ export default function WidgetDraggableIPTV() {
 
   const selectChannel = useCallback(
     (channel: IPTVChannel) => {
-      shouldAutoPlayRef.current = isPlaying;
+      const wasPlaying = isPlaying;
+      shouldAutoPlayRef.current = wasPlaying;
       setIsPlaying(false);
+      setIsLoading(wasPlaying);
       setSelectedChannel(channel);
       setChannelPickerOpen(false);
       try {
@@ -554,16 +567,23 @@ export default function WidgetDraggableIPTV() {
       const jw = jwInstanceRef.current;
       if (jw) {
         if (isPlaying) {
+          setIsLoading(false);
           if (jw.pause) jw.pause();
         } else {
+          setIsLoading(true);
           if (jw.play) jw.play();
         }
         return;
       }
       const video = videoRef.current;
       if (!video) return;
-      if (isPlaying) video.pause();
-      else video.play();
+      if (isPlaying) {
+        setIsLoading(false);
+        video.pause();
+      } else {
+        setIsLoading(true);
+        video.play().catch(() => setIsLoading(false));
+      }
     } catch {}
   }, [isPlaying]);
 
@@ -650,6 +670,7 @@ export default function WidgetDraggableIPTV() {
     ? favorites.includes(selectedChannel.id)
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
+  const isPlayActionLoading = isLoading && !isPlaying;
 
   return (
     <>
@@ -999,9 +1020,11 @@ export default function WidgetDraggableIPTV() {
               <button
                 onClick={togglePlay}
                 className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                title={isPlaying ? "Pause" : "Play"}
+                title={isPlayActionLoading ? "Loading" : isPlaying ? "Pause" : "Play"}
               >
-                {isPlaying ? (
+                {isPlayActionLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : isPlaying ? (
                   <Pause className="h-4 w-4" fill="currentColor" />
                 ) : (
                   <PlayIcon className="h-4 w-4" fill="currentColor" />
