@@ -1,0 +1,5 @@
+# Ignore vendor JW Player file to avoid formatting
+public/assets/js/jwplayer.8.27.1.js
+# Ignore agent files/folders
+.agents
+
