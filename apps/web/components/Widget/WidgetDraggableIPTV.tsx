@@ -570,23 +570,20 @@ export default function WidgetDraggableIPTV() {
     applyPlayerVolume(volume);
   }, [volume, applyPlayerVolume]);
 
-  const selectChannel = useCallback(
-    (channel: IPTVChannel) => {
-      // Channel selection is an explicit user action; always autoplay next stream.
-      // Relying on transient `isPlaying` can fail during buffering and leave only poster/frame.
-      shouldAutoPlayRef.current = true;
-      playIntentRef.current = true;
-      setIsPlaying(false);
-      setIsLoading(true);
-      setHasRenderedFrame(false);
-      setSelectedChannel(channel);
-      setChannelPickerOpen(false);
-      try {
-        localStorage.setItem(SELECTED_CHANNEL_KEY, channel.id);
-      } catch {}
-    },
-    [],
-  );
+  const selectChannel = useCallback((channel: IPTVChannel) => {
+    // Channel selection is an explicit user action; always autoplay next stream.
+    // Relying on transient `isPlaying` can fail during buffering and leave only poster/frame.
+    shouldAutoPlayRef.current = true;
+    playIntentRef.current = true;
+    setIsPlaying(false);
+    setIsLoading(true);
+    setHasRenderedFrame(false);
+    setSelectedChannel(channel);
+    setChannelPickerOpen(false);
+    try {
+      localStorage.setItem(SELECTED_CHANNEL_KEY, channel.id);
+    } catch {}
+  }, []);
 
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
