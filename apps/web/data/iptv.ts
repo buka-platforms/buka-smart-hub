@@ -137,6 +137,39 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "newsmax_tv",
+    name: "Newsmax TV",
+    stream_url: "https://dash3.antik.sk/live/test_newsmax_avc/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Newsmax_logo.svg/960px-Newsmax_logo.svg.png",
+    category: "News",
+    country: "United States",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "bbc_news",
+    name: "BBC News",
+    stream_url: "https://dash2.antik.sk/live/test_bbc_world/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/BBC_News_2022_%28Alt%29.svg/960px-BBC_News_2022_%28Alt%29.svg.png",
+    category: "News",
+    country: "United Kingdom",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "al_jazeera",
+    name: "Al Jazeera",
+    stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Aljazeera_eng.svg/960px-Aljazeera_eng.svg.png",
+    category: "News",
+    country: "Qatar",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "sky_news_arabia",
     name: "Sky News Arabia",
     stream_url: "https://stream.skynewsarabia.com/ott/ott.m3u8",
