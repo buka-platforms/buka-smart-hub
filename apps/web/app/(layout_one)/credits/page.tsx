@@ -144,7 +144,7 @@ export default async function CreditsPage() {
                   AI tools
                 </td>
                 <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
-                  ChatGPT, GitHub Copilot Pro
+                  ChatGPT Plus, GitHub Copilot Pro
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
@@ -152,7 +152,8 @@ export default async function CreditsPage() {
                   AI models
                 </td>
                 <td className="border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right">
-                  GPT-5 Mini, Opus 4.5
+                  GPT-5 mini, GPT-4.1, GPT-4o, GPT-5.3 Codex, Raptor mini
+                  (preview)
                 </td>
               </tr>
               <tr className="m-0 border-t p-0 even:bg-muted">
@@ -182,7 +183,7 @@ export default async function CreditsPage() {
         <img
           src="/assets/images/illustration_credits.svg"
           alt="Credits"
-          className="h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
+          className="h-50 w-50 md:h-87.5 md:w-87.5"
         />
       </div>
     </>
