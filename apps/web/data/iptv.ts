@@ -116,7 +116,7 @@ export const iptv = [
   {
     id: "wion",
     name: "WION",
-    stream_url: "https://op-group1-swiftservehd-1.dens.tv/h/h91/index.m3u8",
+    stream_url: "https://d7x8z4yuq42qn.cloudfront.net/index_7.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/WION_news_Logo.svg/960px-WION_news_Logo.svg.png",
     category: "News",
@@ -127,7 +127,8 @@ export const iptv = [
   {
     id: "trt_world",
     name: "TRT World",
-    stream_url: "https://op-group1-swiftservehd-1.dens.tv/h/h156/S4/mnf.m3u8",
+    stream_url:
+      "https://dash2.antik.sk/live/test_trt_world_atktv/playlist.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/TRT_World_logosu.png/960px-TRT_World_logosu.png",
     category: "News",
@@ -193,9 +194,21 @@ export const iptv = [
     status: "active",
   },
   {
-    id: "france24",
-    name: "France 24",
-    stream_url: "https://op-group1-swiftservesd-1.dens.tv/s/s22/index.m3u8",
+    id: "france24_french",
+    name: "France 24 (French)",
+    stream_url:
+      "https://dash4.antik.sk/live/test_france24_france/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/France_24_logo_%282013%29.svg/960px-France_24_logo_%282013%29.svg.png",
+    category: "News",
+    country: "France",
+    language: "French",
+    status: "active",
+  },
+  {
+    id: "france24_english",
+    name: "France 24 (English)",
+    stream_url: "https://dash3.antik.sk/live/test_france24_eng/playlist.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/France_24_logo_%282013%29.svg/960px-France_24_logo_%282013%29.svg.png",
     category: "News",
