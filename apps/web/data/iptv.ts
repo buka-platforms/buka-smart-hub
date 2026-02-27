@@ -181,6 +181,39 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "rai_1",
+    name: "Rai 1",
+    stream_url: "https://dash2.antik.sk/live/test_rai_uno_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Rai_1_-_Logo_2016.svg/960px-Rai_1_-_Logo_2016.svg.png",
+    category: "Entertainment",
+    country: "Italy",
+    language: "Italian",
+    status: "active",
+  },
+  {
+    id: "rai_3",
+    name: "Rai 3",
+    stream_url: "https://dash2.antik.sk/live/test_rai_tre_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Rai_3_HD_Logo.svg/960px-Rai_3_HD_Logo.svg.png",
+    category: "Entertainment",
+    country: "Italy",
+    language: "Italian",
+    status: "active",
+  },
+  {
+    id: "wdr",
+    name: "WDR",
+    stream_url: "https://dash3.antik.sk/live/test_wdr_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Wdr_fernsehen_logo_2016.svg/960px-Wdr_fernsehen_logo_2016.svg.png",
+    category: "Entertainment",
+    country: "Germany",
+    language: "German",
+    status: "active",
+  },
+  {
     id: "al_jazeera_english",
     name: "Al Jazeera English",
     stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
@@ -319,8 +352,8 @@ export const iptv = [
     status: "active",
   },
   {
-    id: "euronews",
-    name: "Euronews",
+    id: "euronews_english",
+    name: "Euronews English",
     stream_url: "https://dash4.antik.sk/live/test_euronews/playlist.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Euronews_Logo_2025.svg/500px-Euronews_Logo_2025.svg.png",
