@@ -367,7 +367,9 @@ export default function WidgetDraggableIPTV() {
               setIsPlaying(false);
               setIsLoading(playIntentRef.current);
             });
-            instance.on("buffer", () => queueMicrotask(() => setIsLoading(true)));
+            instance.on("buffer", () =>
+              queueMicrotask(() => setIsLoading(true)),
+            );
             instance.on("firstFrame", () => {
               setHasRenderedFrame(true);
               setIsLoading(false);
