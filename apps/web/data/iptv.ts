@@ -170,6 +170,17 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "arirang_tv",
+    name: "Arirang TV",
+    stream_url: "https://dash3.antik.sk/live/test_arirang/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Arirang_logo.png/960px-Arirang_logo.png",
+    category: "News",
+    country: "South Korea",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "al_jazeera_english",
     name: "Al Jazeera English",
     stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
