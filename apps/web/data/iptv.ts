@@ -258,6 +258,17 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "cctv_4",
+    name: "CCTV-4",
+    stream_url: "https://dash2.antik.sk/live/test_cctv_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/he/thumb/f/f6/1920px-CCTV-4_Logo.svg.png/960px-1920px-CCTV-4_Logo.svg.png",
+    category: "News",
+    country: "China",
+    language: "Chinese",
+    status: "active",
+  },
+  {
     id: "al_jazeera_english",
     name: "Al Jazeera English",
     stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
