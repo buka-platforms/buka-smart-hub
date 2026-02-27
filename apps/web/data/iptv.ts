@@ -159,14 +159,36 @@ export const iptv = [
     status: "active",
   },
   {
-    id: "al_jazeera",
-    name: "Al Jazeera",
+    id: "tvp_world",
+    name: "TVP World",
+    stream_url: "https://dash2.antik.sk/live/test_tvp_world/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Tvp-world.svg/500px-Tvp-world.svg.png",
+    category: "News",
+    country: "Poland",
+    language: "English",
+    status: "active",
+  },
+  {
+    id: "al_jazeera_english",
+    name: "Al Jazeera English",
     stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Aljazeera_eng.svg/960px-Aljazeera_eng.svg.png",
     category: "News",
     country: "Qatar",
     language: "English",
+    status: "active",
+  },
+  {
+    id: "al_jazeera_arabic",
+    name: "Al Jazeera Arabic",
+    stream_url: "https://dash4.antik.sk/live/test_aljazeera/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/en/thumb/7/71/Aljazeera.svg/500px-Aljazeera.svg.png",
+    category: "News",
+    country: "Qatar",
+    language: "Arabic",
     status: "active",
   },
   {
@@ -194,7 +216,7 @@ export const iptv = [
   },
   {
     id: "rt_english",
-    name: "RT (English)",
+    name: "RT English",
     stream_url: "https://rt-glb.rttv.com/live/rtnews/playlist.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_%D1%82%D0%B5%D0%BB%D0%B5%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB%D0%B0_RT_Doc.png/913px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_%D1%82%D0%B5%D0%BB%D0%B5%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB%D0%B0_RT_Doc.png",
@@ -228,7 +250,7 @@ export const iptv = [
   },
   {
     id: "france24_french",
-    name: "France 24 (French)",
+    name: "France 24 French",
     stream_url:
       "https://dash4.antik.sk/live/test_france24_france/playlist.m3u8",
     logo_url:
@@ -240,7 +262,7 @@ export const iptv = [
   },
   {
     id: "france24_english",
-    name: "France 24 (English)",
+    name: "France 24 English",
     stream_url: "https://dash3.antik.sk/live/test_france24_eng/playlist.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/France_24_logo_%282013%29.svg/960px-France_24_logo_%282013%29.svg.png",
