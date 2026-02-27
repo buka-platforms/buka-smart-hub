@@ -252,4 +252,15 @@ export const iptv = [
     language: "English",
     status: "active",
   },
+  {
+    id: "euronews",
+    name: "Euronews",
+    stream_url: "https://dash4.antik.sk/live/test_euronews/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Euronews_Logo_2025.svg/500px-Euronews_Logo_2025.svg.png",
+    category: "News",
+    country: "Belgium",
+    language: "English",
+    status: "active",
+  },
 ];
