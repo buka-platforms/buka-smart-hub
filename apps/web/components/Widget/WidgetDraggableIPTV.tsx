@@ -26,7 +26,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Slider } from "@/components/ui/slider";
 import { iptv } from "@/data/iptv";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
@@ -46,14 +45,8 @@ import {
   Flag,
   Globe,
   Heart,
-  Loader2,
   MoreHorizontal,
-  Pause,
-  Play as PlayIcon,
   Tv,
-  Volume1,
-  Volume2,
-  VolumeX,
 } from "lucide-react";
 // Link import removed (unused)
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -592,52 +585,6 @@ export default function WidgetDraggableIPTV() {
     [isPlaying],
   );
 
-  const togglePlay = useCallback(() => {
-    try {
-      const jw = jwInstanceRef.current;
-      if (jw) {
-        if (isPlaying) {
-          playIntentRef.current = false;
-          setIsLoading(false);
-          if (jw.pause) jw.pause();
-        } else {
-          playIntentRef.current = true;
-          setIsLoading(true);
-          if (jw.play) jw.play();
-        }
-        return;
-      }
-      const video = videoRef.current;
-      if (!video) return;
-      if (isPlaying) {
-        playIntentRef.current = false;
-        setIsLoading(false);
-        video.pause();
-      } else {
-        playIntentRef.current = true;
-        setIsLoading(true);
-        video.play().catch(() => {
-          playIntentRef.current = false;
-          setIsLoading(false);
-        });
-      }
-    } catch {}
-  }, [isPlaying]);
-
-  const updateVolume = useCallback(
-    (value: number) => {
-      setVolume(value);
-      applyPlayerVolume(value);
-    },
-    [applyPlayerVolume],
-  );
-
-  const handleVolumeCommit = useCallback((value: number) => {
-    try {
-      localStorage.setItem(VOLUME_KEY, String(value));
-    } catch {}
-  }, []);
-
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
     setFavorites((prev) => {
@@ -679,14 +626,6 @@ export default function WidgetDraggableIPTV() {
     ? favorites.includes(selectedChannel.id)
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
-  const isPlayActionLoading = isLoading && !isPlaying;
-  const showPosterFrame = Boolean(
-    selectedChannel && (!isPlaying || isLoading || !hasRenderedFrame),
-  );
-  const showPosterSpinner = Boolean(
-    selectedChannel && (isLoading || (isPlaying && !hasRenderedFrame)),
-  );
-
   return (
     <>
       <div
@@ -979,6 +918,8 @@ export default function WidgetDraggableIPTV() {
             {/* Video Player Area */}
             <div
               ref={playerRef}
+              data-loading={isLoading ? "true" : "false"}
+              data-first-frame={hasRenderedFrame ? "true" : "false"}
               className="relative aspect-video overflow-hidden bg-black"
             >
               {jwLoaded ? (
@@ -990,35 +931,6 @@ export default function WidgetDraggableIPTV() {
                   className={`h-full w-full ${isPlaying ? "object-cover" : "object-contain"}`}
                   playsInline
                 />
-              )}
-              {/* Poster/frame image shown while loading or when paused */}
-              {showPosterFrame && (
-                <div
-                  className="absolute inset-0 flex items-center justify-center bg-black p-2"
-                  style={{ zIndex: 20 }}
-                >
-                  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded bg-black">
-                    {selectedChannel.logo_url ? (
-                      <img
-                        src={selectedChannel.logo_url}
-                        alt={selectedChannel.name}
-                        draggable={false}
-                        className="h-full w-full object-contain"
-                        style={{ display: "block", padding: 8 }}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-white/50">
-                        <Tv className="h-10 w-10" />
-                        <span className="text-xs">{selectedChannel.name}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              {showPosterSpinner && (
-                <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" />
-                </div>
               )}
               {!selectedChannel && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -1033,55 +945,6 @@ export default function WidgetDraggableIPTV() {
             {/* Player Controls */}
             <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2">
               <button
-                onClick={togglePlay}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                title={isPlayActionLoading ? "Loading" : isPlaying ? "Pause" : "Play"}
-              >
-                {isPlayActionLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : isPlaying ? (
-                  <Pause className="h-4 w-4" fill="currentColor" />
-                ) : (
-                  <PlayIcon className="h-4 w-4" fill="currentColor" />
-                )}
-              </button>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                    title="Volume"
-                  >
-                    {volume === 0 ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : volume < 50 ? (
-                      <Volume1 className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  sideOffset={6}
-                  className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
-                >
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                    <span>Volume</span>
-                    <span className="text-white/60">{volume}%</span>
-                  </div>
-                  <Slider
-                    value={[volume]}
-                    onValueChange={(v) => updateVolume(v[0] ?? volume)}
-                    onValueCommit={(v) => handleVolumeCommit(v[0] ?? volume)}
-                    max={100}
-                    step={1}
-                    className="cursor-pointer"
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <button
                 onClick={toggleFavorite}
                 className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFavorite ? "border-pink-400/60 bg-pink-500/30 text-pink-400" : "border-white/10 bg-white/10 text-white hover:bg-white/20"}`}
                 title={
@@ -1093,8 +956,6 @@ export default function WidgetDraggableIPTV() {
                   fill={isFavorite ? "currentColor" : "none"}
                 />
               </button>
-
-              <div className="flex-1" />
 
               {/* Details button removed */}
             </div>
