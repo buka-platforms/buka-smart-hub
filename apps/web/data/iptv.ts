@@ -214,6 +214,17 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "sixx",
+    name: "sixx",
+    stream_url: "https://dash4.antik.sk/live/test_sixx_tizen/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Sixx_Logo.svg/960px-Sixx_Logo.svg.png",
+    category: "Entertainment",
+    country: "Germany",
+    language: "German",
+    status: "active",
+  },
+  {
     id: "al_jazeera_english",
     name: "Al Jazeera English",
     stream_url: "https://dash4.antik.sk/live/test_aljazeera_eng/playlist.m3u8",
