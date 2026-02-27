@@ -47,8 +47,6 @@ import {
   Globe,
   Heart,
   Loader2,
-  Maximize2,
-  Minimize2,
   MoreHorizontal,
   Pause,
   Play as PlayIcon,
@@ -134,7 +132,6 @@ export default function WidgetDraggableIPTV() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -678,34 +675,6 @@ export default function WidgetDraggableIPTV() {
     [favorites],
   );
 
-  const toggleFullscreen = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-      return;
-    }
-    const webkitFs = (
-      video as unknown as {
-        webkitRequestFullscreen?: () => Promise<void> | void;
-      }
-    ).webkitRequestFullscreen;
-    const msFs = (
-      video as unknown as { msRequestFullscreen?: () => Promise<void> | void }
-    ).msRequestFullscreen;
-    const request = (video.requestFullscreen || webkitFs || msFs)?.bind(video);
-    if (request) {
-      Promise.resolve(request()).catch(() => {});
-    }
-  }, []);
-
-  useEffect(() => {
-    const onFsChange = () =>
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", onFsChange);
-    return () => document.removeEventListener("fullscreenchange", onFsChange);
-  }, []);
-
   const isFavorite = selectedChannel
     ? favorites.includes(selectedChannel.id)
     : false;
@@ -1126,18 +1095,6 @@ export default function WidgetDraggableIPTV() {
               </button>
 
               <div className="flex-1" />
-
-              <button
-                onClick={toggleFullscreen}
-                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFullscreen ? "border-purple-400/60 bg-purple-500/30 text-purple-400" : "border-white/10 bg-white/10 text-white hover:bg-white/20"}`}
-                title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-              </button>
 
               {/* Details button removed */}
             </div>
