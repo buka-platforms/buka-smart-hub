@@ -511,7 +511,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/b/b4/YTN_logo_2014.svg",
     source: "YouTube",
-    source_id: "FJfwehhzIhw",
+    source_id: "YRZMI3JRQbs",
     category: "News",
   },
   {
@@ -524,7 +524,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/4/41/BBC_Logo_2021.svg",
     source: "YouTube",
-    source_id: "LdbozD8XeJ0",
+    source_id: "KGZtDK8hZ60",
     category: "Science",
   },
   {
