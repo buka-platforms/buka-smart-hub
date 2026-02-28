@@ -394,6 +394,18 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "abu_dhabi_emirates",
+    name: "Abu Dhabi Emirates",
+    stream_url:
+      "https://admn-live-cdn-lb.starzplayarabia.com/out/v1/admn_tv_enc/emarat_tv/emarat_tv_hls_nd/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Abu_Dhabi_TV_logo_2023.png/960px-Abu_Dhabi_TV_logo_2023.png",
+    category: "News",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
     id: "sky_news",
     name: "Sky News",
     stream_url:
