@@ -399,8 +399,32 @@ export const iptv = [
     stream_url:
       "https://admn-live-cdn-lb.starzplayarabia.com/out/v1/admn_tv_enc/emarat_tv/emarat_tv_hls_nd/index.m3u8",
     logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Abu_Dhabi_TV_logo_2023.png/960px-Abu_Dhabi_TV_logo_2023.png",
+      "https://upload.wikimedia.org/wikipedia/commons/4/4f/Al_Emarat_TV.png",
     category: "News",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "abu_dhabi_sports_1",
+    name: "Abu Dhabi Sports 1",
+    stream_url:
+      "https://admn-live-cdn-lb.starzplayarabia.com/out/v1/admn_tv_enc/abudhabi_sports_1/abudhabi_sports_1_hls_nd/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Abu_Dhabi_Sports_logo_2023.svg/960px-Abu_Dhabi_Sports_logo_2023.svg.png",
+    category: "Sports",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "abu_dhabi_sports_2",
+    name: "Abu Dhabi Sports 2",
+    stream_url:
+      "https://admn-live-cdn-lb.starzplayarabia.com/out/v1/admn_tv_enc/abudhabi_sports_2/abudhabi_sports_2_hls_nd/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Abu_Dhabi_Sports_logo_2023.svg/960px-Abu_Dhabi_Sports_logo_2023.svg.png",
+    category: "Sports",
     country: "United Arab Emirates",
     language: "Arabic",
     status: "active",
