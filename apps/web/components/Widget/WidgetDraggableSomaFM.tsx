@@ -91,6 +91,7 @@ export default function WidgetDraggableSomaFM() {
   const [selected, setSelected] = useState<string>("");
   const [, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
+  const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [somafmAudioState] = useAtom(somafmAudioStateAtom);
@@ -106,6 +107,7 @@ export default function WidgetDraggableSomaFM() {
     albumArt?: string;
   } | null>(null);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
+  const channelListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("https://somafm.com/channels.json")
@@ -222,6 +224,27 @@ export default function WidgetDraggableSomaFM() {
     : "";
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const visibleNowPlaying = selected ? nowPlaying : null;
+
+  // When channel picker opens, jump to the current selected channel.
+  useEffect(() => {
+    if (!channelPickerOpen) return;
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const listEl = channelListRef.current;
+        if (!listEl) return;
+        const active = listEl.querySelector<HTMLElement>(
+          '[data-current-channel="true"]',
+        );
+        active?.scrollIntoView({ block: "center" });
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [channelPickerOpen, selected]);
 
   // volume persisted and applied via shared audio manager
 
@@ -600,7 +623,10 @@ export default function WidgetDraggableSomaFM() {
                 </PopoverContent>
               </Popover>
               {/* CHANNELS button with searchable command menu */}
-              <DropdownMenu>
+              <DropdownMenu
+                open={channelPickerOpen}
+                onOpenChange={setChannelPickerOpen}
+              >
                 <DropdownMenuTrigger asChild>
                   <button
                     className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
@@ -634,7 +660,10 @@ export default function WidgetDraggableSomaFM() {
                       placeholder="Search channels..."
                       className="h-10 border-b border-white/10 bg-transparent px-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
                     />
-                    <CommandList className="max-h-96 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+                    <CommandList
+                      ref={channelListRef}
+                      className="max-h-96 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+                    >
                       <CommandEmpty className="py-6 text-center text-sm text-white/50">
                         No channels found.
                       </CommandEmpty>
@@ -651,6 +680,7 @@ export default function WidgetDraggableSomaFM() {
                             value={c.title}
                             onSelect={async () => {
                               setSelected(c.id);
+                              setChannelPickerOpen(false);
                               try {
                                 await playSomaFMStream(
                                   `https://ice1.somafm.com/${c.id}-128-mp3`,
@@ -658,7 +688,12 @@ export default function WidgetDraggableSomaFM() {
                                 );
                               } catch {}
                             }}
-                            className="group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-blue-500/10"
+                            data-current-channel={
+                              c.id === selected ? "true" : undefined
+                            }
+                            className={`group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-transparent data-[selected=true]:text-white ${
+                              c.id === selected ? "bg-blue-500/10" : ""
+                            }`}
                           >
                             <div className="flex w-full items-start gap-3">
                               {/* Logo */}
