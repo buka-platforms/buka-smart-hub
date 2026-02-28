@@ -3,7 +3,7 @@ import {
   InternalTvLink,
 } from "@/app/(layout_one)/apps/tv/links";
 import PageHeaderInfo from "@/components/General/PageHeaderInfo";
-import { tv } from "@/data/tv";
+import { tv } from "@/data/youtube_live_tv";
 import type { Metadata } from "next";
 import Link from "next/link";
 

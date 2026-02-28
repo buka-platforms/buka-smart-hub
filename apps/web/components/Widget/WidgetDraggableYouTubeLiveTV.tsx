@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
-import { tv } from "@/data/tv";
+import { tv } from "@/data/youtube_live_tv";
 import type { TVChannel } from "@/data/type";
 import {
   observeWidget,

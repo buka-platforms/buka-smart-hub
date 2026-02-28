@@ -1,4 +1,4 @@
-import { tv } from "@/data/tv";
+import { tv } from "@/data/youtube_live_tv";
 import { createDirectus, readItems, rest, staticToken } from "@directus/sdk";
 import { MetadataRoute } from "next";
 
