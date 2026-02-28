@@ -117,6 +117,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
+  const channelListRef = useRef<HTMLDivElement>(null);
 
   // YouTube Player API
   const playerInstanceRef = useRef<YTPlayer | null>(null);
@@ -513,6 +514,27 @@ export default function WidgetDraggableYouTubeLiveTV() {
     [favorites],
   );
 
+  // When channel picker opens, jump to the current selected channel.
+  useEffect(() => {
+    if (!channelPickerOpen) return;
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const listEl = channelListRef.current;
+        if (!listEl) return;
+        const active = listEl.querySelector<HTMLElement>(
+          '[data-current-channel="true"]',
+        );
+        active?.scrollIntoView({ block: "center" });
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [channelPickerOpen, selectedChannel?.slug, countryFilter, favorites]);
+
   // Fullscreen toggle
   const toggleFullscreen = useCallback(() => {
     const iframe =
@@ -747,7 +769,10 @@ export default function WidgetDraggableYouTubeLiveTV() {
                         </PopoverContent>
                       </Popover>
                     </div>
-                    <CommandList className="max-h-72 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+                    <CommandList
+                      ref={channelListRef}
+                      className="max-h-72 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+                    >
                       <CommandEmpty className="px-3 py-2 text-xs text-white/60">
                         No channels found.
                       </CommandEmpty>
@@ -767,7 +792,16 @@ export default function WidgetDraggableYouTubeLiveTV() {
                               // value={`${channel.name} ${channel.country}`}
                               value={`${channel.slug}`}
                               onSelect={() => selectChannel(channel)}
-                              className={commandItemClass}
+                              data-current-channel={
+                                channel.slug === selectedChannel?.slug
+                                  ? "true"
+                                  : undefined
+                              }
+                              className={`${commandItemClass} ${
+                                channel.slug === selectedChannel?.slug
+                                  ? "bg-white/10 text-white"
+                                  : ""
+                              }`}
                             >
                               <div className="flex w-full items-center gap-3">
                                 {channel.logo_url && (
@@ -817,7 +851,16 @@ export default function WidgetDraggableYouTubeLiveTV() {
                                 // value={`${channel.name} ${channel.country} ${channel.category}`}
                                 value={`${channel.slug}`}
                                 onSelect={() => selectChannel(channel)}
-                                className={commandItemClass}
+                                data-current-channel={
+                                  channel.slug === selectedChannel?.slug
+                                    ? "true"
+                                    : undefined
+                                }
+                                className={`${commandItemClass} ${
+                                  channel.slug === selectedChannel?.slug
+                                    ? "bg-white/10 text-white"
+                                    : ""
+                                }`}
                               >
                                 <div className="flex w-full items-center gap-3">
                                   {channel.logo_url && (
