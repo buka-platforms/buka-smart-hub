@@ -446,7 +446,8 @@ export const iptv = [
     id: "cnbc_arabiya",
     name: "CNBC Arabiya",
     stream_url: "https://cnbc-live.akamaized.net/cnbc/master.m3u8",
-    logo_url: "https://upload.wikimedia.org/wikipedia/en/5/54/CNBC_Arabia_-_New_Logo.png",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/en/5/54/CNBC_Arabia_-_New_Logo.png",
     category: "Business",
     country: "United Arab Emirates",
     language: "Arabic",
