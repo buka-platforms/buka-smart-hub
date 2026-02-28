@@ -478,6 +478,18 @@ export const iptv = [
     status: "active",
   },
   {
+    id: "movie_sphere_au",
+    name: "Movie Sphere AU",
+    stream_url:
+      "https://amg00353-lionsgatefilmsi-moviesphereaus-samsungau-7qzhf.amagi.tv/playlist/amg00353-lionsgatefilmsi-moviesphereaus-samsungau/playlist.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/MovieSphere_Gold_2025_logo.svg/960px-MovieSphere_Gold_2025_logo.svg.png",
+    category: "Movies",
+    country: "Australia",
+    language: "English",
+    status: "active",
+  },
+  {
     id: "sky_news",
     name: "Sky News",
     stream_url:
