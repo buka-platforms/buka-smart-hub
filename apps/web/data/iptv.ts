@@ -385,7 +385,8 @@ export const iptv = [
   {
     id: "sky_news_arabia",
     name: "Sky News Arabia",
-    stream_url: "https://stream.skynewsarabia.com/ott/ott.m3u8",
+    stream_url:
+      "https://live-stream.skynewsarabia.com/c-horizontal-channel/horizontal-stream/index.m3u8",
     logo_url:
       "https://upload.wikimedia.org/wikipedia/en/thumb/f/fd/Sky_News_Arabia_2022_logo.svg/960px-Sky_News_Arabia_2022_logo.svg.png",
     category: "News",
@@ -427,6 +428,52 @@ export const iptv = [
     category: "Sports",
     country: "United Arab Emirates",
     language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "abu_dhabi_tv",
+    name: "Abu Dhabi TV",
+    stream_url:
+      "https://admn-live-cdn-lb.starzplayarabia.com/out/v1/admn_tv_enc/abudhabi_tv/abudhabi_tv_hls_nd/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Abu_Dhabi_TV_logo_2023.png/960px-Abu_Dhabi_TV_logo_2023.png",
+    category: "Entertainment",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "cnbc_arabiya",
+    name: "CNBC Arabiya",
+    stream_url: "https://cnbc-live.akamaized.net/cnbc/master.m3u8",
+    logo_url: "https://upload.wikimedia.org/wikipedia/en/5/54/CNBC_Arabia_-_New_Logo.png",
+    category: "Business",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "national_geographic_abu_dhabi_hd",
+    name: "National Geographic Abu Dhabi HD",
+    stream_url:
+      "https://admn-live-cdn-lb.starzplayarabia.com/out/v1/admn_tv_enc/national_geo/national_geo_hls_nd/index.m3u8",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/National_Geographic_Abu_Dhabi.svg/960px-National_Geographic_Abu_Dhabi.svg.png",
+    category: "Documentary",
+    country: "United Arab Emirates",
+    language: "Arabic",
+    status: "active",
+  },
+  {
+    id: "action_hollywood_movies",
+    name: "Action Hollywood Movies",
+    stream_url:
+      "https://amg01076-lightningintern-actionhollywood-samsungau-rs69y.amagi.tv/playlist/amg01076-lightningintern-actionhollywood-samsungau/playlist.m3u8",
+    logo_url:
+      "https://images.plex.tv/photo?size=large-1920&scale=1&url=https%3A%2F%2Fprovider-static.plex.tv%2Fepg%2Fcms%2Fproduction%2Fc94e3220-9a45-42e9-8bdb-01fc43e0f27c%2Fwhite_textAction_Hollywood_Movies_logo_dark_-_Angela_Chan.png",
+    category: "Movies",
+    country: "Australia",
+    language: "English",
     status: "active",
   },
   {
