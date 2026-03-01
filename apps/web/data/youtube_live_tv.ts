@@ -398,19 +398,6 @@ export const tv = [
     category: "News",
   },
   {
-    id: "tvri",
-    slug: "tvri",
-    country: "Indonesia",
-    name: "TVRI",
-    short_description: "TVRI from Indonesia.",
-    long_description: "TVRI is a public television network from Indonesia.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/TVRI_Jakarta.png/960px-TVRI_Jakarta.png",
-    source: "YouTube",
-    source_id: "CRwyh-Nw7RM",
-    category: "Public",
-  },
-  {
     id: "inews",
     slug: "inews",
     country: "Indonesia",
