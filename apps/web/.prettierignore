@@ -2,4 +2,5 @@
 public/assets/js/jwplayer.8.27.1.js
 # Ignore agent files/folders
 .agents
-
+# Ignore generated UI primitives
+components/ui
