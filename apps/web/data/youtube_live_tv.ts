@@ -437,6 +437,19 @@ export const tv = [
     category: "News",
   },
   {
+    id: "bbc_news",
+    slug: "bbc-news",
+    country: "UK",
+    name: "BBC News",
+    short_description: "BBC News from the UK.",
+    long_description: "BBC News is a news channel from the UK.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/BBC_News_2022_%28Alt%29.svg/960px-BBC_News_2022_%28Alt%29.svg.png",
+    source: "YouTube",
+    source_id: "zqtoc24oQak",
+    category: "News",
+  },
+  {
     id: "tvbs",
     slug: "tvbs",
     country: "Taiwan",
