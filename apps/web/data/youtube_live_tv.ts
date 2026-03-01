@@ -439,7 +439,7 @@ export const tv = [
   {
     id: "bbc_news",
     slug: "bbc-news",
-    country: "UK",
+    country: "United Kingdom",
     name: "BBC News",
     short_description: "BBC News from the UK.",
     long_description: "BBC News is a news channel from the UK.",
