@@ -27,6 +27,8 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
   const iframeRefs = useRef<Record<string, HTMLIFrameElement | null>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [containerElement, setContainerElement] =
+    useState<HTMLDivElement | null>(null);
 
   const embedUrls = useMemo(() => {
     return Object.fromEntries(
@@ -46,6 +48,10 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
     return () => {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
+  }, []);
+
+  useEffect(() => {
+    setContainerElement(containerRef.current);
   }, []);
 
   const sendCommandToAll = (command: YouTubeCommand) => {
@@ -101,7 +107,7 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
               Select Action
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" container={containerRef.current}>
+          <DropdownMenuContent align="end" container={containerElement}>
             <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
               <Play className="mr-2 h-4 w-4" />
               Play All
