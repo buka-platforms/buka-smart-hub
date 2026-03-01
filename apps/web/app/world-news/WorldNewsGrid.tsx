@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Channel = {
   id: string;
@@ -24,20 +24,14 @@ type Props = {
 type YouTubeCommand = "playVideo" | "pauseVideo" | "mute" | "unMute";
 
 export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
-  const iframeRefs = useRef<Record<string, HTMLIFrameElement | null>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playersRef = useRef<Record<string, any>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
 
-  const embedUrls = useMemo(() => {
-    return Object.fromEntries(
-      channels.map((channel) => [
-        channel.id,
-        `https://www.youtube.com/embed/${channel.source_id}?enablejsapi=1&playsinline=1&rel=0&origin=${encodeURIComponent(embedOrigin)}`,
-      ]),
-    );
-  }, [channels, embedOrigin]);
+  // embedUrls removed — using programmatic YT.Player instances instead
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -54,20 +48,88 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
     setContainerElement(containerRef.current);
   }, []);
 
+  // Load YouTube IFrame API and create players
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function loadYouTubeAPI(): Promise<any> {
+    return new Promise((resolve) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((window as any).YT && (window as any).YT.Player) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return resolve((window as any).YT);
+      }
+
+      const existing = document.querySelector(
+        'script[src="https://www.youtube.com/iframe_api"]',
+      );
+      if (!existing) {
+        const s = document.createElement("script");
+        s.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(s);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).onYouTubeIframeAPIReady = () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        resolve((window as any).YT);
+      };
+    });
+  }
+
+  useEffect(() => {
+    let mounted = true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    let YTInstance: any;
+
+    loadYouTubeAPI().then((YT) => {
+      YTInstance = YT;
+      if (!mounted) return;
+
+      channels.forEach((c) => {
+        const elId = `yt-${c.id}`;
+        if (playersRef.current[c.id]?.destroy) {
+          playersRef.current[c.id].destroy();
+        }
+        playersRef.current[c.id] = new YT.Player(elId, {
+          videoId: c.source_id,
+          playerVars: { origin: embedOrigin, rel: 0, playsinline: 1 },
+          events: {
+            onReady: () => {},
+            onStateChange: () => {},
+            onError: () => {},
+          },
+        });
+      });
+    });
+
+    return () => {
+      mounted = false;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Object.values(playersRef.current).forEach((p: any) => {
+        if (p && p.destroy) p.destroy();
+      });
+      playersRef.current = {};
+    };
+  }, [channels, embedOrigin]);
+
   const sendCommandToAll = (command: YouTubeCommand) => {
     channels.forEach((channel) => {
-      const iframe = iframeRefs.current[channel.id];
-      const target = iframe?.contentWindow;
-      if (!target) return;
+      const player = playersRef.current[channel.id];
+      if (!player) return;
 
-      target.postMessage(
-        JSON.stringify({
-          event: "command",
-          func: command,
-          args: [],
-        }),
-        "*",
-      );
+      switch (command) {
+        case "playVideo":
+          player.playVideo?.();
+          break;
+        case "pauseVideo":
+          player.pauseVideo?.();
+          break;
+        case "mute":
+          player.mute?.();
+          break;
+        case "unMute":
+          player.unMute?.();
+          break;
+      }
     });
   };
 
@@ -149,15 +211,9 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
             key={channel.id}
             className="relative h-full w-full overflow-hidden rounded-lg border"
           >
-            <iframe
-              ref={(el) => {
-                iframeRefs.current[channel.id] = el;
-              }}
-              src={embedUrls[channel.id]}
+            <div
+              id={`yt-${channel.id}`}
               title={channel.name}
-              referrerPolicy="strict-origin-when-cross-origin"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
               className="absolute inset-0 h-full w-full border-0"
             />
           </div>
