@@ -21,7 +21,7 @@ type Props = {
   embedOrigin: string;
 };
 
-type YouTubeCommand = "playVideo" | "pauseVideo" | "mute";
+type YouTubeCommand = "playVideo" | "pauseVideo" | "mute" | "unMute";
 
 export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
   const iframeRefs = useRef<Record<string, HTMLIFrameElement | null>>({});
@@ -70,6 +70,11 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
     sendCommandToAll("playVideo");
   };
 
+  const playAll = () => {
+    sendCommandToAll("unMute");
+    sendCommandToAll("playVideo");
+  };
+
   const toggleFullscreen = async () => {
     const container = containerRef.current;
     if (!container) return;
@@ -97,6 +102,10 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" container={containerRef.current}>
+            <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
+              <Play className="mr-2 h-4 w-4" />
+              Play All
+            </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer" onClick={playAllMuted}>
               <Play className="mr-2 h-4 w-4" />
               Play All (Muted)
