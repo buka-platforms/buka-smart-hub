@@ -77,11 +77,8 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
 
   useEffect(() => {
     let mounted = true;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    let YTInstance: any;
 
     loadYouTubeAPI().then((YT) => {
-      YTInstance = YT;
       if (!mounted) return;
 
       channels.forEach((c) => {
