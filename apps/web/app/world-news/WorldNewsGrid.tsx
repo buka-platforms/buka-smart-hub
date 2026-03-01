@@ -3,35 +3,103 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Channel = {
   id: string;
+  slug: string;
   name: string;
+  country: string;
   source_id: string;
 };
 
 type Props = {
   channels: Channel[];
+  defaultChannels: Channel[];
   embedOrigin: string;
 };
 
 type YouTubeCommand = "playVideo" | "pauseVideo" | "mute" | "unMute";
 
-export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
+const MAX_CHANNELS = 8;
+const STORAGE_KEY = "world-news:selected-channel-ids:v1";
+
+function getDefaultSelectedIds(channels: Channel[]) {
+  return channels.map((channel) => channel.id).slice(0, MAX_CHANNELS);
+}
+
+function sanitizeSelectedIds(
+  candidateIds: string[],
+  availableIds: Set<string>,
+) {
+  return candidateIds
+    .filter((id, idx) => candidateIds.indexOf(id) === idx)
+    .filter((id) => availableIds.has(id))
+    .slice(0, MAX_CHANNELS);
+}
+
+export default function WorldNewsGrid({
+  channels,
+  defaultChannels,
+  embedOrigin,
+}: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const playersRef = useRef<Record<string, any>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>(() => {
+    const availableIds = new Set(channels.map((channel) => channel.id));
+    const defaultIds = sanitizeSelectedIds(
+      getDefaultSelectedIds(defaultChannels),
+      availableIds,
+    );
+
+    if (typeof window === "undefined") {
+      return defaultIds;
+    }
+
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultIds;
+
+    try {
+      const parsed = JSON.parse(raw);
+      const candidateIds = Array.isArray(parsed)
+        ? parsed.filter((id): id is string => typeof id === "string")
+        : [];
+      const sanitizedIds = sanitizeSelectedIds(candidateIds, availableIds);
+      return sanitizedIds.length > 0 ? sanitizedIds : defaultIds;
+    } catch {
+      return defaultIds;
+    }
+  });
 
   // embedUrls removed — using programmatic YT.Player instances instead
+  const selectedChannels = useMemo(() => {
+    const selectedSet = new Set(selectedChannelIds);
+    const selected = channels.filter((channel) => selectedSet.has(channel.id));
+
+    // Preserve the user-selected ordering first, then append any missing channels.
+    const selectedById = new Map(
+      selected.map((channel) => [channel.id, channel]),
+    );
+    return selectedChannelIds
+      .map((id) => selectedById.get(id))
+      .filter((channel): channel is Channel => Boolean(channel));
+  }, [channels, selectedChannelIds]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedChannelIds));
+  }, [selectedChannelIds]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -81,7 +149,7 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
     loadYouTubeAPI().then((YT) => {
       if (!mounted) return;
 
-      channels.forEach((c) => {
+      selectedChannels.forEach((c) => {
         const elId = `yt-${c.id}`;
         if (playersRef.current[c.id]?.destroy) {
           playersRef.current[c.id].destroy();
@@ -112,10 +180,10 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
       });
       playersRef.current = {};
     };
-  }, [channels, embedOrigin]);
+  }, [selectedChannels, embedOrigin]);
 
   const sendCommandToAll = (command: YouTubeCommand) => {
-    channels.forEach((channel) => {
+    selectedChannels.forEach((channel) => {
       const player = playersRef.current[channel.id];
       if (!player) return;
 
@@ -146,6 +214,19 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
     sendCommandToAll("playVideo");
   };
 
+  const toggleChannel = (channelId: string, checked: boolean) => {
+    setSelectedChannelIds((prev) => {
+      if (checked) {
+        if (prev.includes(channelId) || prev.length >= MAX_CHANNELS)
+          return prev;
+        return [...prev, channelId];
+      }
+
+      if (prev.length <= 1) return prev;
+      return prev.filter((id) => id !== channelId);
+    });
+  };
+
   const toggleFullscreen = async () => {
     const container = containerRef.current;
     if (!container) return;
@@ -166,13 +247,20 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
       className="container mx-auto flex h-[calc(100vh-4rem)] flex-col overflow-hidden p-2 md:p-4"
     >
       <div className="mb-2 flex shrink-0 items-center justify-end">
+        <span className="mr-2 text-xs text-muted-foreground">
+          Selected channels: {selectedChannels.length}/{MAX_CHANNELS}
+        </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="cursor-pointer">
               Select Action
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" container={containerElement}>
+          <DropdownMenuContent
+            align="end"
+            container={containerElement}
+            className="max-h-[70vh] w-[20rem] overflow-y-auto"
+          >
             <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
               <Play className="mr-2 h-4 w-4" />
               Play All
@@ -204,12 +292,43 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
                 </>
               )}
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Display Channels (max {MAX_CHANNELS})
+            </DropdownMenuLabel>
+            {channels.map((channel) => {
+              const isSelected = selectedChannelIds.includes(channel.id);
+              const reachedMax =
+                !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
+              const isLastSelected =
+                isSelected && selectedChannelIds.length <= 1;
+
+              return (
+                <DropdownMenuCheckboxItem
+                  key={channel.id}
+                  checked={isSelected}
+                  disabled={reachedMax || isLastSelected}
+                  onCheckedChange={(checked) =>
+                    toggleChannel(channel.id, checked === true)
+                  }
+                  onSelect={(event) => event.preventDefault()}
+                  className="cursor-pointer"
+                >
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate">{channel.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {channel.country}
+                    </span>
+                  </div>
+                </DropdownMenuCheckboxItem>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4">
-        {channels.map((channel) => (
+        {selectedChannels.map((channel) => (
           <div
             key={channel.id}
             className="relative h-full w-full overflow-hidden rounded-lg border"
