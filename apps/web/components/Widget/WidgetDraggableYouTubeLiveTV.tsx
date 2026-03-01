@@ -77,6 +77,13 @@ const groupedChannels = youtubeChannels.reduce(
   {} as Record<string, TVChannel[]>,
 );
 
+// Sort channels alphabetically within each category
+Object.keys(groupedChannels).forEach((category) => {
+  groupedChannels[category].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+});
+
 // Sort categories alphabetically
 const sortedCategories = Object.keys(groupedChannels).sort();
 
