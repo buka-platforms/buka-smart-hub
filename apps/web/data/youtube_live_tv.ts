@@ -392,10 +392,23 @@ export const tv = [
     short_description: "CNN Indonesia from Indonesia.",
     long_description: "CNN Indonesia is a news channel from Indonesia.",
     logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/CNN_International.svg/2560px-CNN_International.svg.png",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/CNN_Indonesia_logo_%282023%29.svg/960px-CNN_Indonesia_logo_%282023%29.svg.png",
     source: "YouTube",
     source_id: "a0vX_Qt0gDQ",
     category: "News",
+  },
+  {
+    id: "tvri",
+    slug: "tvri",
+    country: "Indonesia",
+    name: "TVRI",
+    short_description: "TVRI from Indonesia.",
+    long_description: "TVRI is a public television network from Indonesia.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/TVRI_Jakarta.png/960px-TVRI_Jakarta.png",
+    source: "YouTube",
+    source_id: "CRwyh-Nw7RM",
+    category: "Public",
   },
   {
     id: "nbc_news",
