@@ -87,8 +87,13 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
           playersRef.current[c.id].destroy();
         }
         playersRef.current[c.id] = new YT.Player(elId, {
+          host: "https://www.youtube-nocookie.com",
           videoId: c.source_id,
-          playerVars: { origin: embedOrigin, rel: 0, playsinline: 1 },
+          playerVars: {
+            origin: embedOrigin || (window as any).location?.origin,
+            rel: 0,
+            playsinline: 1,
+          },
           events: {
             onReady: () => {},
             onStateChange: () => {},
