@@ -90,6 +90,7 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
           host: "https://www.youtube-nocookie.com",
           videoId: c.source_id,
           playerVars: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             origin: embedOrigin || (window as any).location?.origin,
             rel: 0,
             playsinline: 1,
