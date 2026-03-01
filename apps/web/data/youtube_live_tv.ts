@@ -372,19 +372,6 @@ export const tv = [
     category: "Culture",
   },
   {
-    id: "liputan_6",
-    slug: "liputan-6",
-    country: "Indonesia",
-    name: "Liputan 6",
-    short_description: "Liputan 6 from Indonesia.",
-    long_description: "Liputan 6 is a news channel from Indonesia.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/d/dc/Liputan6_%282019%29.svg",
-    source: "YouTube",
-    source_id: "Nbsr3aZIDl8",
-    category: "News",
-  },
-  {
     id: "metrotv",
     slug: "metrotv",
     country: "Indonesia",
