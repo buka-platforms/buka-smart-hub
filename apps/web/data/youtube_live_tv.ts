@@ -385,6 +385,19 @@ export const tv = [
     category: "News",
   },
   {
+    id: "cnn_indonesia",
+    slug: "cnn-indonesia",
+    country: "Indonesia",
+    name: "CNN Indonesia",
+    short_description: "CNN Indonesia from Indonesia.",
+    long_description: "CNN Indonesia is a news channel from Indonesia.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/CNN_International.svg/2560px-CNN_International.svg.png",
+    source: "YouTube",
+    source_id: "a0vX_Qt0gDQ",
+    category: "News",
+  },
+  {
     id: "nbc_news",
     slug: "nbc-news",
     country: "United States",
