@@ -1,10 +1,14 @@
 "use client";
 
-import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import {
+  audioVisualizationStateAtom,
+  radioAudioStateAtom,
+  radioStationStateAtom,
+} from "@/data/store";
 import {
   initAudioVisualization,
   renderAudioVisualization,
-  setupRadioAudioContext,
+  resumeAudioVisualizationContext,
 } from "@/lib/audio-visualizer";
 import { setupRadioAudio } from "@/lib/radio-audio";
 import { useAtomValue } from "jotai";
@@ -13,14 +17,12 @@ import { useCallback, useEffect } from "react";
 
 const AudioContext = () => {
   const pathname = usePathname();
-  const radioAudioState = useAtomValue(radioAudioStateAtom);
+  const visualizationState = useAtomValue(audioVisualizationStateAtom);
 
   // Handle user gesture to create audio context
   useEffect(() => {
-    const handleUserGesture = () => {
-      if (!radioAudioState.contextCreated && radioAudioState.radioAudio) {
-        setupRadioAudioContext();
-      }
+    const handleUserGesture = async () => {
+      await resumeAudioVisualizationContext();
     };
 
     window.addEventListener("click", handleUserGesture);
@@ -28,13 +30,13 @@ const AudioContext = () => {
     return () => {
       window.removeEventListener("click", handleUserGesture);
     };
-  }, [radioAudioState.contextCreated, radioAudioState.radioAudio]);
+  }, []);
 
   useEffect(() => {
     if (pathname === "/login") {
       return;
     } else {
-      if (radioAudioState.contextCreated && radioAudioState.isPlaying) {
+      if (visualizationState.contextCreated && visualizationState.isActive) {
         // Re-initialize and start rendering when navigating between pages
         initAudioVisualization();
         renderAudioVisualization();
@@ -44,7 +46,7 @@ const AudioContext = () => {
     return () => {
       // Cleanup if needed
     };
-  }, [pathname, radioAudioState.contextCreated, radioAudioState.isPlaying]);
+  }, [pathname, visualizationState.contextCreated, visualizationState.isActive]);
 
   return <></>;
 };

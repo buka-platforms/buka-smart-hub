@@ -5,9 +5,8 @@ import {
   radioStationStateAtom,
 } from "@/data/store";
 import {
-  initAudioVisualization,
-  renderAudioVisualization,
-  stopAudioVisualization,
+  startAudioVisualizationForSource,
+  stopAudioVisualizationForSource,
 } from "@/lib/audio-visualizer";
 import {
   startPeriodicGetTrackMetadata,
@@ -161,11 +160,11 @@ export const play = async (isChangeAddressBar = false) => {
     audio.src = url as string;
 
     mediaAudioCors = audio;
+    stopAudioVisualizationForSource("radio");
   }
 
-  if (!isRadioStationCORSProblem) {
-    initAudioVisualization();
-    renderAudioVisualization();
+  if (!isRadioStationCORSProblem && radioAudio) {
+    startAudioVisualizationForSource(radioAudio, "radio");
   }
 
   const playPromise = !isRadioStationCORSProblem
@@ -245,7 +244,7 @@ export const stop = async () => {
 
   stopPeriodicGetTrackMetadata();
 
-  stopAudioVisualization();
+  stopAudioVisualizationForSource("radio");
 
   // Resume metadata polling at idle cadence (60s) after stopping playback
   await startPeriodicGetTrackMetadata(60000);

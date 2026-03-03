@@ -63,6 +63,17 @@ export const somafmAudioStateAtom = atom({
   lastChannelId: null as string | null,
 });
 
+export type AudioVisualizationSourceId =
+  | "radio"
+  | "onlineradioboxnowplaying"
+  | "somafm";
+
+export const audioVisualizationStateAtom = atom({
+  isActive: false,
+  contextCreated: false,
+  activeSource: null as AudioVisualizationSourceId | null,
+});
+
 // Widget Launcher Dock State
 export type WidgetId =
   | "time"

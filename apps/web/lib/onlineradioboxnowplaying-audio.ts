@@ -1,4 +1,8 @@
 import { jotaiStore, onlineRadioBoxAudioStateAtom } from "@/data/store";
+import {
+  startAudioVisualizationForSource,
+  stopAudioVisualizationForSource,
+} from "@/lib/audio-visualizer";
 import Hls from "hls.js";
 
 const VOLUME_KEY = `widgetOnlineRadioBoxNowPlayingVolume`;
@@ -89,6 +93,8 @@ export const playOnlineRadioStream = async (
       lastRadioId: radioId ?? null,
     }));
 
+    startAudioVisualizationForSource(audio, "onlineradioboxnowplaying");
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,6 +103,7 @@ export const playOnlineRadioStream = async (
       isLoading: false,
       isPlaying: false,
     }));
+    stopAudioVisualizationForSource("onlineradioboxnowplaying");
   }
 };
 
@@ -125,6 +132,8 @@ export const stopOnlineRadio = () => {
     isPlaying: false,
     isLoading: false,
   }));
+
+  stopAudioVisualizationForSource("onlineradioboxnowplaying");
 };
 
 export const setOnlineRadioVolume = (percent: number) => {
@@ -157,11 +166,13 @@ export const attachOnlineRadioListeners = () => {
       isLoading: false,
     }));
   handlePauseRef = () =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    jotaiStore.set(onlineRadioBoxAudioStateAtom, (prev: any) => ({
-      ...prev,
-      isPlaying: false,
-    }));
+    {
+      jotaiStore.set(onlineRadioBoxAudioStateAtom, (prev) => ({
+        ...prev,
+        isPlaying: false,
+      }));
+      stopAudioVisualizationForSource("onlineradioboxnowplaying");
+    };
 
   audio.addEventListener("playing", handlePlayRef);
   audio.addEventListener("pause", handlePauseRef);

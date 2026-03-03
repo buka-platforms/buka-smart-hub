@@ -1,4 +1,8 @@
-import { jotaiStore, radioAudioStateAtom } from "@/data/store";
+import {
+  audioVisualizationStateAtom,
+  jotaiStore,
+  type AudioVisualizationSourceId,
+} from "@/data/store";
 import type { AudioVisualizationOptions } from "@/data/type";
 
 // Visualization state
@@ -11,6 +15,13 @@ let consZ = 0;
 let usableLength = 250;
 let audioAnalyserNode: AnalyserNode | null = null;
 let audioFrequencyData: Uint8Array | null = null;
+let audioContext: AudioContext | null = null;
+let currentAudioSourceNode: MediaElementAudioSourceNode | null = null;
+let currentAudioElement: HTMLAudioElement | null = null;
+const mediaElementSourceNodeMap = new WeakMap<
+  HTMLAudioElement,
+  MediaElementAudioSourceNode
+>();
 
 // OffscreenCanvas and Worker state
 let visualizerWorker: Worker | null = null;
@@ -64,30 +75,70 @@ export const randomizeRainbowColor = () => {
   audioVisualizationOptions.color = `rainbow${n}`;
 };
 
-export const setupRadioAudioContext = () => {
-  const radioAudio = jotaiStore.get(radioAudioStateAtom)
-    .radioAudio as HTMLAudioElement;
-  const audioContext = new AudioContext();
-  const audioSourceNode = audioContext.createMediaElementSource(radioAudio);
-  audioAnalyserNode = audioContext.createAnalyser();
+export const setupAudioContextForElement = (
+  audioElement: HTMLAudioElement,
+  sourceId: AudioVisualizationSourceId,
+) => {
+  if (!audioElement) return;
 
-  jotaiStore.set(radioAudioStateAtom, (prev) => ({
-    ...prev,
-    contextCreated: true,
-  }));
+  if (!audioContext) {
+    audioContext = new AudioContext();
+  }
+
+  if (!audioAnalyserNode) {
+    audioAnalyserNode = audioContext.createAnalyser();
+    audioAnalyserNode.connect(audioContext.destination);
+    audioAnalyserNode.fftSize = 2048;
+    audioAnalyserNode.smoothingTimeConstant = 0.8;
+    audioAnalyserNode.minDecibels = -100;
+    audioAnalyserNode.maxDecibels = -30;
+    audioFrequencyData = new Uint8Array(audioAnalyserNode.frequencyBinCount);
+  }
+
+  if (currentAudioElement === audioElement && currentAudioSourceNode) {
+    jotaiStore.set(audioVisualizationStateAtom, (prev) => ({
+      ...prev,
+      contextCreated: true,
+      isActive: true,
+      activeSource: sourceId,
+    }));
+    return;
+  }
+
+  if (currentAudioSourceNode) {
+    try {
+      currentAudioSourceNode.disconnect(audioAnalyserNode);
+    } catch {
+      // no-op
+    }
+  }
+
+  let audioSourceNode = mediaElementSourceNodeMap.get(audioElement) ?? null;
+  if (!audioSourceNode) {
+    audioSourceNode = audioContext.createMediaElementSource(audioElement);
+    mediaElementSourceNodeMap.set(audioElement, audioSourceNode);
+  }
 
   audioSourceNode.connect(audioAnalyserNode);
-  audioAnalyserNode.connect(audioContext.destination);
+  currentAudioSourceNode = audioSourceNode;
+  currentAudioElement = audioElement;
 
-  audioAnalyserNode.fftSize = 2048;
-  audioAnalyserNode.smoothingTimeConstant = 0.8;
-  audioAnalyserNode.minDecibels = -100;
-  audioAnalyserNode.maxDecibels = -30;
-
-  audioFrequencyData = new Uint8Array(audioAnalyserNode.frequencyBinCount);
+  jotaiStore.set(audioVisualizationStateAtom, (prev) => ({
+    ...prev,
+    contextCreated: true,
+    isActive: true,
+    activeSource: sourceId,
+  }));
 
   setupVisibilityHandler();
   setupResizeHandler();
+};
+
+export const resumeAudioVisualizationContext = async () => {
+  if (!audioContext) return;
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
 };
 
 // Helper function to generate bar colors
@@ -347,6 +398,11 @@ export const initAudioVisualization = () => {
 };
 
 export const renderAudioVisualization = () => {
+  jotaiStore.set(audioVisualizationStateAtom, (prev) => ({
+    ...prev,
+    isActive: true,
+  }));
+
   if (useOffscreenCanvas && visualizerWorker) {
     visualizerWorker.postMessage({ type: "start" });
     startFrequencyDataTransfer();
@@ -507,7 +563,8 @@ export const setupVisibilityHandler = () => {
       consZ = 0;
       usableLength = 250;
 
-      if (jotaiStore.get(radioAudioStateAtom).isPlaying) {
+      const visualizerState = jotaiStore.get(audioVisualizationStateAtom);
+      if (visualizerState.isActive && currentAudioElement && !currentAudioElement.paused) {
         if (useOffscreenCanvas && visualizerWorker) {
           visualizerWorker.postMessage({ type: "resume" });
           startFrequencyDataTransfer();
@@ -520,6 +577,11 @@ export const setupVisibilityHandler = () => {
 };
 
 export const stopAudioVisualization = () => {
+  jotaiStore.set(audioVisualizationStateAtom, (prev) => ({
+    ...prev,
+    isActive: false,
+  }));
+
   stopFrequencyDataTransfer();
 
   if (useOffscreenCanvas && visualizerWorker) {
@@ -535,6 +597,28 @@ export const stopAudioVisualization = () => {
   if (canvasContext && canvasElement) {
     canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
   }
+};
+
+export const startAudioVisualizationForSource = (
+  audioElement: HTMLAudioElement,
+  sourceId: AudioVisualizationSourceId,
+) => {
+  setupAudioContextForElement(audioElement, sourceId);
+  initAudioVisualization();
+  renderAudioVisualization();
+};
+
+export const stopAudioVisualizationForSource = (
+  sourceId: AudioVisualizationSourceId,
+) => {
+  const visualizerState = jotaiStore.get(audioVisualizationStateAtom);
+  if (visualizerState.activeSource !== sourceId) return;
+
+  stopAudioVisualization();
+  jotaiStore.set(audioVisualizationStateAtom, (prev) => ({
+    ...prev,
+    activeSource: null,
+  }));
 };
 
 // Cleanup function to destroy the worker and reset state
@@ -556,4 +640,14 @@ export const destroyAudioVisualization = () => {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = undefined;
   }
+
+  currentAudioSourceNode = null;
+  currentAudioElement = null;
+
+  jotaiStore.set(audioVisualizationStateAtom, (prev) => ({
+    ...prev,
+    isActive: false,
+    contextCreated: false,
+    activeSource: null,
+  }));
 };
