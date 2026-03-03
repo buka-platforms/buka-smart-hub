@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
+import { Home, Maximize2, Minimize2, Pause, Play } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Channel = {
@@ -314,6 +315,12 @@ export default function WorldNewsGrid({
                   Fullscreen
                 </>
               )}
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/">
+                <Home className="mr-2 h-4 w-4" />
+                Back to Home
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs text-muted-foreground">
