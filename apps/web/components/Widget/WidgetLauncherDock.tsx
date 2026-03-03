@@ -8,6 +8,7 @@ import {
   BookOpen,
   Clock,
   CloudSun,
+  Globe,
   LayoutGrid,
   LayoutTemplate,
   Music,
@@ -209,6 +210,16 @@ export default function WidgetLauncherDock() {
             <AppWindow className="h-4 w-4" />
             <span className="hidden md:inline">Apps</span>
           </Link>
+
+          {/* World News CTA */}
+          <Link
+            href="/world-news"
+            title="World News"
+            className="flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+          >
+            <Globe className="h-4 w-4" />
+            <span className="hidden md:inline">World News</span>
+          </Link>
         </div>
       )}
 
@@ -294,6 +305,15 @@ export default function WidgetLauncherDock() {
             >
               <AppWindow className="h-3.5 w-3.5" />
               <span>Open Apps</span>
+            </Link>
+
+            <Link
+              href="/world-news"
+              title="World News"
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              <span>World News</span>
             </Link>
 
             <div className="h-px w-full bg-white/10" />
