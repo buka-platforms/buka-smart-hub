@@ -54,7 +54,7 @@ export default function WorldNewsGrid({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const playersRef = useRef<Record<string, any>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const didInitSelectionRef = useRef(false);
+  const didRestoreSelectionRef = useRef(false);
   const availableIds = useMemo(
     () => new Set(channels.map((channel) => channel.id)),
     [channels],
@@ -71,13 +71,14 @@ export default function WorldNewsGrid({
     useState<string[]>(defaultSelectedIds);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (didRestoreSelectionRef.current) return;
+    if (typeof window === "undefined") return;
 
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      didInitSelectionRef.current = true;
+      setTimeout(() => {
+        didRestoreSelectionRef.current = true;
+      }, 0);
       return;
     }
 
@@ -89,16 +90,19 @@ export default function WorldNewsGrid({
       const sanitizedIds = sanitizeSelectedIds(candidateIds, availableIds);
       const nextIds =
         sanitizedIds.length > 0 ? sanitizedIds : defaultSelectedIds;
-      if (JSON.stringify(nextIds) !== JSON.stringify(selectedChannelIds)) {
-        setTimeout(() => {
-          setSelectedChannelIds(nextIds);
-        }, 0);
-      }
-      didInitSelectionRef.current = true;
+
+      setTimeout(() => {
+        setSelectedChannelIds((prev) =>
+          JSON.stringify(prev) === JSON.stringify(nextIds) ? prev : nextIds,
+        );
+        didRestoreSelectionRef.current = true;
+      }, 0);
     } catch {
-      didInitSelectionRef.current = true;
+      setTimeout(() => {
+        didRestoreSelectionRef.current = true;
+      }, 0);
     }
-  }, [availableIds, defaultSelectedIds, selectedChannelIds]);
+  }, [availableIds, defaultSelectedIds]);
 
   // embedUrls removed — using programmatic YT.Player instances instead
   const selectedChannels = useMemo(() => {
@@ -115,7 +119,8 @@ export default function WorldNewsGrid({
   }, [channels, selectedChannelIds]);
 
   useEffect(() => {
-    if (!didInitSelectionRef.current) return;
+    if (!didRestoreSelectionRef.current) return;
+    if (typeof window === "undefined") return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedChannelIds));
   }, [selectedChannelIds]);
 
