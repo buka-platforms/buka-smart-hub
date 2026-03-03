@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const DEFAULT_CHANNEL_SLUGS = [
   "aljazeera",
   "france24",
-  "bbc-news",
+  "fox-news",
   "skynews",
   "wion",
   "cgtn-europe",
