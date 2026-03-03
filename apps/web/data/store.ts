@@ -66,7 +66,8 @@ export const somafmAudioStateAtom = atom({
 export type AudioVisualizationSourceId =
   | "radio"
   | "onlineradioboxnowplaying"
-  | "somafm";
+  | "somafm"
+  | "iptv";
 
 export const audioVisualizationStateAtom = atom({
   isActive: false,

@@ -29,6 +29,10 @@ import {
 import { iptv } from "@/data/iptv";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
+  startAudioVisualizationForSource,
+  stopAudioVisualizationForSource,
+} from "@/lib/audio-visualizer";
+import {
   observeWidget,
   resetWidgetPosition,
   setWidgetMeasuredHeight,
@@ -147,6 +151,17 @@ export default function WidgetDraggableIPTV() {
   const prevPlayerPointerRef = useRef<string | null>(null);
 
   const JW_KEY = process.env.NEXT_PUBLIC_JWPLAYER_KEY || "";
+
+  const startIPTVVisualization = useCallback(() => {
+    const mediaEl =
+      videoRef.current ?? jwElRef.current?.querySelector("video") ?? null;
+    if (!mediaEl) return;
+    startAudioVisualizationForSource(mediaEl, "iptv");
+  }, []);
+
+  const stopIPTVVisualization = useCallback(() => {
+    stopAudioVisualizationForSource("iptv");
+  }, []);
 
   // Load JW Player script from public assets and set key when available
   useEffect(() => {
@@ -370,10 +385,12 @@ export default function WidgetDraggableIPTV() {
               playIntentRef.current = true;
               setIsPlaying(true);
               setIsLoading(false);
+              startIPTVVisualization();
             });
             instance.on("pause", () => {
               setIsPlaying(false);
               setIsLoading(playIntentRef.current);
+              stopIPTVVisualization();
             });
             instance.on("buffer", () =>
               queueMicrotask(() => setIsLoading(true)),
@@ -385,6 +402,7 @@ export default function WidgetDraggableIPTV() {
             instance.on("error", () => {
               playIntentRef.current = false;
               queueMicrotask(() => setIsLoading(false));
+              stopIPTVVisualization();
             });
           }
         }
@@ -394,6 +412,7 @@ export default function WidgetDraggableIPTV() {
       }
 
       return () => {
+        stopIPTVVisualization();
         if (
           jwInstanceRef.current &&
           typeof jwInstanceRef.current.remove === "function"
@@ -491,10 +510,12 @@ export default function WidgetDraggableIPTV() {
       playIntentRef.current = true;
       setIsPlaying(true);
       setIsLoading(false);
+      startIPTVVisualization();
     };
     const onPause = () => {
       setIsPlaying(false);
       setIsLoading(playIntentRef.current);
+      stopIPTVVisualization();
     };
     const onCanPlay = () => setIsLoading(false);
     const onLoadedData = () => {
@@ -511,6 +532,7 @@ export default function WidgetDraggableIPTV() {
       playIntentRef.current = false;
       setIsLoading(false);
       setHasRenderedFrame(false);
+      stopIPTVVisualization();
     };
 
     video.addEventListener("play", onPlay);
@@ -523,6 +545,7 @@ export default function WidgetDraggableIPTV() {
     video.addEventListener("error", onError);
 
     return () => {
+      stopIPTVVisualization();
       try {
         video.removeEventListener("play", onPlay);
         video.removeEventListener("pause", onPause);
@@ -540,7 +563,14 @@ export default function WidgetDraggableIPTV() {
         hlsRef.current = null;
       }
     };
-  }, [selectedChannel, jwLoaded, selectedQuality, volume]);
+  }, [
+    selectedChannel,
+    jwLoaded,
+    selectedQuality,
+    volume,
+    startIPTVVisualization,
+    stopIPTVVisualization,
+  ]);
 
   // measure height
   useEffect(() => {

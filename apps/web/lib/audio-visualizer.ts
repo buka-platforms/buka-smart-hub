@@ -17,9 +17,9 @@ let audioAnalyserNode: AnalyserNode | null = null;
 let audioFrequencyData: Uint8Array | null = null;
 let audioContext: AudioContext | null = null;
 let currentAudioSourceNode: MediaElementAudioSourceNode | null = null;
-let currentAudioElement: HTMLAudioElement | null = null;
+let currentAudioElement: HTMLMediaElement | null = null;
 const mediaElementSourceNodeMap = new WeakMap<
-  HTMLAudioElement,
+  HTMLMediaElement,
   MediaElementAudioSourceNode
 >();
 
@@ -76,7 +76,7 @@ export const randomizeRainbowColor = () => {
 };
 
 export const setupAudioContextForElement = (
-  audioElement: HTMLAudioElement,
+  audioElement: HTMLMediaElement,
   sourceId: AudioVisualizationSourceId,
 ) => {
   if (!audioElement) return;
@@ -600,7 +600,7 @@ export const stopAudioVisualization = () => {
 };
 
 export const startAudioVisualizationForSource = (
-  audioElement: HTMLAudioElement,
+  audioElement: HTMLMediaElement,
   sourceId: AudioVisualizationSourceId,
 ) => {
   setupAudioContextForElement(audioElement, sourceId);
