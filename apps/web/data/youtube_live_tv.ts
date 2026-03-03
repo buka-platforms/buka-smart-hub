@@ -297,6 +297,19 @@ export const tv = [
     category: "News",
   },
   {
+    id: "fox_news",
+    slug: "fox-news",
+    country: "United States",
+    name: "Fox News",
+    short_description: "Fox News from the US.",
+    long_description: "Fox News is a news channel from the US.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_News_Channel_logo.svg/960px-Fox_News_Channel_logo.svg.png",
+    source: "YouTube",
+    source_id: "ZvdiJUYGBis",
+    category: "News",
+  },
+  {
     id: "fox_weather",
     slug: "fox-weather",
     country: "United States",
