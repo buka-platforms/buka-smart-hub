@@ -165,14 +165,13 @@ export const attachOnlineRadioListeners = () => {
       isPlaying: true,
       isLoading: false,
     }));
-  handlePauseRef = () =>
-    {
-      jotaiStore.set(onlineRadioBoxAudioStateAtom, (prev) => ({
-        ...prev,
-        isPlaying: false,
-      }));
-      stopAudioVisualizationForSource("onlineradioboxnowplaying");
-    };
+  handlePauseRef = () => {
+    jotaiStore.set(onlineRadioBoxAudioStateAtom, (prev) => ({
+      ...prev,
+      isPlaying: false,
+    }));
+    stopAudioVisualizationForSource("onlineradioboxnowplaying");
+  };
 
   audio.addEventListener("playing", handlePlayRef);
   audio.addEventListener("pause", handlePauseRef);

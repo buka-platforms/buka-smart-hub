@@ -46,7 +46,11 @@ const AudioContext = () => {
     return () => {
       // Cleanup if needed
     };
-  }, [pathname, visualizationState.contextCreated, visualizationState.isActive]);
+  }, [
+    pathname,
+    visualizationState.contextCreated,
+    visualizationState.isActive,
+  ]);
 
   return <></>;
 };

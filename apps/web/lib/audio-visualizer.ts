@@ -564,7 +564,11 @@ export const setupVisibilityHandler = () => {
       usableLength = 250;
 
       const visualizerState = jotaiStore.get(audioVisualizationStateAtom);
-      if (visualizerState.isActive && currentAudioElement && !currentAudioElement.paused) {
+      if (
+        visualizerState.isActive &&
+        currentAudioElement &&
+        !currentAudioElement.paused
+      ) {
         if (useOffscreenCanvas && visualizerWorker) {
           visualizerWorker.postMessage({ type: "resume" });
           startFrequencyDataTransfer();

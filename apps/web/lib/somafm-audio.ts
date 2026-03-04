@@ -133,14 +133,13 @@ export const attachSomaFMListeners = () => {
       isPlaying: true,
       isLoading: false,
     }));
-  handlePauseRef = () =>
-    {
-      jotaiStore.set(somafmAudioStateAtom, (prev) => ({
-        ...prev,
-        isPlaying: false,
-      }));
-      stopAudioVisualizationForSource("somafm");
-    };
+  handlePauseRef = () => {
+    jotaiStore.set(somafmAudioStateAtom, (prev) => ({
+      ...prev,
+      isPlaying: false,
+    }));
+    stopAudioVisualizationForSource("somafm");
+  };
 
   handleWaitingRef = () =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -166,24 +165,22 @@ export const attachSomaFMListeners = () => {
       ...prev,
       isLoading: false,
     }));
-  handleErrorRef = () =>
-    {
-      jotaiStore.set(somafmAudioStateAtom, (prev) => ({
-        ...prev,
-        isLoading: false,
-        isPlaying: false,
-      }));
-      stopAudioVisualizationForSource("somafm");
-    };
-  handleEndedRef = () =>
-    {
-      jotaiStore.set(somafmAudioStateAtom, (prev) => ({
-        ...prev,
-        isLoading: false,
-        isPlaying: false,
-      }));
-      stopAudioVisualizationForSource("somafm");
-    };
+  handleErrorRef = () => {
+    jotaiStore.set(somafmAudioStateAtom, (prev) => ({
+      ...prev,
+      isLoading: false,
+      isPlaying: false,
+    }));
+    stopAudioVisualizationForSource("somafm");
+  };
+  handleEndedRef = () => {
+    jotaiStore.set(somafmAudioStateAtom, (prev) => ({
+      ...prev,
+      isLoading: false,
+      isPlaying: false,
+    }));
+    stopAudioVisualizationForSource("somafm");
+  };
 
   audio.addEventListener("playing", handlePlayRef);
   audio.addEventListener("pause", handlePauseRef);
