@@ -180,76 +180,73 @@ export default function WidgetLauncherDock() {
   return (
     <Dialog open={isWorldNewsOpen} onOpenChange={setIsWorldNewsOpen}>
       <div
-        className={`pointer-events-auto z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-hidden rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 transition-opacity duration-200 md:mt-5 md:ml-4 ${
-          isExpanded ? "flex-col" : "flex-row"
-        } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto relative z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-visible rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 transition-opacity duration-200 md:mt-5 md:ml-4 ${
+          isVisible ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
         ref={containerRef}
         style={{ justifySelf: "start" }}
       >
         {/* (removed) drag handle: no longer relevant */}
 
-        {/* Mini Dock Mode */}
-        {!isExpanded && (
-          <div className="flex items-center gap-1 p-1.5">
-            {miniDockWidgets.map((widget) => {
-              const isActive = visibility[widget.id];
-              return (
-                <button
-                  key={widget.id}
-                  onClick={() => toggleWidget(widget.id)}
-                  className={`group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                      : "bg-white/10 text-white/50 hover:bg-white/20 hover:text-white"
-                  }`}
-                  title={`${isActive ? "Hide" : "Show"} ${widget.label}`}
-                >
-                  {widget.icon}
-                  {/* Active indicator dot */}
-                  {isActive && (
-                    <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-black/80 bg-green-400" />
-                  )}
-                </button>
-              );
-            })}
-
-            {/* Expand button */}
-            <button
-              onClick={() => setIsExpanded(true)}
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-white/5 text-white/50 transition-all duration-200 hover:bg-white/15 hover:text-white"
-              title="Show all widgets"
-            >
-              <LayoutGrid className="h-5 w-5" />
-            </button>
-
-            <div className="mx-1 h-10 w-px bg-white/10" />
-
-            {/* Apps CTA */}
-            <Link
-              href="/apps"
-              title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-              className="flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
-            >
-              <AppWindow className="h-4 w-4" />
-              <span className="hidden md:inline">Apps</span>
-            </Link>
-
-            {/* World News CTA */}
-            <DialogTrigger asChild>
+        <div className="flex items-center gap-1 p-1.5">
+          {miniDockWidgets.map((widget) => {
+            const isActive = visibility[widget.id];
+            return (
               <button
-                title="World News"
-                className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+                key={widget.id}
+                onClick={() => toggleWidget(widget.id)}
+                className={`group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    : "bg-white/10 text-white/50 hover:bg-white/20 hover:text-white"
+                }`}
+                title={`${isActive ? "Hide" : "Show"} ${widget.label}`}
               >
-                <Globe className="h-4 w-4" />
-                <span className="hidden md:inline">World News</span>
+                {widget.icon}
+                {/* Active indicator dot */}
+                {isActive && (
+                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-black/80 bg-green-400" />
+                )}
               </button>
-            </DialogTrigger>
-          </div>
-        )}
+            );
+          })}
 
-        {/* Expanded Dock Mode */}
+          {/* Expand button */}
+          <button
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-white/5 text-white/50 transition-all duration-200 hover:bg-white/15 hover:text-white"
+            title="Show all widgets"
+          >
+            <LayoutGrid className="h-5 w-5" />
+          </button>
+
+          <div className="mx-1 h-10 w-px bg-white/10" />
+
+          {/* Apps CTA */}
+          <Link
+            href="/apps"
+            title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
+            className="flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+          >
+            <AppWindow className="h-4 w-4" />
+            <span className="hidden md:inline">Apps</span>
+          </Link>
+
+          {/* World News CTA */}
+          <DialogTrigger asChild>
+            <button
+              title="World News"
+              className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            >
+              <Globe className="h-4 w-4" />
+              <span className="hidden md:inline">World News</span>
+            </button>
+          </DialogTrigger>
+        </div>
+
+        {/* Expanded Dock Panel (overlay; does not affect layout) */}
         {isExpanded && (
-          <div className="w-64">
+          <div className="absolute top-full left-0 mt-2 w-64 overflow-hidden rounded-lg bg-black/85 shadow-2xl ring-1 ring-white/15">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
               <div className="flex items-center gap-2">
