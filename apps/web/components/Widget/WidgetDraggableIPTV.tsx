@@ -44,14 +44,7 @@ import {
 } from "@/lib/widget-positions";
 import Hls from "hls.js";
 import { useAtom } from "jotai";
-import {
-  ChevronDown,
-  Flag,
-  Globe,
-  Heart,
-  MoreHorizontal,
-  Tv,
-} from "lucide-react";
+import { Flag, Globe, Heart, MoreHorizontal, Tv } from "lucide-react";
 // Link import removed (unused)
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -813,186 +806,13 @@ export default function WidgetDraggableIPTV() {
               </div>
 
               {/* Channel Picker */}
-              <Popover
-                open={channelPickerOpen}
-                onOpenChange={setChannelPickerOpen}
+              <button
+                onClick={() => setChannelPickerOpen(true)}
+                className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                title="Change channel"
               >
-                <PopoverTrigger asChild>
-                  <button
-                    className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                    title="Change channel"
-                  >
-                    <Tv className="h-3 w-3" />
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="end"
-                  sideOffset={8}
-                  className="w-96 rounded-lg border border-white/10 bg-[#0c0c10]/95 p-0 shadow-2xl backdrop-blur-xl"
-                >
-                  <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
-                    <div className="flex items-center gap-2 border-b border-white/10 p-2">
-                      <CommandInput
-                        placeholder="Search channels..."
-                        className="h-8 flex-1 text-sm text-white placeholder:text-white/40"
-                      />
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors ${countryFilter ? "border-purple-500/50 bg-purple-500/20 text-purple-400" : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"}`}
-                            title="Filter by country"
-                          >
-                            <Globe className="h-4 w-4" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          align="end"
-                          className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-                        >
-                          <button
-                            onClick={() => setCountryFilter(null)}
-                            className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${!countryFilter ? "bg-purple-500/20 text-purple-400" : "text-white/70"}`}
-                          >
-                            All Countries
-                          </button>
-                          {countries.map((country) => (
-                            <button
-                              key={country}
-                              onClick={() => setCountryFilter(country)}
-                              className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${countryFilter === country ? "bg-purple-500/20 text-purple-400" : "text-white/70"}`}
-                            >
-                              <Flag className="h-3 w-3" />
-                              {country}
-                            </button>
-                          ))}
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <CommandList
-                      ref={channelListRef}
-                      className="max-h-72 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-                    >
-                      <CommandEmpty className="px-3 py-2 text-xs text-white/60">
-                        No channels found.
-                      </CommandEmpty>
-
-                      {favoriteChannels.length > 0 && (
-                        <CommandGroup
-                          heading={
-                            <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
-                              Favorites
-                            </span>
-                          }
-                        >
-                          {favoriteChannels.map((channel) => (
-                            <CommandItem
-                              key={channel.id}
-                              value={`${channel.id}`}
-                              onSelect={() => selectChannel(channel)}
-                              data-current-channel={
-                                channel.id === selectedChannel?.id
-                                  ? "true"
-                                  : undefined
-                              }
-                              className={`${commandItemClass} ${
-                                channel.id === selectedChannel?.id
-                                  ? "bg-white/10 text-white"
-                                  : ""
-                              }`}
-                            >
-                              <div className="flex w-full items-center gap-3">
-                                {channel.logo_url && (
-                                  <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
-                                    <img
-                                      src={channel.logo_url}
-                                      alt={channel.name}
-                                      className="h-full w-full object-contain"
-                                      draggable={false}
-                                    />
-                                  </div>
-                                )}
-                                <div className="flex min-w-0 flex-1 flex-col">
-                                  <span className="truncate text-[13px] font-medium text-white">
-                                    {channel.name}
-                                  </span>
-                                  <span className="truncate text-[11px] text-white/50">
-                                    {channel.country}
-                                  </span>
-                                </div>
-                                <Heart
-                                  className="h-3.5 w-3.5 text-pink-400"
-                                  fill="currentColor"
-                                />
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-
-                      {sortedCategories.map((category) => {
-                        const channels = filteredChannels[category];
-                        if (!channels || channels.length === 0) return null;
-                        return (
-                          <CommandGroup
-                            key={category}
-                            heading={
-                              <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
-                                {category}
-                              </span>
-                            }
-                          >
-                            {channels.map((channel) => (
-                              <CommandItem
-                                key={channel.id}
-                                value={`${channel.id}`}
-                                onSelect={() => selectChannel(channel)}
-                                data-current-channel={
-                                  channel.id === selectedChannel?.id
-                                    ? "true"
-                                    : undefined
-                                }
-                                className={`${commandItemClass} ${
-                                  channel.id === selectedChannel?.id
-                                    ? "bg-white/10 text-white"
-                                    : ""
-                                }`}
-                              >
-                                <div className="flex w-full items-center gap-3">
-                                  {channel.logo_url && (
-                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
-                                      <img
-                                        src={channel.logo_url}
-                                        alt={channel.name}
-                                        className="h-full w-full object-contain"
-                                        draggable={false}
-                                      />
-                                    </div>
-                                  )}
-                                  <div className="flex min-w-0 flex-1 flex-col">
-                                    <span className="truncate text-[13px] font-medium text-white">
-                                      {channel.name}
-                                    </span>
-                                    <span className="truncate text-[11px] text-white/50">
-                                      {channel.country}
-                                    </span>
-                                  </div>
-                                  {favorites.includes(channel.id) && (
-                                    <Heart
-                                      className="h-3.5 w-3.5 text-pink-400"
-                                      fill="currentColor"
-                                    />
-                                  )}
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        );
-                      })}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                <Tv className="h-3 w-3" />
+              </button>
             </div>
 
             {/* Video Player Area */}
@@ -1056,6 +876,175 @@ export default function WidgetDraggableIPTV() {
             <span className="text-sm text-muted-foreground">Version</span>
             <span className="text-sm font-medium">{WIDGET_VERSION}</span>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Select IPTV channel</DialogTitle>
+            <DialogDescription>
+              Search and choose a live IPTV channel.
+            </DialogDescription>
+          </DialogHeader>
+          <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+            <div className="flex items-center gap-2 border-b border-white/10 p-2 pr-10">
+              <CommandInput
+                placeholder="Search channels..."
+                className="h-8 flex-1 text-sm text-white placeholder:text-white/40"
+              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors ${countryFilter ? "border-purple-500/50 bg-purple-500/20 text-purple-400" : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"}`}
+                    title="Filter by country"
+                  >
+                    <Globe className="h-4 w-4" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+                >
+                  <button
+                    onClick={() => setCountryFilter(null)}
+                    className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${!countryFilter ? "bg-purple-500/20 text-purple-400" : "text-white/70"}`}
+                  >
+                    All Countries
+                  </button>
+                  {countries.map((country) => (
+                    <button
+                      key={country}
+                      onClick={() => setCountryFilter(country)}
+                      className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${countryFilter === country ? "bg-purple-500/20 text-purple-400" : "text-white/70"}`}
+                    >
+                      <Flag className="h-3 w-3" />
+                      {country}
+                    </button>
+                  ))}
+                </PopoverContent>
+              </Popover>
+            </div>
+            <CommandList
+              ref={channelListRef}
+              className="max-h-[min(70vh,32rem)] overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+            >
+              <CommandEmpty className="px-3 py-2 text-xs text-white/60">
+                No channels found.
+              </CommandEmpty>
+
+              {favoriteChannels.length > 0 && (
+                <CommandGroup
+                  heading={
+                    <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                      Favorites
+                    </span>
+                  }
+                >
+                  {favoriteChannels.map((channel) => (
+                    <CommandItem
+                      key={channel.id}
+                      value={`${channel.id}`}
+                      onSelect={() => selectChannel(channel)}
+                      data-current-channel={
+                        channel.id === selectedChannel?.id ? "true" : undefined
+                      }
+                      className={`${commandItemClass} ${
+                        channel.id === selectedChannel?.id
+                          ? "bg-white/10 text-white"
+                          : ""
+                      }`}
+                    >
+                      <div className="flex w-full items-center gap-3">
+                        {channel.logo_url && (
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                            <img
+                              src={channel.logo_url}
+                              alt={channel.name}
+                              className="h-full w-full object-contain"
+                              draggable={false}
+                            />
+                          </div>
+                        )}
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <span className="truncate text-[13px] font-medium text-white">
+                            {channel.name}
+                          </span>
+                          <span className="truncate text-[11px] text-white/50">
+                            {channel.country}
+                          </span>
+                        </div>
+                        <Heart
+                          className="h-3.5 w-3.5 text-pink-400"
+                          fill="currentColor"
+                        />
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+
+              {sortedCategories.map((category) => {
+                const channels = filteredChannels[category];
+                if (!channels || channels.length === 0) return null;
+                return (
+                  <CommandGroup
+                    key={category}
+                    heading={
+                      <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                        {category}
+                      </span>
+                    }
+                  >
+                    {channels.map((channel) => (
+                      <CommandItem
+                        key={channel.id}
+                        value={`${channel.id}`}
+                        onSelect={() => selectChannel(channel)}
+                        data-current-channel={
+                          channel.id === selectedChannel?.id
+                            ? "true"
+                            : undefined
+                        }
+                        className={`${commandItemClass} ${
+                          channel.id === selectedChannel?.id
+                            ? "bg-white/10 text-white"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex w-full items-center gap-3">
+                          {channel.logo_url && (
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                              <img
+                                src={channel.logo_url}
+                                alt={channel.name}
+                                className="h-full w-full object-contain"
+                                draggable={false}
+                              />
+                            </div>
+                          )}
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <span className="truncate text-[13px] font-medium text-white">
+                              {channel.name}
+                            </span>
+                            <span className="truncate text-[11px] text-white/50">
+                              {channel.country}
+                            </span>
+                          </div>
+                          {favorites.includes(channel.id) && (
+                            <Heart
+                              className="h-3.5 w-3.5 text-pink-400"
+                              fill="currentColor"
+                            />
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                );
+              })}
+            </CommandList>
+          </Command>
         </DialogContent>
       </Dialog>
     </>
