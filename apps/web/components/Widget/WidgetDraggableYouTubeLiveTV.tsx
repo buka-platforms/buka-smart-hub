@@ -26,7 +26,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
 import type { TVChannel } from "@/data/type";
 import { tv } from "@/data/youtube_live_tv";
@@ -46,15 +45,8 @@ import {
   Flag,
   Globe,
   Heart,
-  Maximize2,
-  Minimize2,
   MoreHorizontal,
-  Pause,
-  Play as PlayIcon,
   Tv,
-  Volume1,
-  Volume2,
-  VolumeX,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -118,7 +110,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
@@ -275,15 +266,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
     initialMutedRef.current = volume === 0;
   }, [volume]);
 
-  // Track fullscreen state
-  useEffect(() => {
-    const onFsChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    };
-    document.addEventListener("fullscreenchange", onFsChange);
-    return () => document.removeEventListener("fullscreenchange", onFsChange);
-  }, []);
-
   // Initialize YouTube player when API is ready and channel is selected
   useEffect(() => {
     if (!isPlayerReady || !selectedChannel || !playerRef.current) return;
@@ -320,7 +302,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
       playerVars: {
         autoplay: 0,
         mute: currentMuted ? 1 : 0,
-        controls: 0,
+        controls: 1,
         modestbranding: 1,
         rel: 0,
         showinfo: 0,
@@ -443,37 +425,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
     [isPlaying],
   );
 
-  // Toggle play/pause
-  const togglePlay = useCallback(() => {
-    if (!playerInstanceRef.current) return;
-    try {
-      if (isPlaying) {
-        playerInstanceRef.current.pauseVideo();
-      } else {
-        playerInstanceRef.current.playVideo();
-      }
-    } catch {
-      // Ignore
-    }
-  }, [isPlaying]);
-
-  // Update volume
-  const updateVolume = useCallback(
-    (value: number) => {
-      setVolume(value);
-      applyPlayerVolume(value);
-    },
-    [applyPlayerVolume],
-  );
-
-  const handleVolumeCommit = useCallback((value: number) => {
-    try {
-      localStorage.setItem(VOLUME_KEY, String(value));
-    } catch {
-      // Ignore
-    }
-  }, []);
-
   // Toggle favorite
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
@@ -539,35 +490,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
       cancelAnimationFrame(raf2);
     };
   }, [channelPickerOpen, selectedChannel?.slug, countryFilter, favorites]);
-
-  // Fullscreen toggle
-  const toggleFullscreen = useCallback(() => {
-    const iframe =
-      (
-        playerInstanceRef.current as unknown as {
-          getIframe?: () => HTMLIFrameElement;
-        }
-      )?.getIframe?.() || playerRef.current?.querySelector("iframe");
-    if (!iframe) return;
-
-    const element: HTMLElement & {
-      webkitRequestFullscreen?: () => Promise<void> | void;
-      msRequestFullscreen?: () => Promise<void> | void;
-    } = iframe;
-
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-      return;
-    }
-
-    const request =
-      element.requestFullscreen ||
-      element.webkitRequestFullscreen ||
-      element.msRequestFullscreen;
-    if (request) {
-      Promise.resolve(request.call(element)).catch(() => {});
-    }
-  }, []);
 
   const isFavorite = selectedChannel
     ? favorites.includes(selectedChannel.slug)
@@ -920,57 +842,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
               )}
             </div>
 
-            {/* Player Controls */}
+            {/* Quick Actions */}
             <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2">
-              {/* Play/Pause */}
-              <button
-                onClick={togglePlay}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                title={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? (
-                  <Pause className="h-4 w-4" fill="currentColor" />
-                ) : (
-                  <PlayIcon className="h-4 w-4" fill="currentColor" />
-                )}
-              </button>
-
-              {/* Volume */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
-                    title="Volume"
-                  >
-                    {volume === 0 ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : volume < 50 ? (
-                      <Volume1 className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  sideOffset={6}
-                  className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
-                >
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                    <span>Volume</span>
-                    <span className="text-white/60">{volume}%</span>
-                  </div>
-                  <Slider
-                    value={[volume]}
-                    onValueChange={(v) => updateVolume(v[0] ?? volume)}
-                    onValueCommit={(v) => handleVolumeCommit(v[0] ?? volume)}
-                    max={100}
-                    step={1}
-                    className="cursor-pointer"
-                  />
-                </PopoverContent>
-              </Popover>
-
               {/* Favorite */}
               <button
                 onClick={toggleFavorite}
@@ -988,30 +861,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   fill={isFavorite ? "currentColor" : "none"}
                 />
               </button>
-
-              {/* Spacer */}
-              <div className="flex-1" />
-
-              {/* Fullscreen */}
-              <button
-                onClick={toggleFullscreen}
-                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
-                  isFullscreen
-                    ? "border-purple-400/60 bg-purple-500/30 text-purple-400"
-                    : "border-white/10 bg-white/10 text-white hover:bg-white/20"
-                }`}
-                title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-              </button>
-
-              {/* Channel Page Link removed */}
-
-              {/* More Options */}
             </div>
           </div>
         </div>
