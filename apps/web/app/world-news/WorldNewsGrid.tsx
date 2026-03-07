@@ -68,7 +68,7 @@ export default function WorldNewsGrid({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
-  const [isEmbedded, setIsEmbedded] = useState(false);
+  const [isEmbedded, setIsEmbedded] = useState<boolean | null>(null);
   const [selectedChannelIds, setSelectedChannelIds] =
     useState<string[]>(defaultSelectedIds);
 
@@ -372,7 +372,7 @@ export default function WorldNewsGrid({
               })}
             </DropdownMenuContent>
           </DropdownMenu>
-          {isEmbedded ? (
+          {isEmbedded === null ? null : isEmbedded ? (
             <Button
               variant="outline"
               size="icon"
