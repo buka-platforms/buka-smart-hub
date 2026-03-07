@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, Maximize2, Minimize2, Pause, Play } from "lucide-react";
+import { Home, Maximize2, Minimize2, Pause, Play, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -68,6 +68,7 @@ export default function WorldNewsGrid({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
+  const [isEmbedded, setIsEmbedded] = useState(false);
   const [selectedChannelIds, setSelectedChannelIds] =
     useState<string[]>(defaultSelectedIds);
 
@@ -138,6 +139,10 @@ export default function WorldNewsGrid({
 
   useEffect(() => {
     setContainerElement(containerRef.current);
+  }, []);
+
+  useEffect(() => {
+    setIsEmbedded(window.parent !== window);
   }, []);
 
   // Load YouTube IFrame API and create players
@@ -265,6 +270,14 @@ export default function WorldNewsGrid({
     setIsFullscreen(false);
   };
 
+  const closeModal = () => {
+    if (!isEmbedded) return;
+    window.parent.postMessage(
+      { type: "WORLD_NEWS_CLOSE_MODAL" },
+      window.location.origin,
+    );
+  };
+
   return (
     <div
       ref={containerRef}
@@ -274,87 +287,115 @@ export default function WorldNewsGrid({
         <span className="mr-2 text-xs text-muted-foreground">
           Selected channels: {selectedChannels.length}/{MAX_CHANNELS}
         </span>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="cursor-pointer">
-              Select Action
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            container={containerElement}
-            className="max-h-[70vh] w-[20rem] overflow-y-auto"
-          >
-            <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
-              <Play className="mr-2 h-4 w-4" />
-              Play All
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer" onClick={playAllMuted}>
-              <Play className="mr-2 h-4 w-4" />
-              Play All (Muted)
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => sendCommandToAll("pauseVideo")}
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="cursor-pointer">
+                Select Action
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              container={containerElement}
+              className="max-h-[70vh] w-[20rem] overflow-y-auto"
             >
-              <Pause className="mr-2 h-4 w-4" />
-              Pause All
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={toggleFullscreen}
-            >
-              {isFullscreen ? (
-                <>
-                  <Minimize2 className="mr-2 h-4 w-4" />
-                  Exit Fullscreen
-                </>
-              ) : (
-                <>
-                  <Maximize2 className="mr-2 h-4 w-4" />
-                  Fullscreen
-                </>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link href="/">
-                <Home className="mr-2 h-4 w-4" />
-                Back to Home
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Display Channels (max {MAX_CHANNELS})
-            </DropdownMenuLabel>
-            {channels.map((channel) => {
-              const isSelected = selectedChannelIds.includes(channel.id);
-              const reachedMax =
-                !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
-              const isLastSelected =
-                isSelected && selectedChannelIds.length <= 1;
+              <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
+                <Play className="mr-2 h-4 w-4" />
+                Play All
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={playAllMuted}
+              >
+                <Play className="mr-2 h-4 w-4" />
+                Play All (Muted)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => sendCommandToAll("pauseVideo")}
+              >
+                <Pause className="mr-2 h-4 w-4" />
+                Pause All
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={toggleFullscreen}
+              >
+                {isFullscreen ? (
+                  <>
+                    <Minimize2 className="mr-2 h-4 w-4" />
+                    Exit Fullscreen
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="mr-2 h-4 w-4" />
+                    Fullscreen
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/">
+                  <Home className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">
+                Display Channels (max {MAX_CHANNELS})
+              </DropdownMenuLabel>
+              {channels.map((channel) => {
+                const isSelected = selectedChannelIds.includes(channel.id);
+                const reachedMax =
+                  !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
+                const isLastSelected =
+                  isSelected && selectedChannelIds.length <= 1;
 
-              return (
-                <DropdownMenuCheckboxItem
-                  key={channel.id}
-                  checked={isSelected}
-                  disabled={reachedMax || isLastSelected}
-                  onCheckedChange={(checked) =>
-                    toggleChannel(channel.id, checked === true)
-                  }
-                  onSelect={(event) => event.preventDefault()}
-                  className="cursor-pointer"
-                >
-                  <div className="flex min-w-0 flex-col">
-                    <span className="truncate">{channel.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {channel.country}
-                    </span>
-                  </div>
-                </DropdownMenuCheckboxItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={channel.id}
+                    checked={isSelected}
+                    disabled={reachedMax || isLastSelected}
+                    onCheckedChange={(checked) =>
+                      toggleChannel(channel.id, checked === true)
+                    }
+                    onSelect={(event) => event.preventDefault()}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex min-w-0 flex-col">
+                      <span className="truncate">{channel.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {channel.country}
+                      </span>
+                    </div>
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {isEmbedded ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="cursor-pointer"
+              onClick={closeModal}
+              aria-label="Close world news modal"
+              title="Close"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="cursor-pointer"
+            >
+              <Link href="/" aria-label="Back to home" title="Back to Home">
+                <Home className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4">

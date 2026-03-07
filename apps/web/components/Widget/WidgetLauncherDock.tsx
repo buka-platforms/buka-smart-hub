@@ -163,6 +163,20 @@ export default function WidgetLauncherDock() {
     };
   }, [isExpanded]);
 
+  useEffect(() => {
+    const handleWorldNewsMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === "WORLD_NEWS_CLOSE_MODAL") {
+        setIsWorldNewsOpen(false);
+      }
+    };
+
+    window.addEventListener("message", handleWorldNewsMessage);
+    return () => {
+      window.removeEventListener("message", handleWorldNewsMessage);
+    };
+  }, []);
+
   return (
     <Dialog open={isWorldNewsOpen} onOpenChange={setIsWorldNewsOpen}>
       <div
@@ -345,7 +359,7 @@ export default function WidgetLauncherDock() {
           </div>
         )}
       </div>
-      <DialogContent className="top-0 left-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 bg-black p-0 sm:rounded-none">
+      <DialogContent className="top-0 left-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 bg-black p-0 sm:rounded-none [&>button]:hidden">
         <DialogTitle className="sr-only">World News</DialogTitle>
         <DialogDescription className="sr-only">
           Watch world news channels in a full-screen modal.
