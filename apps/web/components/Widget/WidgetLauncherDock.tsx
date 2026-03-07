@@ -156,6 +156,30 @@ export default function WidgetLauncherDock() {
       // Ignore errors
     }
   }, [setVisibility]);
+  const hideAllWidgets = useCallback(() => {
+    const nextVisibility: Record<WidgetId, boolean> = {
+      time: false,
+      radio: false,
+      weather: false,
+      somafm: false,
+      musicpreview: false,
+      quran: false,
+      iptv: false,
+      youtubelivetv: false,
+      pomodoro: false,
+      onlineradioboxnowplaying: false,
+    };
+
+    setVisibility(nextVisibility);
+    try {
+      localStorage.setItem(
+        WIDGET_VISIBILITY_KEY,
+        JSON.stringify(nextVisibility),
+      );
+    } catch {
+      // Ignore errors
+    }
+  }, [setVisibility]);
 
   // Get widgets to show in mini dock
   const miniDockWidgets = WIDGETS.slice(0, MINI_DOCK_COUNT);
@@ -349,7 +373,15 @@ export default function WidgetLauncherDock() {
                 >
                   Show All
                 </button>
-              ) : null}
+              ) : (
+                <button
+                  type="button"
+                  onClick={hideAllWidgets}
+                  className="mr-2 cursor-pointer rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 hover:bg-white/20"
+                >
+                  Hide All
+                </button>
+              )}
               <DialogClose asChild>
                 <button
                   type="button"
