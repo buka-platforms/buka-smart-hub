@@ -1,11 +1,20 @@
 "use client";
 
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { widgetVisibilityAtom, type WidgetId } from "@/data/store";
 import { useAtom } from "jotai";
@@ -21,10 +30,9 @@ import {
   Rss,
   Timer,
   Tv,
-  X,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
@@ -101,10 +109,9 @@ const WIDGETS: {
 const MINI_DOCK_COUNT = 4;
 
 export default function WidgetLauncherDock() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isWidgetPickerOpen, setIsWidgetPickerOpen] = useState(false);
   const [isWorldNewsOpen, setIsWorldNewsOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Toggle widget visibility
   const toggleWidget = useCallback(
@@ -125,6 +132,30 @@ export default function WidgetLauncherDock() {
     },
     [setVisibility],
   );
+  const restoreAllWidgets = useCallback(() => {
+    const nextVisibility: Record<WidgetId, boolean> = {
+      time: true,
+      radio: true,
+      weather: true,
+      somafm: true,
+      musicpreview: true,
+      quran: true,
+      iptv: true,
+      youtubelivetv: true,
+      pomodoro: true,
+      onlineradioboxnowplaying: true,
+    };
+
+    setVisibility(nextVisibility);
+    try {
+      localStorage.setItem(
+        WIDGET_VISIBILITY_KEY,
+        JSON.stringify(nextVisibility),
+      );
+    } catch {
+      // Ignore errors
+    }
+  }, [setVisibility]);
 
   // Get widgets to show in mini dock
   const miniDockWidgets = WIDGETS.slice(0, MINI_DOCK_COUNT);
@@ -135,31 +166,6 @@ export default function WidgetLauncherDock() {
 
   // Always render
   const isVisible = true;
-
-  // Close expanded dock when clicking outside or pressing Escape
-  useEffect(() => {
-    if (!isExpanded) return;
-
-    const handlePointerDown = (e: Event) => {
-      if (!containerRef.current) return;
-      const target = e.target as Node | null;
-      if (target && !containerRef.current.contains(target)) {
-        setIsExpanded(false);
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsExpanded(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isExpanded]);
 
   useEffect(() => {
     const handleWorldNewsMessage = (event: MessageEvent) => {
@@ -176,12 +182,11 @@ export default function WidgetLauncherDock() {
   }, []);
 
   return (
-    <Dialog open={isWorldNewsOpen} onOpenChange={setIsWorldNewsOpen}>
+    <>
       <div
         className={`pointer-events-auto relative z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-visible rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 transition-opacity duration-200 md:mt-5 md:ml-4 ${
           isVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
-        ref={containerRef}
         style={{ justifySelf: "start" }}
       >
         {/* (removed) drag handle: no longer relevant */}
@@ -211,7 +216,7 @@ export default function WidgetLauncherDock() {
 
           {/* Expand button */}
           <button
-            onClick={() => setIsExpanded((prev) => !prev)}
+            onClick={() => setIsWidgetPickerOpen(true)}
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-white/5 text-white/50 transition-all duration-200 hover:bg-white/15 hover:text-white"
             title="Show all widgets"
           >
@@ -231,75 +236,71 @@ export default function WidgetLauncherDock() {
           </Link>
 
           {/* World News CTA */}
-          <DialogTrigger asChild>
-            <button
-              title="World News"
-              className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
-            >
-              <Globe className="h-4 w-4" />
-              <span className="hidden md:inline">World News</span>
-            </button>
-          </DialogTrigger>
+          <button
+            title="World News"
+            onClick={() => setIsWorldNewsOpen(true)}
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+          >
+            <Globe className="h-4 w-4" />
+            <span className="hidden md:inline">World News</span>
+          </button>
         </div>
-
-        {/* Expanded Dock Panel (overlay; does not affect layout) */}
-        {isExpanded && (
-          <div className="absolute top-full left-0 mt-2 w-64 overflow-hidden rounded-lg bg-black/85 shadow-2xl ring-1 ring-white/15">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
+      </div>
+      <Dialog open={isWidgetPickerOpen} onOpenChange={setIsWidgetPickerOpen}>
+        <DialogContent className="w-[min(640px,96vw)] max-w-none border-white/15 bg-black/90 p-0 text-white">
+          <DialogTitle className="sr-only">Widget List</DialogTitle>
+          <DialogDescription className="sr-only">
+            Search and toggle widget visibility.
+          </DialogDescription>
+          <Command className="rounded-lg bg-transparent text-white">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <div className="flex items-center gap-2">
                 <LayoutGrid className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-medium text-white">Widgets</span>
+                <span className="text-sm font-medium">Widgets</span>
                 <span className="rounded-full bg-purple-600/30 px-2 py-0.5 text-[10px] font-semibold text-purple-300">
                   {visibleCount}/{allWidgets.length}
                 </span>
               </div>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white"
-                title="Collapse"
-              >
-                <X className="h-4 w-4" />
-              </button>
             </div>
-
-            {/* Widget List */}
-            <div className="max-h-80 overflow-y-auto p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-              <div className="space-y-1">
+            <CommandInput
+              placeholder="Search widgets..."
+              className="text-white placeholder:text-white/45"
+            />
+            <CommandList className="max-h-[55vh] p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:bg-white/5">
+              <CommandEmpty className="py-6 text-center text-sm text-white/70">
+                No widget found.
+              </CommandEmpty>
+              <CommandGroup>
                 {allWidgets.map((widget) => {
                   const isActive = visibility[widget.id];
                   return (
-                    <button
+                    <CommandItem
                       key={widget.id}
-                      onClick={() => toggleWidget(widget.id)}
-                      className={`group flex w-full cursor-pointer items-center gap-3 rounded-lg p-2.5 transition-all duration-200 ${
+                      value={`${widget.label} ${widget.description}`}
+                      onSelect={() => toggleWidget(widget.id)}
+                      className={`mb-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2.5 py-2.5 text-white data-[selected=true]:text-white ${
                         isActive
-                          ? "bg-purple-600/20 text-white"
-                          : "text-white/60 hover:bg-white/10 hover:text-white"
+                          ? "bg-purple-600/20 data-[selected=true]:bg-purple-600/30"
+                          : "bg-white/0 text-white/70 data-[selected=true]:bg-white/10"
                       }`}
                     >
-                      {/* Icon */}
                       <div
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-all ${
                           isActive
                             ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                            : "bg-white/10 text-white/50 group-hover:bg-white/20 group-hover:text-white"
+                            : "bg-white/10 text-white/55"
                         }`}
                       >
                         {widget.icon}
                       </div>
-
-                      {/* Label & Description */}
-                      <div className="flex-1 text-left">
+                      <div className="flex-1">
                         <div className="text-sm font-medium">
                           {widget.label}
                         </div>
-                        <div className="text-[11px] text-white/40">
+                        <div className="text-[11px] text-white/45">
                           {widget.description}
                         </div>
                       </div>
-
-                      {/* Toggle indicator */}
                       <div
                         className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
                           isActive ? "bg-purple-600" : "bg-white/20"
@@ -311,51 +312,72 @@ export default function WidgetLauncherDock() {
                           }`}
                         />
                       </div>
-                    </button>
+                    </CommandItem>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="space-y-1.5 border-t border-white/10 px-3 py-2">
-              <Link
-                href="/apps"
-                title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
-              >
-                <AppWindow className="h-3.5 w-3.5" />
-                <span>Open Apps</span>
-              </Link>
-
-              <DialogTrigger asChild>
-                <button
-                  title="World News"
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+              </CommandGroup>
+              <CommandSeparator className="my-2 bg-white/10" />
+              <CommandGroup>
+                <CommandItem
+                  onSelect={() => {
+                    setIsWidgetPickerOpen(false);
+                    window.location.href = "/apps";
+                  }}
+                  className="cursor-pointer rounded-lg px-2.5 py-2.5 text-white/85 data-[selected=true]:bg-white/10 data-[selected=true]:text-white"
                 >
-                  <Globe className="h-3.5 w-3.5" />
-                  <span>World News</span>
+                  <AppWindow className="mr-2 h-4 w-4" />
+                  Open Apps
+                </CommandItem>
+                <CommandItem
+                  onSelect={() => {
+                    setIsWidgetPickerOpen(false);
+                    setIsWorldNewsOpen(true);
+                  }}
+                  className="cursor-pointer rounded-lg px-2.5 py-2.5 text-white/85 data-[selected=true]:bg-white/10 data-[selected=true]:text-white"
+                >
+                  <Globe className="mr-2 h-4 w-4" />
+                  World News
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+            <div className="border-t border-white/10 px-3 py-2 text-right">
+              {visibleCount === 0 ? (
+                <button
+                  type="button"
+                  onClick={restoreAllWidgets}
+                  className="mr-2 cursor-pointer rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 hover:bg-white/20"
+                >
+                  Show All
                 </button>
-              </DialogTrigger>
-              {/* Dock is static; per-widget reset handled in each widget */}
+              ) : null}
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  className="cursor-pointer rounded-md border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white"
+                >
+                  Close
+                </button>
+              </DialogClose>
             </div>
-          </div>
-        )}
-      </div>
-      <DialogContent className="top-0 left-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 bg-black p-0 sm:rounded-none [&>button]:hidden">
-        <DialogTitle className="sr-only">World News</DialogTitle>
-        <DialogDescription className="sr-only">
-          Watch world news channels in a full-screen modal.
-        </DialogDescription>
-        {isWorldNewsOpen ? (
-          <iframe
-            src="/world-news"
-            title="World News"
-            className="h-full w-full border-0"
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-          />
-        ) : null}
-      </DialogContent>
-    </Dialog>
+          </Command>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isWorldNewsOpen} onOpenChange={setIsWorldNewsOpen}>
+        <DialogContent className="top-0 left-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 bg-black p-0 sm:rounded-none [&>button]:hidden">
+          <DialogTitle className="sr-only">World News</DialogTitle>
+          <DialogDescription className="sr-only">
+            Watch world news channels in a full-screen modal.
+          </DialogDescription>
+          {isWorldNewsOpen ? (
+            <iframe
+              src="/world-news"
+              title="World News"
+              className="h-full w-full border-0"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
