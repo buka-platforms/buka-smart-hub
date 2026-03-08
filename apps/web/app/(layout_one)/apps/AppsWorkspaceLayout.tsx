@@ -86,7 +86,7 @@ function AppsWorkspaceShell({
           )}
         >
           <div className="flex h-full flex-col">
-            <SidebarHeader className="space-y-3">
+            <SidebarHeader className="space-y-0 border-b-0">
               <Link
                 href="/"
                 className={cn(
