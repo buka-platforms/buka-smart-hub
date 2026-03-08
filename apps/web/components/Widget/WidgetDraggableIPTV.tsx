@@ -36,7 +36,6 @@ import {
 } from "@/lib/audio-visualizer";
 import {
   observeWidget,
-  resetWidgetPosition,
   setWidgetMeasuredHeight,
   swapWidgetPositions,
   triggerLayoutUpdate,
@@ -614,10 +613,6 @@ export default function WidgetDraggableIPTV() {
     });
   }, [selectedChannel]);
 
-  const resetPosition = useCallback(() => {
-    resetWidgetPosition(WIDGET_ID);
-  }, []);
-
   const filteredChannels = useMemo(() => {
     if (!countryFilter) return groupedChannels;
     const filtered: Record<string, IPTVChannel[]> = {};
@@ -726,18 +721,6 @@ export default function WidgetDraggableIPTV() {
                     {isFavorite ? "Remove from favorites" : "Add to favorites"}
                   </DropdownMenuItem>
                   {selectedChannel && <></>}
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(() => {
-                        resetPosition();
-                      });
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Reset widget position
-                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {
                       setMoreMenuOpen(false);

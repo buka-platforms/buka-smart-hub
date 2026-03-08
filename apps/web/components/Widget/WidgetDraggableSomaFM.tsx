@@ -38,7 +38,6 @@ import {
 import {
   getSavedWidgetPosition,
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -210,8 +209,6 @@ export default function WidgetDraggableSomaFM() {
       swapWidgetPositions(source as unknown as WidgetId, WIDGET_ID as WidgetId);
     }
   }, []);
-
-  const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
 
   // Positioning is handled centrally by the container via layout events.
   // This component uses swap-based drag/drop on the left label and no
@@ -402,15 +399,6 @@ export default function WidgetDraggableSomaFM() {
                     }}
                   >
                     Hide widget
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(resetPosition);
-                    }}
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {

@@ -41,7 +41,6 @@ import {
 import {
   getSavedWidgetPosition,
   observeWidget,
-  resetWidgetPosition,
   setWidgetMeasuredHeight,
   swapWidgetPositions,
   triggerLayoutUpdate,
@@ -466,11 +465,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
   // Drag/Drop swap handlers will be attached to the left label below
 
-  // Reset position using centralized auto-arrange logic
-  const resetPosition = useCallback(() => {
-    resetWidgetPosition(WIDGET_ID);
-  }, []);
-
   // Save country to localStorage when changed
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -567,16 +561,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                     className="cursor-pointer"
                   >
                     Refresh now
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(resetPosition);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {

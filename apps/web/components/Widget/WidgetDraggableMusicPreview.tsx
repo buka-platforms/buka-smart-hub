@@ -22,7 +22,6 @@ import { Slider } from "@/components/ui/slider";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -308,16 +307,6 @@ export default function WidgetDraggableMusicPreview() {
                   }}
                 >
                   Hide widget
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    setMoreMenuOpen(false);
-                    requestAnimationFrame(() => resetWidgetPosition(WIDGET_ID));
-                  }}
-                >
-                  Reset widget position
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => {

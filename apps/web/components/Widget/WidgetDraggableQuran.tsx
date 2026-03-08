@@ -31,7 +31,6 @@ import { getSurah, getSurahList } from "@/lib/quran-api";
 import type { WidgetId } from "@/lib/widget-positions";
 import {
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -420,8 +419,6 @@ export default function WidgetDraggableQuran() {
       swapWidgetPositions(source as WidgetId, WIDGET_ID);
   }, []);
 
-  const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
-
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const activeSurahName =
     surahData?.englishName ||
@@ -515,16 +512,6 @@ export default function WidgetDraggableQuran() {
                     {activeSurahName
                       ? `Refresh Surah ${activeSurahName}`
                       : "Refresh Surah"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(() => resetPosition());
-                    }}
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {

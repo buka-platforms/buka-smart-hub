@@ -33,7 +33,6 @@ import type { TVChannel } from "@/data/type";
 import { tv } from "@/data/youtube_live_tv";
 import {
   observeWidget,
-  resetWidgetPosition,
   setWidgetMeasuredHeight,
   swapWidgetPositions,
   triggerLayoutUpdate,
@@ -441,11 +440,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
     });
   }, [selectedChannel]);
 
-  // Reset position using centralized auto-arrange logic
-  const resetPosition = useCallback(() => {
-    resetWidgetPosition(WIDGET_ID);
-  }, []);
-
   // Filtered channels
   const filteredChannels = useMemo(() => {
     if (!countryFilter) return groupedChannels;
@@ -561,18 +555,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   {/* Open channel page removed */}
                   <DropdownMenuItem asChild className="cursor-pointer gap-2">
                     <Link href="/apps/tv">Browse all channels</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(() => {
-                        resetPosition();
-                      });
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {

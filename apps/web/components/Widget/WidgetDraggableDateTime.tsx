@@ -17,7 +17,6 @@ import { T } from "@/lib/app";
 import {
   getSavedWidgetPosition,
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -164,11 +163,6 @@ export default function WidgetDraggableDateTime() {
     });
   }, []);
 
-  // Reset position
-  const resetPosition = useCallback(() => {
-    resetWidgetPosition(WIDGET_ID);
-  }, []);
-
   // Derived values
   const userLocale =
     typeof navigator !== "undefined" ? navigator.language : "en-US";
@@ -289,18 +283,6 @@ export default function WidgetDraggableDateTime() {
                   >
                     Switch to {timeFormat === "12h" ? "24-hour" : "12-hour"}{" "}
                     format
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(() => {
-                        resetPosition();
-                      });
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {

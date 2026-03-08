@@ -609,38 +609,6 @@ export function resetAllWidgetPositions(): void {
 }
 
 /**
- * Reset a single widget's position to its auto-arranged position
- * Only updates the specified widget, not all
- */
-export function resetWidgetPosition(widgetId: WidgetId): void {
-  if (typeof window === "undefined") return;
-
-  // Remove saved position for this widget
-  try {
-    localStorage.removeItem(WIDGET_POSITION_KEYS[widgetId]);
-  } catch {
-    // Ignore
-  }
-
-  // Also clear any saved order so user can get default ordering
-  try {
-    localStorage.removeItem(WIDGET_ORDER_KEY);
-  } catch {}
-
-  const positions = calculateAutoArrangePositions();
-
-  // Save all positions to ensure consistency
-  Object.entries(positions).forEach(([id, pos]) => {
-    saveWidgetPosition(id as WidgetId, pos.x, pos.y);
-  });
-
-  // Dispatch event with all positions
-  window.dispatchEvent(
-    new CustomEvent("widget-positions-reset", { detail: positions }),
-  );
-}
-
-/**
  * Clear all widget position data from localStorage
  */
 export function clearAllWidgetPositions(): void {

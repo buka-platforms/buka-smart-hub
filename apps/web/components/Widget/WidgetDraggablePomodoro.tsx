@@ -18,7 +18,6 @@ import type { WidgetId } from "@/lib/widget-positions";
 import {
   getSavedWidgetPosition,
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -486,11 +485,6 @@ export default function WidgetDraggablePomodoro() {
     [mode],
   );
 
-  // Reset position using centralized auto-arrange logic
-  const resetPosition = useCallback(() => {
-    resetWidgetPosition(WIDGET_ID);
-  }, []);
-
   // Reactive position plugin
   // Load position from storage on mount
   useEffect(() => {
@@ -652,16 +646,6 @@ export default function WidgetDraggablePomodoro() {
                     className="cursor-pointer"
                   >
                     Reset all progress
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(resetPosition);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {

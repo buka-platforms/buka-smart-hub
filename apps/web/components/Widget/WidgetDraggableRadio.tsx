@@ -30,7 +30,6 @@ import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
 import {
   getSavedWidgetPosition,
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -143,10 +142,6 @@ export default function WidgetDraggableRadioPlayer() {
       /* noop */
     }
   }, [radioStationState.radioStation?.slug]);
-
-  const resetPosition = useCallback(() => {
-    resetWidgetPosition(WIDGET_ID);
-  }, []);
 
   const updateVolume = useCallback(
     (value: number) => {
@@ -350,18 +345,6 @@ export default function WidgetDraggableRadioPlayer() {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(() => {
-                        resetPosition();
-                      });
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Reset widget position
-                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {
                       setMoreMenuOpen(false);

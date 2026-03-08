@@ -17,7 +17,6 @@ import { requestHeadersStateAtom, widgetVisibilityAtom } from "@/data/store";
 import {
   getSavedWidgetPosition,
   observeWidget,
-  resetWidgetPosition,
   swapWidgetPositions,
   triggerLayoutUpdate,
   unobserveWidget,
@@ -178,8 +177,6 @@ export default function WidgetDraggableWeather() {
     }
   }, []);
 
-  const resetPosition = useCallback(() => resetWidgetPosition(WIDGET_ID), []);
-
   // Determine visibility
   const isVisible =
     isPositionLoaded &&
@@ -271,16 +268,6 @@ export default function WidgetDraggableWeather() {
                     className="cursor-pointer"
                   >
                     Switch to {unit === "metric" ? "Fahrenheit" : "Celsius"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      setMoreMenuOpen(false);
-                      requestAnimationFrame(resetPosition);
-                    }}
-                  >
-                    Reset widget position
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {
