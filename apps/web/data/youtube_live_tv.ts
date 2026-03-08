@@ -1,7 +1,7 @@
 export const tv = [
   {
-    id: "abc_news",
-    slug: "abc-news",
+    id: "abc_news_us",
+    slug: "abc-news-us",
     country: "United States",
     name: "ABC News",
     short_description: "ABC News from the US.",
