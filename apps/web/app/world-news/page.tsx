@@ -1,4 +1,7 @@
+import RequestHeadersProvider from "@/components/General/RequestHeadersProvider";
+import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import { tv } from "@/data/youtube_live_tv";
+import { getRequestHeaders } from "@/lib/header";
 import type { Metadata } from "next";
 import WorldNewsGrid from "./WorldNewsGrid";
 
@@ -18,6 +21,18 @@ const DEFAULT_CHANNEL_SLUGS = [
 ];
 
 export default async function WorldNewsPage() {
+  const requestHeaders = await getRequestHeaders();
+
+  // Keep localhost behavior aligned with homepage background geolocation fallback.
+  if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
+    requestHeaders["x-vercel-ip-latitude"] =
+      process.env.NEXT_PUBLIC_LOCALHOST_LATITUDE || "-6.2114";
+    requestHeaders["x-vercel-ip-longitude"] =
+      process.env.NEXT_PUBLIC_LOCALHOST_LONGITUDE || "106.8451";
+    requestHeaders["x-vercel-ip-country"] =
+      process.env.NEXT_PUBLIC_LOCALHOST_COUNTRY || "ID";
+  }
+
   const availableChannels = tv
     .filter(
       (channel) => channel.source === "YouTube" && channel.category === "News",
@@ -45,10 +60,16 @@ export default async function WorldNewsPage() {
   const embedOrigin = process.env.NEXT_PUBLIC_BASE_URL || "";
 
   return (
-    <WorldNewsGrid
-      channels={availableChannels}
-      defaultChannels={defaultChannels}
-      embedOrigin={embedOrigin}
-    />
+    <>
+      <RequestHeadersProvider requestHeaders={requestHeaders} />
+      <RandomBackgroundImage />
+      <div className="relative z-0 min-h-screen w-full">
+        <WorldNewsGrid
+          channels={availableChannels}
+          defaultChannels={defaultChannels}
+          embedOrigin={embedOrigin}
+        />
+      </div>
+    </>
   );
 }

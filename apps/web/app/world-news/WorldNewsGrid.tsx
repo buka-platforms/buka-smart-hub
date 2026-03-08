@@ -12,7 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Home, Maximize2, Minimize2, Pause, Play, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 type Channel = {
   id: string;
@@ -68,9 +75,17 @@ export default function WorldNewsGrid({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
-  const [isEmbedded, setIsEmbedded] = useState<boolean | null>(null);
+  const isEmbedded = useSyncExternalStore(
+    () => () => {},
+    () => window.parent !== window,
+    () => false,
+  );
   const [selectedChannelIds, setSelectedChannelIds] =
     useState<string[]>(defaultSelectedIds);
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    setContainerElement(node);
+  }, []);
 
   useEffect(() => {
     if (didRestoreSelectionRef.current) return;
@@ -135,14 +150,6 @@ export default function WorldNewsGrid({
     return () => {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
-  }, []);
-
-  useEffect(() => {
-    setContainerElement(containerRef.current);
-  }, []);
-
-  useEffect(() => {
-    setIsEmbedded(window.parent !== window);
   }, []);
 
   // Load YouTube IFrame API and create players
@@ -280,11 +287,11 @@ export default function WorldNewsGrid({
 
   return (
     <div
-      ref={containerRef}
-      className="container mx-auto flex h-[calc(100vh-4rem)] flex-col overflow-hidden p-2 md:p-4"
+      ref={setContainerRef}
+      className="container mx-auto flex h-dvh flex-col overflow-hidden p-2 md:p-4"
     >
       <div className="mb-2 flex shrink-0 items-center justify-end">
-        <span className="mr-2 text-xs text-muted-foreground">
+        <span className="mr-2 inline-flex items-center rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/95 shadow-lg backdrop-blur-md">
           Selected channels: {selectedChannels.length}/{MAX_CHANNELS}
         </span>
         <div className="flex items-center gap-2">
@@ -296,7 +303,7 @@ export default function WorldNewsGrid({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              container={containerElement}
+              container={containerElement ?? undefined}
               className="max-h-[70vh] w-[20rem] overflow-y-auto"
             >
               <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
@@ -372,7 +379,7 @@ export default function WorldNewsGrid({
               })}
             </DropdownMenuContent>
           </DropdownMenu>
-          {isEmbedded === null ? null : isEmbedded ? (
+          {isEmbedded ? (
             <Button
               variant="outline"
               size="icon"
