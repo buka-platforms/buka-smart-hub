@@ -22,10 +22,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { iptv } from "@/data/iptv";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
@@ -44,7 +46,7 @@ import {
 } from "@/lib/widget-positions";
 import Hls from "hls.js";
 import { useAtom } from "jotai";
-import { Flag, Globe, Heart, MoreHorizontal, Tv } from "lucide-react";
+import { Heart, MoreHorizontal, Tv } from "lucide-react";
 // Link import removed (unused)
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -870,42 +872,41 @@ export default function WidgetDraggableIPTV() {
             </DialogDescription>
           </DialogHeader>
           <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
-            <div className="flex items-center gap-2 border-b border-white/10 p-2 pr-10">
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 p-2 pr-10">
               <CommandInput
                 placeholder="Search channels..."
-                className="h-8 flex-1 text-sm text-white placeholder:text-white/40"
+                className="h-9 min-w-52 flex-1 text-sm text-white placeholder:text-white/40"
               />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors ${countryFilter ? "border-purple-500/50 bg-purple-500/20 text-purple-400" : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"}`}
-                    title="Filter by country"
-                  >
-                    <Globe className="h-4 w-4" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="end"
-                  className="max-h-60 w-48 overflow-y-auto rounded-md border border-white/10 bg-black/95 p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+              <Select
+                value={countryFilter ?? "all"}
+                onValueChange={(value) =>
+                  setCountryFilter(value === "all" ? null : value)
+                }
+              >
+                <SelectTrigger
+                  aria-label="Filter by country"
+                  className="h-9 w-auto max-w-44 min-w-32 cursor-pointer gap-2 border-white/10 bg-white/5 text-xs text-white/80 hover:bg-white/10 focus:ring-0"
                 >
-                  <button
-                    onClick={() => setCountryFilter(null)}
-                    className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${!countryFilter ? "bg-purple-500/20 text-purple-400" : "text-white/70"}`}
+                  <SelectValue placeholder="All countries" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72 border-white/10 bg-[#121218] text-white">
+                  <SelectItem
+                    value="all"
+                    className="cursor-pointer focus:bg-white/10 focus:text-white"
                   >
-                    All Countries
-                  </button>
+                    All countries
+                  </SelectItem>
                   {countries.map((country) => (
-                    <button
+                    <SelectItem
                       key={country}
-                      onClick={() => setCountryFilter(country)}
-                      className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10 ${countryFilter === country ? "bg-purple-500/20 text-purple-400" : "text-white/70"}`}
+                      value={country}
+                      className="cursor-pointer focus:bg-white/10 focus:text-white"
                     >
-                      <Flag className="h-3 w-3" />
                       {country}
-                    </button>
+                    </SelectItem>
                   ))}
-                </PopoverContent>
-              </Popover>
+                </SelectContent>
+              </Select>
             </div>
             <CommandList
               ref={channelListRef}
