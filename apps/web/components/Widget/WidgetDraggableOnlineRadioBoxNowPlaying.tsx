@@ -875,7 +875,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </div>
           </div>
         </div>
