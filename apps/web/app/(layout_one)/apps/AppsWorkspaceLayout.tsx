@@ -105,11 +105,6 @@ function AppsWorkspaceShell({
                   <p className="text-sm font-semibold">Buka Smart Home</p>
                 )}
               </Link>
-              {!collapsed && (
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
-                  One place to launch your favorite tools quickly.
-                </div>
-              )}
             </SidebarHeader>
             <SidebarContent>
               <SidebarMenu>
