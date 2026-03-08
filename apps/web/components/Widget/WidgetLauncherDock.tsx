@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import WidgetUserAvatar from "./WidgetUserAvatar";
 
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 
@@ -284,6 +285,10 @@ export default function WidgetLauncherDock() {
             <Globe className="h-4 w-4" />
             <span className="hidden md:inline">World News</span>
           </button>
+
+          <div className="mx-1 h-10 w-px bg-white/10" />
+
+          <WidgetUserAvatar />
         </div>
       </div>
       <Dialog open={isWidgetPickerOpen} onOpenChange={setIsWidgetPickerOpen}>

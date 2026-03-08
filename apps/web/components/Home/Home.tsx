@@ -1,6 +1,5 @@
 import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
 import RequestHeadersProvider from "@/components/General/RequestHeadersProvider";
-import UserAvatar from "@/components/General/UserAvatar";
 import RandomBackgroundImage from "@/components/Home/BackgroundImageContainer";
 import BackgroundImageDropdownMenu from "@/components/Home/BackgroundImageDropdownMenu";
 import Fullscreen from "@/components/Home/Fullscreen";
@@ -30,12 +29,6 @@ export default async function Home() {
       {/* RandomBackgroundImage applies background to body and renders overlay */}
       <RandomBackgroundImage />
       <div className="relative z-0 min-h-screen w-full">
-        {/* Header: controls right */}
-        <header className="fixed top-0 left-0 z-10 flex w-full items-start justify-end p-4">
-          <div className="flex items-center gap-x-3">
-            <UserAvatar />
-          </div>
-        </header>
         {/* Widget Container: Launcher Dock + All Widgets */}
         <WidgetContainer />
         <div className="fixed right-3 bottom-3 z-10 md:right-3 md:bottom-3">
