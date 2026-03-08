@@ -37,7 +37,7 @@ export const apps = [
     type: "",
   },
   {
-    path: "/apps/buka-knowledge",
+    path: "https://knowledge.buka.sh",
     id: "buka-knowledge",
     name: "Buka Knowledge",
     description: "Augmented knowledge.",
