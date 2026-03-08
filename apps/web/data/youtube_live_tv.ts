@@ -1,5 +1,44 @@
 export const tv = [
   {
+    id: "abc_news_australia",
+    slug: "abc-news-australia",
+    country: "Australia",
+    name: "ABC News Australia",
+    short_description: "ABC News Australia from Australia.",
+    long_description: "ABC News Australia is a news channel from Australia.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/ABC_News_%28Australia%29_logo.svg/960px-ABC_News_%28Australia%29_logo.svg.png",
+    source: "YouTube",
+    source_id: "vOTiJkg1voo",
+    category: "News",
+  },
+  {
+    id: "national_geographic",
+    slug: "national-geographic",
+    country: "United States",
+    name: "National Geographic",
+    short_description: "National Geographic from the US.",
+    long_description: "National Geographic is a channel from the US.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Natgeologo.svg/960px-Natgeologo.svg.png",
+    source: "YouTube",
+    source_id: "FqQJmDiW0xs",
+    category: "Documentary",
+  },
+  {
+    id: "made_in_history",
+    slug: "made-in-history",
+    country: "United States",
+    name: "Made in History",
+    short_description: "Made in History from the US.",
+    long_description: "Made in History is a channel from the US.",
+    logo_url:
+      "https://yt3.googleusercontent.com/Yvxi6tGlwVkferUSxaqgyJmQTQhgoQccMNdBN_jIQwjD0s3K5A5NH_LviYsCm2p8FwuoKMauyl8=s900-c-k-c0x00ffffff-no-rj",
+    source: "YouTube",
+    source_id: "4K8T_abbn8w",
+    category: "Documentary",
+  },
+  {
     id: "abc_news_us",
     slug: "abc-news-us",
     country: "United States",
