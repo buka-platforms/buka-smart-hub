@@ -349,7 +349,7 @@ export default function WidgetDraggableNotes() {
             <DialogTitle>About Notes Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
               Capture quick notes in your dashboard. Notes are stored locally in
-              your browser and prepared for migration to IndexedDB.
+              your browser.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-between border-t pt-4">
