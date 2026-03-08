@@ -78,15 +78,15 @@ function AppsWorkspaceShell({
     ) ?? null;
 
   return (
-    <section className="w-full bg-slate-100/70">
-      <div className="flex min-h-screen w-full">
+    <section className="h-dvh w-full overflow-hidden bg-slate-100/70">
+      <div className="flex h-full w-full">
         <Sidebar
           className={cn(
             "border-r-slate-200 bg-white/90 backdrop-blur transition-[width] duration-200",
             collapsed ? "w-16" : "w-72",
           )}
         >
-          <div className="sticky top-0 flex h-screen flex-col">
+          <div className="flex h-full flex-col">
             <SidebarHeader className="space-y-3">
               <Link
                 href="/"
@@ -297,7 +297,7 @@ function AppsWorkspaceShell({
             </SidebarFooter>
           </div>
         </Sidebar>
-        <SidebarInset className="min-h-screen bg-white">
+        <SidebarInset className="h-full overflow-y-auto bg-white">
           <div className="sticky top-0 z-10 border-b bg-white/95 px-4 py-3 backdrop-blur md:px-6">
             <div className="flex min-w-0 items-center gap-2">
               <SidebarTrigger />
