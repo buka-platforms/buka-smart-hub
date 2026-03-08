@@ -2,9 +2,7 @@
 
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
@@ -120,7 +118,7 @@ const WIDGETS: {
 ];
 
 // Mini dock shows first N widgets
-const MINI_DOCK_COUNT = 4;
+const MINI_DOCK_COUNT = 3;
 
 export default function WidgetLauncherDock() {
   const [isWidgetPickerOpen, setIsWidgetPickerOpen] = useState(false);
@@ -292,7 +290,7 @@ export default function WidgetLauncherDock() {
         <DialogContent className="w-[min(640px,96vw)] max-w-none border-white/15 bg-black/90 p-0 text-white">
           <DialogTitle className="sr-only">Widget List</DialogTitle>
           <DialogDescription className="sr-only">
-            Search and toggle widget visibility.
+            Toggle widget visibility.
           </DialogDescription>
           <Command className="rounded-lg bg-transparent text-white">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
@@ -304,14 +302,7 @@ export default function WidgetLauncherDock() {
                 </span>
               </div>
             </div>
-            <CommandInput
-              placeholder="Search widgets..."
-              className="text-white placeholder:text-white/45"
-            />
             <CommandList className="max-h-[55vh] p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:bg-white/5">
-              <CommandEmpty className="py-6 text-center text-sm text-white/70">
-                No widget found.
-              </CommandEmpty>
               <CommandGroup>
                 {allWidgets.map((widget) => {
                   const isActive = visibility[widget.id];
