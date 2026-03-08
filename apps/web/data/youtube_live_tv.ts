@@ -524,7 +524,7 @@ export const tv = [
     logo_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/CNN_Indonesia_logo_%282023%29.svg/960px-CNN_Indonesia_logo_%282023%29.svg.png",
     source: "YouTube",
-    source_id: "a0vX_Qt0gDQ",
+    source_id: "qbxprL02jWk",
     category: "News",
   },
   {
