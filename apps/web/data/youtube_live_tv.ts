@@ -104,6 +104,19 @@ export const tv = [
     category: "Documentary",
   },
   {
+    id: "cbc_news",
+    slug: "cbc-news",
+    country: "Canada",
+    name: "CBC News",
+    short_description: "CBC News from Canada.",
+    long_description: "CBC News is a news channel from Canada.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/CBC_News_2020.svg/960px-CBC_News_2020.svg.png",
+    source: "YouTube",
+    source_id: "5vfaDsMhCF4",
+    category: "News",
+  },
+  {
     id: "abc_news_us",
     slug: "abc-news-us",
     country: "United States",
