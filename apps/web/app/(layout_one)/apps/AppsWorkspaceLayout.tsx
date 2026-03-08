@@ -63,10 +63,6 @@ export default function AppsWorkspaceLayout({
   userSession: UserSession;
 }) {
   const pathname = usePathname();
-  const activeApp =
-    apps.find(
-      (app) => pathname === app.path || pathname.startsWith(`${app.path}/`),
-    ) ?? null;
 
   return (
     <SidebarProvider>
@@ -82,10 +78,7 @@ export default function AppsWorkspaceLayout({
                     width={28}
                     height={28}
                   />
-                  <div className="leading-tight">
-                    <p className="text-sm font-semibold">Apps</p>
-                    <p className="text-xs text-slate-500">Back to home</p>
-                  </div>
+                  <p className="text-sm font-semibold">Buka Smart Home</p>
                 </Link>
                 <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
                   One place to launch your favorite tools quickly.
@@ -263,9 +256,6 @@ export default function AppsWorkspaceLayout({
                       Home
                     </Link>
                   </Button>
-                  <p className="truncate text-sm font-medium text-slate-700">
-                    {activeApp?.name ?? "Apps"}
-                  </p>
                 </div>
               </div>
             </div>
