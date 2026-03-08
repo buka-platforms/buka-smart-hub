@@ -38,6 +38,7 @@ import {
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -73,6 +74,7 @@ export default function WidgetDraggableQuran() {
   const [isDragging, setIsDragging] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [surahPickerOpen, setSurahPickerOpen] = useState(false);
 
   // dragStartRef was unused; removed to avoid lint/TS warnings
 
@@ -698,72 +700,15 @@ export default function WidgetDraggableQuran() {
               </PopoverContent>
             </Popover>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="flex h-8 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white hover:bg-white/20"
-                >
-                  {selectedSurah
-                    ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
-                    : "Select Surah"}
-                </button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent
-                align="end"
-                sideOffset={6}
-                className="w-64 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl"
-              >
-                <Command
-                  className="bg-transparent text-white"
-                  value={
-                    selectedSurah
-                      ? `${selectedSurah} ${surahList.find((s) => s.number === selectedSurah)?.englishName || ""}`
-                      : ""
-                  }
-                >
-                  <CommandInput
-                    placeholder="Search surah..."
-                    className="h-10 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
-                  />
-                  <CommandList className="max-h-80 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-                    <CommandEmpty className="py-6 text-center text-sm text-white/50">
-                      No surah found.
-                    </CommandEmpty>
-                    {surahList.map(
-                      (
-                        s: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        any,
-                      ) => (
-                        <CommandItem
-                          key={s.number}
-                          value={`${s.number} ${s.englishName}`}
-                          onSelect={() => setSelectedSurah(s.number)}
-                          className={`cursor-pointer ${
-                            s.number === selectedSurah
-                              ? "bg-white/10 text-white"
-                              : "hover:bg-white/5 hover:text-white"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1 text-left">
-                              <div className="font-bold">{`${s.number}. ${s.englishName}`}</div>
-                              <div className="flex items-center gap-2">
-                                <div className="text-[12px]">{s.name}</div>
-                                <div className="text-[10px] opacity-70">
-                                  {s.numberOfAyahs} ayahs
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </CommandItem>
-                      ),
-                    )}
-                  </CommandList>
-                </Command>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button
+              type="button"
+              className="flex h-8 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white hover:bg-white/20"
+              onClick={() => setSurahPickerOpen(true)}
+            >
+              {selectedSurah
+                ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
+                : "Select Surah"}
+            </button>
 
             {surahData && (
               <form
@@ -788,6 +733,62 @@ export default function WidgetDraggableQuran() {
           </div>
         </div>
       </div>
+
+      <Dialog open={surahPickerOpen} onOpenChange={setSurahPickerOpen}>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Select Surah</DialogTitle>
+            <DialogDescription>
+              Search and choose a Surah to play.
+            </DialogDescription>
+          </DialogHeader>
+          <Command className="bg-transparent text-white">
+            <CommandInput
+              placeholder="Search surah..."
+              className="h-11 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
+            />
+            <CommandList className="max-h-[min(70vh,28rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+              <CommandEmpty className="py-6 text-center text-sm text-white/50">
+                No surah found.
+              </CommandEmpty>
+              {surahList.map(
+                (
+                  s: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  any,
+                ) => (
+                  <CommandItem
+                    key={s.number}
+                    value={`${s.number} ${s.englishName} ${s.name}`}
+                    onSelect={() => {
+                      setSelectedSurah(s.number);
+                      setSurahPickerOpen(false);
+                    }}
+                    className={`cursor-pointer rounded-md px-2 py-2 text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white ${
+                      s.number === selectedSurah ? "bg-white/10" : ""
+                    }`}
+                  >
+                    <div className="mr-2 w-7 text-[10px] font-semibold tracking-wide text-white/60">
+                      {s.number}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold text-white/90">
+                        {s.englishName}
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-white/60">
+                        <span>{s.name}</span>
+                        <span>{s.numberOfAyahs} ayahs</span>
+                      </div>
+                    </div>
+                    {s.number === selectedSurah && (
+                      <Check className="h-3.5 w-3.5 text-white/80" />
+                    )}
+                  </CommandItem>
+                ),
+              )}
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
