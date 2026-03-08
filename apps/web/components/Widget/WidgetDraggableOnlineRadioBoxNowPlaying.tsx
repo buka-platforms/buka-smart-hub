@@ -876,15 +876,6 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <a
-                href={`https://onlineradiobox.com/${country}/`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-8 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                title="Open OnlineRadioBox"
-              >
-                More
-              </a>
             </div>
           </div>
         </div>
