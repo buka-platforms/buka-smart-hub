@@ -622,150 +622,143 @@ export default function WidgetDraggableSomaFM() {
                   />
                 </PopoverContent>
               </Popover>
-              {/* CHANNELS button with searchable command menu */}
-              <DropdownMenu
-                open={channelPickerOpen}
-                onOpenChange={setChannelPickerOpen}
+              {/* CHANNELS button with searchable command dialog */}
+              <button
+                className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                type="button"
+                aria-label="Select channel"
+                onClick={async () => {
+                  setChannelPickerOpen(true);
+                  try {
+                    const res = await fetch("https://somafm.com/channels.json");
+                    const data = await res.json();
+                    const sortedChannels = (data.channels || [])
+                      .slice()
+                      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                      .sort((a: any, b: any) => a.title.localeCompare(b.title));
+                    setChannels(sortedChannels);
+                  } catch {}
+                }}
               >
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                    type="button"
-                    aria-label="Select channel"
-                    onClick={async () => {
-                      try {
-                        const res = await fetch(
-                          "https://somafm.com/channels.json",
-                        );
-                        const data = await res.json();
-                        const sortedChannels = (data.channels || [])
-                          .slice()
-                          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                          .sort((a: any, b: any) =>
-                            a.title.localeCompare(b.title),
-                          );
-                        setChannels(sortedChannels);
-                      } catch {}
-                    }}
-                  >
-                    Channels
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-84 rounded-lg border border-white/20 bg-black/95 p-1.5 shadow-2xl backdrop-blur-xl"
-                >
-                  <Command className="bg-transparent text-white">
-                    <CommandInput
-                      placeholder="Search channels..."
-                      className="h-10 border-b border-white/10 bg-transparent px-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
-                    />
-                    <CommandList
-                      ref={channelListRef}
-                      className="max-h-96 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-                    >
-                      <CommandEmpty className="py-6 text-center text-sm text-white/50">
-                        No channels found.
-                      </CommandEmpty>
-                      {[...channels]
-                        .slice()
-                        .sort(
-                          (a, b) =>
-                            (Number(b.listeners) || 0) -
-                            (Number(a.listeners) || 0),
-                        )
-                        .map((c) => (
-                          <CommandItem
-                            key={c.id}
-                            value={c.title}
-                            onSelect={async () => {
-                              setSelected(c.id);
-                              setChannelPickerOpen(false);
-                              try {
-                                await playSomaFMStream(
-                                  `https://ice1.somafm.com/${c.id}-128-mp3`,
-                                  c.id,
-                                );
-                              } catch {}
-                            }}
-                            data-current-channel={
-                              c.id === selected ? "true" : undefined
-                            }
-                            className={`group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-transparent data-[selected=true]:text-white ${
-                              c.id === selected ? "bg-blue-500/10" : ""
-                            }`}
-                          >
-                            <div className="flex w-full items-start gap-3">
-                              {/* Logo */}
-                              {c.image && (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img
-                                  src={c.image}
-                                  alt={c.title}
-                                  className="mt-1 h-8 w-8 rounded border border-white/20 bg-white/10 object-contain shadow-lg transition-all group-hover:border-white/40"
-                                  style={{ minWidth: 32, minHeight: 32 }}
-                                  draggable={false}
-                                />
-                              )}
-                              <div className="flex min-w-0 flex-1 flex-col">
-                                {/* Title */}
-                                <span className="truncate text-[13px] font-bold text-white transition-all group-hover:text-white/95">
-                                  {c.title}
-                                </span>
-                                {/* Description (truncated) */}
-                                {c.description && (
-                                  <span
-                                    className="truncate text-[12px] text-white/65 transition-colors group-hover:text-white/75"
-                                    title={c.description}
-                                    style={{ maxWidth: 220 }}
-                                  >
-                                    {c.description}
-                                  </span>
-                                )}
-                                {/* Last playing */}
-                                {c.lastPlaying && (
-                                  <span
-                                    className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
-                                    title={c.lastPlaying}
-                                  >
-                                    <span className="text-white/40">Last:</span>{" "}
-                                    {c.lastPlaying}
-                                  </span>
-                                )}
-                                {/* Genre */}
-                                {c.genre && (
-                                  <span
-                                    className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
-                                    title={c.genre.replace(/\|/g, ", ")}
-                                  >
-                                    <span className="text-white/40">
-                                      Genre:
-                                    </span>{" "}
-                                    {c.genre.replace(/\|/g, ", ")}
-                                  </span>
-                                )}
-                              </div>
-                              {/* Listeners */}
-                              <span className="ml-2 flex min-w-9.5 flex-col items-end">
-                                <span
-                                  className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:bg-blue-500/20"
-                                  title={`Listeners: ${c.listeners}`}
-                                >
-                                  <Users className="inline-block h-3.5 w-3.5" />
-                                  {c.listeners}
-                                </span>
-                              </span>
-                            </div>
-                          </CommandItem>
-                        ))}
-                    </CommandList>
-                  </Command>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                Channels
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Select Channel</DialogTitle>
+            <DialogDescription>
+              Search and choose a SomaFM channel.
+            </DialogDescription>
+          </DialogHeader>
+          <Command className="bg-transparent text-white">
+            <CommandInput
+              placeholder="Search channels..."
+              className="h-10 border-b border-white/10 bg-transparent px-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
+            />
+            <CommandList
+              ref={channelListRef}
+              className="max-h-[min(70vh,32rem)] overflow-y-auto p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+            >
+              <CommandEmpty className="py-6 text-center text-sm text-white/50">
+                No channels found.
+              </CommandEmpty>
+              {[...channels]
+                .slice()
+                .sort(
+                  (a, b) =>
+                    (Number(b.listeners) || 0) - (Number(a.listeners) || 0),
+                )
+                .map((c) => (
+                  <CommandItem
+                    key={c.id}
+                    value={c.title}
+                    onSelect={async () => {
+                      setSelected(c.id);
+                      setChannelPickerOpen(false);
+                      try {
+                        await playSomaFMStream(
+                          `https://ice1.somafm.com/${c.id}-128-mp3`,
+                          c.id,
+                        );
+                      } catch {}
+                    }}
+                    data-current-channel={
+                      c.id === selected ? "true" : undefined
+                    }
+                    className={`group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-transparent data-[selected=true]:text-white ${
+                      c.id === selected ? "bg-blue-500/10" : ""
+                    }`}
+                  >
+                    <div className="flex w-full items-start gap-3">
+                      {/* Logo */}
+                      {c.image && (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={c.image}
+                          alt={c.title}
+                          className="mt-1 h-8 w-8 rounded border border-white/20 bg-white/10 object-contain shadow-lg transition-all group-hover:border-white/40"
+                          style={{ minWidth: 32, minHeight: 32 }}
+                          draggable={false}
+                        />
+                      )}
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        {/* Title */}
+                        <span className="truncate text-[13px] font-bold text-white transition-all group-hover:text-white/95">
+                          {c.title}
+                        </span>
+                        {/* Description (truncated) */}
+                        {c.description && (
+                          <span
+                            className="truncate text-[12px] text-white/65 transition-colors group-hover:text-white/75"
+                            title={c.description}
+                            style={{ maxWidth: 220 }}
+                          >
+                            {c.description}
+                          </span>
+                        )}
+                        {/* Last playing */}
+                        {c.lastPlaying && (
+                          <span
+                            className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
+                            title={c.lastPlaying}
+                          >
+                            <span className="text-white/40">Last:</span>{" "}
+                            {c.lastPlaying}
+                          </span>
+                        )}
+                        {/* Genre */}
+                        {c.genre && (
+                          <span
+                            className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
+                            title={c.genre.replace(/\|/g, ", ")}
+                          >
+                            <span className="text-white/40">Genre:</span>{" "}
+                            {c.genre.replace(/\|/g, ", ")}
+                          </span>
+                        )}
+                      </div>
+                      {/* Listeners */}
+                      <span className="ml-2 flex min-w-9.5 flex-col items-end">
+                        <span
+                          className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:bg-blue-500/20"
+                          title={`Listeners: ${c.listeners}`}
+                        >
+                          <Users className="inline-block h-3.5 w-3.5" />
+                          {c.listeners}
+                        </span>
+                      </span>
+                    </div>
+                  </CommandItem>
+                ))}
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
