@@ -39,6 +39,32 @@ export const tv = [
     category: "Documentary",
   },
   {
+    id: "bbc",
+    slug: "bbc",
+    country: "United Kingdom",
+    name: "BBC",
+    short_description: "BBC from the UK.",
+    long_description: "BBC is a news channel from the UK.",
+    logo_url:
+      "https://yt3.googleusercontent.com/MtM6HoJKNoz_g45cr7pflFauieANtB7-LCdCGgFg-ECkjxBYhAAsrcN9AaylpQIqq9xEHdvNig=s900-c-k-c0x00ffffff-no-rj",
+    source: "YouTube",
+    source_id: "6ftAy0nBdAQ",
+    category: "News",
+  },
+  {
+    id: "bbc_earth",
+    slug: "bbc-earth",
+    country: "United Kingdom",
+    name: "BBC Earth",
+    short_description: "BBC Earth from the UK.",
+    long_description: "BBC Earth is a channel from the UK.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBC_Earth_2023.svg/960px-BBC_Earth_2023.svg.png",
+    source: "YouTube",
+    source_id: "QMr8v0k44uQ",
+    category: "Documentary",
+  },
+  {
     id: "abc_news_us",
     slug: "abc-news-us",
     country: "United States",
