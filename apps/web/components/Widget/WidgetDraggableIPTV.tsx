@@ -98,6 +98,8 @@ const WIDGET_VERSION = "1.0.0";
 export default function WidgetDraggableIPTV() {
   const commandItemClass =
     "group cursor-pointer rounded-md px-2 py-1.5 text-white/80 transition-colors hover:bg-white/5 data-[highlighted=true]:bg-white/10 data-[highlighted=true]:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white";
+  const logoPlateClass =
+    "overflow-hidden rounded-md border border-white/25 bg-gradient-to-br from-white to-zinc-200 shadow-[0_2px_10px_rgba(0,0,0,0.35)]";
 
   const WIDGET_ID = "iptv";
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -309,28 +311,6 @@ export default function WidgetDraggableIPTV() {
       try {
         const container = jwElRef.current ?? undefined;
         if (container) {
-          // clear container
-          container.innerHTML = "";
-          // show channel logo as container background (contain) so it doesn't get cropped
-          // clear any previous inline background styles; we'll show a controlled
-          // poster overlay instead to avoid JWPlayer skin interactions.
-          try {
-            container.style.backgroundImage = "";
-            container.style.padding = "";
-            // cast to a more specific shape to avoid `any` lint errors
-            (
-              container.style as unknown as CSSStyleDeclaration & {
-                backgroundOrigin?: string;
-                backgroundClip?: string;
-              }
-            ).backgroundOrigin = "";
-            (
-              container.style as unknown as CSSStyleDeclaration & {
-                backgroundOrigin?: string;
-                backgroundClip?: string;
-              }
-            ).backgroundClip = "";
-          } catch {}
           const setupConfig: Record<string, unknown> = {
             file: selectedChannel.stream_url,
             width: "100%",
@@ -776,7 +756,9 @@ export default function WidgetDraggableIPTV() {
             <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
               {/* Channel Logo */}
               {selectedChannel?.logo_url && (
-                <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded bg-white/10">
+                <div
+                  className={`relative h-6 w-6 shrink-0 ${logoPlateClass} p-0.5`}
+                >
                   <img
                     src={selectedChannel.logo_url}
                     alt={selectedChannel.name}
@@ -957,7 +939,9 @@ export default function WidgetDraggableIPTV() {
                     >
                       <div className="flex w-full items-center gap-3">
                         {channel.logo_url && (
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                          <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center ${logoPlateClass} p-1`}
+                          >
                             <img
                               src={channel.logo_url}
                               alt={channel.name}
@@ -1014,7 +998,9 @@ export default function WidgetDraggableIPTV() {
                       >
                         <div className="flex w-full items-center gap-3">
                           {channel.logo_url && (
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                            <div
+                              className={`flex h-8 w-8 shrink-0 items-center justify-center ${logoPlateClass} p-1`}
+                            >
                               <img
                                 src={channel.logo_url}
                                 alt={channel.name}
