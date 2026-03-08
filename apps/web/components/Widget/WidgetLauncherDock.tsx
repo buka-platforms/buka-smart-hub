@@ -20,6 +20,7 @@ import { widgetVisibilityAtom, type WidgetId } from "@/data/store";
 import { useAtom } from "jotai";
 import {
   AppWindow,
+  Bookmark,
   BookOpen,
   Clock,
   CloudSun,
@@ -28,6 +29,7 @@ import {
   Music,
   Radio,
   Rss,
+  StickyNote,
   Timer,
   Tv,
 } from "lucide-react";
@@ -103,6 +105,18 @@ const WIDGETS: {
     icon: <BookOpen className="h-5 w-5" />,
     description: "Read and listen to the Quran",
   },
+  {
+    id: "bookmarks",
+    label: "Bookmarks",
+    icon: <Bookmark className="h-5 w-5" />,
+    description: "Save and open favorite links",
+  },
+  {
+    id: "notes",
+    label: "Notes",
+    icon: <StickyNote className="h-5 w-5" />,
+    description: "Quick local notes",
+  },
 ];
 
 // Mini dock shows first N widgets
@@ -144,6 +158,8 @@ export default function WidgetLauncherDock() {
       youtubelivetv: true,
       pomodoro: true,
       onlineradioboxnowplaying: true,
+      bookmarks: true,
+      notes: true,
     };
 
     setVisibility(nextVisibility);
@@ -168,6 +184,8 @@ export default function WidgetLauncherDock() {
       youtubelivetv: false,
       pomodoro: false,
       onlineradioboxnowplaying: false,
+      bookmarks: false,
+      notes: false,
     };
 
     setVisibility(nextVisibility);

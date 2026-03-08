@@ -62,6 +62,16 @@ const WidgetDraggableIPTV = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableBookmarks = dynamic(
+  () => import("@/components/Widget/WidgetDraggableBookmarks"),
+  { ssr: false },
+);
+
+const WidgetDraggableNotes = dynamic(
+  () => import("@/components/Widget/WidgetDraggableNotes"),
+  { ssr: false },
+);
+
 const WidgetLauncherDock = dynamic(
   () => import("@/components/Widget/WidgetLauncherDock"),
   { ssr: false },
@@ -231,6 +241,18 @@ export default function WidgetContainer() {
               return (
                 <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
                   <WidgetDraggableIPTV />
+                </WidgetWrapper>
+              );
+            case "bookmarks":
+              return (
+                <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
+                  <WidgetDraggableBookmarks />
+                </WidgetWrapper>
+              );
+            case "notes":
+              return (
+                <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
+                  <WidgetDraggableNotes />
                 </WidgetWrapper>
               );
             default:

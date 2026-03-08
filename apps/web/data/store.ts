@@ -86,7 +86,9 @@ export type WidgetId =
   | "youtubelivetv"
   | "quran"
   | "pomodoro"
-  | "onlineradioboxnowplaying";
+  | "onlineradioboxnowplaying"
+  | "bookmarks"
+  | "notes";
 
 export const widgetVisibilityAtom = atom<Record<WidgetId, boolean>>({
   time: true,
@@ -99,4 +101,6 @@ export const widgetVisibilityAtom = atom<Record<WidgetId, boolean>>({
   youtubelivetv: true,
   pomodoro: true,
   onlineradioboxnowplaying: true,
+  bookmarks: true,
+  notes: true,
 });

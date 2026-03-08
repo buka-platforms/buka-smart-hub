@@ -20,7 +20,9 @@ export type WidgetId =
   | "youtubelivetv"
   | "quran"
   | "pomodoro"
-  | "onlineradioboxnowplaying";
+  | "onlineradioboxnowplaying"
+  | "bookmarks"
+  | "notes";
 
 // Storage keys for each widget's position
 export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
@@ -34,6 +36,8 @@ export const WIDGET_POSITION_KEYS: Record<WidgetId, string> = {
   youtubelivetv: "widgetYouTubeLiveTVPosition",
   pomodoro: "widgetPomodoroPosition",
   onlineradioboxnowplaying: "widgetOnlineRadioBoxNowPlayingPosition",
+  bookmarks: "widgetBookmarksPosition",
+  notes: "widgetNotesPosition",
 };
 
 // Order storage key for slot-based layout
@@ -52,6 +56,8 @@ const WIDGET_PRIORITY: WidgetId[] = [
   "somafm", // Secondary audio
   "youtubelivetv", // Video content (larger)
   "onlineradioboxnowplaying", // Dynamic content (can be tall)
+  "bookmarks",
+  "notes",
 ];
 
 // Layout configuration
@@ -358,6 +364,8 @@ function getWidgetDimensions(widgetId: WidgetId): {
     youtubelivetv: { width: 360, height: 280 },
     pomodoro: { width: 340, height: 280 },
     onlineradioboxnowplaying: { width: 340, height: 420 },
+    bookmarks: { width: 360, height: 360 },
+    notes: { width: 360, height: 360 },
   };
 
   return fallbacks[widgetId] || { width: 320, height: 160 };
@@ -382,6 +390,8 @@ export function calculateAutoArrangePositions(): Record<
     youtubelivetv: { x: 0, y: 0 },
     pomodoro: { x: 0, y: 0 },
     onlineradioboxnowplaying: { x: 0, y: 0 },
+    bookmarks: { x: 0, y: 0 },
+    notes: { x: 0, y: 0 },
   };
 
   if (typeof window === "undefined") return positions;
