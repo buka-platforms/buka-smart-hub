@@ -87,6 +87,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
   // Shared styles for command palette items to keep dark theme consistent
   const commandItemClass =
     "group cursor-pointer rounded-md px-2 py-1.5 text-white/80 transition-colors hover:bg-white/5 data-[highlighted=true]:bg-white/10 data-[highlighted=true]:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white";
+  const logoPlateClass =
+    "overflow-hidden rounded-md border border-white/25 bg-gradient-to-br from-white to-zinc-200 shadow-[0_2px_10px_rgba(0,0,0,0.35)]";
 
   const WIDGET_ID = "youtubelivetv";
   const containerRef = useRef<HTMLDivElement>(null); // wrapper
@@ -592,7 +594,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
             <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
               {/* Channel Logo */}
               {selectedChannel?.logo_url && (
-                <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded bg-white/10">
+                <div
+                  className={`relative h-6 w-6 shrink-0 ${logoPlateClass} p-0.5`}
+                >
                   <img
                     src={selectedChannel.logo_url}
                     alt={selectedChannel.name}
@@ -767,7 +771,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
                     >
                       <div className="flex w-full items-center gap-3">
                         {channel.logo_url && (
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                          <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center ${logoPlateClass} p-1`}
+                          >
                             <img
                               src={channel.logo_url}
                               alt={channel.name}
@@ -825,7 +831,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
                       >
                         <div className="flex w-full items-center gap-3">
                           {channel.logo_url && (
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 p-1">
+                            <div
+                              className={`flex h-8 w-8 shrink-0 items-center justify-center ${logoPlateClass} p-1`}
+                            >
                               <img
                                 src={channel.logo_url}
                                 alt={channel.name}
