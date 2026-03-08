@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -43,6 +50,7 @@ import {
 import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import {
+  Check,
   Disc3,
   LoaderCircle,
   MoreHorizontal,
@@ -194,6 +202,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [countryDialogOpen, setCountryDialogOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
@@ -842,43 +851,60 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               </Popover>
 
               {/* Country Selector */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
-                    type="button"
-                  >
-                    Country: {selectedCountry?.code.toUpperCase() || "ID"}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="start"
-                  className="max-h-64 overflow-y-auto rounded-md border border-white/10 bg-black/90 p-2 text-white shadow-lg [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-                >
-                  {COUNTRIES.map((c) => (
-                    <DropdownMenuItem
-                      key={c.code}
-                      onSelect={() => setCountry(c.code)}
-                      className={`group cursor-pointer ${country === c.code ? "bg-white/10" : ""}`}
-                    >
-                      <span
-                        className={`mr-2 w-6 text-xs uppercase ${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/50 group-hover:text-gray-950"}`}
-                      >
-                        {c.code}
-                      </span>
-                      <span
-                        className={`${country === c.code ? "text-white group-hover:text-gray-950" : "text-white/90 group-hover:text-gray-950"}`}
-                      >
-                        {c.name}
-                      </span>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <button
+                className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                type="button"
+                onClick={() => setCountryDialogOpen(true)}
+              >
+                Country: {selectedCountry?.code.toUpperCase() || "ID"}
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={countryDialogOpen} onOpenChange={setCountryDialogOpen}>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Select Country</DialogTitle>
+            <DialogDescription>
+              Search and select a country for radio now playing.
+            </DialogDescription>
+          </DialogHeader>
+          <Command className="bg-transparent text-white">
+            <CommandInput
+              placeholder="Search country..."
+              className="h-11 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
+            />
+            <CommandList className="max-h-[min(70vh,24rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+              <CommandEmpty className="py-6 text-center text-sm text-white/50">
+                No country found.
+              </CommandEmpty>
+              {COUNTRIES.map((c) => (
+                <CommandItem
+                  key={c.code}
+                  value={`${c.name} ${c.code}`}
+                  onSelect={() => {
+                    setCountry(c.code);
+                    setCountryDialogOpen(false);
+                  }}
+                  className={`cursor-pointer rounded-md px-2 py-2 text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white ${
+                    country === c.code ? "bg-white/10" : ""
+                  }`}
+                >
+                  <span className="mr-2 w-8 text-[10px] font-semibold tracking-wide text-white/60 uppercase">
+                    {c.code}
+                  </span>
+                  <span className="flex-1 text-sm text-white/90">{c.name}</span>
+                  {country === c.code && (
+                    <Check className="h-3.5 w-3.5 text-white/80" />
+                  )}
+                </CommandItem>
+              ))}
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
