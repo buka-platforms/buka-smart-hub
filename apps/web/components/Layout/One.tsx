@@ -1,6 +1,4 @@
-import AppsLink from "@/components/General/AppsLink";
-import SignedInHeader from "@/components/General/SignedInHeader";
-import { getRequestHeaders } from "@/lib/header";
+import OneClient from "@/components/Layout/OneClient";
 import { checkUserSession } from "@/lib/user";
 
 export default async function LayoutOne({
@@ -9,27 +7,6 @@ export default async function LayoutOne({
   children: React.ReactNode;
 }) {
   const userSession = await checkUserSession();
-  const requestHeaders = await getRequestHeaders();
 
-  if (process.env.NEXT_PUBLIC_HOSTNAME === "localhost") {
-    // Set the IP country for localhost as Indonesia
-    requestHeaders["x-vercel-ip-country"] = "ID";
-  }
-
-  return (
-    <>
-      <div>
-        <SignedInHeader userSession={userSession} />
-        <div className="container mx-auto mt-7">{children}</div>
-        {process.env.NEXT_PUBLIC_HOSTNAME === "buka.sh" ? (
-          <>
-            <div className="h-64"></div>
-          </>
-        ) : (
-          <div className="h-64"></div>
-        )}
-        <AppsLink />
-      </div>
-    </>
-  );
+  return <OneClient userSession={userSession}>{children}</OneClient>;
 }

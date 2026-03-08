@@ -1,6 +1,5 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import MusicPreview from "./MusicPreview";
 
 const moduleName = `Music Preview`;
@@ -40,16 +39,9 @@ export const metadata: Metadata = {
 export default async function MusicPreviewPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <MusicPreview />
       </div>
       <div className="mt-11 flex w-full justify-center">

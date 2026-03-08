@@ -1,7 +1,6 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import { createDirectus, readItems, rest, staticToken } from "@directus/sdk";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import NewsList from "./NewsList";
 
 const moduleName = `News & Stories`;
@@ -64,17 +63,9 @@ export default async function NewsPage() {
 
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      {/* <div className="mt-9 flex w-full flex-col"> */}
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <NewsList newsStories={newsStories} page={1} />
       </div>
       <div className="mt-11 flex w-full justify-center">

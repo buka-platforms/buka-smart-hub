@@ -1,6 +1,5 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import TradingViewWidget from "./TradingViewWidget";
 
 const moduleName = `Market Chart`;
@@ -40,17 +39,9 @@ export const metadata: Metadata = {
 export default async function MarketChartPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      {/* <div className="mt-9 flex items-center overflow-hidden"> */}
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <div className="flex h-[calc(100vh-64px-81px-200px)] w-full justify-center">
           <TradingViewWidget />
         </div>

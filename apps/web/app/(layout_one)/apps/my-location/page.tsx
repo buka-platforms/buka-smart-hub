@@ -1,8 +1,7 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRequestHeaders } from "@/lib/header";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import Map from "./Map";
 
 const moduleName = `My Location`;
@@ -62,20 +61,12 @@ export default async function MyLocationPage() {
 
   return (
     <>
-      <PageHeaderInfo
-        moduleName={moduleName}
-        pageDescription={`${pageDescription} Based on my IP address.`}
-      >
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro
+        title={moduleName}
+        description={`${pageDescription} Based on my IP address.`}
+      />
       <h1 className="hidden">{pageDescription}</h1>
-      {/* <div className="mt-9 flex w-full flex-col gap-3 md:flex-row"> */}
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <div className="flex flex-col gap-3 md:flex-row">
           <Card className="rounded-lg shadow-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

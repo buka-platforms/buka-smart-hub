@@ -1,7 +1,6 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import { getRequestHeaders } from "@/lib/header";
 import { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import PublicHolidays from "./PublicHolidays";
 
 const moduleName = `Public Holidays`;
@@ -75,16 +74,9 @@ export default async function PublicHolidaysPage() {
 
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         {isCountryAvailable ? (
           <PublicHolidays requestHeaders={requestHeaders} />
         ) : (

@@ -1,6 +1,5 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import RadioStations from "./RadioStations";
 
 const moduleName = `Radio`;
@@ -40,16 +39,9 @@ export const metadata: Metadata = {
 export default async function RadioPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <p className="leading-7 not-first:mt-6">
           Are you radio streaming owner? You can submit{" "}
           <a className="underline" href="https://forms.gle/Te5KBBjPchrkxoju5">

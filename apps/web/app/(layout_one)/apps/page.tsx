@@ -1,7 +1,7 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
-import { Badge } from "@/components/ui/badge";
 import { apps } from "@/data/apps";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 const moduleName = `Apps`;
@@ -37,88 +37,44 @@ export const metadata: Metadata = {
   },
 };
 
-const List = () => {
-  return (
-    <>
-      {apps.map((app) => (
-        <Item item={app} key={app.name} />
-      ))}
-    </>
-  );
-};
-
-/* eslint-disable @next/next/no-img-element */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Item = ({ item }: any) => {
-  return (
-    <>
-      <Link
-        href={item.path}
-        prefetch={item.prefetch ?? true}
-        target={item.open_in_new_tab ? "_blank" : "_self"}
-        rel={item.secure_on_new_tab ? "noopener noreferrer" : ""}
-      >
-        <div
-          title={item.description}
-          className="group relative flex w-full cursor-pointer flex-row items-center rounded-md border p-5 text-center shadow-xs hover:bg-slate-50 md:h-40 md:w-40 md:max-w-40 md:flex-col md:justify-center md:p-0"
-        >
-          {item.type === "new" && (
-            <Badge
-              variant="destructive"
-              className="absolute top-1 right-1 rounded-full bg-blue-400 text-xs font-light shadow-none hover:bg-purple-500"
-            >
-              new
-            </Badge>
-          )}
-          {item.type === "wip" && (
-            <Badge
-              variant="destructive"
-              className="absolute top-1 right-1 rounded-full bg-orange-400 text-xs font-light shadow-none hover:bg-purple-500"
-            >
-              wip
-            </Badge>
-          )}
-          <div className="flex items-center md:grow md:justify-center">
-            <img
-              src={item.image_url}
-              alt={item.name}
-              className="size-8 md:size-12"
-            />
-          </div>
-          <div className="flex flex-col items-start p-2 md:w-full md:items-center">
-            <span className="text-left group-hover:font-medium md:text-sm">
-              {item.name}
-            </span>
-            <span className="text-left text-xs text-slate-500 md:hidden">
-              {item.description}
-            </span>
-          </div>
-        </div>
-      </Link>
-    </>
-  );
-};
-
-/* eslint-disable @next/next/no-img-element */
 export default async function AppsPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-      </PageHeaderInfo>
-      <h1 className="hidden">{pageDescription}</h1>
-      <main className="mt-9 w-full">
-        <div className="flex flex-col flex-wrap gap-3 md:flex-row md:gap-5 md:px-0">
-          <List />
+      <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+        {moduleName}
+      </h1>
+      <p className="mt-2 text-sm text-slate-600">{pageDescription}</p>
+      <div className="mt-6 rounded-2xl border bg-white p-5 shadow-xs md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl border bg-slate-50 p-3">
+              <Image
+                src="/assets/images/illustration_apps.svg"
+                alt="Apps"
+                width={42}
+                height={42}
+              />
+            </div>
+            <div>
+              <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">
+                Workspace
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                Launch any app from the sidebar
+              </h2>
+              <p className="mt-2 text-sm text-slate-600">
+                Pick one from the left navigation to start quickly.
+              </p>
+            </div>
+          </div>
+          <Link
+            href={apps[0]?.path ?? "/apps/book-preview"}
+            className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+          >
+            Open First App
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
-      </main>
-      <div className="mt-11 flex w-full justify-center">
-        <img
-          src="/assets/images/illustration_apps.svg"
-          alt="Apps"
-          className="h-50 w-50 md:h-87.5 md:w-87.5"
-        />
       </div>
     </>
   );

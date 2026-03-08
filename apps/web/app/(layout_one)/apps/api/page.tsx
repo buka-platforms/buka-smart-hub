@@ -1,7 +1,6 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 // import MoviePreview from "./MoviePreview";
 import { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 
 const moduleName = `API (Application Programming Interface)`;
 const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
@@ -40,16 +39,9 @@ export const metadata: Metadata = {
 export default async function APIPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <div>
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
             The Joke Tax Chronicles

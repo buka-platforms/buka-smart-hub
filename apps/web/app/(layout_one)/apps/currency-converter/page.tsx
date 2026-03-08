@@ -1,6 +1,5 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 
 const moduleName = `Currency Converter`;
 const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
@@ -39,17 +38,9 @@ export const metadata: Metadata = {
 export default async function CurrencyConverterPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      {/* <div className="mt-9 flex items-center overflow-hidden"> */}
-      <div className="mt-9 w-full">
+      <div className="mt-6 w-full">
         <div className="flex h-auto w-full">
           <iframe
             title="fx"

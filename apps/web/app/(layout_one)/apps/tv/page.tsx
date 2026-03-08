@@ -2,10 +2,9 @@ import {
   ExternalTvLink,
   InternalTvLink,
 } from "@/app/(layout_one)/apps/tv/links";
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import { tv } from "@/data/youtube_live_tv";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 
 const moduleName = `TV`;
 const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
@@ -61,17 +60,10 @@ export default async function TvPage() {
   /* eslint-disable @next/next/no-img-element */
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      <div className="mt-9 w-full">
-        <main className="mt-7 flex flex-col flex-wrap gap-3 md:flex-row md:gap-5 md:px-0">
+      <div className="mt-6 w-full">
+        <main className="flex flex-col flex-wrap gap-3 md:flex-row md:gap-5 md:px-0">
           {Object.entries(sortedCategorizedTvs).map(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ([category, apps]: [any, any]) => (

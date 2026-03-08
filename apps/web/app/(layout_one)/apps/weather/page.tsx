@@ -1,6 +1,5 @@
-import PageHeaderInfo from "@/components/General/PageHeaderInfo";
 import type { Metadata } from "next";
-import Link from "next/link";
+import AppPageIntro from "../AppPageIntro";
 import MyAirQualityAndPollenWidget from "./MyAirQualityAndPollenWidget";
 import MyAirQualityAndPollutantWidget from "./MyAirQualityAndPollutantWidget";
 import MySummaryWeatherWidget from "./MySummaryWeatherWidget";
@@ -46,18 +45,10 @@ export const metadata: Metadata = {
 export default async function MyWeatherPage() {
   return (
     <>
-      <PageHeaderInfo moduleName={moduleName} pageDescription={pageDescription}>
-        {" "}
-        /{" "}
-        <Link href="/apps" className="underline">
-          Apps
-        </Link>{" "}
-        /{" "}
-      </PageHeaderInfo>
+      <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
-      {/* <div className="mt-9 flex w-full flex-wrap items-center overflow-hidden"> */}
-      <div className="mt-9 w-full">
-        <div className="mt-7 flex w-full flex-col items-center justify-center">
+      <div className="mt-6 w-full">
+        <div className="flex w-full flex-col items-center justify-center">
           <h2 className="mb-3 self-start font-medium">Summary</h2>
           <MySummaryWeatherWidget />
         </div>
