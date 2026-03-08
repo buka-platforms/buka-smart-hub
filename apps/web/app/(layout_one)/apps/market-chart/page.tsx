@@ -42,11 +42,11 @@ export default async function MarketChartPage() {
       <AppPageIntro title={moduleName} description={pageDescription} />
       <h1 className="hidden">{pageDescription}</h1>
       <div className="mt-6 w-full">
-        <div className="flex h-[calc(100vh-64px-81px-200px)] w-full justify-center">
+        <div className="relative z-10 flex h-[calc(100vh-64px-81px-200px)] min-h-[560px] w-full justify-center">
           <TradingViewWidget />
         </div>
       </div>
-      <div className="mt-11 flex w-full justify-center">
+      <div className="pointer-events-none relative z-0 mt-11 flex w-full justify-center">
         <img
           src="/assets/images/illustration_market_chart.svg"
           alt="Market Chart"

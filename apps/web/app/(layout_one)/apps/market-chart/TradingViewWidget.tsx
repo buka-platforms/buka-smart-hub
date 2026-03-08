@@ -4,14 +4,25 @@ import React, { memo, useEffect, useRef } from "react";
 
 const TradingViewWidget = () => {
   const container = useRef<HTMLDivElement | null>(null);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
+    const containerEl = container.current;
+
+    if (!containerEl || isInitialized.current) return;
+
+    isInitialized.current = true;
+    containerEl.innerHTML = "";
+
+    const widget = document.createElement("div");
+    widget.className = "tradingview-widget-container__widget h-full w-full";
+
     const script = document.createElement("script");
     script.src =
       "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
-    script.innerHTML = `
+    script.text = `
     {
       "autosize": true,
       "symbol": "NASDAQ:AAPL",
@@ -31,19 +42,21 @@ const TradingViewWidget = () => {
       "calendar": true,
       "support_host": "https://www.tradingview.com"
     }`;
-    if (container.current) container.current.appendChild(script);
+
+    containerEl.append(widget, script);
+
+    return () => {
+      isInitialized.current = false;
+      containerEl.innerHTML = "";
+    };
   }, []);
 
   return (
-    <div className="tradingview-widget-container h-auto w-full" ref={container}>
-      <div className="tradingview-widget-container__widget h-auto w-full"></div>
-      <div className="tradingview-widget-copyright">
-        <a
-          href="https://www.tradingview.com/"
-          rel="noopener nofollow"
-          target="_blank"
-        ></a>
-      </div>
+    <div
+      className="tradingview-widget-container h-full min-h-[480px] w-full"
+      ref={container}
+    >
+      <div className="tradingview-widget-container__widget h-full w-full" />
     </div>
   );
 };
