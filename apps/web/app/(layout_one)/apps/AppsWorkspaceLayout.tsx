@@ -2,6 +2,14 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,7 +42,6 @@ import {
   ChevronsUpDown,
   CircleUserRound,
   CreditCard,
-  House,
   LogIn,
   LogOut,
   Search,
@@ -63,6 +70,10 @@ export default function AppsWorkspaceLayout({
   userSession: UserSession;
 }) {
   const pathname = usePathname();
+  const activeApp =
+    apps.find(
+      (app) => pathname === app.path || pathname.startsWith(`${app.path}/`),
+    ) ?? null;
 
   return (
     <SidebarProvider>
@@ -242,21 +253,37 @@ export default function AppsWorkspaceLayout({
           <SidebarRail className="bg-white/70" />
           <SidebarInset className="min-h-screen bg-white">
             <div className="sticky top-0 z-10 border-b bg-white/95 px-4 py-3 backdrop-blur md:px-6">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-2">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="shrink-0">
                   <SidebarTrigger />
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-2"
-                  >
-                    <Link href="/">
-                      <House className="size-4" />
-                      Home
-                    </Link>
-                  </Button>
                 </div>
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink asChild>
+                        <Link href="/">Home</Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    {activeApp ? (
+                      <>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink asChild>
+                            <Link href="/apps">Apps</Link>
+                          </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>{activeApp.name}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </>
+                    ) : (
+                      <BreadcrumbItem>
+                        <BreadcrumbPage>Apps</BreadcrumbPage>
+                      </BreadcrumbItem>
+                    )}
+                  </BreadcrumbList>
+                </Breadcrumb>
               </div>
             </div>
             <div className="flex-1 p-4 md:p-8">{children}</div>
