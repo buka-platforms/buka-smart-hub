@@ -1,4 +1,3 @@
-import Search from "@/components/General/Search";
 import {
   Popover,
   PopoverContent,
@@ -156,9 +155,6 @@ export default function SignedInHeader({
           </div>
           <div className="flex grow px-3 md:px-7"></div>
           <div className="flex items-center gap-x-3">
-            <div title="Search" className="flex cursor-pointer items-center">
-              <Search className="h-6 w-6 cursor-pointer text-slate-600 opacity-80 hover:opacity-100 md:h-6 md:w-6" />
-            </div>
             {!is_authenticated ? (
               <NotAuthenticated />
             ) : (
