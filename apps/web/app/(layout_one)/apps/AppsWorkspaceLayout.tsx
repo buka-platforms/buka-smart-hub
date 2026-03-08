@@ -40,7 +40,6 @@ import {
   Bell,
   ChevronsUpDown,
   CircleUserRound,
-  CreditCard,
   LogIn,
   LogOut,
   PanelLeft,
@@ -235,10 +234,6 @@ function AppsWorkspaceShell({
                         <DropdownMenuItem>
                           <BadgeCheck className="mr-2 size-4" />
                           Account
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <CreditCard className="mr-2 size-4" />
-                          Billing
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Bell className="mr-2 size-4" />
