@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "public/assets/js/jwplayer.8.27.1.js",
   ]),
 ]);
 
