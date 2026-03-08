@@ -102,7 +102,7 @@ function AppsWorkspaceShell({
                   height={28}
                 />
                 {!collapsed && (
-                  <p className="text-sm font-semibold">Buka Smart Home</p>
+                  <p className="text-sm font-semibold">Buka Smart Hub</p>
                 )}
               </Link>
             </SidebarHeader>
