@@ -44,7 +44,7 @@ export default async function AppsPage() {
         {moduleName}
       </h1>
       <p className="mt-2 text-sm text-slate-600">{pageDescription}</p>
-      <div className="mt-6 rounded-2xl border bg-white p-5 shadow-xs md:p-6">
+      <div className="mt-6 rounded-xl border border-slate-200/80 bg-white p-5 md:p-6">
         <div className="flex flex-col gap-4">
           <div className="flex items-start gap-4">
             <div className="rounded-xl border bg-slate-50 p-3">
@@ -92,10 +92,10 @@ export default async function AppsPage() {
                     ? "noopener noreferrer"
                     : undefined
                 }
-                className="group rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4 shadow-xs transition hover:border-slate-300 hover:shadow-sm"
+                className="group rounded-lg border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/60 p-4 transition hover:border-slate-300/80"
               >
                 <div className="flex items-start gap-3">
-                  <div className="rounded-lg border border-slate-200 bg-white p-2">
+                  <div className="rounded-md border border-slate-200/80 bg-white p-2">
                     <Image
                       src={app.image_url}
                       alt={app.name}

@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { Slot } from "@radix-ui/react-slot";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Slot } from "@radix-ui/react-slot";
 import { PanelLeft } from "lucide-react";
 import * as React from "react";
 
@@ -91,7 +91,10 @@ const Sidebar = ({
   );
 };
 
-const SidebarInset = ({ className, ...props }: React.ComponentProps<"main">) => (
+const SidebarInset = ({
+  className,
+  ...props
+}: React.ComponentProps<"main">) => (
   <main className={cn("flex min-w-0 flex-1 flex-col", className)} {...props} />
 );
 
@@ -172,4 +175,3 @@ export {
   SidebarRail,
   SidebarTrigger,
 };
-

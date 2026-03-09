@@ -20,18 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "./_components/apps-sidebar";
 import { apps } from "@/data/apps";
 import type { UserSession } from "@/data/type";
 import { cn } from "@/lib/utils";
@@ -49,6 +37,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "./_components/apps-sidebar";
 
 const initials = (name?: string) => {
   if (!name) return "U";
@@ -160,7 +160,7 @@ function AppsWorkspaceShell({
             </SidebarContent>
             <SidebarFooter>
               {userSession.is_authenticated && userSession.user_details ? (
-                <div className="rounded-xl border bg-white/95 p-2 shadow-xs">
+                <div className="rounded-md border border-slate-200/80 bg-white/95 p-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -252,7 +252,7 @@ function AppsWorkspaceShell({
               ) : (
                 <div
                   className={cn(
-                    "rounded-lg border bg-white p-3",
+                    "rounded-md border border-slate-200/80 bg-white p-3",
                     collapsed && "p-2",
                   )}
                 >
