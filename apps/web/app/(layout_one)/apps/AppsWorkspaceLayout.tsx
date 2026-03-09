@@ -31,7 +31,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "./_components/apps-sidebar";
 import { apps } from "@/data/apps";
 import type { UserSession } from "@/data/type";
 import { cn } from "@/lib/utils";
