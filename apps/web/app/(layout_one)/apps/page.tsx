@@ -1,5 +1,5 @@
 import { apps } from "@/data/apps";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -45,7 +45,7 @@ export default async function AppsPage() {
       </h1>
       <p className="mt-2 text-sm text-slate-600">{pageDescription}</p>
       <div className="mt-6 rounded-2xl border bg-white p-5 shadow-xs md:p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4">
           <div className="flex items-start gap-4">
             <div className="rounded-xl border bg-slate-50 p-3">
               <Image
@@ -60,22 +60,69 @@ export default async function AppsPage() {
                 Workspace
               </p>
               <h2 className="mt-1 text-xl font-semibold text-slate-900">
-                Launch any app from the sidebar
+                Launch your tools quickly
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                Pick one from the left navigation to start quickly.
+                Choose any app from the cards below to get started.
               </p>
             </div>
           </div>
-          <Link
-            href={apps[0]?.path ?? "/apps/book-preview"}
-            className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-          >
-            Open First App
-            <ArrowRight className="size-4" />
-          </Link>
         </div>
       </div>
+      <section className="mt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-wide text-slate-700 uppercase">
+            Explore Tools
+          </h2>
+          <p className="text-xs text-slate-500">{apps.length} apps</p>
+        </div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {apps.map((app) => {
+            const openInNewTab = app.open_in_new_tab ?? false;
+            const isExternal = openInNewTab || app.path.startsWith("http");
+
+            return (
+              <Link
+                key={app.id}
+                href={app.path}
+                prefetch={app.prefetch ?? true}
+                target={openInNewTab ? "_blank" : "_self"}
+                rel={
+                  openInNewTab && app.secure_on_new_tab
+                    ? "noopener noreferrer"
+                    : undefined
+                }
+                className="group rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4 shadow-xs transition hover:border-slate-300 hover:shadow-sm"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg border border-slate-200 bg-white p-2">
+                    <Image
+                      src={app.image_url}
+                      alt={app.name}
+                      width={24}
+                      height={24}
+                      className="size-6"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {app.name}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      {app.description}
+                    </p>
+                  </div>
+                  {isExternal ? (
+                    <ExternalLink className="mt-0.5 size-4 text-slate-400 transition group-hover:text-slate-700" />
+                  ) : (
+                    <ArrowRight className="mt-0.5 size-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-700" />
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
     </>
   );
 }
