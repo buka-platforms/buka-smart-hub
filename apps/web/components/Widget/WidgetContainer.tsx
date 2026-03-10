@@ -32,6 +32,11 @@ const WidgetDraggableDateTime = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableBiorhythm = dynamic(
+  () => import("@/components/Widget/WidgetDraggableBiorhythm"),
+  { ssr: false },
+);
+
 const WidgetDraggableYouTubeLiveTV = dynamic(
   () => import("@/components/Widget/WidgetDraggableYouTubeLiveTV"),
   { ssr: false },
@@ -199,6 +204,12 @@ export default function WidgetContainer() {
               return (
                 <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
                   <WidgetDraggableWeather />
+                </WidgetWrapper>
+              );
+            case "biorhythm":
+              return (
+                <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
+                  <WidgetDraggableBiorhythm />
                 </WidgetWrapper>
               );
             case "somafm":
