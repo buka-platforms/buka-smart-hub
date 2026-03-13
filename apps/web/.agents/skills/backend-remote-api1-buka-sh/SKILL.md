@@ -1,6 +1,6 @@
 ---
-name: backend-ops-laravel-remote
-description: Laravel backend operations and code review on a remote host. Use when the user asks to inspect, review, debug, or audit backend code that is not in the local workspace and credentials are provided via `.env.local` keys `SECRET_BACKEND_HOST`, `SECRET_BACKEND_USER`, `SECRET_BACKEND_PASSWORD`, and `SECRET_BACKEND_PATH`.
+name: backend-remote-api1-buka-sh
+description: Laravel backend operations and code review on a remote host. Use when the user asks to inspect, review, debug, or audit backend code that is not in the local workspace and credentials are provided via `.env.local` keys `SECRET_REMOTE_BACKEND_HOST`, `SECRET_REMOTE_BACKEND_USER`, `SECRET_REMOTE_BACKEND_PASSWORD`, and `SECRET_REMOTE_BACKEND_PATH`.
 ---
 
 # Remote Laravel Backend Ops
@@ -10,10 +10,10 @@ Execute backend operations against the remote Laravel project with a read-first 
 ## Use This Workflow
 
 1. Read backend connection metadata from `.env.local`:
-- `SECRET_BACKEND_HOST`
-- `SECRET_BACKEND_USER`
-- `SECRET_BACKEND_PASSWORD`
-- `SECRET_BACKEND_PATH`
+- `SECRET_REMOTE_BACKEND_HOST`
+- `SECRET_REMOTE_BACKEND_USER`
+- `SECRET_REMOTE_BACKEND_PASSWORD`
+- `SECRET_REMOTE_BACKEND_PATH`
 
 2. Treat secret values as sensitive:
 - Never print passwords or tokens in responses.
@@ -42,7 +42,7 @@ plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $r
 
 ## Remote Path Hint
 
-Assume backend source may live remotely at `SECRET_BACKEND_PATH` even if a local `api/` directory exists but is empty.
+Assume backend source may live remotely at `SECRET_REMOTE_BACKEND_PATH` even if a local `api/` directory exists but is empty.
 
 ## Exposed API Hint
 
