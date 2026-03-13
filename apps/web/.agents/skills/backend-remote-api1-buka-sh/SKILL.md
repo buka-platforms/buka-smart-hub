@@ -33,13 +33,14 @@ plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $r
 - Do not run Laravel/PHP/backend commands from the remote host shell.
 - Host-level `php artisan` can fail due to environment/runtime differences, so container execution is mandatory.
 - After SSH login, enter the container before inspecting, editing, or running Laravel/PHP commands.
+- Inside the container, the backend project directory is `/app/api1.buka.sh`.
 - Example pattern:
 ```bash
 docker exec -it service-nginx-api1-buka-sh sh
 ```
 - Non-interactive alternative for one-off commands:
 ```bash
-docker exec service-nginx-api1-buka-sh sh -lc 'cd /var/www/html && php artisan route:list'
+docker exec service-nginx-api1-buka-sh sh -lc 'cd /app/api1.buka.sh && php artisan route:list'
 ```
 
 6. For backend review requests, follow this order:
