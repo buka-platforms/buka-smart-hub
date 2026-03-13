@@ -658,4 +658,30 @@ export const tv = [
     source_id: "fO9e9jnhYK8",
     category: "Science",
   },
+  {
+    id: "united_nations",
+    slug: "united-nations",
+    country: "International",
+    name: "United Nations",
+    short_description: "United Nations live stream.",
+    long_description: "United Nations live stream.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/1200px-UN_emblem_blue.svg.png",
+    source: "YouTube",
+    source_id: "vYRfQo6JMxc",
+    category: "News",
+  },
+  {
+    id: "euronews_albania",
+    slug: "euronews-albania",
+    country: "Albania",
+    name: "Euronews Albania",
+    short_description: "Euronews Albania live stream.",
+    long_description: "Euronews Albania live stream.",
+    logo_url:
+      "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
+    source: "YouTube",
+    source_id: "3LO0C3zmB7U",
+    category: "News",
+  },
 ];
