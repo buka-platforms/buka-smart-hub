@@ -39,19 +39,6 @@ export const tv = [
     category: "Documentary",
   },
   {
-    id: "bbc",
-    slug: "bbc",
-    country: "United Kingdom",
-    name: "BBC",
-    short_description: "BBC from the UK.",
-    long_description: "BBC is a news channel from the UK.",
-    logo_url:
-      "https://yt3.googleusercontent.com/MtM6HoJKNoz_g45cr7pflFauieANtB7-LCdCGgFg-ECkjxBYhAAsrcN9AaylpQIqq9xEHdvNig=s900-c-k-c0x00ffffff-no-rj",
-    source: "YouTube",
-    source_id: "6ftAy0nBdAQ",
-    category: "News",
-  },
-  {
     id: "bbc_earth",
     slug: "bbc-earth",
     country: "United Kingdom",
@@ -411,19 +398,6 @@ export const tv = [
       "https://upload.wikimedia.org/wikipedia/commons/9/9c/Euronews_2022.svg",
     source: "YouTube",
     source_id: "lwYzwdBiaho",
-    category: "News",
-  },
-  {
-    id: "fox_news",
-    slug: "fox-news",
-    country: "United States",
-    name: "Fox News",
-    short_description: "Fox News from the US.",
-    long_description: "Fox News is a news channel from the US.",
-    logo_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_News_Channel_logo.svg/960px-Fox_News_Channel_logo.svg.png",
-    source: "YouTube",
-    source_id: "PYaFvnYI9i4",
     category: "News",
   },
   {
