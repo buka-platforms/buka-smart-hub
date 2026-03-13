@@ -29,14 +29,27 @@ Execute backend operations against the remote Laravel project with a read-first 
 plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $remotePath && ls -la"
 ```
 
-5. For backend review requests, follow this order:
+5. Run all backend operations from inside the Docker container `service-nginx-api1-buka-sh`:
+- Do not run Laravel/PHP/backend commands from the remote host shell.
+- Host-level `php artisan` can fail due to environment/runtime differences, so container execution is mandatory.
+- After SSH login, enter the container before inspecting, editing, or running Laravel/PHP commands.
+- Example pattern:
+```bash
+docker exec -it service-nginx-api1-buka-sh sh
+```
+- Non-interactive alternative for one-off commands:
+```bash
+docker exec service-nginx-api1-buka-sh sh -lc 'cd /var/www/html && php artisan route:list'
+```
+
+6. For backend review requests, follow this order:
 - Security issues (authz/authn, secrets handling, input validation, injection risk)
 - Behavioral bugs/regressions
 - Data integrity and migration risks
 - Performance hotspots (N+1, unbounded queries, sync I/O, expensive loops)
 - Test gaps for risky paths
 
-6. Report findings with actionable references:
+7. Report findings with actionable references:
 - Include file paths and line numbers when possible.
 - Keep summaries concise and prioritize severity.
 
