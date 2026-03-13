@@ -44,6 +44,10 @@ plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $r
 
 Assume backend source may live remotely at `SECRET_BACKEND_PATH` even if a local `api/` directory exists but is empty.
 
+## Exposed API Hint
+
+Assume the backend is publicly exposed at `https://api1.buka.sh` for endpoint checks, health checks, and behavior verification.
+
 ## Fallbacks
 
 - If SSH login fails, verify host/user/path assumptions and request confirmation from user.
