@@ -43,14 +43,20 @@ docker exec -it service-nginx-api1-buka-sh sh
 docker exec service-nginx-api1-buka-sh sh -lc 'cd /app/api1.buka.sh && php artisan route:list'
 ```
 
-6. For backend review requests, follow this order:
+6. Treat backend runtime config as container-local and sourced from backend `.env`:
+- For database credentials and other backend config, read them from `/app/api1.buka.sh/.env` inside the container.
+- Do not assume host-level env/config matches container runtime values.
+- For database operations, run from inside the container context using backend `.env` values.
+- Never print raw secrets (DB password, app keys, tokens); redact sensitive values in responses.
+
+7. For backend review requests, follow this order:
 - Security issues (authz/authn, secrets handling, input validation, injection risk)
 - Behavioral bugs/regressions
 - Data integrity and migration risks
 - Performance hotspots (N+1, unbounded queries, sync I/O, expensive loops)
 - Test gaps for risky paths
 
-7. Report findings with actionable references:
+8. Report findings with actionable references:
 - Include file paths and line numbers when possible.
 - Keep summaries concise and prioritize severity.
 
