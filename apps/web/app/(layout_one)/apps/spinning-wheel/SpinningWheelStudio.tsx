@@ -9,10 +9,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Confetti } from "@neoconfetti/react";
 import {
   Dices,
+  Gift,
   History,
   PartyPopper,
   RefreshCcw,
@@ -30,7 +39,7 @@ import {
 
 const presets = [
   {
-    id: "arisan",
+    id: "sample",
     label: "Lucky Draw",
     description: "Pick one winner from a group list.",
     title: "Lucky Draw Session",
@@ -171,6 +180,7 @@ export default function SpinningWheelStudio() {
   const [rotation, setRotation] = useState(0);
   const [winner, setWinner] = useState<string | null>(null);
   const [winnerHistory, setWinnerHistory] = useState<string[]>([]);
+  const [winnerDialogOpen, setWinnerDialogOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { entries, duplicateCount } = parseEntries(rawEntries);
@@ -210,6 +220,7 @@ export default function SpinningWheelStudio() {
       setRawEntries(preset.entries.join("\n"));
       setWinner(null);
       setWinnerHistory([]);
+      setWinnerDialogOpen(false);
       setRotation(0);
     });
   };
@@ -221,6 +232,7 @@ export default function SpinningWheelStudio() {
       setRawEntries("");
       setWinner(null);
       setWinnerHistory([]);
+      setWinnerDialogOpen(false);
       setRotation(0);
     });
   };
@@ -231,6 +243,7 @@ export default function SpinningWheelStudio() {
     startTransition(() => {
       setWinner(null);
       setWinnerHistory([]);
+      setWinnerDialogOpen(false);
       setRotation(0);
     });
   };
@@ -252,6 +265,7 @@ export default function SpinningWheelStudio() {
 
     setIsSpinning(true);
     setWinner(null);
+    setWinnerDialogOpen(false);
     setRotation(nextRotation);
 
     if (timerRef.current) {
@@ -264,6 +278,7 @@ export default function SpinningWheelStudio() {
 
       startTransition(() => {
         setWinner(selectedWinner);
+        setWinnerDialogOpen(true);
         setWinnerHistory((currentHistory) => [
           selectedWinner,
           ...currentHistory.filter((entry) => entry !== selectedWinner),
@@ -280,326 +295,424 @@ export default function SpinningWheelStudio() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.18),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.18),_transparent_30%),linear-gradient(180deg,_#ffffff_0%,_#f8fafc_100%)] p-4 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.45)] md:p-6">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute top-0 right-0 h-56 w-56 rounded-full bg-orange-300/15 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-sky-300/15 blur-3xl" />
-      </div>
+    <>
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.18),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.18),_transparent_30%),linear-gradient(180deg,_#ffffff_0%,_#f8fafc_100%)] p-4 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.45)] md:p-6">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute top-0 right-0 h-56 w-56 rounded-full bg-orange-300/15 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-sky-300/15 blur-3xl" />
+        </div>
 
-      <div className="relative grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-white/70 bg-white/75 shadow-lg backdrop-blur">
-          <CardHeader className="gap-3 border-b border-slate-200/80">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-                Random Picker
-              </Badge>
-              <Badge variant="secondary" className="rounded-full">
-                Great for group draws, giveaways, and rosters
-              </Badge>
-            </div>
-            <CardTitle className="text-2xl text-slate-950">
-              Spin a wheel that actually feels alive
-            </CardTitle>
-            <CardDescription className="max-w-2xl text-sm leading-6 text-slate-600">
-              Paste names, remove duplicates automatically, spin with a single
-              click, and keep the winners history visible for the whole session.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-5 pt-6">
-            <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-              <div className="space-y-2">
-                <label
-                  htmlFor="wheel-title"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Session title
-                </label>
-                <Input
-                  id="wheel-title"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Arisan keluarga bulan ini"
-                  className="border-slate-200 bg-white/80"
-                />
+        <div className="relative grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-white/70 bg-white/75 shadow-lg backdrop-blur">
+            <CardHeader className="gap-3 border-b border-slate-200/80">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+                  Random Picker
+                </Badge>
+                <Badge variant="secondary" className="rounded-full">
+                  Great for group draws, giveaways, and rosters
+                </Badge>
               </div>
-              <div className="flex flex-wrap items-end gap-2 md:justify-end">
-                {presets.map((preset) => (
-                  <Button
-                    key={preset.id}
-                    type="button"
-                    variant="outline"
-                    className="border-slate-200 bg-white"
-                    onClick={() => applyPreset(preset.id)}
-                    title={preset.description}
-                  >
-                    <Sparkles className="size-4" />
-                    {preset.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <label
-                    htmlFor="wheel-entries"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Participants or options
-                  </label>
-                  <p className="text-xs text-slate-500">
-                    One item per line. Commas also work.
-                  </p>
-                </div>
-                <textarea
-                  id="wheel-entries"
-                  value={rawEntries}
-                  onChange={(event) => setRawEntries(event.target.value)}
-                  placeholder={"Alya\nBima\nCitra\nDion"}
-                  className="min-h-56 w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 shadow-xs transition outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-200/70"
-                />
-                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                  <Badge variant="secondary" className="rounded-full">
-                    {entries.length} active entries
-                  </Badge>
-                  <Badge variant="secondary" className="rounded-full">
-                    {duplicateCount} duplicates skipped
-                  </Badge>
-                  <button
-                    type="button"
-                    onClick={() => setRemoveWinner((value) => !value)}
-                    className={cn(
-                      "rounded-md border px-3 py-1 font-medium transition",
-                      removeWinner
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 bg-white text-slate-600",
-                    )}
-                  >
-                    Remove winner after spin: {removeWinner ? "On" : "Off"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-slate-200/80 bg-slate-950 p-4 text-white shadow-[0_22px_50px_-24px_rgba(15,23,42,0.8)]">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
-                      Session
-                    </p>
-                    <p className="mt-2 text-xl font-semibold">
-                      {title || "Untitled spinning wheel"}
-                    </p>
-                  </div>
-                  <div className="rounded-full border border-white/15 bg-white/10 p-3">
-                    <Dices className="size-5 text-amber-300" />
-                  </div>
-                </div>
-
-                <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
-                  <div className="min-h-24 rounded-lg border border-white/10 bg-white/5 p-3">
-                    <p className="text-xs text-slate-400">Status</p>
-                    <p className="mt-1 text-lg font-semibold">
-                      {hasEnoughEntries ? "Yes" : "Need 2+"}
-                    </p>
-                  </div>
-                  <div className="min-h-24 rounded-lg border border-white/10 bg-white/5 p-3">
-                    <p className="text-xs text-slate-400">Mode</p>
-                    <p className="mt-1 text-lg font-semibold">
-                      {removeWinner ? "Unique" : "Open"}
-                    </p>
-                  </div>
-                  <div className="min-h-24 rounded-lg border border-white/10 bg-white/5 p-3">
-                    <p className="text-xs text-slate-400">Winners</p>
-                    <p className="mt-1 text-lg font-semibold">
-                      {winnerHistory.length}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 rounded-lg border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-center gap-2 text-amber-300">
-                    <PartyPopper className="size-4" />
-                    <p className="text-xs font-semibold tracking-[0.24em] uppercase">
-                      Latest result
-                    </p>
-                  </div>
-                  <p className="mt-3 text-2xl font-semibold tracking-tight">
-                    {winner ?? "Spin the wheel to reveal a winner"}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-300">
-                    The winner locks in after the wheel stops, then gets saved
-                    to the session history below.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-6">
-          <Card className="overflow-hidden border-slate-200/80 bg-slate-950 text-white shadow-[0_28px_70px_-36px_rgba(15,23,42,0.9)]">
-            <CardContent className="relative px-4 pt-6 pb-5 md:px-6">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(251,191,36,0.26),_transparent_22%),radial-gradient(circle_at_bottom,_rgba(56,189,248,0.2),_transparent_30%)]" />
-              <div className="relative">
-                <div className="mb-5 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
-                      Wheel
-                    </p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {isSpinning ? "Drawing in progress..." : "Ready to spin"}
-                    </p>
-                  </div>
-                  <div className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">
-                    {entries.length} options
-                  </div>
-                </div>
-
-                <div className="relative mx-auto aspect-square w-full max-w-[430px]">
-                  <div className="absolute top-1 left-1/2 z-20 -translate-x-1/2">
-                    <div className="h-0 w-0 border-x-[18px] border-t-[30px] border-x-transparent border-t-amber-300 drop-shadow-[0_8px_16px_rgba(251,191,36,0.45)]" />
-                  </div>
-
-                  <div className="absolute inset-0 rounded-full bg-white/10 blur-2xl" />
-
-                  <div
-                    className="absolute inset-5 rounded-full border-[10px] border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_20px_40px_rgba(15,23,42,0.35)]"
-                    style={{
-                      backgroundImage: wheelGradient,
-                      transform: `rotate(${rotation}deg)`,
-                      transition: isSpinning
-                        ? `transform ${spinDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`
-                        : undefined,
-                    }}
-                  >
-                    <svg
-                      viewBox="0 0 200 200"
-                      className="absolute inset-0 h-full w-full text-white/40"
-                      aria-hidden="true"
-                      dangerouslySetInnerHTML={{
-                        __html: `<g stroke="currentColor" stroke-width="1.25">${sliceLines}</g>`,
-                      }}
-                    />
-
-                    {wheelEntries.length === 0 ? (
-                      <div className="absolute inset-0 flex items-center justify-center p-10 text-center text-sm font-medium text-slate-800">
-                        Add at least two names to start the draw.
-                      </div>
-                    ) : (
-                      wheelEntries.map((entry, index) => {
-                        const angle = index * sliceAngle + sliceAngle / 2;
-
-                        return (
-                          <div
-                            key={`${entry}-${index}`}
-                            className="absolute top-1/2 left-1/2 w-[40%] origin-left"
-                            style={{
-                              transform: `translateY(-50%) rotate(${angle - 90}deg)`,
-                            }}
-                          >
-                            <div
-                              className={cn(
-                                "ml-7 max-w-[72%] rounded-full px-2 py-1 text-center text-[10px] font-semibold tracking-wide text-slate-950 shadow-sm",
-                                wheelEntries.length > 10 &&
-                                  "text-[9px] tracking-normal",
-                              )}
-                              style={{
-                                transform: `rotate(${90 - angle}deg)`,
-                                backgroundColor: "rgba(255,255,255,0.75)",
-                              }}
-                            >
-                              {truncateLabel(entry)}
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-
-                    <div className="absolute inset-[33%] rounded-full border border-white/25 bg-slate-950/90 shadow-[0_12px_24px_rgba(15,23,42,0.35)]" />
-                    <div className="absolute inset-[39%] rounded-full bg-white/95" />
-                    <div className="absolute inset-0 rounded-full ring-1 ring-white/10 ring-inset" />
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Button
-                    type="button"
-                    size="lg"
-                    onClick={spinWheel}
-                    disabled={!hasEnoughEntries || isSpinning}
-                    className="flex-1 rounded-xl bg-amber-400 font-semibold text-slate-950 hover:bg-amber-300"
-                  >
-                    <Trophy className="size-4" />
-                    {isSpinning ? "Spinning..." : "Spin the wheel"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    onClick={resetSession}
-                    className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
-                  >
-                    <RefreshCcw className="size-4" />
-                    Reset results
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    onClick={clearAll}
-                    className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
-                  >
-                    <Trash2 className="size-4" />
-                    Clear list
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-200/80 bg-white/80 shadow-lg backdrop-blur">
-            <CardHeader className="gap-2 border-b border-slate-200/80">
-              <div className="flex items-center gap-2">
-                <History className="size-4 text-slate-500" />
-                <CardTitle className="text-base text-slate-900">
-                  Winners history
-                </CardTitle>
-              </div>
-              <CardDescription>
-                Keep track of previous spins during this session.
+              <CardTitle className="text-2xl text-slate-950">
+                Spin a wheel that actually feels alive
+              </CardTitle>
+              <CardDescription className="max-w-2xl text-sm leading-6 text-slate-600">
+                Paste names, remove duplicates automatically, spin with a single
+                click, and keep the winners history visible for the whole
+                session.
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-6">
-              {winnerHistory.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
-                  No winners yet. Spin the wheel and the results will appear
-                  here.
+            <CardContent className="grid gap-5 pt-6">
+              <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="wheel-title"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Session title
+                  </label>
+                  <Input
+                    id="wheel-title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    placeholder="Lucky draw for today"
+                    className="border-slate-200 bg-white/80"
+                  />
                 </div>
-              ) : (
-                <div className="grid gap-2">
-                  {winnerHistory.map((entry, index) => (
-                    <div
-                      key={`${entry}-${index}`}
-                      className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+                <div className="flex flex-wrap items-end gap-2 md:justify-end">
+                  {presets.map((preset) => (
+                    <Button
+                      key={preset.id}
+                      type="button"
+                      variant="outline"
+                      className="border-slate-200 bg-white"
+                      onClick={() => applyPreset(preset.id)}
+                      title={preset.description}
                     >
-                      <div>
-                        <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
-                          Winner #{index + 1}
-                        </p>
-                        <p className="mt-1 font-medium text-slate-900">
-                          {entry}
-                        </p>
-                      </div>
-                      <Trophy className="size-4 text-amber-500" />
-                    </div>
+                      <Sparkles className="size-4" />
+                      {preset.label}
+                    </Button>
                   ))}
                 </div>
-              )}
+              </div>
+
+              <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <label
+                      htmlFor="wheel-entries"
+                      className="text-sm font-medium text-slate-700"
+                    >
+                      Participants or options
+                    </label>
+                    <p className="text-xs text-slate-500">
+                      One item per line. Commas also work.
+                    </p>
+                  </div>
+                  <textarea
+                    id="wheel-entries"
+                    value={rawEntries}
+                    onChange={(event) => setRawEntries(event.target.value)}
+                    placeholder={"Alex\nJordan\nTaylor\nMorgan"}
+                    className="min-h-56 w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 shadow-xs transition outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-200/70"
+                  />
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                    <Badge variant="secondary" className="rounded-full">
+                      {entries.length} active entries
+                    </Badge>
+                    <Badge variant="secondary" className="rounded-full">
+                      {duplicateCount} duplicates skipped
+                    </Badge>
+                    <button
+                      type="button"
+                      onClick={() => setRemoveWinner((value) => !value)}
+                      className={cn(
+                        "rounded-md border px-3 py-1 font-medium transition",
+                        removeWinner
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-slate-200 bg-white text-slate-600",
+                      )}
+                    >
+                      Remove winner after spin: {removeWinner ? "On" : "Off"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-slate-200/80 bg-slate-950 p-4 text-white shadow-[0_22px_50px_-24px_rgba(15,23,42,0.8)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                        Session
+                      </p>
+                      <p className="mt-2 text-xl font-semibold">
+                        {title || "Untitled spinning wheel"}
+                      </p>
+                    </div>
+                    <div className="rounded-full border border-white/15 bg-white/10 p-3">
+                      <Dices className="size-5 text-amber-300" />
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+                    <div className="min-h-24 rounded-lg border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs text-slate-400">Status</p>
+                      <p className="mt-1 text-lg font-semibold">
+                        {hasEnoughEntries ? "Yes" : "Need 2+"}
+                      </p>
+                    </div>
+                    <div className="min-h-24 rounded-lg border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs text-slate-400">Mode</p>
+                      <p className="mt-1 text-lg font-semibold">
+                        {removeWinner ? "Unique" : "Open"}
+                      </p>
+                    </div>
+                    <div className="min-h-24 rounded-lg border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs text-slate-400">Winners</p>
+                      <p className="mt-1 text-lg font-semibold">
+                        {winnerHistory.length}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-lg border border-white/10 bg-white/5 p-4">
+                    <div className="flex items-center gap-2 text-amber-300">
+                      <PartyPopper className="size-4" />
+                      <p className="text-xs font-semibold tracking-[0.24em] uppercase">
+                        Latest result
+                      </p>
+                    </div>
+                    <p className="mt-3 text-2xl font-semibold tracking-tight">
+                      {winner ?? "Spin the wheel to reveal a winner"}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-300">
+                      The winner locks in after the wheel stops, then gets saved
+                      to the session history below.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
+
+          <div className="grid gap-6">
+            <Card className="overflow-hidden border-slate-200/80 bg-slate-950 text-white shadow-[0_28px_70px_-36px_rgba(15,23,42,0.9)]">
+              <CardContent className="relative px-4 pt-6 pb-5 md:px-6">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(251,191,36,0.26),_transparent_22%),radial-gradient(circle_at_bottom,_rgba(56,189,248,0.2),_transparent_30%)]" />
+                <div className="relative">
+                  <div className="mb-5 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                        Wheel
+                      </p>
+                      <p className="mt-2 text-lg font-semibold">
+                        {isSpinning ? "Drawing in progress..." : "Ready to spin"}
+                      </p>
+                    </div>
+                    <div className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">
+                      {entries.length} options
+                    </div>
+                  </div>
+
+                  <div className="relative mx-auto aspect-square w-full max-w-[430px]">
+                    <div className="absolute top-1 left-1/2 z-20 -translate-x-1/2">
+                      <div className="h-0 w-0 border-x-[18px] border-t-[30px] border-x-transparent border-t-amber-300 drop-shadow-[0_8px_16px_rgba(251,191,36,0.45)]" />
+                    </div>
+
+                    <div className="absolute inset-0 rounded-full bg-white/10 blur-2xl" />
+
+                    <div
+                      className="absolute inset-5 rounded-full border-[10px] border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_20px_40px_rgba(15,23,42,0.35)]"
+                      style={{
+                        backgroundImage: wheelGradient,
+                        transform: `rotate(${rotation}deg)`,
+                        transition: isSpinning
+                          ? `transform ${spinDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`
+                          : undefined,
+                      }}
+                    >
+                      <svg
+                        viewBox="0 0 200 200"
+                        className="absolute inset-0 h-full w-full text-white/40"
+                        aria-hidden="true"
+                        dangerouslySetInnerHTML={{
+                          __html: `<g stroke="currentColor" stroke-width="1.25">${sliceLines}</g>`,
+                        }}
+                      />
+
+                      {wheelEntries.length === 0 ? (
+                        <div className="absolute inset-0 flex items-center justify-center p-10 text-center text-sm font-medium text-slate-800">
+                          Add at least two names to start the draw.
+                        </div>
+                      ) : (
+                        wheelEntries.map((entry, index) => {
+                          const angle = index * sliceAngle + sliceAngle / 2;
+
+                          return (
+                            <div
+                              key={`${entry}-${index}`}
+                              className="absolute top-1/2 left-1/2 w-[40%] origin-left"
+                              style={{
+                                transform: `translateY(-50%) rotate(${angle - 90}deg)`,
+                              }}
+                            >
+                              <div
+                                className={cn(
+                                  "ml-7 max-w-[72%] rounded-full px-2 py-1 text-center text-[10px] font-semibold tracking-wide text-slate-950 shadow-sm",
+                                  wheelEntries.length > 10 &&
+                                    "text-[9px] tracking-normal",
+                                )}
+                                style={{
+                                  transform: `rotate(${90 - angle}deg)`,
+                                  backgroundColor: "rgba(255,255,255,0.75)",
+                                }}
+                              >
+                                {truncateLabel(entry)}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+
+                      <div className="absolute inset-[33%] rounded-full border border-white/25 bg-slate-950/90 shadow-[0_12px_24px_rgba(15,23,42,0.35)]" />
+                      <div className="absolute inset-[39%] rounded-full bg-white/95" />
+                      <div className="absolute inset-0 rounded-full ring-1 ring-white/10 ring-inset" />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Button
+                      type="button"
+                      size="lg"
+                      onClick={spinWheel}
+                      disabled={!hasEnoughEntries || isSpinning}
+                      className="flex-1 rounded-xl bg-amber-400 font-semibold text-slate-950 hover:bg-amber-300"
+                    >
+                      <Trophy className="size-4" />
+                      {isSpinning ? "Spinning..." : "Spin the wheel"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      onClick={resetSession}
+                      className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                    >
+                      <RefreshCcw className="size-4" />
+                      Reset results
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      onClick={clearAll}
+                      className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                    >
+                      <Trash2 className="size-4" />
+                      Clear list
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/80 bg-white/80 shadow-lg backdrop-blur">
+              <CardHeader className="gap-2 border-b border-slate-200/80">
+                <div className="flex items-center gap-2">
+                  <History className="size-4 text-slate-500" />
+                  <CardTitle className="text-base text-slate-900">
+                    Winners history
+                  </CardTitle>
+                </div>
+                <CardDescription>
+                  Keep track of previous spins during this session.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {winnerHistory.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+                    No winners yet. Spin the wheel and the results will appear
+                    here.
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {winnerHistory.map((entry, index) => (
+                      <div
+                        key={`${entry}-${index}`}
+                        className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+                      >
+                        <div>
+                          <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                            Winner #{index + 1}
+                          </p>
+                          <p className="mt-1 font-medium text-slate-900">
+                            {entry}
+                          </p>
+                        </div>
+                        <Trophy className="size-4 text-amber-500" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+
+      <Dialog open={winnerDialogOpen} onOpenChange={setWinnerDialogOpen}>
+        <DialogContent className="overflow-hidden border-0 bg-transparent p-0 shadow-none sm:max-w-xl">
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,_#020617_0%,_#0f172a_48%,_#111827_100%)] p-7 text-white shadow-[0_30px_90px_-30px_rgba(15,23,42,0.9)]">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute -top-8 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-amber-300/20 blur-3xl" />
+              <div className="absolute right-0 bottom-0 h-44 w-44 rounded-full bg-fuchsia-500/15 blur-3xl" />
+              {winnerDialogOpen && (
+                <Confetti
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  colors={[
+                    "#f97316",
+                    "#fb7185",
+                    "#a855f7",
+                    "#3b82f6",
+                    "#06b6d4",
+                    "#10b981",
+                    "#facc15",
+                    "#ef4444",
+                  ]}
+                  particleCount={180}
+                  particleSize={10}
+                  particleShape="mix"
+                  force={0.3}
+                  duration={3600}
+                  stageHeight={560}
+                  stageWidth={560}
+                />
+              )}
+            </div>
+
+            <div className="relative">
+              <Badge className="rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-slate-950">
+                Winner Revealed
+              </Badge>
+              <DialogHeader className="mt-5 text-left">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full border border-white/10 bg-white/10 p-3 text-amber-300">
+                    <Gift className="size-5" />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-3xl font-semibold tracking-tight text-white">
+                      Congrats {winner ?? "Winner"}
+                    </DialogTitle>
+                    <DialogDescription className="mt-2 max-w-md text-base leading-7 text-slate-300">
+                      The wheel has spoken.{" "}
+                      <span className="font-medium text-white">
+                        {winner ?? "Your selected entry"}
+                      </span>{" "}
+                      takes this round.
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                    Session
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-white">
+                    {title || "Lucky draw"}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                    Winners so far
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-white">
+                    {winnerHistory.length}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex gap-3">
+                <Button
+                  type="button"
+                  onClick={() => setWinnerDialogOpen(false)}
+                  className="rounded-xl bg-amber-400 font-semibold text-slate-950 hover:bg-amber-300"
+                >
+                  Celebrate
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setWinnerDialogOpen(false)}
+                  className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
