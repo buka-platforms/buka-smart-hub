@@ -125,9 +125,6 @@ const WIDGETS: {
   },
 ];
 
-// Mini dock shows first N widgets
-const MINI_DOCK_COUNT = 3;
-
 export default function WidgetLauncherDock() {
   const [isWidgetPickerOpen, setIsWidgetPickerOpen] = useState(false);
   const [isWorldNewsOpen, setIsWorldNewsOpen] = useState(false);
@@ -207,8 +204,6 @@ export default function WidgetLauncherDock() {
     }
   }, [setVisibility]);
 
-  // Get widgets to show in mini dock
-  const miniDockWidgets = WIDGETS.slice(0, MINI_DOCK_COUNT);
   const allWidgets = WIDGETS;
 
   // Count visible widgets
@@ -242,35 +237,17 @@ export default function WidgetLauncherDock() {
         {/* (removed) drag handle: no longer relevant */}
 
         <div className="flex items-center gap-1 p-1.5">
-          {miniDockWidgets.map((widget) => {
-            const isActive = visibility[widget.id];
-            return (
-              <button
-                key={widget.id}
-                onClick={() => toggleWidget(widget.id)}
-                className={`group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "bg-white/10 text-white/50 hover:bg-white/20 hover:text-white"
-                }`}
-                title={`${isActive ? "Hide" : "Show"} ${widget.label}`}
-              >
-                {widget.icon}
-                {/* Active indicator dot */}
-                {isActive && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-black/80 bg-green-400" />
-                )}
-              </button>
-            );
-          })}
-
-          {/* Expand button */}
+          {/* Widgets button — opens the command dialog */}
           <button
             onClick={() => setIsWidgetPickerOpen(true)}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-white/5 text-white/50 transition-all duration-200 hover:bg-white/15 hover:text-white"
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
             title="Show all widgets"
           >
-            <LayoutGrid className="h-5 w-5" />
+            <LayoutGrid className="h-4 w-4" />
+            <span className="hidden md:inline">Widgets</span>
+            <span className="rounded-full bg-purple-600/30 px-1.5 py-0.5 text-[10px] font-semibold text-purple-300">
+              {visibleCount}
+            </span>
           </button>
 
           <div className="mx-1 h-10 w-px bg-white/10" />
