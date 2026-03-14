@@ -37,7 +37,7 @@ const Play = () => {
 const Stop = () => {
   return (
     <>
-      <div onClick={stop} className="cursor-pointer" title="Stop">
+      <div onClick={() => void stop()} className="cursor-pointer" title="Stop">
         <StopCircle
           className="h-10 w-10 opacity-80 hover:opacity-100 md:h-12 md:w-12"
           color="#f5f5f5"

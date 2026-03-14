@@ -415,7 +415,7 @@ export default function WidgetDraggableRadioPlayer() {
                 />
               ) : radioAudioState.isPlaying ? (
                 <button
-                  onClick={stop}
+                  onClick={() => void stop()}
                   className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
                   title="Stop"
                 >
