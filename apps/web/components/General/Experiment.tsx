@@ -6,8 +6,6 @@ import "@/data/store"; // radioStationStateAtom,
 // isBackgroundImageLoaded as isBackgroundImageLoadedStore,
 // backgroundImageStateAtom,
 // randomBackgroundImage as randomBackgroundImageStore,
-// import { useReadable } from "@/lib/react-use-svelte-store";
-// import { get } from "svelte/store";
 // import { useAtomValue } from "jotai";
 import { FlaskConical } from "lucide-react";
 
