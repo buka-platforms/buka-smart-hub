@@ -42,7 +42,7 @@ const getExternalTrackDetails = async () => {
     const request = await fetch(
       `${
         process.env.NEXT_PUBLIC_API_URL_V1
-      }/music-track?q=${encodeURIComponent(jotaiStore.get(radioStationStateAtom).currentTitle)}`,
+      }/api/music-track?q=${encodeURIComponent(jotaiStore.get(radioStationStateAtom).currentTitle)}`,
     );
 
     const currentExternalTrackDetails = await request.json();

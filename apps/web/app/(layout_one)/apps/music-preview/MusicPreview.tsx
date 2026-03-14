@@ -94,7 +94,7 @@ export default function MusicPreview() {
     searchQueryStore.set(query);
 
     const resultMusicTracks = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/music-track?q=${query}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/music-track?q=${query}`,
       {
         cache: "no-cache",
         headers: {

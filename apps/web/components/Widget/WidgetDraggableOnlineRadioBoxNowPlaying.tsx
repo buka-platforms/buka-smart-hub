@@ -280,7 +280,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
     const fetchMetadata = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station/stream-metadata?type=1&id=${radioId}`,
+          `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-station/stream-metadata?type=1&id=${radioId}`,
         );
         if (!response.ok) return;
 
@@ -347,7 +347,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-stations/orb/now-playing/${country}`,
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-stations/orb/now-playing/${country}`,
         {
           headers: {
             Accept: "application/json",

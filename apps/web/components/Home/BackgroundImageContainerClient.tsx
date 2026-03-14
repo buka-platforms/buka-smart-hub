@@ -51,7 +51,7 @@ export default function BackgroundImageContainerClient() {
     // Fetch data in parallel
     const [unsplashResult] = await Promise.all([
       fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?id=${dataId}`,
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?id=${dataId}`,
         {
           cache: "no-cache",
           headers: {
@@ -93,7 +93,7 @@ export default function BackgroundImageContainerClient() {
     const requestHeaders = requestHeadersState as unknown as RequestHeaders;
     const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
 
-    let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`;
+    let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true`;
 
     // Check if randomBackgroundImageId is not set, then include ?query
     if (!localStorage.getItem(RANDOM_BACKGROUND_IMAGE_ID_KEY)) {

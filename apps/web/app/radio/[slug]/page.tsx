@@ -24,12 +24,15 @@ type Props = {
 const getRadioStationBySlug = cache(async (slug: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?slug=${slug}`, {
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-station?slug=${slug}`,
+      {
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    }),
+    ),
   ]);
 
   const radioStation = await radioStationResult.json();

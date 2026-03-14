@@ -59,7 +59,7 @@ export default function BookPreview() {
     searchQueryStore.set(query);
 
     const resultBookTracks = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/book-track?q=${query}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/book-track?q=${query}`,
       {
         cache: "no-cache",
         headers: {

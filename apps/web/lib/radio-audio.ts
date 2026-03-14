@@ -304,12 +304,15 @@ export const detachMediaAudioListeners = () => {
 export const loadRadioStationById = async (dataId: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?id=${dataId}`, {
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-station?id=${dataId}`,
+      {
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    }),
+    ),
   ]);
 
   const radioStation = await radioStationResult.json();
@@ -334,7 +337,7 @@ export const loadRadioStationBySlug = async (dataSlug: string) => {
   // Fetch data in parallel
   const [radioStationResult] = await Promise.all([
     fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-station?slug=${dataSlug}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-station?slug=${dataSlug}`,
       {
         cache: "no-cache",
         headers: {

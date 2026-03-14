@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   while (hasNextPage) {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-stations?page=${currentPage}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-stations?page=${currentPage}`,
       {
         cache: "no-cache",
         headers: {

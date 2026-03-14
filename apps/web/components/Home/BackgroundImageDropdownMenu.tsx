@@ -49,7 +49,7 @@ export default function BackgroundImageDropdownMenu() {
     }));
 
     const request = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?random=true`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true`,
       {
         cache: "no-cache",
       },
@@ -87,7 +87,7 @@ export default function BackgroundImageDropdownMenu() {
     if (dialogOpen) {
       Promise.resolve().then(() => setLoading(true));
       fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?randoms=true`,
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?randoms=true`,
       )
         .then((res) => res.json())
         .then((json) => {
@@ -150,7 +150,7 @@ export default function BackgroundImageDropdownMenu() {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL_V1}/background-image?randoms=true`,
+                    `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?randoms=true`,
                   )
                     .then((res) => res.json())
                     .then((json) => {
