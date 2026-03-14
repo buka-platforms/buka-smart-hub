@@ -1,3 +1,4 @@
+import { LogoutButton } from "@/components/auth/logout-button";
 import {
   Popover,
   PopoverContent,
@@ -119,15 +120,10 @@ const Authenticated = ({ userDetails }: { userDetails: User }) => {
               </Link>
             </li>
             <li className="rounded-br-md rounded-bl-md px-3 py-2 hover:bg-slate-200">
-              <form action="/logout" method="post">
-                <button
-                  type="submit"
-                  className="flex cursor-pointer items-center gap-x-2"
-                >
-                  <LogOut size={16} color="#808080" />
-                  Logout
-                </button>
-              </form>
+              <LogoutButton className="flex cursor-pointer items-center gap-x-2">
+                <LogOut size={16} color="#808080" />
+                Logout
+              </LogoutButton>
             </li>
           </ul>
         </PopoverContent>

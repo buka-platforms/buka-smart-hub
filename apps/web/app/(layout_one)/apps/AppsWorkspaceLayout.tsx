@@ -1,5 +1,6 @@
 "use client";
 
+import { LogoutButton } from "@/components/auth/logout-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -240,16 +241,11 @@ function AppsWorkspaceShell({
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <form action="/logout" method="post">
-                          <button
-                            type="submit"
-                            className="flex w-full cursor-pointer items-center"
-                          >
-                            <LogOut className="mr-2 size-4" />
-                            Log out
-                          </button>
-                        </form>
+                      <DropdownMenuItem className="p-0 focus:bg-transparent">
+                        <LogoutButton className="flex w-full cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                          <LogOut className="mr-2 size-4" />
+                          Log out
+                        </LogoutButton>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

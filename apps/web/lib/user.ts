@@ -1,111 +1,84 @@
+import type { UserSession } from "@/data/type";
 import { cookies } from "next/headers";
 
-const buildVerifySessionUrl = () => {
+const buildSessionUrl = () => {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL_V1;
   if (!apiBaseUrl) {
     return null;
   }
 
-  return `${apiBaseUrl.replace(/\/+$/, "")}/api/auth/session/verify`;
+  return `${apiBaseUrl.replace(/\/+$/, "")}/api/auth/session`;
 };
 
-const verifySessionViaBackend = async ({
-  userId,
-  userDeviceId,
-  userSessionToken,
-}: {
-  userId?: string;
-  userDeviceId?: string;
-  userSessionToken?: string;
-}) => {
-  const endpoint = buildVerifySessionUrl();
-  if (!endpoint || !userId || !userDeviceId || !userSessionToken) {
-    return false;
+type UserSessionResponse = {
+  is_authenticated?: boolean;
+  user_details?: {
+    picture?: string;
+    name?: string;
+    first_name?: string;
+    provider_id?: string;
+    provider_name?: string;
+  } | null;
+  data?: {
+    is_authenticated?: boolean;
+    user_details?: {
+      picture?: string;
+      name?: string;
+      first_name?: string;
+      provider_id?: string;
+      provider_name?: string;
+    } | null;
+  };
+};
+
+const readSessionViaBackend = async (
+  cookieHeader: string,
+): Promise<UserSession> => {
+  const endpoint = buildSessionUrl();
+  if (!endpoint) {
+    return { is_authenticated: false };
   }
 
   try {
     const response = await fetch(endpoint, {
-      method: "POST",
+      method: "GET",
       headers: {
-        "content-type": "application/json",
+        cookie: cookieHeader,
       },
-      body: JSON.stringify({
-        user_id: userId,
-        device_id: userDeviceId,
-        session_token: userSessionToken,
-      }),
+      cache: "no-store",
     });
 
     if (!response.ok) {
-      return false;
+      return { is_authenticated: false };
     }
 
-    const payload = (await response.json()) as
-      | { is_authenticated?: boolean; data?: { is_authenticated?: boolean } }
-      | undefined;
+    const payload = (await response.json()) as UserSessionResponse | undefined;
+    const resolved =
+      typeof payload?.is_authenticated === "boolean"
+        ? payload
+        : payload?.data && typeof payload.data.is_authenticated === "boolean"
+          ? payload.data
+          : null;
 
-    if (typeof payload?.is_authenticated === "boolean") {
-      return payload.is_authenticated;
+    if (!resolved) {
+      return { is_authenticated: false };
     }
 
-    if (typeof payload?.data?.is_authenticated === "boolean") {
-      return payload.data.is_authenticated;
-    }
-
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-export const checkUserSession = async () => {
-  const cookieStore = await cookies();
-
-  // Check if has cookie called "_b_ust" not exists
-  if (!cookieStore.has("_b_ust")) {
-    return { is_authenticated: false };
-  }
-
-  // Check if has cookie called "_b_did" not exists
-  if (!cookieStore.has("_b_did")) {
-    return { is_authenticated: false };
-  }
-
-  // Check if has cookie called "_b_uid" not exists
-  if (!cookieStore.has("_b_uid")) {
-    return { is_authenticated: false };
-  }
-
-  // Get cookie called _b_ust
-  const userSessionToken = cookieStore.get("_b_ust")?.value;
-
-  // Get cookie called _b_did
-  const userDeviceId = cookieStore.get("_b_did")?.value;
-
-  // Get cookie called _b_uid
-  const userId = cookieStore.get("_b_uid")?.value;
-
-  const isAuthenticated = await verifySessionViaBackend({
-    userId,
-    userDeviceId,
-    userSessionToken,
-  });
-
-  if (!isAuthenticated) {
-    return { is_authenticated: false };
-  }
-
-  const userData = cookieStore.get("_b_ud")?.value;
-  if (!userData) {
-    return { is_authenticated: false };
-  }
-
-  try {
     return {
-      is_authenticated: true,
-      user_details: JSON.parse(userData),
+      is_authenticated: resolved.is_authenticated,
+      user_details: resolved.user_details ?? null,
     };
   } catch {
     return { is_authenticated: false };
   }
+};
+
+export const checkUserSession = async (): Promise<UserSession> => {
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore.toString();
+  if (!cookieHeader) {
+    return { is_authenticated: false };
+  }
+
+  return readSessionViaBackend(cookieHeader);
 };

@@ -1,3 +1,5 @@
+import { fetchAuthenticatedApi } from "./authenticated-api";
+
 export interface BookmarkEntry {
   id: string;
   title: string;
@@ -81,9 +83,8 @@ const parseResponse = async <T>(response: Response): Promise<T> => {
 };
 
 export async function listBookmarks(): Promise<BookmarkEntry[]> {
-  const response = await fetch("/api/bookmarks", {
+  const response = await fetchAuthenticatedApi("/api/bookmarks", {
     method: "GET",
-    cache: "no-store",
   });
   const payload = await parseResponse<{ data?: unknown }>(response);
   const rows = Array.isArray(payload?.data) ? payload.data : [];
@@ -97,7 +98,7 @@ export async function createBookmark(input: {
   title: string;
   url: string;
 }): Promise<BookmarkEntry> {
-  const response = await fetch("/api/bookmarks", {
+  const response = await fetchAuthenticatedApi("/api/bookmarks", {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -117,9 +118,12 @@ export async function createBookmark(input: {
 }
 
 export async function deleteBookmark(id: string): Promise<void> {
-  const response = await fetch(`/api/bookmarks/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-  });
+  const response = await fetchAuthenticatedApi(
+    `/api/bookmarks/${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+    },
+  );
 
   await parseResponse(response);
 }

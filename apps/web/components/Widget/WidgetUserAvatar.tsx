@@ -1,6 +1,8 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
+import { LogoutButton } from "@/components/auth/logout-button";
+import { fetchAuthenticatedApi } from "@/lib/authenticated-api";
 import {
   Popover,
   PopoverContent,
@@ -22,9 +24,20 @@ type VerifiedSession = {
   user_details?: {
     name?: string;
     picture?: string;
+    first_name?: string;
     provider_id?: string;
     provider_name?: string;
   } | null;
+  data?: {
+    is_authenticated?: boolean;
+    user_details?: {
+      name?: string;
+      picture?: string;
+      first_name?: string;
+      provider_id?: string;
+      provider_name?: string;
+    } | null;
+  };
 };
 
 export default function WidgetUserAvatar() {
@@ -34,9 +47,8 @@ export default function WidgetUserAvatar() {
   useEffect(() => {
     let mounted = true;
 
-    void fetch("/api/auth/session", {
+    void fetchAuthenticatedApi("/api/auth/session", {
       method: "GET",
-      cache: "no-store",
     })
       .then(async (response) => {
         if (!response.ok) return null;
@@ -44,7 +56,14 @@ export default function WidgetUserAvatar() {
       })
       .then((payload) => {
         if (!mounted) return;
-        setSession(payload);
+        const resolved =
+          payload && typeof payload.is_authenticated === "boolean"
+            ? payload
+            : payload?.data &&
+                typeof payload.data.is_authenticated === "boolean"
+              ? payload.data
+              : { is_authenticated: false };
+        setSession(resolved);
       })
       .catch(() => {
         if (!mounted) return;
@@ -127,15 +146,10 @@ export default function WidgetUserAvatar() {
               </Link>
             </li>
             <li className="rounded-br-md rounded-bl-md px-3 py-2 hover:bg-slate-200">
-              <form action="/logout" method="post">
-                <button
-                  type="submit"
-                  className="flex cursor-pointer items-center gap-x-2"
-                >
-                  <LogOut size={16} color="#808080" />
-                  Logout
-                </button>
-              </form>
+              <LogoutButton className="flex cursor-pointer items-center gap-x-2">
+                <LogOut size={16} color="#808080" />
+                Logout
+              </LogoutButton>
             </li>
           </ul>
         ) : (

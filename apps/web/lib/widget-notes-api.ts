@@ -1,3 +1,5 @@
+import { fetchAuthenticatedApi } from "./authenticated-api";
+
 export interface NoteEntry {
   id: string;
   title: string;
@@ -76,9 +78,8 @@ const parseResponse = async <T>(response: Response): Promise<T> => {
 };
 
 export async function listNotes(): Promise<NoteEntry[]> {
-  const response = await fetch("/api/notes", {
+  const response = await fetchAuthenticatedApi("/api/notes", {
     method: "GET",
-    cache: "no-store",
   });
   const payload = await parseResponse<{ data?: unknown }>(response);
   const rows = Array.isArray(payload?.data) ? payload.data : [];
@@ -92,7 +93,7 @@ export async function createNote(input: {
   title: string;
   body: string;
 }): Promise<NoteEntry> {
-  const response = await fetch("/api/notes", {
+  const response = await fetchAuthenticatedApi("/api/notes", {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -116,16 +117,19 @@ export async function editNote(input: {
   title: string;
   body: string;
 }): Promise<NoteEntry> {
-  const response = await fetch(`/api/notes/${encodeURIComponent(input.id)}`, {
-    method: "PUT",
-    headers: {
-      "content-type": "application/json",
+  const response = await fetchAuthenticatedApi(
+    `/api/notes/${encodeURIComponent(input.id)}`,
+    {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
     },
     body: JSON.stringify({
       title: input.title,
       body: input.body,
     }),
-  });
+    },
+  );
   const payload = await parseResponse<{ data?: unknown }>(response);
   const note = normalizeNote(payload?.data);
   if (!note) {
@@ -136,9 +140,12 @@ export async function editNote(input: {
 }
 
 export async function deleteNote(id: string): Promise<void> {
-  const response = await fetch(`/api/notes/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-  });
+  const response = await fetchAuthenticatedApi(
+    `/api/notes/${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+    },
+  );
 
   await parseResponse(response);
 }

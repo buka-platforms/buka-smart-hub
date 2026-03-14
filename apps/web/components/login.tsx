@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { generateRandomString } from "@/lib/app";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { GoBackButton } from "./go-back-button";
@@ -44,19 +43,34 @@ export const metadata: Metadata = {
   },
 };
 
-const authGoogleUrl = `https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&redirect_uri=${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}&client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`;
-const authGitHubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user:email user&redirect_uri=${process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI}&response_type=code`;
-const authLinkedInUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI}&scope=openid%20profile%20email`;
-const authDiscordUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20email`;
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL_V1?.replace(/\/+$/, "");
+const frontendBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+const buildBackendAuthUrl = (provider: string) => {
+  if (!apiBaseUrl) {
+    return "/login";
+  }
+
+  const params = new URLSearchParams();
+  if (frontendBaseUrl) {
+    params.set("frontend_url", frontendBaseUrl);
+  }
+
+  const query = params.toString();
+
+  return `${apiBaseUrl}/auth/${provider}/redirect${query ? `?${query}` : ""}`;
+};
+
+const authGoogleUrl = buildBackendAuthUrl("google");
+const authGitHubUrl = buildBackendAuthUrl("github");
+const authLinkedInUrl = buildBackendAuthUrl("linkedin");
+const authDiscordUrl = buildBackendAuthUrl("discord");
+const authXUrl = buildBackendAuthUrl("x");
 
 export function Login({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const xCodeChallenge = generateRandomString(43);
-
-  const authXUrl = `https://twitter.com/i/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_X_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_X_REDIRECT_URI}&response_type=code&scope=users.read tweet.read&code_challenge=${xCodeChallenge}&code_challenge_method=plain&state=${xCodeChallenge}`;
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-white/20 bg-white/90 shadow-2xl backdrop-blur-xl">

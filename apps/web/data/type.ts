@@ -84,6 +84,7 @@ export interface RequestHeaders {
 export interface User {
   picture?: string;
   name?: string;
+  first_name?: string;
   provider_id?: string;
   provider_name?: string;
 }
