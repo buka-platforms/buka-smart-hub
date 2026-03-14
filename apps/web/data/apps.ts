@@ -117,6 +117,14 @@ export const apps = [
     type: "",
   },
   {
+    path: "/apps/pomodoro",
+    id: "pomodoro",
+    name: "Pomodoro",
+    description: "Stay focused with timed work sessions and breaks.",
+    image_url: "/assets/images/apps_icon_pomodoro.svg",
+    type: "",
+  },
+  {
     path: "/apps/public-holidays",
     id: "public-holidays",
     name: "Public Holidays",
