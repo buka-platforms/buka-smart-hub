@@ -84,14 +84,16 @@ export default function WidgetUserAvatar() {
           {loading
             ? "Account"
             : isAuthenticated
-            ? userDetails?.name?.split(" ")[0] || "Account"
-            : "Login"}
+              ? userDetails?.name?.split(" ")[0] || "Account"
+              : "Login"}
         </span>
       </PopoverTrigger>
 
       <PopoverContent className="mr-4 w-max overflow-hidden bg-slate-50 p-0 shadow-md">
         {loading ? (
-          <div className="px-3 py-2 text-sm text-gray-600">Checking session...</div>
+          <div className="px-3 py-2 text-sm text-gray-600">
+            Checking session...
+          </div>
         ) : isAuthenticated ? (
           <ul className="no-bullet no-padding">
             <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2">

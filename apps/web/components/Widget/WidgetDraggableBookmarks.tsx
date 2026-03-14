@@ -156,7 +156,10 @@ export default function WidgetDraggableBookmarks() {
     setIsSubmitting(true);
     setSyncError(null);
     try {
-      const created = await createBookmark({ title: trimmedTitle, url: parsed });
+      const created = await createBookmark({
+        title: trimmedTitle,
+        url: parsed,
+      });
       setItems((prev) => [created, ...prev]);
       setIsAuthenticated(true);
       setTitle("");
@@ -178,29 +181,32 @@ export default function WidgetDraggableBookmarks() {
     } catch {}
   }, [isSubmitting, title, url]);
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    setSyncError(null);
-    try {
-      await deleteBookmark(id);
-      setIsAuthenticated(true);
-      setItems((prev) => prev.filter((entry) => entry.id !== id));
-    } catch (deleteError: unknown) {
-      if (isBookmarksUnauthorizedError(deleteError)) {
-        setIsAuthenticated(false);
-        setSyncError("Sign in required to delete bookmarks.");
-      } else {
-        setSyncError("Unable to delete bookmark right now.");
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+      setSyncError(null);
+      try {
+        await deleteBookmark(id);
+        setIsAuthenticated(true);
+        setItems((prev) => prev.filter((entry) => entry.id !== id));
+      } catch (deleteError: unknown) {
+        if (isBookmarksUnauthorizedError(deleteError)) {
+          setIsAuthenticated(false);
+          setSyncError("Sign in required to delete bookmarks.");
+        } else {
+          setSyncError("Unable to delete bookmark right now.");
+        }
+      } finally {
+        setIsSubmitting(false);
       }
-    } finally {
-      setIsSubmitting(false);
-    }
 
-    try {
-      triggerLayoutUpdate();
-    } catch {}
-  }, [isSubmitting]);
+      try {
+        triggerLayoutUpdate();
+      } catch {}
+    },
+    [isSubmitting],
+  );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 

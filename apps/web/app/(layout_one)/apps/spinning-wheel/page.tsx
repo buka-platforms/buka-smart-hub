@@ -4,7 +4,7 @@ import SpinningWheelStudio from "./SpinningWheelStudio";
 
 const moduleName = `Spinning Wheel`;
 const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
-const pageDescription = `Drop in a list of names, launch the wheel, and let fate pick the winner. Great for arisan, giveaways, or quick random decisions.`;
+const pageDescription = `Drop in a list of names, launch the wheel, and let fate pick the winner. Great for lucky draw, giveaways, or quick random decisions.`;
 const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apps/spinning-wheel`;
 
 export const metadata: Metadata = {
