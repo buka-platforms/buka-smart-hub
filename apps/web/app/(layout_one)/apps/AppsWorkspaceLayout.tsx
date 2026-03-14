@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apps } from "@/data/apps";
 import type { UserSession } from "@/data/type";
+import { fetchAuthenticatedApi } from "@/lib/authenticated-api";
 import { cn } from "@/lib/utils";
 import {
   BadgeCheck,
@@ -72,10 +73,65 @@ function AppsWorkspaceShell({
 }) {
   const pathname = usePathname() ?? "";
   const [collapsed, setCollapsed] = React.useState(false);
+  const [resolvedUserSession, setResolvedUserSession] =
+    React.useState<UserSession>(userSession);
   const activeApp =
     apps.find(
       (app) => pathname === app.path || pathname.startsWith(`${app.path}/`),
     ) ?? null;
+
+  React.useEffect(() => {
+    setResolvedUserSession(userSession);
+  }, [userSession]);
+
+  React.useEffect(() => {
+    let isActive = true;
+
+    void fetchAuthenticatedApi("/api/auth/session")
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+
+        return (await response.json()) as {
+          is_authenticated?: boolean;
+          user_details?: UserSession["user_details"];
+          data?: {
+            is_authenticated?: boolean;
+            user_details?: UserSession["user_details"];
+          };
+        } | null;
+      })
+      .then((payload) => {
+        if (!isActive || !payload) {
+          return;
+        }
+
+        const nextSession =
+          typeof payload.is_authenticated === "boolean"
+            ? {
+                is_authenticated: payload.is_authenticated,
+                user_details: payload.user_details ?? null,
+              }
+            : payload.data && typeof payload.data.is_authenticated === "boolean"
+              ? {
+                  is_authenticated: payload.data.is_authenticated,
+                  user_details: payload.data.user_details ?? null,
+                }
+              : null;
+
+        if (nextSession) {
+          setResolvedUserSession(nextSession);
+        }
+      })
+      .catch(() => {
+        // Keep the server-rendered session when client verification fails.
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   return (
     <section className="h-dvh w-full overflow-hidden bg-slate-100/70">
@@ -160,7 +216,8 @@ function AppsWorkspaceShell({
               </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
-              {userSession.is_authenticated && userSession.user_details ? (
+              {resolvedUserSession.is_authenticated &&
+              resolvedUserSession.user_details ? (
                 <div className="rounded-md border border-slate-200/80 bg-white/95 p-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -172,23 +229,23 @@ function AppsWorkspaceShell({
                       >
                         <Avatar className="h-9 w-9 border">
                           <AvatarImage
-                            src={userSession.user_details.picture}
-                            alt={userSession.user_details.name}
+                            src={resolvedUserSession.user_details.picture}
+                            alt={resolvedUserSession.user_details.name}
                             referrerPolicy="no-referrer"
                           />
                           <AvatarFallback>
-                            {initials(userSession.user_details.name)}
+                            {initials(resolvedUserSession.user_details.name)}
                           </AvatarFallback>
                         </Avatar>
                         {!collapsed && (
                           <>
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-medium text-slate-900">
-                                {userSession.user_details.name}
+                                {resolvedUserSession.user_details.name}
                               </p>
                               <p className="truncate text-xs text-slate-500">
-                                {userSession.user_details.provider_id ??
-                                  `Signed in with ${userSession.user_details.provider_name}`}
+                                {resolvedUserSession.user_details.provider_id ??
+                                  `Signed in with ${resolvedUserSession.user_details.provider_name}`}
                               </p>
                             </div>
                             <ChevronsUpDown className="size-4 text-slate-500" />
@@ -206,21 +263,21 @@ function AppsWorkspaceShell({
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8 border">
                             <AvatarImage
-                              src={userSession.user_details.picture}
-                              alt={userSession.user_details.name}
+                              src={resolvedUserSession.user_details.picture}
+                              alt={resolvedUserSession.user_details.name}
                               referrerPolicy="no-referrer"
                             />
                             <AvatarFallback>
-                              {initials(userSession.user_details.name)}
+                              {initials(resolvedUserSession.user_details.name)}
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium">
-                              {userSession.user_details.name}
+                              {resolvedUserSession.user_details.name}
                             </p>
                             <p className="truncate text-xs font-normal text-slate-500">
-                              {userSession.user_details.provider_id ??
-                                `Signed in with ${userSession.user_details.provider_name}`}
+                              {resolvedUserSession.user_details.provider_id ??
+                                `Signed in with ${resolvedUserSession.user_details.provider_name}`}
                             </p>
                           </div>
                         </div>
