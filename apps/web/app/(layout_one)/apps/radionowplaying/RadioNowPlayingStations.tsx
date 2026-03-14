@@ -36,7 +36,6 @@ import {
   Check,
   Disc3,
   Globe,
-  LoaderCircle,
   Music,
   Pause,
   Play,
@@ -372,7 +371,7 @@ export default function RadioNowPlayingStations() {
     <div className="mt-6">
       {/* Now Playing Bar */}
       {selectedStation && (
-        <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-r from-slate-900 to-slate-800 shadow-lg">
+        <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-linear-to-r from-slate-900 to-slate-800 shadow-lg">
           <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
             {/* Cover Art */}
             <div className="relative mx-auto h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-white/10 shadow-xl sm:mx-0 sm:h-20 sm:w-20">
@@ -396,7 +395,7 @@ export default function RadioNowPlayingStations() {
                 </div>
               )}
               {isPlaying && (
-                <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 to-transparent pb-1">
+                <div className="absolute inset-0 flex items-end justify-center bg-linear-to-t from-black/40 to-transparent pb-1">
                   <div className="flex items-end gap-0.5">
                     <span className="inline-block h-2 w-0.5 animate-pulse rounded-full bg-green-400" />
                     <span
