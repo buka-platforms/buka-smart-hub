@@ -8,6 +8,7 @@ import {
   startAudioVisualizationForSource,
   stopAudioVisualizationForSource,
 } from "@/lib/audio-visualizer";
+import { normalizeRadioMetadataUrl } from "@/lib/radio-metadata-url";
 import {
   startPeriodicGetTrackMetadata,
   stopPeriodicGetTrackMetadata,
@@ -114,7 +115,7 @@ export const play = async (isChangeAddressBar = false) => {
     originalRadioStation.radio_stations_radio_streams[0].radio_stream.url =
       station.stream_url;
     originalRadioStation.radio_stations_radio_streams[0].radio_stream.metadata_url =
-      station.metadata_url;
+      normalizeRadioMetadataUrl(station.metadata_url);
 
     jotaiStore.set(radioStationStateAtom, (prev) => ({
       ...prev,

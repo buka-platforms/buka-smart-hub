@@ -1,3 +1,4 @@
+import { normalizeRadioMetadataUrl } from "@/lib/radio-metadata-url";
 import { streamUrls } from "../buka-radio-streams";
 
 export async function GET() {
@@ -8,7 +9,7 @@ export async function GET() {
   // Response JSON object
   const response = {
     stream_url: randomStreamUrl.stream_url,
-    metadata_url: randomStreamUrl.metadata_url,
+    metadata_url: normalizeRadioMetadataUrl(randomStreamUrl.metadata_url),
   };
 
   // Return the response JSON object
