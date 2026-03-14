@@ -1,11 +1,12 @@
 export const apps = [
-  // {
-  //   path: "/apps/bookmark",
-  //   id: "bookmark",
-  //   name: "Bookmark",
-  //   description: "Save your favorite links.",
-  //   icon: Bookmark,
-  // },
+  {
+    path: "/apps/bookmarks",
+    id: "bookmarks",
+    name: "Bookmarks",
+    description: "Save and organize your favorite links.",
+    image_url: "/assets/images/apps_icon_notes.svg",
+    type: "",
+  },
   // {
   //   path: "/apps/calendar",
   //   id: "calendar",
