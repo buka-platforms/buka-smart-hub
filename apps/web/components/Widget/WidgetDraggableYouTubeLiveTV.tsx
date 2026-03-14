@@ -554,7 +554,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   </DropdownMenuItem>
                   {/* Open channel page removed */}
                   <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                    <Link href="/apps/youtube-live-tv">Browse all channels</Link>
+                    <Link href="/apps/youtube-live-tv">
+                      Browse all channels
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {
