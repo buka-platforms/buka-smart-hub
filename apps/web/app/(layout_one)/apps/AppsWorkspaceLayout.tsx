@@ -75,6 +75,9 @@ function AppsWorkspaceShell({
   const [collapsed, setCollapsed] = React.useState(false);
   const [resolvedUserSession, setResolvedUserSession] =
     React.useState<UserSession>(userSession);
+  const [hasVerifiedSession, setHasVerifiedSession] = React.useState(
+    userSession.is_authenticated === true,
+  );
   const activeApp =
     apps.find(
       (app) => pathname === app.path || pathname.startsWith(`${app.path}/`),
@@ -82,6 +85,7 @@ function AppsWorkspaceShell({
 
   React.useEffect(() => {
     setResolvedUserSession(userSession);
+    setHasVerifiedSession(userSession.is_authenticated === true);
   }, [userSession]);
 
   React.useEffect(() => {
@@ -123,9 +127,12 @@ function AppsWorkspaceShell({
         if (nextSession) {
           setResolvedUserSession(nextSession);
         }
+
+        setHasVerifiedSession(true);
       })
       .catch(() => {
         // Keep the server-rendered session when client verification fails.
+        setHasVerifiedSession(true);
       });
 
     return () => {
@@ -306,6 +313,32 @@ function AppsWorkspaceShell({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                </div>
+              ) : !hasVerifiedSession ? (
+                <div
+                  className={cn(
+                    "rounded-md border border-slate-200/80 bg-white p-3",
+                    collapsed && "p-2",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex items-center gap-3",
+                      collapsed && "justify-center",
+                    )}
+                  >
+                    <div className="rounded-full border bg-slate-100 p-2 text-slate-600">
+                      <CircleUserRound className="size-5" />
+                    </div>
+                    {!collapsed && (
+                      <div>
+                        <p className="text-sm font-medium">Checking account</p>
+                        <p className="text-xs text-slate-500">
+                          Verifying your session.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div
