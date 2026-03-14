@@ -121,7 +121,7 @@ const WIDGETS: {
     id: "notes",
     label: "Notes",
     icon: <StickyNote className="h-5 w-5" />,
-    description: "Quick local notes",
+    description: "Quick synced notes",
   },
 ];
 

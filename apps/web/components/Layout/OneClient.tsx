@@ -2,6 +2,7 @@
 
 import AppsLink from "@/components/General/AppsLink";
 import SignedInHeader from "@/components/General/SignedInHeader";
+import UserSessionProvider from "@/components/General/UserSessionProvider";
 import type { UserSession } from "@/data/type";
 import { usePathname } from "next/navigation";
 
@@ -16,11 +17,17 @@ export default function OneClient({
   const isAppsRoute = pathname?.startsWith("/apps");
 
   if (isAppsRoute) {
-    return <div className="min-h-screen">{children}</div>;
+    return (
+      <div className="min-h-screen">
+        <UserSessionProvider userSession={userSession} />
+        {children}
+      </div>
+    );
   }
 
   return (
     <div>
+      <UserSessionProvider userSession={userSession} />
       <SignedInHeader userSession={userSession} />
       <div className="container mx-auto mt-7">{children}</div>
       {process.env.NEXT_PUBLIC_HOSTNAME === "buka.sh" ? (

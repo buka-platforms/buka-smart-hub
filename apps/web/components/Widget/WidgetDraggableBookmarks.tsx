@@ -16,11 +16,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
-  addBookmark,
-  getBookmarks,
-  removeBookmark,
+  createBookmark,
+  deleteBookmark,
+  isBookmarksUnauthorizedError,
+  listBookmarks,
   type BookmarkEntry,
-} from "@/lib/widget-local-first";
+} from "@/lib/widget-bookmarks-api";
 import {
   getSavedWidgetPosition,
   observeWidget,
@@ -40,7 +41,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "bookmarks";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
-const WIDGET_VERSION = "0.1.0";
+const WIDGET_VERSION = "0.2.0";
 
 function normalizeUrl(input: string): string | null {
   const trimmed = input.trim();
@@ -68,6 +69,10 @@ export default function WidgetDraggableBookmarks() {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [items, setItems] = useState<BookmarkEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   useEffect(() => {
@@ -76,9 +81,33 @@ export default function WidgetDraggableBookmarks() {
 
   useEffect(() => {
     let mounted = true;
-    void getBookmarks().then((data) => {
-      if (mounted) setItems(data);
-    });
+
+    setIsLoading(true);
+    setSyncError(null);
+    void listBookmarks()
+      .then((data) => {
+        if (!mounted) return;
+        setItems(data);
+        setIsAuthenticated(true);
+      })
+      .catch((loadError: unknown) => {
+        if (!mounted) return;
+        if (isBookmarksUnauthorizedError(loadError)) {
+          setItems([]);
+          setIsAuthenticated(false);
+          setSyncError("Sign in required to load bookmarks.");
+          return;
+        }
+
+        setIsAuthenticated((prev) => (prev === null ? true : prev));
+        setSyncError("Unable to load bookmarks right now.");
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      });
+
     return () => {
       mounted = false;
     };
@@ -115,29 +144,63 @@ export default function WidgetDraggableBookmarks() {
   }, []);
 
   const submitBookmark = useCallback(async () => {
+    if (isSubmitting) return;
+
     const parsed = normalizeUrl(url);
     if (!parsed) {
       setError("Please enter a valid URL.");
       return;
     }
+
     const trimmedTitle = title.trim() || new URL(parsed).hostname;
-    const next = await addBookmark({ title: trimmedTitle, url: parsed });
-    setItems(next);
-    setTitle("");
-    setUrl("");
-    setError("");
+    setIsSubmitting(true);
+    setSyncError(null);
+    try {
+      const created = await createBookmark({ title: trimmedTitle, url: parsed });
+      setItems((prev) => [created, ...prev]);
+      setIsAuthenticated(true);
+      setTitle("");
+      setUrl("");
+      setError("");
+    } catch (submitError: unknown) {
+      if (isBookmarksUnauthorizedError(submitError)) {
+        setIsAuthenticated(false);
+        setSyncError("Sign in required to save bookmarks.");
+      } else {
+        setSyncError("Unable to save bookmark right now.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+
     try {
       triggerLayoutUpdate();
     } catch {}
-  }, [title, url]);
+  }, [isSubmitting, title, url]);
 
   const handleDelete = useCallback(async (id: string) => {
-    const next = await removeBookmark(id);
-    setItems(next);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setSyncError(null);
+    try {
+      await deleteBookmark(id);
+      setIsAuthenticated(true);
+      setItems((prev) => prev.filter((entry) => entry.id !== id));
+    } catch (deleteError: unknown) {
+      if (isBookmarksUnauthorizedError(deleteError)) {
+        setIsAuthenticated(false);
+        setSyncError("Sign in required to delete bookmarks.");
+      } else {
+        setSyncError("Unable to delete bookmark right now.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+
     try {
       triggerLayoutUpdate();
     } catch {}
-  }, []);
+  }, [isSubmitting]);
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
 
@@ -234,11 +297,22 @@ export default function WidgetDraggableBookmarks() {
           </div>
 
           <div className="space-y-2 p-3">
+            {isAuthenticated === false ? (
+              <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-100">
+                Sign in to use synced bookmarks.
+              </p>
+            ) : null}
+            {syncError ? (
+              <p className="rounded-md border border-red-200/20 bg-red-500/10 px-2.5 py-2 text-[11px] text-red-100">
+                {syncError}
+              </p>
+            ) : null}
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="h-8 border-white/15 bg-white/5 text-white"
               placeholder="Title (optional)"
+              disabled={isAuthenticated === false || isSubmitting}
             />
             <div className="flex gap-2">
               <Input
@@ -246,6 +320,7 @@ export default function WidgetDraggableBookmarks() {
                 onChange={(e) => setUrl(e.target.value)}
                 className="h-8 border-white/15 bg-white/5 text-white"
                 placeholder="https://example.com"
+                disabled={isAuthenticated === false || isSubmitting}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -256,11 +331,12 @@ export default function WidgetDraggableBookmarks() {
               <button
                 type="button"
                 onClick={() => void submitBookmark()}
+                disabled={isAuthenticated === false || isSubmitting}
                 className="flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2.5 text-xs font-semibold text-white/80 hover:bg-white/20"
                 title="Add bookmark"
               >
                 <BookmarkPlus className="h-3.5 w-3.5" />
-                Add
+                {isSubmitting ? "Saving..." : "Add"}
               </button>
             </div>
             {error ? <p className="text-[11px] text-red-300">{error}</p> : null}
@@ -268,9 +344,15 @@ export default function WidgetDraggableBookmarks() {
 
           <div className="border-t border-white/10" />
           <div className="max-h-72 space-y-1 overflow-y-auto p-2">
-            {items.length === 0 ? (
+            {isLoading ? (
               <p className="px-1 py-2 text-xs text-white/50">
-                No bookmarks yet. Add your first URL above.
+                Loading bookmarks...
+              </p>
+            ) : items.length === 0 ? (
+              <p className="px-1 py-2 text-xs text-white/50">
+                {isAuthenticated !== false
+                  ? "No bookmarks yet. Add your first URL above."
+                  : "Sign in to start saving bookmarks."}
               </p>
             ) : (
               items.map((item) => (
@@ -304,6 +386,7 @@ export default function WidgetDraggableBookmarks() {
                   <button
                     type="button"
                     onClick={() => void handleDelete(item.id)}
+                    disabled={isSubmitting}
                     className="cursor-pointer rounded p-1 text-white/60 hover:bg-white/10 hover:text-red-300"
                     title="Delete bookmark"
                   >
@@ -322,7 +405,8 @@ export default function WidgetDraggableBookmarks() {
             <DialogTitle>About Bookmarks Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
               Save and open frequently used URLs directly from your desktop
-              widget area. Data is stored locally on your browser.
+              widget area. Bookmarks sync to your account when you are signed
+              in.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-between border-t pt-4">

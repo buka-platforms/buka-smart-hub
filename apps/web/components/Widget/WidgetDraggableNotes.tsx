@@ -16,12 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { widgetVisibilityAtom } from "@/data/store";
 import {
-  addNote,
-  getNotes,
-  removeNote,
-  updateNote,
+  createNote,
+  deleteNote,
+  editNote,
+  isNotesUnauthorizedError,
+  listNotes,
   type NoteEntry,
-} from "@/lib/widget-local-first";
+} from "@/lib/widget-notes-api";
 import {
   getSavedWidgetPosition,
   observeWidget,
@@ -36,7 +37,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "notes";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
-const WIDGET_VERSION = "0.1.0";
+const WIDGET_VERSION = "0.2.0";
 
 export default function WidgetDraggableNotes() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +51,10 @@ export default function WidgetDraggableNotes() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingBody, setEditingBody] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   useEffect(() => {
@@ -58,9 +63,33 @@ export default function WidgetDraggableNotes() {
 
   useEffect(() => {
     let mounted = true;
-    void getNotes().then((data) => {
-      if (mounted) setItems(data);
-    });
+
+    setIsLoading(true);
+    setSyncError(null);
+    void listNotes()
+      .then((data) => {
+        if (!mounted) return;
+        setItems(data);
+        setIsAuthenticated(true);
+      })
+      .catch((error: unknown) => {
+        if (!mounted) return;
+        if (isNotesUnauthorizedError(error)) {
+          setItems([]);
+          setIsAuthenticated(false);
+          setSyncError("Sign in required to load notes.");
+          return;
+        }
+
+        setIsAuthenticated((prev) => (prev === null ? true : prev));
+        setSyncError("Unable to load notes right now.");
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      });
+
     return () => {
       mounted = false;
     };
@@ -97,17 +126,34 @@ export default function WidgetDraggableNotes() {
   }, []);
 
   const submitNote = useCallback(async () => {
+    if (isSubmitting) return;
+
     const body = noteBody.trim();
     const title = noteTitle.trim() || "Untitled note";
     if (!body) return;
-    const next = await addNote({ title, body });
-    setItems(next);
-    setNoteTitle("");
-    setNoteBody("");
+
+    setIsSubmitting(true);
+    setSyncError(null);
+    try {
+      const created = await createNote({ title, body });
+      setItems((prev) => [created, ...prev]);
+      setIsAuthenticated(true);
+      setNoteTitle("");
+      setNoteBody("");
+    } catch (error: unknown) {
+      if (isNotesUnauthorizedError(error)) {
+        setIsAuthenticated(false);
+        setSyncError("Sign in required to save notes.");
+      } else {
+        setSyncError("Unable to save note right now.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
     try {
       triggerLayoutUpdate();
     } catch {}
-  }, [noteBody, noteTitle]);
+  }, [isSubmitting, noteBody, noteTitle]);
 
   const startEdit = useCallback((item: NoteEntry) => {
     setEditingId(item.id);
@@ -116,34 +162,66 @@ export default function WidgetDraggableNotes() {
   }, []);
 
   const saveEdit = useCallback(async () => {
-    if (!editingId) return;
-    const next = await updateNote(editingId, {
-      title: editingTitle || "Untitled note",
-      body: editingBody,
-    });
-    setItems(next);
-    setEditingId(null);
-    setEditingTitle("");
-    setEditingBody("");
+    if (!editingId || isSubmitting) return;
+    setIsSubmitting(true);
+    setSyncError(null);
+    try {
+      const updated = await editNote({
+        id: editingId,
+        title: editingTitle || "Untitled note",
+        body: editingBody,
+      });
+      setIsAuthenticated(true);
+      setItems((prev) =>
+        prev.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setEditingId(null);
+      setEditingTitle("");
+      setEditingBody("");
+    } catch (error: unknown) {
+      if (isNotesUnauthorizedError(error)) {
+        setIsAuthenticated(false);
+        setSyncError("Sign in required to edit notes.");
+      } else {
+        setSyncError("Unable to save note changes.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
     try {
       triggerLayoutUpdate();
     } catch {}
-  }, [editingBody, editingId, editingTitle]);
+  }, [editingBody, editingId, editingTitle, isSubmitting]);
 
   const handleDelete = useCallback(
     async (id: string) => {
-      const next = await removeNote(id);
-      setItems(next);
-      if (editingId === id) {
-        setEditingId(null);
-        setEditingTitle("");
-        setEditingBody("");
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+      setSyncError(null);
+      try {
+        await deleteNote(id);
+        setIsAuthenticated(true);
+        setItems((prev) => prev.filter((entry) => entry.id !== id));
+        if (editingId === id) {
+          setEditingId(null);
+          setEditingTitle("");
+          setEditingBody("");
+        }
+      } catch (error: unknown) {
+        if (isNotesUnauthorizedError(error)) {
+          setIsAuthenticated(false);
+          setSyncError("Sign in required to delete notes.");
+        } else {
+          setSyncError("Unable to delete note right now.");
+        }
+      } finally {
+        setIsSubmitting(false);
       }
       try {
         triggerLayoutUpdate();
       } catch {}
     },
-    [editingId],
+    [editingId, isSubmitting],
   );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
@@ -241,33 +319,52 @@ export default function WidgetDraggableNotes() {
           </div>
 
           <div className="space-y-2 p-3">
+            {isAuthenticated === false ? (
+              <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-100">
+                Sign in to use synced notes.
+              </p>
+            ) : null}
+            {syncError ? (
+              <p className="rounded-md border border-red-200/20 bg-red-500/10 px-2.5 py-2 text-[11px] text-red-100">
+                {syncError}
+              </p>
+            ) : null}
             <Input
               value={noteTitle}
               onChange={(e) => setNoteTitle(e.target.value)}
               className="h-8 border-white/15 bg-white/5 text-white"
               placeholder="Title (optional)"
+              disabled={isAuthenticated === false || isSubmitting}
             />
             <textarea
               value={noteBody}
               onChange={(e) => setNoteBody(e.target.value)}
               placeholder="Write your note..."
               className="min-h-18 w-full resize-y rounded-md border border-white/15 bg-white/5 px-3 py-2 text-xs text-white outline-none placeholder:text-white/40 focus:border-white/25"
+              disabled={isAuthenticated === false || isSubmitting}
             />
             <button
               type="button"
               onClick={() => void submitNote()}
+              disabled={isAuthenticated === false || isSubmitting}
               className="flex h-8 w-full cursor-pointer items-center justify-center gap-1 rounded-md border border-white/15 bg-white/10 text-xs font-semibold text-white/80 hover:bg-white/20"
             >
               <StickyNote className="h-3.5 w-3.5" />
-              Save Note
+              {isSubmitting ? "Saving..." : "Save Note"}
             </button>
           </div>
 
           <div className="border-t border-white/10" />
           <div className="max-h-80 space-y-2 overflow-y-auto p-2">
-            {items.length === 0 ? (
+            {isLoading ? (
               <p className="px-1 py-2 text-xs text-white/50">
-                No notes yet. Add your first note above.
+                Loading notes...
+              </p>
+            ) : items.length === 0 ? (
+              <p className="px-1 py-2 text-xs text-white/50">
+                {isAuthenticated !== false
+                  ? "No notes yet. Add your first note above."
+                  : "Sign in to start saving notes."}
               </p>
             ) : (
               items.map((item) => {
@@ -293,6 +390,7 @@ export default function WidgetDraggableNotes() {
                           <button
                             type="button"
                             onClick={() => void saveEdit()}
+                            disabled={isSubmitting}
                             className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2 text-[11px] font-semibold text-white/80 hover:bg-white/20"
                           >
                             <Save className="h-3.5 w-3.5" />
@@ -301,6 +399,7 @@ export default function WidgetDraggableNotes() {
                           <button
                             type="button"
                             onClick={() => setEditingId(null)}
+                            disabled={isSubmitting}
                             className="h-7 cursor-pointer rounded-md border border-white/15 bg-white/5 px-2 text-[11px] font-semibold text-white/70 hover:bg-white/15"
                           >
                             Cancel
@@ -319,6 +418,7 @@ export default function WidgetDraggableNotes() {
                           <button
                             type="button"
                             onClick={() => startEdit(item)}
+                            disabled={isSubmitting}
                             className="cursor-pointer rounded p-1 text-white/60 hover:bg-white/10 hover:text-white"
                             title="Edit note"
                           >
@@ -327,6 +427,7 @@ export default function WidgetDraggableNotes() {
                           <button
                             type="button"
                             onClick={() => void handleDelete(item.id)}
+                            disabled={isSubmitting}
                             className="cursor-pointer rounded p-1 text-white/60 hover:bg-white/10 hover:text-red-300"
                             title="Delete note"
                           >
@@ -348,8 +449,8 @@ export default function WidgetDraggableNotes() {
           <DialogHeader>
             <DialogTitle>About Notes Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
-              Capture quick notes in your dashboard. Notes are stored locally in
-              your browser.
+              Capture quick notes in your dashboard. Notes sync to your account
+              when you are signed in.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-between border-t pt-4">
