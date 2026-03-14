@@ -191,6 +191,14 @@ export const apps = [
     type: "",
   },
   {
+    path: "/apps/somafm",
+    id: "somafm",
+    name: "SomaFM",
+    description: "Browse and listen to SomaFM internet radio channels.",
+    image_url: "/assets/images/apps_icon_somafm.svg",
+    type: "",
+  },
+  {
     path: "/apps/tv",
     id: "tv",
     name: "TV",
