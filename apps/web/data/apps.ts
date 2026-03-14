@@ -154,6 +154,14 @@ export const apps = [
     image_url: "/assets/images/apps_icon_radio.svg",
     type: "",
   },
+  {
+    path: "/apps/radionowplaying",
+    id: "radionowplaying",
+    name: "Radio Now Playing",
+    description: "Discover what's playing right now on live radio stations.",
+    image_url: "/assets/images/apps_icon_radio.svg",
+    type: "",
+  },
   // {
   //   path: "/apps/rss-reader",
   //   id: "rss-reader",
