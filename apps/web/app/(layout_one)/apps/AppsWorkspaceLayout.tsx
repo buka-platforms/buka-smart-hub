@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apps } from "@/data/apps";
 import type { UserSession } from "@/data/type";
 import { fetchAuthenticatedApi } from "@/lib/authenticated-api";
@@ -317,26 +318,26 @@ function AppsWorkspaceShell({
               ) : !hasVerifiedSession ? (
                 <div
                   className={cn(
-                    "rounded-md border border-slate-200/80 bg-white p-3",
+                    "rounded-md border border-slate-200/80 bg-white/95 p-2",
                     collapsed && "p-2",
                   )}
                 >
                   <div
                     className={cn(
-                      "flex items-center gap-3",
-                      collapsed && "justify-center",
+                      "flex w-full items-center rounded-lg px-2 py-2",
+                      collapsed ? "justify-center" : "gap-3",
                     )}
+                    aria-hidden="true"
                   >
-                    <div className="rounded-full border bg-slate-100 p-2 text-slate-600">
-                      <CircleUserRound className="size-5" />
-                    </div>
+                    <Skeleton className="h-9 w-9 rounded-full" />
                     {!collapsed && (
-                      <div>
-                        <p className="text-sm font-medium">Checking account</p>
-                        <p className="text-xs text-slate-500">
-                          Verifying your session.
-                        </p>
-                      </div>
+                      <>
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <Skeleton className="h-4 w-28" />
+                          <Skeleton className="h-3 w-40" />
+                        </div>
+                        <Skeleton className="h-4 w-4 rounded-sm" />
+                      </>
                     )}
                   </div>
                 </div>
