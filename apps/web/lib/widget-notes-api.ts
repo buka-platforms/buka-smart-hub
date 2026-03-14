@@ -123,11 +123,11 @@ export async function editNote(input: {
       method: "PUT",
       headers: {
         "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      title: input.title,
-      body: input.body,
-    }),
+      },
+      body: JSON.stringify({
+        title: input.title,
+        body: input.body,
+      }),
     },
   );
   const payload = await parseResponse<{ data?: unknown }>(response);

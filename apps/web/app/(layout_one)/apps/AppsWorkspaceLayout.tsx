@@ -242,7 +242,7 @@ function AppsWorkspaceShell({
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="p-0 focus:bg-transparent">
-                        <LogoutButton className="flex w-full cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                        <LogoutButton className="flex w-full cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none hover:bg-accent hover:text-accent-foreground">
                           <LogOut className="mr-2 size-4" />
                           Log out
                         </LogoutButton>

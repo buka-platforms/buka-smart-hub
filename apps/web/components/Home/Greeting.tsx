@@ -36,16 +36,14 @@ export default function Greeting() {
           return null;
         }
 
-        return (await response.json()) as
-          | {
-              is_authenticated?: boolean;
-              user_details?: { first_name?: string; name?: string } | null;
-              data?: {
-                is_authenticated?: boolean;
-                user_details?: { first_name?: string; name?: string } | null;
-              };
-            }
-          | null;
+        return (await response.json()) as {
+          is_authenticated?: boolean;
+          user_details?: { first_name?: string; name?: string } | null;
+          data?: {
+            is_authenticated?: boolean;
+            user_details?: { first_name?: string; name?: string } | null;
+          };
+        } | null;
       })
       .then((payload) => {
         const resolved =

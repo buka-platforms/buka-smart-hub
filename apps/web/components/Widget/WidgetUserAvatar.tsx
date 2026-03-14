@@ -2,12 +2,12 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { LogoutButton } from "@/components/auth/logout-button";
-import { fetchAuthenticatedApi } from "@/lib/authenticated-api";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { fetchAuthenticatedApi } from "@/lib/authenticated-api";
 import {
   Book,
   CircleUserRound,
