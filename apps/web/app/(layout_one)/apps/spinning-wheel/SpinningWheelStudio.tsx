@@ -325,62 +325,66 @@ export default function SpinningWheelStudio() {
 
               <div className="absolute inset-0 rounded-full bg-white/6 blur-2xl" />
 
-              <div
-                className="absolute inset-4 rounded-full border-8 border-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_20px_40px_rgba(0,0,0,0.4)]"
-                style={{
-                  backgroundImage: wheelGradient,
-                  transform: `rotate(${rotation}deg)`,
-                  transition: isSpinning
-                    ? `transform ${spinDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`
-                    : undefined,
-                }}
-              >
-                <svg
-                  viewBox="0 0 200 200"
-                  className="absolute inset-0 h-full w-full text-white/40"
-                  aria-hidden="true"
-                  dangerouslySetInnerHTML={{
-                    __html: `<g stroke="currentColor" stroke-width="1.25">${sliceLines}</g>`,
+              {/* Outer ring — solid dark frame */}
+              <div className="absolute inset-4 rounded-full bg-slate-800 p-2 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.5)]">
+                {/* Inner wheel — gradient lives here, clipped by the ring */}
+                <div
+                  className="relative h-full w-full rounded-full"
+                  style={{
+                    backgroundImage: wheelGradient,
+                    transform: `rotate(${rotation}deg)`,
+                    transition: isSpinning
+                      ? `transform ${spinDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`
+                      : undefined,
                   }}
-                />
+                >
+                  <svg
+                    viewBox="0 0 200 200"
+                    className="absolute inset-0 h-full w-full text-white/30"
+                    aria-hidden="true"
+                    dangerouslySetInnerHTML={{
+                      __html: `<g stroke="currentColor" stroke-width="1">${sliceLines}</g>`,
+                    }}
+                  />
 
-                {wheelEntries.length === 0 ? (
-                  <div className="absolute inset-0 flex items-center justify-center p-10 text-center text-sm font-medium text-slate-400">
-                    Add at least two entries to start.
-                  </div>
-                ) : (
-                  wheelEntries.map((entry, index) => {
-                    const angle = index * sliceAngle + sliceAngle / 2;
+                  {wheelEntries.length === 0 ? (
+                    <div className="absolute inset-0 flex items-center justify-center p-10 text-center text-sm font-medium text-slate-400">
+                      Add at least two entries to start.
+                    </div>
+                  ) : (
+                    wheelEntries.map((entry, index) => {
+                      const angle = index * sliceAngle + sliceAngle / 2;
 
-                    return (
-                      <div
-                        key={`${entry}-${index}`}
-                        className="absolute top-1/2 left-1/2 w-[40%] origin-left"
-                        style={{
-                          transform: `translateY(-50%) rotate(${angle - 90}deg)`,
-                        }}
-                      >
+                      return (
                         <div
-                          className={cn(
-                            "ml-7 max-w-[72%] rounded-full px-2 py-1 text-center text-[10px] font-semibold tracking-wide text-slate-950 shadow-sm",
-                            wheelEntries.length > 10 &&
-                              "text-[9px] tracking-normal",
-                          )}
+                          key={`${entry}-${index}`}
+                          className="absolute top-1/2 left-1/2 w-[40%] origin-left"
                           style={{
-                            transform: `rotate(${90 - angle}deg)`,
-                            backgroundColor: "rgba(255,255,255,0.75)",
+                            transform: `translateY(-50%) rotate(${angle - 90}deg)`,
                           }}
                         >
-                          {truncateLabel(entry)}
+                          <div
+                            className={cn(
+                              "ml-6 max-w-[72%] rounded-full px-2 py-0.5 text-center text-[10px] font-semibold tracking-wide text-slate-950",
+                              wheelEntries.length > 10 &&
+                                "text-[9px] tracking-normal",
+                            )}
+                            style={{
+                              transform: `rotate(${90 - angle}deg)`,
+                              backgroundColor: "rgba(255,255,255,0.82)",
+                            }}
+                          >
+                            {truncateLabel(entry)}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
+                      );
+                    })
+                  )}
 
-                <div className="absolute inset-[33%] rounded-full border border-white/25 bg-slate-950/90 shadow-[0_12px_24px_rgba(15,23,42,0.35)]" />
-                <div className="absolute inset-[39%] rounded-full bg-white/95" />
-                <div className="absolute inset-0 rounded-full ring-1 ring-white/10 ring-inset" />
+                  {/* Center hub */}
+                  <div className="absolute inset-[32%] rounded-full border-2 border-slate-700 bg-slate-900 shadow-[0_8px_24px_rgba(0,0,0,0.4)]" />
+                  <div className="absolute inset-[38%] rounded-full bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]" />
+                </div>
               </div>
             </div>
 
