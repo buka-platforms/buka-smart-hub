@@ -125,22 +125,6 @@ const createWheelGradient = (count: number) => {
   return `conic-gradient(from -90deg, ${parts.join(", ")})`;
 };
 
-const createSliceLines = (count: number) => {
-  if (count <= 1) {
-    return "";
-  }
-
-  const lines: string[] = [];
-
-  for (let index = 0; index < count; index += 1) {
-    lines.push(
-      `<line x1="100" y1="100" x2="100" y2="10" transform="rotate(${(360 / count) * index} 100 100)" />`,
-    );
-  }
-
-  return lines.join("");
-};
-
 const randomInt = (max: number) => {
   const values = new Uint32Array(1);
   crypto.getRandomValues(values);
@@ -173,7 +157,6 @@ export default function SpinningWheelStudio() {
   const hasEnoughEntries = entries.length >= 2;
   const sliceAngle = wheelEntries.length > 0 ? 360 / wheelEntries.length : 360;
   const wheelGradient = createWheelGradient(wheelEntries.length);
-  const sliceLines = createSliceLines(wheelEntries.length);
 
   const cancelPendingSpin = () => {
     if (timerRef.current) {
@@ -338,15 +321,6 @@ export default function SpinningWheelStudio() {
                       : undefined,
                   }}
                 >
-                  <svg
-                    viewBox="0 0 200 200"
-                    className="absolute inset-0 h-full w-full text-white/30"
-                    aria-hidden="true"
-                    dangerouslySetInnerHTML={{
-                      __html: `<g stroke="currentColor" stroke-width="1">${sliceLines}</g>`,
-                    }}
-                  />
-
                   {wheelEntries.length === 0 ? (
                     <div className="absolute inset-0 flex items-center justify-center p-10 text-center text-sm font-medium text-slate-400">
                       Add at least two entries to start.
@@ -382,44 +356,46 @@ export default function SpinningWheelStudio() {
                   )}
 
                   {/* Center hub */}
-                  <div className="absolute inset-[32%] rounded-full border-2 border-slate-700 bg-slate-900 shadow-[0_8px_24px_rgba(0,0,0,0.4)]" />
-                  <div className="absolute inset-[38%] rounded-full bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]" />
+                  <div className="absolute inset-[35%] rounded-full border-2 border-slate-700 bg-slate-900 shadow-[0_8px_24px_rgba(0,0,0,0.4)]" />
+                  <div className="absolute inset-[41.5%] rounded-full bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]" />
                 </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="mx-auto mt-8 flex max-w-sm items-center justify-center gap-3">
+            <div className="mx-auto mt-8 flex max-w-sm flex-col items-center gap-3">
               <Button
                 type="button"
                 size="lg"
                 onClick={spinWheel}
                 disabled={!hasEnoughEntries || isSpinning}
-                className="flex-1 rounded-lg bg-amber-400 text-base font-bold text-slate-950 shadow-[0_0_32px_rgba(251,191,36,0.3)] hover:bg-amber-300 disabled:shadow-none"
+                className="w-full rounded-lg bg-amber-400 text-base font-bold text-slate-950 shadow-[0_0_32px_rgba(251,191,36,0.3)] hover:bg-amber-300 disabled:shadow-none"
               >
                 <Trophy className="size-5" />
                 {isSpinning ? "Spinning..." : "Spin"}
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="lg"
-                onClick={resetSession}
-                title="Reset results"
-                className="rounded-lg text-slate-400 hover:bg-white/10 hover:text-white"
-              >
-                <RefreshCcw className="size-4" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="lg"
-                onClick={clearAll}
-                title="Clear all entries"
-                className="rounded-lg text-slate-400 hover:bg-white/10 hover:text-white"
-              >
-                <Trash2 className="size-4" />
-              </Button>
+              <div className="flex items-center justify-center gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="lg"
+                  onClick={resetSession}
+                  title="Reset results"
+                  className="rounded-lg text-slate-400 hover:bg-white/10 hover:text-white"
+                >
+                  <RefreshCcw className="size-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="lg"
+                  onClick={clearAll}
+                  title="Clear all entries"
+                  className="rounded-lg text-slate-400 hover:bg-white/10 hover:text-white"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Latest winner inline */}
