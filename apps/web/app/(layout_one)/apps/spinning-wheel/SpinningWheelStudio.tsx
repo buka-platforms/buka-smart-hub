@@ -444,8 +444,8 @@ export default function SpinningWheelStudio() {
                   )}
 
                   {/* Center hub */}
-                  <div className="absolute inset-[35%] rounded-full border-2 border-slate-700 bg-slate-900 shadow-[0_8px_24px_rgba(0,0,0,0.4)]" />
-                  <div className="absolute inset-[41.5%] rounded-full bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]" />
+                  <div className="absolute inset-[37.5%] rounded-full border-2 border-slate-700 bg-slate-900 shadow-[0_8px_24px_rgba(0,0,0,0.4)]" />
+                  <div className="absolute inset-[44%] rounded-full bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]" />
                 </div>
               </div>
             </div>
