@@ -29,6 +29,14 @@ export const apps = [
   //   type: "",
   // },
   {
+    path: "/apps/biorhythm",
+    id: "biorhythm",
+    name: "Biorhythm",
+    description: "Track your physical, emotional, and intellectual cycles.",
+    image_url: "/assets/images/apps_icon_biorhythm.svg",
+    type: "",
+  },
+  {
     path: "/apps/book-preview",
     id: "book-preview",
     name: "Book Preview",
