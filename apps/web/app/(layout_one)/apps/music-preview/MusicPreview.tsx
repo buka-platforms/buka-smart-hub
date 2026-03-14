@@ -12,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { radioAudioStateAtom } from "@/data/store";
 import { stop as stopMediaAudio } from "@/lib/radio-audio";
-import { useReadable } from "@/lib/react-use-svelte-store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   CirclePlay,
@@ -27,11 +26,29 @@ import {
   VolumeX,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { get, writable } from "svelte/store";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 
-// Storage keys
 const WIDGET_RADIO_PLAYER_VOLUME_KEY = "widgetRadioPlayerVolume";
+const DEFAULT_TOPICS = [
+  "eternal flame",
+  "loving you",
+  "i will always love you",
+  "my heart will go on",
+  "endless love",
+  "unbreak my heart",
+  "i don't want to miss a thing",
+  "you are not alone",
+  "i will remember you",
+  "the power of love",
+  "always",
+  "i don't want to live without you",
+] as const;
 
 interface MusicTrack {
   trackId: string;
@@ -44,57 +61,402 @@ interface MusicTrack {
   primaryGenreName: string;
 }
 
-const selectedMusicTrackStore = writable<MusicTrack | null>(null);
-const searchQueryStore = writable("");
-const isMediaAudioMusicPreviewPlayingStore = writable(false);
-const isMediaAudioMusicPreviewLoadingStore = writable(false);
-const musicTrackPlayingProgressStore = writable(0);
-const musicTracksStore = writable([]);
-const isLoadingStore = writable(false);
-const isNotFoundStore = writable(false);
-const mediaAudioMusicPreviewStore = writable(null as HTMLAudioElement | null);
+type SearchBarProps = {
+  isLoading: boolean;
+  searchQuery: string;
+  onSearchQueryChange: (value: string) => void;
+  onSearch: (query: string) => void;
+};
 
-/* eslint-disable @next/next/no-img-element */
-export default function MusicPreview() {
-  const topics = [
-    "eternal flame",
-    "loving you",
-    "i will always love you",
-    "my heart will go on",
-    "endless love",
-    "unbreak my heart",
-    "i don't want to miss a thing",
-    "you are not alone",
-    "i will remember you",
-    "the power of love",
-    "always",
-    "i don't want to live without you",
-  ];
-  const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+type MusicListProps = {
+  isLoading: boolean;
+  isPlaying: boolean;
+  isPreviewLoading: boolean;
+  tracks: MusicTrack[];
+  selectedTrack: MusicTrack | null;
+  onPlay: (track: MusicTrack) => void;
+  onStop: () => void;
+};
 
-  const searchParams = useSearchParams();
-  const queryParam = searchParams?.get("q") || randomTopic;
+type FooterProps = {
+  progress: number;
+  isPlaying: boolean;
+  isPreviewLoading: boolean;
+  selectedTrack: MusicTrack | null;
+  audioRef: RefObject<HTMLAudioElement | null>;
+  onStop: () => void;
+};
+
+function SearchBar({
+  isLoading,
+  searchQuery,
+  onSearchQueryChange,
+  onSearch,
+}: SearchBarProps) {
+  return (
+    <div className="relative flex w-full items-center gap-x-1 md:w-1/2">
+      {isLoading ? (
+        <LoaderCircle className="absolute left-2.5 h-4 w-4 animate-spin text-muted-foreground" />
+      ) : (
+        <SearchIcon className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
+      )}
+      <Input
+        placeholder="Search songs by name or artist..."
+        className="flex w-full items-center pl-8 leading-9"
+        value={searchQuery}
+        onChange={(e) => onSearchQueryChange(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            onSearch(e.currentTarget.value);
+          }
+        }}
+      />
+      <Button className="cursor-pointer" onClick={() => onSearch(searchQuery)}>
+        Search
+      </Button>
+    </div>
+  );
+}
+
+function MusicItem({
+  isPlaying,
+  isPreviewLoading,
+  item,
+  selectedTrack,
+  onPlay,
+  onStop,
+}: {
+  isPlaying: boolean;
+  isPreviewLoading: boolean;
+  item: MusicTrack;
+  selectedTrack: MusicTrack | null;
+  onPlay: (track: MusicTrack) => void;
+  onStop: () => void;
+}) {
+  const [isTrackImageLoaded, setIsTrackImageLoaded] = useState(false);
+  const isSelectedTrack = selectedTrack?.trackId === item.trackId;
+
+  return (
+    <div className="w-24 cursor-pointer space-y-3 md:w-36">
+      <div className="group relative h-24 w-24 overflow-hidden rounded-sm md:h-36 md:w-36">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt={`${item.trackName} by ${item.artistName} from ${item.collectionName}`}
+          loading="lazy"
+          decoding="async"
+          className={`aspect-square h-full w-full object-scale-down transition-all ${isTrackImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          src={item.artworkUrl100.replace("100x100", "600x600")}
+          onLoad={() => setIsTrackImageLoaded(true)}
+        />
+        <div
+          className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${isSelectedTrack && (isPlaying || isPreviewLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
+        ></div>
+        <div
+          className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${isSelectedTrack && (isPlaying || isPreviewLoading) ? "flex" : "hidden group-hover:flex"}`}
+        >
+          {isSelectedTrack ? (
+            !isPlaying && !isPreviewLoading ? (
+              <CirclePlay
+                className="absolute h-10 w-10 text-slate-50"
+                onClick={() => onPlay(item)}
+              />
+            ) : isPreviewLoading ? (
+              <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
+            ) : isPlaying ? (
+              <CircleStop
+                className="absolute h-10 w-10 text-slate-50"
+                onClick={onStop}
+              />
+            ) : null
+          ) : (
+            <CirclePlay
+              className="absolute h-10 w-10 text-slate-50"
+              onClick={() => onPlay(item)}
+            />
+          )}
+        </div>
+      </div>
+      <div className="space-y-1 text-sm">
+        <h3
+          className="truncate-3-lines leading-tight font-medium"
+          title={item.trackName}
+        >
+          {item.trackName}
+        </h3>
+        <p
+          className="truncate-3-lines text-xs text-muted-foreground"
+          title={item.artistName}
+        >
+          {item.artistName}
+        </p>
+        <p className="text-xs text-orange-400">
+          {item.releaseDate.substring(0, 4)}
+        </p>
+        <p className="text-xs text-teal-500">{item.primaryGenreName}</p>
+      </div>
+    </div>
+  );
+}
+
+function MusicList({
+  isLoading,
+  isPlaying,
+  isPreviewLoading,
+  tracks,
+  selectedTrack,
+  onPlay,
+  onStop,
+}: MusicListProps) {
+  return (
+    <>
+      {tracks.map((item) => (
+        <MusicItem
+          key={item.trackId}
+          isPlaying={isPlaying}
+          isPreviewLoading={isPreviewLoading}
+          item={item}
+          selectedTrack={selectedTrack}
+          onPlay={onPlay}
+          onStop={onStop}
+        />
+      ))}
+      {isLoading
+        ? Array.from({ length: 10 }).map((_, index) => (
+            <div key={index} className="w-24 space-y-3 md:w-36">
+              <div className="group relative h-24 w-24 overflow-hidden rounded-md md:h-36 md:w-36">
+                <Skeleton className="aspect-square h-full w-full rounded-md" />
+              </div>
+              <div className="space-y-1 text-sm">
+                <Skeleton className="h-4 w-full md:h-5" />
+                <Skeleton className="h-3 w-3/4 md:h-4" />
+              </div>
+            </div>
+          ))
+        : null}
+    </>
+  );
+}
+
+function NotFound({
+  isNotFound,
+  queryParam,
+}: {
+  isNotFound: boolean;
+  queryParam: string;
+}) {
+  if (!isNotFound) {
+    return null;
+  }
+
+  return (
+    <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-3">
+      <Frown className="h-8 w-8" />
+      <div className="text-center text-sm">
+        Your search for <strong>{queryParam}</strong> did not return any
+        results.
+      </div>
+    </div>
+  );
+}
+
+function VolumeControl({
+  audioRef,
+}: {
+  audioRef: RefObject<HTMLAudioElement | null>;
+}) {
   const radioAudioState = useAtomValue(radioAudioStateAtom);
+  const setRadioAudioState = useSetAtom(radioAudioStateAtom);
+  const [volume, setVolume] = useState([
+    (radioAudioState.radioAudio?.volume as number) * 100 || 0,
+  ]);
+
+  const adjustVolume = useCallback(
+    (value: number[]) => {
+      setVolume(value);
+
+      setRadioAudioState((prev) => {
+        if (prev.radioAudio) {
+          prev.radioAudio.volume = value[0] / 100;
+        }
+
+        return {
+          ...prev,
+          radioAudio: prev.radioAudio,
+        };
+      });
+
+      if (audioRef.current) {
+        audioRef.current.volume = value[0] / 100;
+      }
+
+      localStorage.setItem(
+        WIDGET_RADIO_PLAYER_VOLUME_KEY,
+        JSON.stringify(value[0]),
+      );
+    },
+    [audioRef, setRadioAudioState],
+  );
+
+  useEffect(() => {
+    const radioAudio = radioAudioState.radioAudio;
+
+    if (!radioAudio) {
+      return;
+    }
+
+    const handleVolumeChange = () => {
+      const nextVolume = (radioAudio.volume as number) * 100 || 0;
+      setVolume([nextVolume]);
+
+      if (audioRef.current) {
+        audioRef.current.volume = nextVolume / 100;
+      }
+    };
+
+    radioAudio.addEventListener("volumechange", handleVolumeChange);
+    handleVolumeChange();
+
+    return () => {
+      radioAudio.removeEventListener("volumechange", handleVolumeChange);
+    };
+  }, [audioRef, radioAudioState.radioAudio]);
+
+  return (
+    <Popover>
+      <PopoverTrigger>
+        <div id="volume" className="cursor-pointer" title="Volume">
+          {Number(radioAudioState.radioAudio?.volume) * 100 === 0 ? (
+            <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
+          ) : Number(radioAudioState.radioAudio?.volume) * 100 <= 50 ? (
+            <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
+          ) : Number(radioAudioState.radioAudio?.volume) * 100 > 50 ? (
+            <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
+          ) : (
+            <Loader2
+              className="h-8 w-8 animate-spin opacity-80 hover:opacity-100"
+              color="#eee"
+            />
+          )}
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="flex w-44 items-center gap-x-2">
+        <VolumeX size={20} />
+        <Slider
+          value={volume}
+          max={100}
+          step={1}
+          onValueChange={adjustVolume}
+        />
+        <Volume2 size={20} />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function Footer({
+  progress,
+  isPlaying,
+  isPreviewLoading,
+  selectedTrack,
+  audioRef,
+  onStop,
+}: FooterProps) {
+  if (!isPlaying && !selectedTrack) {
+    return null;
+  }
+
+  return (
+    <>
+      {isPlaying ? (
+        <div className="fixed right-0 bottom-16 left-0 z-20 h-1 w-full bg-gray-200">
+          <div
+            id="music-preview-progress"
+            className="h-full bg-rose-700"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      ) : null}
+      <div
+        className={`fixed right-0 bottom-0 left-0 z-20 flex w-full items-center justify-between gap-2 text-gray-600 backdrop-blur-lg ${!isPlaying ? "border-t" : ""}`}
+      >
+        <div className="flex gap-1">
+          <div className="h-16 w-16 shrink-0 p-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="h-full w-full overflow-hidden rounded-md object-cover"
+              src={selectedTrack?.artworkUrl100.replace("100x100", "600x600")}
+              alt=""
+            />
+          </div>
+
+          <div className="flex flex-col justify-between py-1 text-sm">
+            <div className="w-36 overflow-hidden text-xs text-ellipsis whitespace-nowrap md:w-full">
+              Music Preview
+            </div>
+            <div>
+              <div
+                title={selectedTrack?.trackName}
+                className="w-36 overflow-hidden font-medium text-ellipsis whitespace-nowrap md:w-52"
+              >
+                {selectedTrack?.trackName}
+              </div>
+              <div
+                title={selectedTrack?.artistName}
+                className="w-36 overflow-hidden text-xs text-ellipsis whitespace-nowrap md:w-52"
+              >
+                {selectedTrack?.artistName}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mr-5 flex shrink-0 gap-1 md:gap-2">
+          {isPreviewLoading ? (
+            <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
+          ) : null}
+          {isPlaying ? (
+            <div onClick={onStop} className="cursor-pointer" title="Stop">
+              <StopCircle className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
+            </div>
+          ) : null}
+          {selectedTrack ? <VolumeControl audioRef={audioRef} /> : null}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function MusicPreview() {
+  const [defaultTopic] = useState(
+    () => DEFAULT_TOPICS[Math.floor(Math.random() * DEFAULT_TOPICS.length)],
+  );
+  const searchParams = useSearchParams();
+  const queryParam = searchParams?.get("q") || defaultTopic;
+  const radioAudioState = useAtomValue(radioAudioStateAtom);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [selectedTrack, setSelectedTrack] = useState<MusicTrack | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [tracks, setTracks] = useState<MusicTrack[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isNotFound, setIsNotFound] = useState(false);
 
   const search = useCallback(async (query: string) => {
-    if (query.trim().length === 0) {
+    const trimmedQuery = query.trim();
+
+    if (trimmedQuery.length === 0) {
       return;
     }
 
-    musicTracksStore.set([]);
-    isLoadingStore.set(true);
-    isNotFoundStore.set(false);
-
-    if (query.trim().length === 0) {
-      musicTracksStore.set([]);
-      isNotFoundStore.set(false);
-      return;
-    }
-
-    searchQueryStore.set(query);
+    setTracks([]);
+    setIsLoading(true);
+    setIsNotFound(false);
+    setSearchQuery(trimmedQuery);
 
     const resultMusicTracks = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/music-track?q=${query}`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/music-track?q=${trimmedQuery}`,
       {
         cache: "no-cache",
         headers: {
@@ -104,543 +466,183 @@ export default function MusicPreview() {
     ).then((res) => res.json());
 
     if (!resultMusicTracks.data) {
-      musicTracksStore.set([]);
-      isLoadingStore.set(false);
-      isNotFoundStore.set(true);
+      setTracks([]);
+      setIsLoading(false);
+      setIsNotFound(true);
       return;
     }
 
-    musicTracksStore.set(resultMusicTracks.data.results);
+    const nextTracks = resultMusicTracks.data.results as MusicTrack[];
+    setTracks(nextTracks);
+    setIsLoading(false);
+    setIsNotFound(nextTracks.length === 0);
 
-    isLoadingStore.set(false);
+    history.pushState({}, "", `/apps/music-preview?q=${trimmedQuery}`);
 
-    if (resultMusicTracks.data.results.length === 0) {
-      isNotFoundStore.set(true);
-    } else {
-      isNotFoundStore.set(false);
-    }
-
-    // Push the query to the URL
-    history.pushState({}, "", `/apps/music-preview?q=${query}`);
-
-    // Send virtual page view event to Google Analytics
     if (window && window.gtag) {
       window.gtag("event", "page_view", {
-        page_title: `Search music preview: ${query}`,
+        page_title: `Search music preview: ${trimmedQuery}`,
         page_location: window.location.href,
         page_path: window.location.pathname,
       });
     }
   }, []);
 
-  const play = async (item: MusicTrack) => {
-    selectedMusicTrackStore.set(item);
-    isMediaAudioMusicPreviewLoadingStore.set(true);
-    isMediaAudioMusicPreviewPlayingStore.set(false);
-    const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
+  const stop = useCallback(() => {
+    const audio = audioRef.current;
 
-    if (mediaAudioMusicPreview) {
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlaying(false);
+    setIsPreviewLoading(false);
+    setSelectedTrack(null);
+
+    if (window && window.gtag) {
+      window.gtag("event", "page_view", {
+        page_title: "Stop music preview",
+        page_location: window.location.href,
+        page_path: window.location.pathname,
+      });
+    }
+  }, []);
+
+  const play = useCallback(
+    async (item: MusicTrack) => {
+      const audio = audioRef.current;
+
+      setSelectedTrack(item);
+      setIsPreviewLoading(true);
+      setIsPlaying(false);
+
+      if (!audio) {
+        return;
+      }
+
       if (radioAudioState.isPlaying) {
         await stopMediaAudio();
       }
 
-      mediaAudioMusicPreview.src = item.previewUrl;
-      mediaAudioMusicPreview.currentTime = 0;
+      audio.src = item.previewUrl;
+      audio.currentTime = 0;
 
-      mediaAudioMusicPreviewStore.set(mediaAudioMusicPreview);
+      const playPromise = audio.play();
 
-      const playPromise = mediaAudioMusicPreview.play();
-
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            isMediaAudioMusicPreviewPlayingStore.set(true);
-            isMediaAudioMusicPreviewLoadingStore.set(false);
-
-            // Send virtual page view event to Google Analytics
-            if (window && window.gtag) {
-              window.gtag("event", "page_view", {
-                page_title: `Play music preview: ${item.trackName} by ${item.artistName}`,
-                page_location: window.location.href,
-                page_path: window.location.pathname,
-              });
-            }
-          })
-          .catch(() => {
-            isMediaAudioMusicPreviewPlayingStore.set(false);
-            isMediaAudioMusicPreviewLoadingStore.set(false);
-
-            // Send virtual page view event to Google Analytics
-            if (window && window.gtag) {
-              window.gtag("event", "page_view", {
-                page_title: `Error play music preview: ${item.trackName} by ${item.artistName}`,
-                page_location: window.location.href,
-                page_path: window.location.pathname,
-              });
-            }
-          });
+      if (playPromise === undefined) {
+        return;
       }
-    }
-  };
 
-  const stop = async () => {
-    const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          setIsPreviewLoading(false);
 
-    if (mediaAudioMusicPreview) {
-      mediaAudioMusicPreview.pause();
-      mediaAudioMusicPreview.currentTime = 0;
-
-      isMediaAudioMusicPreviewPlayingStore.set(false);
-      isMediaAudioMusicPreviewLoadingStore.set(false);
-
-      selectedMusicTrackStore.set(null);
-
-      // Send virtual page view event to Google Analytics
-      if (window && window.gtag) {
-        window.gtag("event", "page_view", {
-          page_title: `Stop music preview`,
-          page_location: window.location.href,
-          page_path: window.location.pathname,
-        });
-      }
-    }
-  };
-
-  const Footer = () => {
-    const selectedMusicTrack = useReadable(selectedMusicTrackStore);
-    const isMediaAudioMusicPreviewPlaying = useReadable(
-      isMediaAudioMusicPreviewPlayingStore,
-    );
-    const isMediaAudioMusicPreviewLoading = useReadable(
-      isMediaAudioMusicPreviewLoadingStore,
-    );
-
-    const Stop = () => (
-      <div onClick={stop} className="cursor-pointer" title="Stop">
-        <StopCircle className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-      </div>
-    );
-
-    const Volume = () => {
-      const radioAudioState = useAtomValue(radioAudioStateAtom);
-      const setRadioAudioState = useSetAtom(radioAudioStateAtom);
-
-      const [volume, setVolume] = useState([
-        (radioAudioState.radioAudio?.volume as number) * 100 || 0,
-      ]);
-
-      const adjustVolume = useCallback(
-        (value: number[]) => {
-          const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
-
-          setVolume(value);
-
-          // Adjust the volume of the audio on mediaAudioStore
-          setRadioAudioState((prev) => {
-            if (prev.radioAudio) {
-              prev.radioAudio.volume = value[0] / 100;
-            }
-            return {
-              ...prev,
-              radioAudio: prev.radioAudio,
-            };
-          });
-
-          // Adjust the volume of the audio on mediaAudioMusicPreview
-          if (mediaAudioMusicPreview) {
-            mediaAudioMusicPreview.volume = value[0] / 100;
+          if (window && window.gtag) {
+            window.gtag("event", "page_view", {
+              page_title: `Play music preview: ${item.trackName} by ${item.artistName}`,
+              page_location: window.location.href,
+              page_path: window.location.pathname,
+            });
           }
+        })
+        .catch(() => {
+          setIsPlaying(false);
+          setIsPreviewLoading(false);
 
-          // Save the volume to local storage
-          localStorage.setItem(
-            WIDGET_RADIO_PLAYER_VOLUME_KEY,
-            JSON.stringify(value[0]),
-          );
-        },
-        [setRadioAudioState],
-      );
-
-      return (
-        <Popover>
-          <PopoverTrigger>
-            <div id="volume" className="cursor-pointer" title="Volume">
-              {Number(radioAudioState.radioAudio?.volume) * 100 === 0 ? (
-                <VolumeX className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : Number(radioAudioState.radioAudio?.volume) * 100 <= 50 ? (
-                <Volume1 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : Number(radioAudioState.radioAudio?.volume) * 100 > 50 ? (
-                <Volume2 className="h-8 w-8 text-slate-600 opacity-80 hover:opacity-100" />
-              ) : (
-                <Loader2
-                  className="h-8 w-8 animate-spin opacity-80 hover:opacity-100"
-                  color="#eee"
-                />
-              )}
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="flex w-44 items-center gap-x-2">
-            <VolumeX size={20} />
-            <Slider
-              value={volume}
-              max={100}
-              step={1}
-              onValueChange={adjustVolume}
-            />
-            <Volume2 size={20} />
-          </PopoverContent>
-        </Popover>
-      );
-    };
-
-    const Progress = () => {
-      const isMediaAudioMusicPreviewPlaying = useReadable(
-        isMediaAudioMusicPreviewPlayingStore,
-      );
-      const musicTrackPlayingProgress = useReadable(
-        musicTrackPlayingProgressStore,
-      );
-
-      if (!isMediaAudioMusicPreviewPlaying) {
-        return null;
-      }
-
-      return (
-        <>
-          <div className="fixed right-0 bottom-16 left-0 z-20 h-1 w-full bg-gray-200">
-            <div
-              id="music-preview-progress"
-              className={`h-full bg-rose-700`}
-              style={{ width: `${musicTrackPlayingProgress}%` }}
-            ></div>
-          </div>
-        </>
-      );
-    };
-
-    if (!isMediaAudioMusicPreviewPlaying && !selectedMusicTrack) {
-      return null;
-    }
-
-    return (
-      <>
-        <Progress />
-        <div
-          className={`fixed right-0 bottom-0 left-0 z-20 flex w-full items-center justify-between gap-2 text-gray-600 backdrop-blur-lg ${!isMediaAudioMusicPreviewPlaying ? "border-t" : ""}`}
-        >
-          <div className="flex gap-1">
-            <div className="h-16 w-16 shrink-0 p-1">
-              <img
-                className="h-full w-full overflow-hidden rounded-md object-cover"
-                src={selectedMusicTrack?.artworkUrl100.replace(
-                  "100x100",
-                  "600x600",
-                )}
-                alt=""
-              />
-            </div>
-
-            <div className="flex flex-col justify-between py-1 text-sm">
-              <div className="w-36 overflow-hidden text-xs text-ellipsis whitespace-nowrap md:w-full">
-                Music Preview
-              </div>
-              <div>
-                <div
-                  title={selectedMusicTrack?.trackName as string}
-                  className="w-36 overflow-hidden font-medium text-ellipsis whitespace-nowrap md:w-52"
-                >
-                  {selectedMusicTrack?.trackName}
-                </div>
-                <div
-                  title={selectedMusicTrack?.artistName as string}
-                  className="w-36 overflow-hidden text-xs text-ellipsis whitespace-nowrap md:w-52"
-                >
-                  {selectedMusicTrack?.artistName}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mr-5 flex shrink-0 gap-1 md:gap-2">
-            {isMediaAudioMusicPreviewLoading && (
-              <Loading className="h-8 w-8 animate-spin text-slate-600 opacity-80 hover:opacity-100" />
-            )}
-            {isMediaAudioMusicPreviewPlaying && <Stop />}
-            {selectedMusicTrack && <Volume />}
-          </div>
-        </div>
-      </>
-    );
-  };
-
-  const Item = ({ item }: { item: MusicTrack }) => {
-    const selectedMusicTrack = useReadable(selectedMusicTrackStore);
-    const isMediaAudioMusicPreviewPlaying = useReadable(
-      isMediaAudioMusicPreviewPlayingStore,
-    );
-    const isMediaAudioMusicPreviewLoading = useReadable(
-      isMediaAudioMusicPreviewLoadingStore,
-    );
-
-    const [isTrackImageLoaded, setIsTrackImageLoaded] = useState(false);
-
-    const handleTrackImageLoad = () => {
-      setIsTrackImageLoaded(true);
-    };
-
-    return (
-      <>
-        <div className="w-24 cursor-pointer space-y-3 md:w-36">
-          <div className="group relative h-24 w-24 overflow-hidden rounded-sm md:h-36 md:w-36">
-            <img
-              alt={`${item.trackName} by ${item.artistName} from ${item.collectionName}`}
-              loading="lazy"
-              decoding="async"
-              className={`aspect-square h-full w-full object-scale-down transition-all ${isTrackImageLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-              src={item.artworkUrl100.replace("100x100", "600x600")}
-              onLoad={handleTrackImageLoad}
-            />
-            <div
-              className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${selectedMusicTrack?.trackId === item.trackId && (isMediaAudioMusicPreviewPlaying || isMediaAudioMusicPreviewLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
-            ></div>
-            <div
-              className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${selectedMusicTrack?.trackId === item.trackId && (isMediaAudioMusicPreviewPlaying || isMediaAudioMusicPreviewLoading) ? "flex" : "hidden group-hover:flex"}`}
-            >
-              {selectedMusicTrack?.trackId === item.trackId ? (
-                !isMediaAudioMusicPreviewPlaying &&
-                !isMediaAudioMusicPreviewLoading ? (
-                  <CirclePlay
-                    className="absolute h-10 w-10 text-slate-50"
-                    onClick={() => play(item)}
-                  />
-                ) : isMediaAudioMusicPreviewLoading ? (
-                  <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
-                ) : isMediaAudioMusicPreviewPlaying ? (
-                  <CircleStop
-                    className="absolute h-10 w-10 text-slate-50"
-                    onClick={stop}
-                  />
-                ) : null
-              ) : (
-                <CirclePlay
-                  className="absolute h-10 w-10 text-slate-50"
-                  onClick={() => play(item)}
-                />
-              )}
-            </div>
-          </div>
-          <div className="space-y-1 text-sm">
-            <h3
-              className="truncate-3-lines leading-tight font-medium"
-              title={item.trackName}
-            >
-              {item.trackName}
-            </h3>
-            <p
-              className="truncate-3-lines text-xs text-muted-foreground"
-              title={item.artistName}
-            >
-              {item.artistName}
-            </p>
-            <p className="text-xs text-orange-400">
-              {item.releaseDate.substring(0, 4)}
-            </p>
-            <p className="text-xs text-teal-500">{item.primaryGenreName}</p>
-          </div>
-        </div>
-      </>
-    );
-  };
-
-  const List = () => {
-    const tracks = useReadable(musicTracksStore);
-
-    const ItemSkeleton = () => {
-      const isLoading = useReadable(isLoadingStore);
-
-      return (
-        <>
-          {isLoading ? (
-            <>
-              {Array.from({ length: 10 }).map((_, index) => (
-                <div key={index} className="w-24 space-y-3 md:w-36">
-                  <div className="group relative h-24 w-24 overflow-hidden rounded-md md:h-36 md:w-36">
-                    <Skeleton className="aspect-square h-full w-full rounded-md" />
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <Skeleton className="h-4 w-full md:h-5" />
-                    <Skeleton className="h-3 w-3/4 md:h-4" />
-                  </div>
-                </div>
-              ))}
-            </>
-          ) : null}
-        </>
-      );
-    };
-
-    return (
-      <>
-        {tracks.map((item: MusicTrack) => (
-          <Item item={item} key={item.trackId} />
-        ))}
-        <ItemSkeleton />
-      </>
-    );
-  };
-
-  const Search = () => {
-    const searchQuery = useReadable(searchQueryStore);
-    const isLoading = useReadable(isLoadingStore);
-
-    const changeSearchQuery = async (value: string) => {
-      searchQueryStore.set(value);
-    };
-
-    return (
-      <>
-        <div className="relative flex w-full items-center gap-x-1 md:w-1/2">
-          {isLoading ? (
-            <LoaderCircle className="absolute left-2.5 h-4 w-4 animate-spin text-muted-foreground" />
-          ) : (
-            <SearchIcon className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
-          )}
-          <Input
-            placeholder="Search songs by name or artist..."
-            className="flex w-full items-center pl-8 leading-9"
-            value={searchQuery}
-            onChange={(e) => changeSearchQuery(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                search(e.currentTarget.value);
-              }
-            }}
-          />
-          <Button
-            className="cursor-pointer"
-            onClick={() => search(searchQuery)}
-          >
-            Search
-          </Button>
-        </div>
-      </>
-    );
-  };
-
-  const NotFound = () => {
-    const isNotFound = useReadable(isNotFoundStore);
-
-    return (
-      <>
-        {isNotFound ? (
-          <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-3">
-            <Frown className="h-8 w-8" />
-            <div className="text-center text-sm">
-              Your search for <strong>{queryParam}</strong> did not return any
-              results.
-            </div>
-          </div>
-        ) : null}
-      </>
-    );
-  };
-
-  const handleTimeUpdate = () => {
-    const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
-
-    if (mediaAudioMusicPreview) {
-      const duration = mediaAudioMusicPreview.duration;
-      const currentTime = mediaAudioMusicPreview.currentTime;
-      const progress = (currentTime / duration) * 100;
-
-      // If progress is NaN, set it to 0
-      if (isNaN(progress)) {
-        musicTrackPlayingProgressStore.set(0);
-      } else {
-        musicTrackPlayingProgressStore.set(progress);
-      }
-    }
-  };
-
-  const handleEnded = () => {
-    isMediaAudioMusicPreviewPlayingStore.set(false);
-    isMediaAudioMusicPreviewLoadingStore.set(false);
-    selectedMusicTrackStore.set(null);
-  };
+          if (window && window.gtag) {
+            window.gtag("event", "page_view", {
+              page_title: `Error play music preview: ${item.trackName} by ${item.artistName}`,
+              page_location: window.location.href,
+              page_path: window.location.pathname,
+            });
+          }
+        });
+    },
+    [radioAudioState.isPlaying],
+  );
 
   useEffect(() => {
-    searchQueryStore.set(queryParam);
+    setSearchQuery(queryParam);
   }, [queryParam]);
 
   useEffect(() => {
-    const mediaAudioMusicPreview = get(mediaAudioMusicPreviewStore);
+    const audio = new Audio();
+    audio.volume = 1.0;
 
-    if (!mediaAudioMusicPreview) {
-      const audio = new Audio();
-      audio.volume = radioAudioState.radioAudio?.volume ?? 1.0;
-      mediaAudioMusicPreviewStore.set(audio);
+    const handleTimeUpdate = () => {
+      const nextProgress = (audio.currentTime / audio.duration) * 100;
+      setProgress(Number.isNaN(nextProgress) ? 0 : nextProgress);
+    };
 
-      get(mediaAudioMusicPreviewStore)?.addEventListener(
-        "timeupdate",
-        handleTimeUpdate,
-      );
-      get(mediaAudioMusicPreviewStore)?.addEventListener("ended", handleEnded);
-    } else {
-      mediaAudioMusicPreview.volume = radioAudioState.radioAudio?.volume ?? 1.0;
-    }
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setIsPreviewLoading(false);
+      setSelectedTrack(null);
+      setProgress(0);
+    };
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    audioRef.current = audio;
 
     return () => {
-      if (mediaAudioMusicPreview) {
-        // Remove event listeners
-        get(mediaAudioMusicPreviewStore)?.removeEventListener(
-          "timeupdate",
-          handleTimeUpdate,
-        );
-        get(mediaAudioMusicPreviewStore)?.removeEventListener(
-          "ended",
-          handleEnded,
-        );
-      }
+      audio.pause();
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.remove();
+      audioRef.current = null;
     };
+  }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = radioAudioState.radioAudio?.volume ?? 1.0;
+    }
   }, [radioAudioState.radioAudio?.volume]);
 
   useEffect(() => {
-    if (
-      get(searchQueryStore).trim() !== "" &&
-      get(searchQueryStore).trim().length > 0
-    ) {
-      search(get(searchQueryStore));
+    if (queryParam.trim().length > 0) {
+      void search(queryParam);
     }
-
-    // Do unmount cleanup
-    return () => {
-      musicTracksStore.set([]);
-      searchQueryStore.set("");
-      selectedMusicTrackStore.set(null);
-      isMediaAudioMusicPreviewPlayingStore.set(false);
-      isMediaAudioMusicPreviewLoadingStore.set(false);
-      musicTrackPlayingProgressStore.set(0);
-      isNotFoundStore.set(false);
-      isLoadingStore.set(false);
-
-      // Pause the audio element
-      get(mediaAudioMusicPreviewStore)?.pause();
-
-      // Destroy the audio element
-      get(mediaAudioMusicPreviewStore)?.remove();
-
-      mediaAudioMusicPreviewStore.set(null);
-    };
-  }, [search]);
+  }, [queryParam, search]);
 
   return (
     <>
-      <Search />
+      <SearchBar
+        isLoading={isLoading}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        onSearch={(query) => {
+          void search(query);
+        }}
+      />
       <div className="mt-11">
         <div className="flex flex-wrap gap-7 md:gap-9">
-          <List />
-          <NotFound />
+          <MusicList
+            isLoading={isLoading}
+            isPlaying={isPlaying}
+            isPreviewLoading={isPreviewLoading}
+            tracks={tracks}
+            selectedTrack={selectedTrack}
+            onPlay={(track) => {
+              void play(track);
+            }}
+            onStop={stop}
+          />
+          <NotFound isNotFound={isNotFound} queryParam={queryParam} />
         </div>
       </div>
-      <Footer />
+      <Footer
+        progress={progress}
+        isPlaying={isPlaying}
+        isPreviewLoading={isPreviewLoading}
+        selectedTrack={selectedTrack}
+        audioRef={audioRef}
+        onStop={stop}
+      />
     </>
   );
 }
