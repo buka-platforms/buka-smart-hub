@@ -29,20 +29,20 @@ Execute backend operations against the remote Laravel project with a read-first 
 plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $remotePath && ls -la"
 ```
 
-5. Run all backend operations from inside the Docker container `service-nginx-api1-buka-sh` or `service-php85` on the remote host:
+5. Run all backend operations from inside the Docker container `service-php85` on the remote host:
 - Do not run Laravel/PHP/backend commands from the remote host shell.
 - Host-level `php artisan` can fail due to environment/runtime differences, so container execution is mandatory.
 - After SSH login, enter the container before inspecting, editing, or running Laravel/PHP commands.
 - Inside the container, the backend project directory is `/app/api1.buka.sh`.
-- Backend runtime is also related to `service-php85` (PHP container), and database runtime is `service-mysql` (MySQL container).
+- Backend runtime is also related to database container `service-mysql`.
 - Use the appropriate container for the operation type: PHP/Laravel commands in `service-php85`, MySQL operations in `service-mysql`.
 - Example pattern:
 ```bash
-docker exec -it service-nginx-api1-buka-sh sh
+docker exec -it service-php85 sh
 ```
 - Non-interactive alternative for one-off commands:
 ```bash
-docker exec service-nginx-api1-buka-sh sh -lc 'cd /app/api1.buka.sh && php artisan route:list'
+docker exec service-php85 sh -lc 'cd /app/api1.buka.sh && php artisan route:list'
 ```
 
 6. Treat backend runtime config as container-local and sourced from backend `.env`:
