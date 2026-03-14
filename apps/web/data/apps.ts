@@ -131,6 +131,14 @@ export const apps = [
   //   icon: KeyRound,
   // },
   {
+    path: "/apps/quran",
+    id: "quran",
+    name: "Quran",
+    description: "Read and listen to the Holy Quran.",
+    image_url: "/assets/images/apps_icon_quran.svg",
+    type: "",
+  },
+  {
     path: "/apps/radio",
     id: "radio",
     name: "Radio",
