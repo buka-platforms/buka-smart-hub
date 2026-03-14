@@ -167,6 +167,14 @@ export const apps = [
   //   icon: ListChecks,
   // },
   {
+    path: "/apps/spinning-wheel",
+    id: "spinning-wheel",
+    name: "Spinning Wheel",
+    description: "Randomly pick a winner from your custom list.",
+    image_url: "/assets/images/apps_icon_spinning_wheel.svg",
+    type: "",
+  },
+  {
     path: "/apps/tv",
     id: "tv",
     name: "TV",
