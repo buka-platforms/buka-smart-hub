@@ -8,7 +8,7 @@ Scope: Buka Smart Hub frontend + api1 backend route migration
 - Migrated frontend calls from legacy web routes to API-prefixed routes.
 - Duplicated backend routes were added to `routes/api.php` first.
 - Frontend switched to `/api/...` endpoints.
-- Duplicated non-API routes were removed from backend `routes/web.php`.
+- Duplicated non-API routes were removed from backend handlers and replaced with temporary guard routes in `routes/web.php`.
 - Temporary legacy-route guards were added (410 + warning logs) to detect old client traffic.
 
 ## Endpoint Mapping
