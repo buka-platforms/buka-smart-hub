@@ -3,7 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
+import {
+  jotaiStore,
+  radioAudioStateAtom,
+  radioStationStateAtom,
+} from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, stop } from "@/lib/radio-audio";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -81,12 +85,21 @@ function RadioStationItem({ item }: { item: RadioStation }) {
         return;
       }
 
-      await stop();
-
       setRadioStationState((prev) => ({
         ...prev,
         radioStation,
       }));
+
+      jotaiStore.set(radioAudioStateAtom, (prev) => ({
+        ...prev,
+        isLoading: true,
+        isPlaying: false,
+      }));
+
+      await stop({
+        preserveLoading: true,
+        resumeIdleMetadata: false,
+      });
 
       await play(false);
     },

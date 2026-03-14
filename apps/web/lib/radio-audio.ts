@@ -82,6 +82,38 @@ const resetStateWhenStop = () => {
   }));
 };
 
+type StopOptions = {
+  preserveLoading?: boolean;
+  resumeIdleMetadata?: boolean;
+};
+
+const resetStateWhenStopWithOptions = (options?: StopOptions) => {
+  if (options?.preserveLoading) {
+    jotaiStore.set(radioAudioStateAtom, (prev) => ({
+      ...prev,
+      isPlaying: false,
+      isLoading: true,
+    }));
+    jotaiStore.set(radioStationStateAtom, (prev) => ({
+      ...prev,
+      metadataExists: false,
+      exposedArtwork: transparent1x1Pixel,
+      exposedAlbum: "",
+      exposedArtist: "",
+      exposedTitle: "",
+      exposedTitleOnly: "",
+      currentTitle: "",
+      previousTitle: "",
+      currentMetadata: undefined,
+      metadataImageLoaded: false,
+      isRadioStationLogoLoaded: false,
+    }));
+    return;
+  }
+
+  resetStateWhenStop();
+};
+
 const getBukaRadioStream = async () => {
   // Fetch data in parallel
   const [results] = await Promise.all([
@@ -245,9 +277,8 @@ export const play = async (isChangeAddressBar = false) => {
   }
 };
 
-export const stop = async () => {
-  // Reset the state
-  resetStateWhenStop();
+export const stop = async (options?: StopOptions) => {
+  resetStateWhenStopWithOptions(options);
 
   const radioAudio = jotaiStore.get(radioAudioStateAtom).radioAudio;
 
@@ -261,8 +292,9 @@ export const stop = async () => {
 
   stopAudioVisualizationForSource("radio");
 
-  // Resume metadata polling at idle cadence (60s) after stopping playback
-  await startPeriodicGetTrackMetadata(60000);
+  if (options?.resumeIdleMetadata !== false) {
+    void startPeriodicGetTrackMetadata(60000);
+  }
 
   // Send virtual page view event to Google Analytics
   if (window && window.gtag) {
