@@ -132,13 +132,14 @@ export const apps = [
     image_url: "/assets/images/apps_icon_public_holidays.svg",
     type: "",
   },
-  // {
-  //   path: "/apps/notes",
-  //   id: "notes",
-  //   name: "Notes",
-  //   description: "Take important notes.",
-  //   icon: NotebookPen,
-  // },
+  {
+    path: "/apps/notes",
+    id: "notes",
+    name: "Notes",
+    description: "Capture and organize your notes.",
+    image_url: "/assets/images/apps_icon_notes.svg",
+    type: "",
+  },
   // {
   //   path: "/apps/password-generator",
   //   id: "password-generator",
