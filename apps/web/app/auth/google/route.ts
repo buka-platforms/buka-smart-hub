@@ -1,16 +1,131 @@
-import { getWelcomeEmailTemplate } from "@/data/email-template";
-import { sendMail } from "@/lib/mailer";
-import {
-  createDirectus,
-  createItem,
-  readItems,
-  rest,
-  staticToken,
-  updateItem,
-} from "@directus/sdk";
-import { SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+type GoogleUserInfo = {
+  id: string;
+  email?: string;
+  given_name?: string;
+  family_name?: string;
+  name?: string;
+  picture?: string;
+};
+
+type UserSessionRecord = {
+  session_token: string;
+  user_id: string;
+  device_id: string;
+  is_new_user?: boolean;
+};
+
+const identityProviderCode = "google";
+const identityProviderName = "Google";
+
+const normalizeSessionRecord = (value: unknown): UserSessionRecord | null => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const raw = value as Record<string, unknown>;
+  const sessionToken =
+    typeof raw.session_token === "string" ? raw.session_token : null;
+  const userId =
+    typeof raw.user_id === "string" || typeof raw.user_id === "number"
+      ? String(raw.user_id)
+      : null;
+  const deviceId =
+    typeof raw.device_id === "string"
+      ? raw.device_id
+      : typeof raw.deviceId === "string"
+        ? raw.deviceId
+        : null;
+  const isNewUser =
+    typeof raw.is_new_user === "boolean"
+      ? raw.is_new_user
+      : typeof raw.isNewUser === "boolean"
+        ? raw.isNewUser
+        : undefined;
+
+  if (!sessionToken || !userId || !deviceId) {
+    return null;
+  }
+
+  return {
+    session_token: sessionToken,
+    user_id: userId,
+    device_id: deviceId,
+    is_new_user: isNewUser,
+  };
+};
+
+const buildGoogleAuthUrl = () => {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL_V1;
+  if (!apiBaseUrl) {
+    return null;
+  }
+
+  const endpoint = "/api/auth/google/session";
+
+  if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
+    return endpoint;
+  }
+
+  const normalizedBaseUrl = apiBaseUrl.replace(/\/+$/, "");
+  const normalizedPath = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  return `${normalizedBaseUrl}${normalizedPath}`;
+};
+
+const upsertGoogleUserSessionViaBackend = async ({
+  userInfo,
+  deviceId,
+  userAgent,
+}: {
+  userInfo: GoogleUserInfo;
+  deviceId: string;
+  userAgent: string;
+}) => {
+  const endpoint = buildGoogleAuthUrl();
+  if (!endpoint) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        provider: identityProviderCode,
+        device_id: deviceId,
+        user_agent: userAgent,
+        user_info: userInfo,
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload: unknown = await response.json();
+    const record = normalizeSessionRecord(payload);
+    if (record) {
+      return record;
+    }
+
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "data" in payload &&
+      (payload as Record<string, unknown>).data
+    ) {
+      return normalizeSessionRecord((payload as Record<string, unknown>).data);
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
 
 export async function GET(request: Request) {
   // Check if the request query contains the code
@@ -72,11 +187,6 @@ export async function GET(request: Request) {
     return redirect("/");
   }
 
-  let userSession;
-  let userId;
-  const identityProviderCode = "google";
-  const identityProviderName = "Google";
-
   // Create a hash based on the user agent and the user id
   const userAgent = request.headers.get("User-Agent") || "";
   const hashBuffer = await crypto.subtle.digest(
@@ -87,137 +197,15 @@ export async function GET(request: Request) {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 
-  // Create a new Directus client
-  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
-    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
-    .with(rest());
+  const userSession = await upsertGoogleUserSessionViaBackend({
+    userInfo,
+    deviceId,
+    userAgent,
+  });
 
-  // Get user with filter
-  const user = await client.request(
-    readItems("users", {
-      filter: {
-        _and: [
-          {
-            email: {
-              _eq: userInfo.email,
-            },
-          },
-          {
-            identity_provider_code: {
-              _eq: identityProviderCode,
-            },
-          },
-        ],
-      },
-    }),
-  );
-
-  if (user.length === 0) {
-    // Create new user on users table
-    const newUser = await client.request(
-      createItem("users", {
-        email: userInfo.email,
-        verified: "1",
-        username: userInfo.email,
-        identity_provider_code: identityProviderCode,
-        first_name: userInfo.given_name ? userInfo.given_name : null,
-        last_name: userInfo.family_name ? userInfo.family_name : null,
-        name: userInfo.name ? userInfo.name : null,
-        picture_url: userInfo.picture ? userInfo.picture : null,
-        source_identity_id: userInfo.id,
-        user_data_details: JSON.stringify(userInfo),
-        last_login_at: new Date().toISOString(),
-      }),
-    );
-
-    userId = newUser.id;
-
-    // Prepare email template
-    let emailTemplate = getWelcomeEmailTemplate();
-    emailTemplate = emailTemplate.replace(
-      "###FIRST_NAME###",
-      userInfo.given_name ? userInfo.given_name : "Buka User",
-    );
-
-    // Send email to confirm the user e-mail, using nodemailer (if only email exists)
-    sendMail(
-      userInfo.email,
-      `Hi ${
-        userInfo.given_name ? userInfo.given_name : "Buka User"
-      }! Welcome to Buka`,
-      emailTemplate,
-      emailTemplate,
-    );
-  } else {
-    userId = user[0].id;
-
-    // Update user data on users table
-    await client.request(
-      updateItem("users", userId, {
-        email: userInfo.email ? userInfo.email : null,
-        username: userInfo.email ? userInfo.email : null,
-        identity_provider_code: identityProviderCode,
-        first_name: userInfo.given_name ? userInfo.given_name : null,
-        last_name: userInfo.family_name ? userInfo.family_name : null,
-        name: userInfo.name ? userInfo.name : null,
-        picture_url: userInfo.picture ? userInfo.picture : null,
-        source_identity_id: userInfo.id,
-        user_data_details: JSON.stringify(userInfo),
-        last_login_at: new Date().toISOString(),
-      }),
-    );
+  if (!userSession) {
+    return redirect("/");
   }
-
-  // Check if the user session exists
-  userSession = await client.request(
-    readItems("user_sessions", {
-      filter: {
-        _and: [
-          {
-            user_id: {
-              _eq: userId,
-            },
-          },
-          {
-            device_id: {
-              _eq: deviceId,
-            },
-          },
-        ],
-      },
-    }),
-  );
-
-  if (userSession.length === 0) {
-    // Payload to be included in the user session token
-    const payload = {
-      user_id: userId,
-      device_id: deviceId,
-      identity_provider_code: identityProviderCode,
-    };
-
-    const secret = new TextEncoder().encode(process.env.SECRET_JWT_SECRET);
-
-    // Generate the JWT token
-    const jwt = await new SignJWT(payload)
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setIssuer("buka.sh")
-      .setAudience("buka.sh")
-      .sign(secret);
-
-    // Create a new user session on user_sessions table
-    userSession = await client.request(
-      createItem("user_sessions", {
-        user_id: userId,
-        session_token: jwt,
-        device_id: deviceId,
-      }),
-    );
-  }
-
-  // Check if the userSession is array, if array then userSession is the first index else userSession is the object
-  userSession = Array.isArray(userSession) ? userSession[0] : userSession;
 
   const cookieStore = await cookies();
 
