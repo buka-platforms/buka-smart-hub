@@ -14,7 +14,6 @@
     "version:major": "npm version major --no-git-tag-version && git add package.json && git commit -m \"chore: update app version\""
   },
   "dependencies": {
-    "@directus/sdk": "^21.2.0",
     "@fontsource-variable/rubik": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@neodrag/react": "^3.0.0-next.8",
@@ -34,7 +33,6 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "hls.js": "^1.6.15",
-    "jose": "^6.2.1",
     "jotai": "^2.18.1",
     "lucide-react": "^0.577.0",
     "maplibre-gl": "^5.20.1",
