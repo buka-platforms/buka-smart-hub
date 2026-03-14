@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Confetti } from "@neoconfetti/react";
+import gsap from "gsap";
 import { Gift, History, RefreshCcw, Trash2, Trophy } from "lucide-react";
 import {
   startTransition,
@@ -72,8 +73,6 @@ const wheelColors = [
   "#8b5cf6",
 ];
 
-const spinDurationMs = 5200;
-
 const parseEntries = (value: string) => {
   const entries: string[] = [];
   const normalized = new Set<string>();
@@ -138,11 +137,14 @@ export default function SpinningWheelStudio() {
   const [rawEntries, setRawEntries] = useState(presets[0].entries.join("\n"));
   const [removeWinner, setRemoveWinner] = useState(true);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [rotation, setRotation] = useState(0);
   const [winner, setWinner] = useState<string | null>(null);
   const [winnerHistory, setWinnerHistory] = useState<string[]>([]);
   const [winnerDialogOpen, setWinnerDialogOpen] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wheelRef = useRef<HTMLDivElement | null>(null);
+  const pointerRef = useRef<HTMLDivElement | null>(null);
+  const spinTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const rotationRef = useRef(0);
+  const tickIndexRef = useRef(0);
 
   const { entries, duplicateCount } = parseEntries(rawEntries);
   const deferredEntries = useDeferredValue(entries);
@@ -151,16 +153,76 @@ export default function SpinningWheelStudio() {
   const sliceAngle = wheelEntries.length > 0 ? 360 / wheelEntries.length : 360;
   const wheelGradient = createWheelGradient(wheelEntries.length);
 
+  const syncWheelRotation = (value: number) => {
+    rotationRef.current = value;
+
+    if (!wheelRef.current) {
+      return;
+    }
+
+    gsap.set(wheelRef.current, { rotation: value, force3D: true });
+    wheelRef.current.style.setProperty("--wheel-rotation", `${value}deg`);
+  };
+
+  const animatePointerTick = () => {
+    if (!pointerRef.current) {
+      return;
+    }
+
+    gsap.fromTo(
+      pointerRef.current,
+      { rotate: 0, y: 0 },
+      {
+        rotate: 15,
+        y: 4,
+        duration: 0.075,
+        ease: "power2.out",
+        overwrite: true,
+        repeat: 1,
+        yoyo: true,
+        transformOrigin: "50% 0%",
+      },
+    );
+  };
+
+  const updateAnimatedRotation = () => {
+    if (!wheelRef.current) {
+      return;
+    }
+
+    const currentRotation = Number(
+      gsap.getProperty(wheelRef.current, "rotation"),
+    );
+    rotationRef.current = currentRotation;
+    wheelRef.current.style.setProperty(
+      "--wheel-rotation",
+      `${currentRotation}deg`,
+    );
+
+    if (sliceAngle <= 0) {
+      return;
+    }
+
+    const currentTickIndex = Math.floor(currentRotation / sliceAngle);
+
+    if (currentTickIndex !== tickIndexRef.current) {
+      tickIndexRef.current = currentTickIndex;
+      animatePointerTick();
+    }
+  };
+
   const cancelPendingSpin = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
+    if (spinTimelineRef.current) {
+      spinTimelineRef.current.kill();
+      spinTimelineRef.current = null;
     }
 
     setIsSpinning(false);
   };
 
   useEffect(() => {
+    syncWheelRotation(0);
+
     return () => {
       cancelPendingSpin();
     };
@@ -181,8 +243,10 @@ export default function SpinningWheelStudio() {
       setWinner(null);
       setWinnerHistory([]);
       setWinnerDialogOpen(false);
-      setRotation(0);
     });
+
+    tickIndexRef.current = 0;
+    syncWheelRotation(0);
   };
 
   const clearAll = () => {
@@ -193,8 +257,10 @@ export default function SpinningWheelStudio() {
       setWinner(null);
       setWinnerHistory([]);
       setWinnerDialogOpen(false);
-      setRotation(0);
     });
+
+    tickIndexRef.current = 0;
+    syncWheelRotation(0);
   };
 
   const resetSession = () => {
@@ -204,54 +270,89 @@ export default function SpinningWheelStudio() {
       setWinner(null);
       setWinnerHistory([]);
       setWinnerDialogOpen(false);
-      setRotation(0);
     });
+
+    tickIndexRef.current = 0;
+    syncWheelRotation(0);
   };
 
   const spinWheel = () => {
-    if (!hasEnoughEntries || isSpinning) {
+    if (!hasEnoughEntries || isSpinning || !wheelRef.current) {
       return;
     }
 
     const currentEntries = entries;
     const selectedIndex = randomInt(currentEntries.length);
     const selectedWinner = currentEntries[selectedIndex];
+    const currentRotation = rotationRef.current;
     const centerAngle =
       selectedIndex * (360 / currentEntries.length) +
       180 / currentEntries.length;
-    const extraTurns = (6 + randomInt(3)) * 360;
-    const adjustment = (360 - ((rotation + centerAngle) % 360)) % 360;
-    const nextRotation = rotation + extraTurns + adjustment;
+    const extraTurns = (8 + randomInt(3)) * 360;
+    const adjustment = (360 - ((currentRotation + centerAngle) % 360)) % 360;
+    const nextRotation = currentRotation + extraTurns + adjustment;
+    const totalRotation = nextRotation - currentRotation;
+    const launchRotation = currentRotation + totalRotation * 0.18;
+    const coastRotation = currentRotation + totalRotation * 0.72;
+    const overshootRotation = nextRotation + Math.max(6, sliceAngle * 0.14);
 
     setIsSpinning(true);
     setWinner(null);
     setWinnerDialogOpen(false);
-    setRotation(nextRotation);
+    tickIndexRef.current = Math.floor(currentRotation / sliceAngle);
 
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
+    if (spinTimelineRef.current) {
+      spinTimelineRef.current.kill();
     }
 
-    timerRef.current = setTimeout(() => {
-      timerRef.current = null;
-      setIsSpinning(false);
+    spinTimelineRef.current = gsap
+      .timeline({
+        onComplete: () => {
+          spinTimelineRef.current = null;
+          syncWheelRotation(nextRotation);
+          setIsSpinning(false);
 
-      startTransition(() => {
-        setWinner(selectedWinner);
-        setWinnerDialogOpen(true);
-        setWinnerHistory((currentHistory) => [
-          selectedWinner,
-          ...currentHistory.filter((entry) => entry !== selectedWinner),
-        ]);
+          startTransition(() => {
+            setWinner(selectedWinner);
+            setWinnerDialogOpen(true);
+            setWinnerHistory((currentHistory) => [
+              selectedWinner,
+              ...currentHistory.filter((entry) => entry !== selectedWinner),
+            ]);
 
-        if (removeWinner) {
-          const nextEntries = currentEntries.filter(
-            (_, index) => index !== selectedIndex,
-          );
-          setRawEntries(nextEntries.join("\n"));
-        }
+            if (removeWinner) {
+              const nextEntries = currentEntries.filter(
+                (_, index) => index !== selectedIndex,
+              );
+              setRawEntries(nextEntries.join("\n"));
+            }
+          });
+        },
+      })
+      .to(wheelRef.current, {
+        rotation: launchRotation,
+        duration: 0.55,
+        ease: "power2.in",
+        onUpdate: updateAnimatedRotation,
+      })
+      .to(wheelRef.current, {
+        rotation: coastRotation,
+        duration: 1.35,
+        ease: "none",
+        onUpdate: updateAnimatedRotation,
+      })
+      .to(wheelRef.current, {
+        rotation: overshootRotation,
+        duration: 2.45,
+        ease: "expo.out",
+        onUpdate: updateAnimatedRotation,
+      })
+      .to(wheelRef.current, {
+        rotation: nextRotation,
+        duration: 0.5,
+        ease: "back.out(1.15)",
+        onUpdate: updateAnimatedRotation,
       });
-    }, spinDurationMs);
   };
 
   return (
@@ -339,13 +440,6 @@ export default function SpinningWheelStudio() {
                   <div className="mt-8 flex gap-3">
                     <Button
                       type="button"
-                      onClick={() => setWinnerDialogOpen(false)}
-                      className="rounded-lg bg-amber-400 font-semibold text-slate-950 hover:bg-amber-300"
-                    >
-                      Celebrate
-                    </Button>
-                    <Button
-                      type="button"
                       variant="outline"
                       onClick={() => setWinnerDialogOpen(false)}
                       className="rounded-lg border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
@@ -388,7 +482,10 @@ export default function SpinningWheelStudio() {
 
             {/* Wheel */}
             <div className="relative mx-auto aspect-square w-full max-w-105">
-              <div className="absolute top-0 left-1/2 z-20 -translate-x-1/2">
+              <div
+                ref={pointerRef}
+                className="absolute top-0 left-1/2 z-20 -translate-x-1/2"
+              >
                 <div className="h-0 w-0 border-x-16 border-t-28 border-x-transparent border-t-amber-300 drop-shadow-[0_6px_14px_rgba(251,191,36,0.5)]" />
               </div>
 
@@ -398,13 +495,11 @@ export default function SpinningWheelStudio() {
               <div className="absolute inset-4 rounded-full bg-slate-800 p-2 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.5)]">
                 {/* Inner wheel — gradient lives here, clipped by the ring */}
                 <div
+                  ref={wheelRef}
                   className="relative h-full w-full rounded-full"
                   style={{
                     backgroundImage: wheelGradient,
-                    transform: `rotate(${rotation}deg)`,
-                    transition: isSpinning
-                      ? `transform ${spinDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`
-                      : undefined,
+                    willChange: "transform",
                   }}
                 >
                   {wheelEntries.length === 0 ? (
@@ -432,7 +527,7 @@ export default function SpinningWheelStudio() {
                                 "text-[9px] tracking-normal",
                             )}
                             style={{
-                              transform: `rotate(${labelRotation - rotation}deg)`,
+                              transform: `rotate(calc(${labelRotation}deg - var(--wheel-rotation, 0deg)))`,
                               backgroundColor: "rgba(255,255,255,0.82)",
                             }}
                           >
