@@ -69,7 +69,7 @@ function AppsWorkspaceShell({
   children: React.ReactNode;
   userSession: UserSession;
 }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const [collapsed, setCollapsed] = React.useState(false);
   const activeApp =
     apps.find(
