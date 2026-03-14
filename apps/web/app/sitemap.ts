@@ -1,5 +1,4 @@
 import { tv } from "@/data/youtube_live_tv";
-import { createDirectus, readItems, rest, staticToken } from "@directus/sdk";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -15,27 +14,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 1,
   }));
 
-  // Create a new Directus client
-  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
-    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
-    .with(rest());
-
-  // Get all radio stations, by page, starting from page 1 until the last page (when results is empty)
+  // Get all radio stations from API, page by page.
   const allRadioStations: import("@/data/type").RadioStation[] = [];
   let currentPage = 1;
-  let radioStations: import("@/data/type").RadioStation[];
+  let hasNextPage = true;
 
-  do {
-    radioStations = (await client.request(
-      readItems("radio_stations", {
-        fields: ["*.*.*"],
-        page: currentPage,
-      }),
-    )) as import("@/data/type").RadioStation[];
+  while (hasNextPage) {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/radio-stations?page=${currentPage}`,
+      {
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
+    if (!response.ok) {
+      break;
+    }
+
+    const payload = (await response.json()) as {
+      data?: {
+        data?: import("@/data/type").RadioStation[];
+        next_page_url?: string | null;
+      };
+    };
+
+    const radioStations = payload?.data?.data ?? [];
     allRadioStations.push(...radioStations);
+    hasNextPage = Boolean(payload?.data?.next_page_url);
     currentPage++;
-  } while (radioStations.length > 0);
+  }
 
   const sitemapRadioStationRoutes = allRadioStations.map((station) => ({
     url: `${process.env.NEXT_PUBLIC_BASE_URL}/radio/${station.slug}`,
@@ -106,12 +116,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 1,
     },
-    // {
-    //   url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/news`,
-    //   lastModified: new Date(),
-    //   changeFrequency: "daily",
-    //   priority: 1,
-    // },
     {
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/music-preview`,
       lastModified: new Date(),

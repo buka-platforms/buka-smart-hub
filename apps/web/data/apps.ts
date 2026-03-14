@@ -108,14 +108,6 @@ export const apps = [
     image_url: "/assets/images/apps_icon_my_location.svg",
     type: "",
   },
-  // {
-  //   path: "/apps/news",
-  //   id: "news",
-  //   name: "News & Stories",
-  //   description: "Read the latest news and stories.",
-  //   image_url: "/assets/images/apps_icon_news_and_stories.svg",
-  //   type: "",
-  // },
   {
     path: "/apps/public-holidays",
     id: "public-holidays",
