@@ -29,7 +29,7 @@ Execute backend operations against the remote Laravel project with a read-first 
 plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $remotePath && ls -la"
 ```
 
-5. Run all backend operations from inside the Docker container `service-nginx-api1-buka-sh`:
+5. Run all backend operations from inside the Docker container `service-nginx-api1-buka-sh` or `service-php85` on the remote host:
 - Do not run Laravel/PHP/backend commands from the remote host shell.
 - Host-level `php artisan` can fail due to environment/runtime differences, so container execution is mandatory.
 - After SSH login, enter the container before inspecting, editing, or running Laravel/PHP commands.
