@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchAuthenticatedApi } from "@/lib/authenticated-api";
 import {
   Book,
@@ -89,7 +90,14 @@ export default function WidgetUserAvatar() {
         className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
         title={isAuthenticated ? userDetails?.name || "Account" : "Account"}
       >
-        {isAuthenticated ? (
+        {loading ? (
+          <>
+            <Skeleton className="h-6 w-6 rounded-full bg-white/20" />
+            <div className="hidden md:block">
+              <Skeleton className="h-4 w-16 rounded bg-white/20" />
+            </div>
+          </>
+        ) : isAuthenticated ? (
           <img
             src={userDetails?.picture}
             alt={userDetails?.name || "User"}
@@ -99,19 +107,25 @@ export default function WidgetUserAvatar() {
         ) : (
           <CircleUserRound className="h-4 w-4" />
         )}
-        <span className="hidden md:inline">
-          {loading
-            ? "Account"
-            : isAuthenticated
+        {!loading && (
+          <span className="hidden md:inline">
+            {isAuthenticated
               ? userDetails?.name?.split(" ")[0] || "Account"
               : "Login"}
-        </span>
+          </span>
+        )}
       </PopoverTrigger>
 
       <PopoverContent className="mr-4 w-max overflow-hidden bg-slate-50 p-0 shadow-md">
         {loading ? (
-          <div className="px-3 py-2 text-sm text-gray-600">
-            Checking session...
+          <div className="space-y-3 px-3 py-3">
+            <Skeleton className="h-4 w-36" />
+            <Skeleton className="h-3 w-24" />
+            <div className="space-y-2 pt-1">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </div>
           </div>
         ) : isAuthenticated ? (
           <ul className="no-bullet no-padding">
