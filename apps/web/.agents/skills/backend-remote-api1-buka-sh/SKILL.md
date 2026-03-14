@@ -34,6 +34,8 @@ plink -ssh -batch -no-antispoof -pw $remotePass "$remoteUser@$remoteHost" "cd $r
 - Host-level `php artisan` can fail due to environment/runtime differences, so container execution is mandatory.
 - After SSH login, enter the container before inspecting, editing, or running Laravel/PHP commands.
 - Inside the container, the backend project directory is `/app/api1.buka.sh`.
+- Backend runtime is also related to `service-php85` (PHP container), and database runtime is `service-mysql` (MySQL container).
+- Use the appropriate container for the operation type: PHP/Laravel commands in `service-php85`, MySQL operations in `service-mysql`.
 - Example pattern:
 ```bash
 docker exec -it service-nginx-api1-buka-sh sh
@@ -46,7 +48,7 @@ docker exec service-nginx-api1-buka-sh sh -lc 'cd /app/api1.buka.sh && php artis
 6. Treat backend runtime config as container-local and sourced from backend `.env`:
 - For database credentials and other backend config, read them from `/app/api1.buka.sh/.env` inside the container.
 - Do not assume host-level env/config matches container runtime values.
-- For database operations, run from inside the container context using backend `.env` values.
+- For database operations, run from inside container context (typically `service-mysql`) using backend `.env` values.
 - Never print raw secrets (DB password, app keys, tokens); redact sensitive values in responses.
 
 7. For backend review requests, follow this order:
