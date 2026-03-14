@@ -55,6 +55,8 @@ export const playSomaFMStream = async (
   jotaiStore.set(somafmAudioStateAtom, (prev: any) => ({
     ...prev,
     isLoading: true,
+    lastStream: streamUrl,
+    lastChannelId: channelId ?? null,
   }));
 
   try {
@@ -68,8 +70,6 @@ export const playSomaFMStream = async (
       ...prev,
       isPlaying: true,
       isLoading: false,
-      lastStream: streamUrl,
-      lastChannelId: channelId ?? null,
     }));
 
     startAudioVisualizationForSource(audio, "somafm");
