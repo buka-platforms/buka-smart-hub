@@ -105,7 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/tv`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/apps/youtube-live-tv`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,

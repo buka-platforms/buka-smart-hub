@@ -1,15 +1,15 @@
 import {
   ExternalTvLink,
   InternalTvLink,
-} from "@/app/(layout_one)/apps/tv/links";
+} from "@/app/(layout_one)/apps/youtube-live-tv/links";
 import { tv } from "@/data/youtube_live_tv";
 import type { Metadata } from "next";
 import AppPageIntro from "../AppPageIntro";
 
-const moduleName = `TV`;
+const moduleName = `YouTube Live TV`;
 const pageTitle = `${moduleName} - ${process.env.NEXT_PUBLIC_APP_TITLE}`;
 const pageDescription = `Watch to many great TV stations around the world. News, education or entertainment.`;
-const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apps/tv`;
+const pageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apps/youtube-live-tv`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),

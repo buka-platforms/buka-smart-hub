@@ -1,7 +1,7 @@
 import {
   ExternalTvLink,
   InternalTvLink,
-} from "@/app/(layout_one)/apps/tv/links";
+} from "@/app/(layout_one)/apps/youtube-live-tv/links";
 import ClientSideOperationOnPage from "@/components/General/ClientSideOperationOnPage";
 import SignedInHeader from "@/components/General/SignedInHeader";
 import YouTubeIframePlayer from "@/components/General/YouTubeIframePlayer";
@@ -158,8 +158,8 @@ export default async function TvDetailPage({
               Apps
             </Link>{" "}
             /{" "}
-            <Link href="/apps/tv" className="underline">
-              TV
+            <Link href="/apps/youtube-live-tv" className="underline">
+              YouTube Live TV
             </Link>{" "}
             / {selectedTv?.name}
           </div>
