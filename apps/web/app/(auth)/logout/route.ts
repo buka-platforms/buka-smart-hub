@@ -1,14 +1,67 @@
-import {
-  createDirectus,
-  deleteItem,
-  readItems,
-  rest,
-  staticToken,
-} from "@directus/sdk";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+const getSafeRedirectPath = (value?: string) => {
+  if (!value || typeof value !== "string") {
+    return "/";
+  }
+
+  if (!value.startsWith("/")) {
+    return "/";
+  }
+
+  if (value.startsWith("//") || value.includes("://")) {
+    return "/";
+  }
+
+  return value;
+};
+
+const buildLogoutUrl = () => {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL_V1;
+  if (!apiBaseUrl) {
+    return null;
+  }
+
+  return `${apiBaseUrl.replace(/\/+$/, "")}/api/auth/logout`;
+};
+
+const revokeBackendSession = async ({
+  userId,
+  deviceId,
+  userSessionToken,
+}: {
+  userId?: string;
+  deviceId?: string;
+  userSessionToken?: string;
+}) => {
+  const endpoint = buildLogoutUrl();
+  if (!endpoint || !userId || !deviceId || !userSessionToken) {
+    return;
+  }
+
+  try {
+    await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        device_id: deviceId,
+        session_token: userSessionToken,
+      }),
+    });
+  } catch {
+    // Logout should still clear local cookies even if backend revoke fails.
+  }
+};
+
 export async function GET() {
+  return redirect("/");
+}
+
+export async function POST() {
   const cookieStore = await cookies();
 
   // Get device_id from cookies
@@ -20,42 +73,13 @@ export async function GET() {
   // Get user_session_token from cookies
   const userSessionToken = cookieStore.get("_b_ust")?.value;
 
-  // Create a new Directus client
-  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
-    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
-    .with(rest());
+  const redirectPath = getSafeRedirectPath(cookieStore.get("_b_crt")?.value);
 
-  // Get user session to delete
-  const userSession = await client.request(
-    readItems("user_sessions", {
-      filter: {
-        _and: [
-          {
-            user_id: {
-              _eq: userId,
-            },
-          },
-          {
-            device_id: {
-              _eq: deviceId,
-            },
-          },
-          {
-            session_token: {
-              _eq: userSessionToken,
-            },
-          },
-        ],
-      },
-    }),
-  );
-
-  if (userSession.length > 0) {
-    const userSessionId = userSession[0].id;
-
-    // Delete user session
-    await client.request(deleteItem("user_sessions", userSessionId));
-  }
+  await revokeBackendSession({
+    userId,
+    deviceId,
+    userSessionToken,
+  });
 
   // Delete _b_ust cookie (user session token)
   cookieStore.delete("_b_ust");
@@ -68,19 +92,7 @@ export async function GET() {
 
   // Delete _b_ud cookie (user data)
   cookieStore.delete("_b_ud");
+  cookieStore.delete("_b_crt");
 
-  if (cookieStore.has("_b_crt")) {
-    // Get cookie named _b_crt
-    const cookieCurrentRoute = cookieStore.get("_b_crt");
-
-    if (cookieCurrentRoute && typeof cookieCurrentRoute.value === "string") {
-      // Redirect page to the last visited page
-      return redirect(cookieCurrentRoute.value);
-    } else {
-      // Redirect page to the home page
-      return redirect("/");
-    }
-  } else {
-    return redirect("/");
-  }
+  return redirect(redirectPath);
 }

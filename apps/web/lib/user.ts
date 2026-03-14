@@ -1,5 +1,62 @@
-import { createDirectus, readItems, rest, staticToken } from "@directus/sdk";
 import { cookies } from "next/headers";
+
+const buildVerifySessionUrl = () => {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL_V1;
+  if (!apiBaseUrl) {
+    return null;
+  }
+
+  return `${apiBaseUrl.replace(/\/+$/, "")}/api/auth/session/verify`;
+};
+
+const verifySessionViaBackend = async ({
+  userId,
+  userDeviceId,
+  userSessionToken,
+}: {
+  userId?: string;
+  userDeviceId?: string;
+  userSessionToken?: string;
+}) => {
+  const endpoint = buildVerifySessionUrl();
+  if (!endpoint || !userId || !userDeviceId || !userSessionToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        device_id: userDeviceId,
+        session_token: userSessionToken,
+      }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const payload = (await response.json()) as
+      | { is_authenticated?: boolean; data?: { is_authenticated?: boolean } }
+      | undefined;
+
+    if (typeof payload?.is_authenticated === "boolean") {
+      return payload.is_authenticated;
+    }
+
+    if (typeof payload?.data?.is_authenticated === "boolean") {
+      return payload.data.is_authenticated;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+};
 
 export const checkUserSession = async () => {
   const cookieStore = await cookies();
@@ -28,46 +85,27 @@ export const checkUserSession = async () => {
   // Get cookie called _b_uid
   const userId = cookieStore.get("_b_uid")?.value;
 
-  // Create a new Directus client
-  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
-    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
-    .with(rest());
+  const isAuthenticated = await verifySessionViaBackend({
+    userId,
+    userDeviceId,
+    userSessionToken,
+  });
 
-  // Get user session data
-  const userSession = await client.request(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readItems("user_sessions" as any, {
-      filter: {
-        _and: [
-          {
-            user_id: {
-              _eq: userId,
-            },
-          },
-          {
-            device_id: {
-              _eq: userDeviceId,
-            },
-          },
-          {
-            session_token: {
-              _eq: userSessionToken,
-            },
-          },
-        ],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any,
-    }),
-  );
-
-  if (userSession.length === 0) {
+  if (!isAuthenticated) {
     return { is_authenticated: false };
   }
 
   const userData = cookieStore.get("_b_ud")?.value;
+  if (!userData) {
+    return { is_authenticated: false };
+  }
 
-  return {
-    is_authenticated: true,
-    user_details: JSON.parse(userData as string),
-  };
+  try {
+    return {
+      is_authenticated: true,
+      user_details: JSON.parse(userData),
+    };
+  } catch {
+    return { is_authenticated: false };
+  }
 };

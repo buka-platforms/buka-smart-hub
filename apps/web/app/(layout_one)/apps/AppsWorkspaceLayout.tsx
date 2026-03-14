@@ -241,10 +241,15 @@ function AppsWorkspaceShell({
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <a href="/logout">
-                          <LogOut className="mr-2 size-4" />
-                          Log out
-                        </a>
+                        <form action="/logout" method="post">
+                          <button
+                            type="submit"
+                            className="flex w-full items-center"
+                          >
+                            <LogOut className="mr-2 size-4" />
+                            Log out
+                          </button>
+                        </form>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

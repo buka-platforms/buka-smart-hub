@@ -64,10 +64,12 @@ const Authenticated = ({ userDetails }: { userDetails: User }) => {
               </Link>
             </li>
             <li className="rounded-br-md rounded-bl-md px-3 py-1 hover:bg-slate-200 md:py-2">
-              <a href="/logout" className="flex items-center gap-x-2">
-                <LogOut size={16} color="#808080" />
-                Logout
-              </a>
+              <form action="/logout" method="post">
+                <button type="submit" className="flex items-center gap-x-2">
+                  <LogOut size={16} color="#808080" />
+                  Logout
+                </button>
+              </form>
             </li>
           </ul>
         </PopoverContent>
