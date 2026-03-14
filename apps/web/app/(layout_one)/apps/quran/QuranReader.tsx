@@ -302,7 +302,7 @@ export default function QuranReader() {
 
       {/* Surah info header */}
       {surahData && (
-        <div className="rounded-xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 p-5">
+        <div className="rounded-xl border border-emerald-100 bg-linear-to-r from-emerald-50 to-teal-50 p-5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-emerald-900">
