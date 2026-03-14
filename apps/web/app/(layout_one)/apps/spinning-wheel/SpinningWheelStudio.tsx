@@ -2,13 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Confetti } from "@neoconfetti/react";
@@ -272,6 +265,99 @@ export default function SpinningWheelStudio() {
             <div className="absolute -right-20 bottom-16 h-64 w-64 rounded-full bg-cyan-400/10 blur-[80px]" />
           </div>
 
+          {winnerDialogOpen && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/55 p-6 backdrop-blur-[2px]">
+              <div className="relative w-full max-w-xl overflow-hidden rounded-lg border border-white/10 bg-[linear-gradient(180deg,#020617_0%,#0f172a_48%,#111827_100%)] p-7 text-white shadow-[0_30px_90px_-30px_rgba(15,23,42,0.9)]">
+                <div className="pointer-events-none absolute inset-0">
+                  <div className="absolute -top-8 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-amber-300/20 blur-3xl" />
+                  <div className="absolute right-0 bottom-0 h-44 w-44 rounded-full bg-fuchsia-500/15 blur-3xl" />
+                  <Confetti
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                    colors={[
+                      "#f97316",
+                      "#fb7185",
+                      "#a855f7",
+                      "#3b82f6",
+                      "#06b6d4",
+                      "#10b981",
+                      "#facc15",
+                      "#ef4444",
+                    ]}
+                    particleCount={180}
+                    particleSize={10}
+                    particleShape="mix"
+                    force={0.3}
+                    duration={3600}
+                    stageHeight={560}
+                    stageWidth={560}
+                  />
+                </div>
+
+                <div className="relative">
+                  <Badge className="rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-slate-950">
+                    Winner Revealed
+                  </Badge>
+                  <div className="mt-5 text-left">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-full border border-white/10 bg-white/10 p-3 text-amber-300">
+                        <Gift className="size-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-3xl font-semibold tracking-tight text-white">
+                          Congrats {winner ?? "Winner"}
+                        </h3>
+                        <p className="mt-2 max-w-md text-base leading-7 text-slate-300">
+                          The wheel has spoken.{" "}
+                          <span className="font-medium text-white">
+                            {winner ?? "Your selected entry"}
+                          </span>{" "}
+                          takes this round.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex flex-wrap items-center gap-3">
+                    <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                      <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                        Session
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-white">
+                        {title || "Lucky draw"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                      <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
+                        Winners so far
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-white">
+                        {winnerHistory.length}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex gap-3">
+                    <Button
+                      type="button"
+                      onClick={() => setWinnerDialogOpen(false)}
+                      className="rounded-lg bg-amber-400 font-semibold text-slate-950 hover:bg-amber-300"
+                    >
+                      Celebrate
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setWinnerDialogOpen(false)}
+                      className="rounded-lg border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="relative px-6 pt-7 pb-8 md:px-10 md:pt-9 md:pb-10">
             {/* Top bar */}
             <div className="mb-8 flex items-start justify-between gap-4">
@@ -328,23 +414,25 @@ export default function SpinningWheelStudio() {
                   ) : (
                     wheelEntries.map((entry, index) => {
                       const angle = index * sliceAngle + sliceAngle / 2;
+                      const isLeftSide = angle > 90 && angle < 270;
+                      const labelRotation = isLeftSide ? 270 : 90;
 
                       return (
                         <div
                           key={`${entry}-${index}`}
-                          className="absolute top-1/2 left-1/2 w-[40%] origin-left"
+                          className="absolute top-1/2 left-1/2 w-[44%] origin-left"
                           style={{
                             transform: `translateY(-50%) rotate(${angle - 90}deg)`,
                           }}
                         >
                           <div
                             className={cn(
-                              "ml-6 max-w-[72%] rounded-full px-2 py-0.5 text-center text-[10px] font-semibold tracking-wide text-slate-950",
+                              "mr-3 ml-auto max-w-[56%] rounded-full px-2.5 py-1 text-center text-[10px] font-semibold tracking-wide whitespace-nowrap text-slate-950 shadow-sm",
                               wheelEntries.length > 10 &&
                                 "text-[9px] tracking-normal",
                             )}
                             style={{
-                              transform: `rotate(${90 - angle}deg)`,
+                              transform: `rotate(${labelRotation - rotation}deg)`,
                               backgroundColor: "rgba(255,255,255,0.82)",
                             }}
                           >
@@ -520,102 +608,6 @@ export default function SpinningWheelStudio() {
           </div>
         </div>
       </div>
-
-      {/* ─── Winner dialog ─── */}
-      <Dialog open={winnerDialogOpen} onOpenChange={setWinnerDialogOpen}>
-        <DialogContent className="overflow-hidden border-0 bg-transparent p-0 shadow-none sm:max-w-xl">
-          <div className="relative overflow-hidden rounded-lg border border-white/10 bg-[linear-gradient(180deg,#020617_0%,#0f172a_48%,#111827_100%)] p-7 text-white shadow-[0_30px_90px_-30px_rgba(15,23,42,0.9)]">
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -top-8 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-amber-300/20 blur-3xl" />
-              <div className="absolute right-0 bottom-0 h-44 w-44 rounded-full bg-fuchsia-500/15 blur-3xl" />
-              {winnerDialogOpen && (
-                <Confetti
-                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                  colors={[
-                    "#f97316",
-                    "#fb7185",
-                    "#a855f7",
-                    "#3b82f6",
-                    "#06b6d4",
-                    "#10b981",
-                    "#facc15",
-                    "#ef4444",
-                  ]}
-                  particleCount={180}
-                  particleSize={10}
-                  particleShape="mix"
-                  force={0.3}
-                  duration={3600}
-                  stageHeight={560}
-                  stageWidth={560}
-                />
-              )}
-            </div>
-
-            <div className="relative">
-              <Badge className="rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-slate-950">
-                Winner Revealed
-              </Badge>
-              <DialogHeader className="mt-5 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full border border-white/10 bg-white/10 p-3 text-amber-300">
-                    <Gift className="size-5" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-3xl font-semibold tracking-tight text-white">
-                      Congrats {winner ?? "Winner"}
-                    </DialogTitle>
-                    <DialogDescription className="mt-2 max-w-md text-base leading-7 text-slate-300">
-                      The wheel has spoken.{" "}
-                      <span className="font-medium text-white">
-                        {winner ?? "Your selected entry"}
-                      </span>{" "}
-                      takes this round.
-                    </DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
-                    Session
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-white">
-                    {title || "Lucky draw"}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
-                    Winners so far
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-white">
-                    {winnerHistory.length}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 flex gap-3">
-                <Button
-                  type="button"
-                  onClick={() => setWinnerDialogOpen(false)}
-                  className="rounded-lg bg-amber-400 font-semibold text-slate-950 hover:bg-amber-300"
-                >
-                  Celebrate
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setWinnerDialogOpen(false)}
-                  className="rounded-lg border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
-                >
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
