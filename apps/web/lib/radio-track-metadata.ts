@@ -10,6 +10,7 @@ import {
   randomizeRainbowColor,
 } from "@/lib/audio-visualizer";
 import { normalizeRadioMetadataUrl } from "@/lib/radio-metadata-url";
+import { getPrimaryRadioStream } from "@/lib/radio-stream";
 import { replaceArtworkSizes } from "./utils";
 
 const DEFAULT_METADATA_INTERVAL_MS = 7000;
@@ -166,10 +167,10 @@ const getExternalTrackDetails = async () => {
 
 const getTrackMetadata = async () => {
   if (jotaiStore.get(radioStationStateAtom).radioStation) {
-    const metadataUrl = normalizeRadioMetadataUrl(
-      (jotaiStore.get(radioStationStateAtom).radioStation as RadioStation)
-        .radio_stations_radio_streams[0]?.radio_stream?.metadata_url,
+    const primaryStream = getPrimaryRadioStream(
+      jotaiStore.get(radioStationStateAtom).radioStation as RadioStation,
     );
+    const metadataUrl = normalizeRadioMetadataUrl(primaryStream?.metadata_url);
 
     if (!metadataUrl) {
       return;

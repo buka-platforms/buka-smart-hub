@@ -9,6 +9,7 @@ import {
   stopAudioVisualizationForSource,
 } from "@/lib/audio-visualizer";
 import { normalizeRadioMetadataUrl } from "@/lib/radio-metadata-url";
+import { getPrimaryRadioStream } from "@/lib/radio-stream";
 import {
   startPeriodicGetTrackMetadata,
   stopPeriodicGetTrackMetadata,
@@ -103,43 +104,61 @@ export const play = async (isChangeAddressBar = false) => {
     isLoading: true,
   }));
 
-  const radioStation = jotaiStore.get(radioStationStateAtom).radioStation;
+  let radioStation = jotaiStore.get(radioStationStateAtom).radioStation;
   const radioAudio = jotaiStore.get(radioAudioStateAtom).radioAudio;
 
   // Override the url if the radio station is https://buka.sh/radio/stream, call https://buka.sh/radio/streams to get the random stream with its metadata
   if (radioStation?.slug === "buka") {
     const originalRadioStation = radioStation;
+    const primaryStream = getPrimaryRadioStream(originalRadioStation);
+
+    if (!primaryStream) {
+      jotaiStore.set(radioAudioStateAtom, (prev) => ({
+        ...prev,
+        isLoading: false,
+      }));
+      return;
+    }
 
     const station = await getBukaRadioStream();
 
-    originalRadioStation.radio_stations_radio_streams[0].radio_stream.url =
-      station.stream_url;
-    originalRadioStation.radio_stations_radio_streams[0].radio_stream.metadata_url =
-      normalizeRadioMetadataUrl(station.metadata_url);
+    primaryStream.url = station.stream_url;
+    primaryStream.metadata_url = normalizeRadioMetadataUrl(
+      station.metadata_url,
+    );
 
     jotaiStore.set(radioStationStateAtom, (prev) => ({
       ...prev,
       radioStation: originalRadioStation,
     }));
+
+    radioStation = originalRadioStation;
   }
 
-  const url = radioStation?.radio_stations_radio_streams[0]?.radio_stream?.url;
+  const primaryStream = getPrimaryRadioStream(radioStation);
+  const url = primaryStream?.url;
+  const streamType = primaryStream?.type;
 
-  if (radioStation?.radio_stations_radio_streams[0]?.radio_stream?.type === 2) {
+  if (!url || (streamType !== 1 && streamType !== 2)) {
+    jotaiStore.set(radioAudioStateAtom, (prev) => ({
+      ...prev,
+      isLoading: false,
+    }));
+    return;
+  }
+
+  if (streamType === 2) {
     // Set radioAudio to empty src
     if (radioAudio) {
       radioAudio.removeAttribute("src");
     }
 
     // Load the source to hls
-    hls?.loadSource(url as string);
+    hls?.loadSource(url);
     if (radioAudio) {
       hls?.attachMedia(radioAudio);
     }
-  } else if (
-    jotaiStore.get(radioStationStateAtom).radioStation
-      ?.radio_stations_radio_streams[0]?.radio_stream?.type === 1
-  ) {
+  } else if (streamType === 1) {
     // Set hls source to null
     if (hls) {
       hls.stopLoad();
@@ -147,18 +166,15 @@ export const play = async (isChangeAddressBar = false) => {
     }
 
     if (radioAudio) {
-      radioAudio.src = url as string;
+      radioAudio.src = url;
     }
   }
 
-  await checkRadioStationCORS(
-    url as string,
-    radioStation?.radio_stations_radio_streams[0]?.radio_stream?.type as number,
-  );
+  await checkRadioStationCORS(url, streamType);
 
   if (isRadioStationCORSProblem) {
     const audio = new Audio();
-    audio.src = url as string;
+    audio.src = url;
 
     mediaAudioCors = audio;
     stopAudioVisualizationForSource("radio");
@@ -213,15 +229,13 @@ export const play = async (isChangeAddressBar = false) => {
           isLoading: false,
         }));
 
-        // playRandom(isChangeAddressBar);
+        const fallbackSlug = process.env
+          .NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG as string;
 
-        // Set radio to default radio, defined in NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG
-        await loadRadioStationBySlug(
-          process.env.NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG as string,
-        );
-
-        // Play the default radio station
-        play(isChangeAddressBar);
+        if (radioStation?.slug && radioStation.slug !== fallbackSlug) {
+          await loadRadioStationBySlug(fallbackSlug);
+          await play(isChangeAddressBar);
+        }
       });
   } else {
     jotaiStore.set(radioAudioStateAtom, (prev) => ({
@@ -373,23 +387,45 @@ export const checkRadioStationCORS = async (
   return new Promise((resolve) => {
     const audio = new Audio();
     audio.crossOrigin = "anonymous";
+    const hlsProbe = Hls.isSupported() && type === 2 ? new Hls() : null;
+    let settled = false;
+
+    const settle = (result: boolean) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      clearTimeout(timeoutId);
+      audio.pause();
+      audio.removeAttribute("src");
+      hlsProbe?.destroy();
+      resolve(result);
+    };
+
+    const timeoutId = window.setTimeout(() => {
+      isRadioStationCORSProblem = true;
+      settle(false);
+    }, 8000);
 
     audio.addEventListener("error", () => {
       isRadioStationCORSProblem = true;
-      resolve(false); // Resolve with error flag
+      settle(false);
     });
     audio.addEventListener("canplay", () => {
       isRadioStationCORSProblem = false;
-      resolve(true); // Resolve with success flag
+      settle(true);
     });
 
-    if (Hls.isSupported() && type === 2) {
-      const hls = new Hls();
-      hls.loadSource(streamUrl);
-      hls.attachMedia(audio);
+    if (hlsProbe) {
+      hlsProbe.loadSource(streamUrl);
+      hlsProbe.attachMedia(audio);
     } else if (type === 1) {
       audio.src = streamUrl;
       audio.load();
+    } else {
+      isRadioStationCORSProblem = true;
+      settle(false);
     }
   });
 };

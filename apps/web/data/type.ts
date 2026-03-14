@@ -1,30 +1,24 @@
+export interface RadioStream {
+  url: string;
+  metadata_url: string;
+  type: number;
+}
+
+export interface RadioStationStreamRelation {
+  radio_stream?: RadioStream;
+  radio_stream_id?: RadioStream;
+  metadata_url?: string;
+  type?: number;
+  secure?: number;
+  url?: string;
+}
+
 export interface RadioStation {
-  streams: {
-    radio_stream: {
-      url: string;
-      metadata_url: string;
-      type: number;
-    };
-    radio_stream_id: {
-      url: string;
-      metadata_url: string;
-      type: number;
-    };
-  }[];
-  radio_station_streams: {
-    radio_stream: {
-      url: string;
-      metadata_url: string;
-      type: number;
-    };
-  }[];
-  radio_stations_radio_streams: {
-    radio_stream: {
-      url: string;
-      metadata_url: string;
-      type: number;
-    };
-  }[];
+  streams?: Array<RadioStream | RadioStationStreamRelation>;
+  radio_station_streams?: Array<RadioStream | RadioStationStreamRelation>;
+  radio_stations_radio_streams?: Array<
+    RadioStream | RadioStationStreamRelation
+  >;
   country: {
     id: number;
     name: string;
