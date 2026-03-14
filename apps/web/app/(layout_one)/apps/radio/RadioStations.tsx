@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { radioAudioStateAtom, radioStationStateAtom } from "@/data/store";
 import type { RadioStation } from "@/data/type";
 import { play, stop } from "@/lib/radio-audio";
-import { useReadable } from "@/lib/react-use-svelte-store";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   CirclePlay,
@@ -17,207 +16,172 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { get, writable } from "svelte/store";
+import { useCallback, useEffect, useState } from "react";
 
-const searchQueryStore = writable("");
-const pageStore = writable(1);
-const isLoadingStore = writable(false);
-const isReachingEndPageStore = writable(false);
-const radioStationsStore = writable([] as RadioStation[]);
-const isNotFoundStore = writable(false);
+type RadioStationsResponse = {
+  data: {
+    data: RadioStation[];
+    next_page_url: string | null;
+  };
+};
 
-const getInitialRadioStations = async (query: string) => {
-  isLoadingStore.set(true);
-  isNotFoundStore.set(false);
+type SearchBarProps = {
+  isLoading: boolean;
+  searchQuery: string;
+  showReset: boolean;
+  onReset: () => void;
+  onSearch: (query: string) => void;
+  onSearchQueryChange: (value: string) => void;
+};
 
+type RadioListProps = {
+  isLoading: boolean;
+  stations: RadioStation[];
+};
+
+type LoadMoreProps = {
+  isLoading: boolean;
+  isReachingEndPage: boolean;
+  stationCount: number;
+  onLoadMore: () => void;
+};
+
+async function fetchRadioStations(
+  query: string,
+  page: number,
+): Promise<RadioStationsResponse> {
   let queryUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-stations`;
 
-  if (query.trim().length > 0) {
-    queryUrl += `?q=${query}`;
+  if (page > 1) {
+    queryUrl += `?page=${page}`;
   }
 
-  await fetch(`${queryUrl}`, {
+  if (query.trim().length > 0) {
+    queryUrl += page > 1 ? `&q=${query}` : `?q=${query}`;
+  }
+
+  return fetch(queryUrl, {
     cache: "no-cache",
     headers: {
       "Content-Type": "application/json",
     },
-  }).then(async (res) => {
-    const results = await res.json();
-    radioStationsStore.set(results.data.data);
-    isLoadingStore.set(false);
+  }).then((res) => res.json());
+}
 
-    // Detect if radio stations are not found
-    if (results.data.data.length === 0) {
-      isNotFoundStore.set(true);
-    } else {
-      isNotFoundStore.set(false);
-    }
-
-    // Detect if reaching the end of the page
-    if (results.data.next_page_url === null) {
-      isReachingEndPageStore.set(true);
-    } else {
-      isReachingEndPageStore.set(false);
-    }
-  });
-};
-
-/* eslint-disable @next/next/no-img-element */
-const Item = ({ item }: { item: RadioStation }) => {
+function RadioStationItem({ item }: { item: RadioStation }) {
   const radioAudioState = useAtomValue(radioAudioStateAtom);
-
   const radioStationState = useAtomValue(radioStationStateAtom);
   const setRadioStationState = useSetAtom(radioStationStateAtom);
-
   const [isRadioStationLogoLoaded, setIsRadioStationLogoLoaded] =
     useState(false);
 
-  const playSelected = async (radioStation: RadioStation) => {
-    if (radioAudioState.isLoading) {
-      return;
-    } else {
+  const playSelected = useCallback(
+    async (radioStation: RadioStation) => {
+      if (radioAudioState.isLoading) {
+        return;
+      }
+
       await stop();
-    }
 
-    setRadioStationState((prev) => ({
-      ...prev,
-      radioStation: radioStation,
-    }));
+      setRadioStationState((prev) => ({
+        ...prev,
+        radioStation,
+      }));
 
-    await play(false);
-  };
-
-  const handleRadioStationImageLoad = () => {
-    setIsRadioStationLogoLoaded(true);
-  };
+      await play(false);
+    },
+    [radioAudioState.isLoading, setRadioStationState],
+  );
 
   return (
-    <>
-      <div className="w-full space-y-3">
-        <div className="group relative overflow-hidden rounded-md border border-slate-200 p-2">
-          <img
-            alt={`${item?.name} from ${item?.country?.name_alias}`}
-            loading="lazy"
-            decoding="async"
-            className={`aspect-square h-full w-full rounded-md object-scale-down transition-all ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
-            src={item?.logo}
-            onLoad={handleRadioStationImageLoad}
-          />
-          <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${radioStationState.radioStation?.id === item.id && (radioAudioState.isPlaying || radioAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
-          ></div>
-          <div
-            className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${radioStationState.radioStation?.id === item.id && (radioAudioState.isPlaying || radioAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
-          >
-            {radioStationState.radioStation?.id === item.id ? (
-              !radioAudioState.isPlaying && !radioAudioState.isLoading ? (
-                <CirclePlay
-                  className="absolute h-10 w-10 text-slate-50"
-                  onClick={() => playSelected(item)}
-                />
-              ) : radioAudioState.isLoading ? (
-                <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
-              ) : radioAudioState.isPlaying ? (
-                <CircleStop
-                  className="absolute h-10 w-10 text-slate-50"
-                  onClick={stop}
-                />
-              ) : null
-            ) : (
+    <div className="w-full space-y-3">
+      <div className="group relative overflow-hidden rounded-md border border-slate-200 p-2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt={`${item.name} from ${item.country.name_alias}`}
+          loading="lazy"
+          decoding="async"
+          className={`aspect-square h-full w-full rounded-md object-scale-down transition-all ${isRadioStationLogoLoaded ? "opacity-100 transition-opacity duration-500 ease-in-out" : "opacity-0"}`}
+          src={item.logo}
+          onLoad={() => setIsRadioStationLogoLoaded(true)}
+        />
+        <div
+          className={`absolute top-0 left-0 h-full w-full items-center justify-center bg-black ${radioStationState.radioStation?.id === item.id && (radioAudioState.isPlaying || radioAudioState.isLoading) ? "flex opacity-40" : "hidden group-hover:flex group-hover:opacity-40"}`}
+        ></div>
+        <div
+          className={`absolute top-0 left-0 h-full w-full items-center justify-center group-hover:cursor-pointer ${radioStationState.radioStation?.id === item.id && (radioAudioState.isPlaying || radioAudioState.isLoading) ? "flex" : "hidden group-hover:flex"}`}
+        >
+          {radioStationState.radioStation?.id === item.id ? (
+            !radioAudioState.isPlaying && !radioAudioState.isLoading ? (
               <CirclePlay
                 className="absolute h-10 w-10 text-slate-50"
-                onClick={() => playSelected(item)}
+                onClick={() => void playSelected(item)}
               />
-            )}
-          </div>
-        </div>
-        <div className="space-y-1 text-sm">
-          <h3
-            className="truncate-3-lines leading-tight font-medium"
-            title={item.name}
-          >
-            <Link href={`/radio/${item.slug}`}>{item.name}</Link>
-          </h3>
-          <p
-            className="truncate-3-lines text-xs text-muted-foreground"
-            title={item.country.name_alias}
-          >
-            {item.country.name_alias}
-          </p>
+            ) : radioAudioState.isLoading ? (
+              <LoaderCircle className="absolute h-10 w-10 animate-spin text-slate-50" />
+            ) : radioAudioState.isPlaying ? (
+              <CircleStop
+                className="absolute h-10 w-10 text-slate-50"
+                onClick={() => void stop()}
+              />
+            ) : null
+          ) : (
+            <CirclePlay
+              className="absolute h-10 w-10 text-slate-50"
+              onClick={() => void playSelected(item)}
+            />
+          )}
         </div>
       </div>
-    </>
+      <div className="space-y-1 text-sm">
+        <h3
+          className="truncate-3-lines leading-tight font-medium"
+          title={item.name}
+        >
+          <Link href={`/radio/${item.slug}`}>{item.name}</Link>
+        </h3>
+        <p
+          className="truncate-3-lines text-xs text-muted-foreground"
+          title={item.country.name_alias}
+        >
+          {item.country.name_alias}
+        </p>
+      </div>
+    </div>
   );
-};
+}
 
-const List = () => {
-  const radioStations = useReadable(radioStationsStore);
-
-  const ItemSkeleton = () => {
-    const isLoading = useReadable(isLoadingStore);
-
-    return (
-      <>
-        {isLoading ? (
-          <>
-            {Array.from({ length: 10 }).map((_, index) => (
-              <div key={index} className="w-full space-y-3">
-                <div className="group relative overflow-hidden rounded-md border border-slate-200 p-2">
-                  <Skeleton className="aspect-square h-full w-full rounded-md" />
-                </div>
-                <div className="space-y-1 text-sm">
-                  <Skeleton className="h-5 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              </div>
-            ))}
-          </>
-        ) : null}
-      </>
-    );
-  };
-
+function RadioList({ isLoading, stations }: RadioListProps) {
   return (
     <>
-      {radioStations?.map((item: RadioStation) => (
-        <Item item={item} key={item.id} />
+      {stations.map((item) => (
+        <RadioStationItem item={item} key={item.id} />
       ))}
-      <ItemSkeleton />
+      {isLoading
+        ? Array.from({ length: 10 }).map((_, index) => (
+            <div key={index} className="w-full space-y-3">
+              <div className="group relative overflow-hidden rounded-md border border-slate-200 p-2">
+                <Skeleton className="aspect-square h-full w-full rounded-md" />
+              </div>
+              <div className="space-y-1 text-sm">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
+          ))
+        : null}
     </>
   );
-};
+}
 
-const Search = () => {
-  const searchQuery = useReadable(searchQueryStore);
-  const isLoading = useReadable(isLoadingStore);
-  const searchParams = useSearchParams();
-  const queryParam = searchParams?.get("q") || "";
-
-  const changeSearchQuery = async (value: string) => {
-    searchQueryStore.set(value);
-  };
-
-  const resetFilter = () => {
-    radioStationsStore.set([]);
-    searchQueryStore.set("");
-    isNotFoundStore.set(false);
-    getInitialRadioStations("");
-    history.pushState({}, "", "/apps/radio");
-  };
-
-  const search = (query: string) => {
-    if (query.trim() === "") {
-      return;
-    }
-
-    radioStationsStore.set([]);
-    getInitialRadioStations(query);
-
-    // Push the query to the URL
-    history.pushState({}, "", `/apps/radio?q=${query}`);
-  };
-
+function SearchBar({
+  isLoading,
+  searchQuery,
+  showReset,
+  onReset,
+  onSearch,
+  onSearchQueryChange,
+}: SearchBarProps) {
   return (
     <>
       <div className="relative flex w-full items-center gap-x-1 md:w-1/2">
@@ -230,24 +194,27 @@ const Search = () => {
           placeholder="Search radio stations..."
           className="flex w-full items-center pl-8 leading-9"
           value={searchQuery}
-          onChange={(e) => changeSearchQuery(e.currentTarget.value)}
+          onChange={(e) => onSearchQueryChange(e.currentTarget.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              search(searchQuery);
+              onSearch(searchQuery);
             }
           }}
         />
-        <Button className="cursor-pointer" onClick={() => search(searchQuery)}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => onSearch(searchQuery)}
+        >
           Search
         </Button>
       </div>
-      {queryParam ? (
+      {showReset ? (
         <div className="mt-1 flex self-start">
           <Button
             variant="ghost"
             size="sm"
             type="button"
-            onClick={resetFilter}
+            onClick={onReset}
             className="cursor-pointer"
           >
             Reset filter
@@ -256,148 +223,163 @@ const Search = () => {
       ) : null}
     </>
   );
-};
+}
 
-const LoadMore = () => {
-  const isLoading = useReadable(isLoadingStore);
-  const isReachingEndPage = useReadable(isReachingEndPageStore);
-  const radioStations = useReadable(radioStationsStore);
-
-  const loadMoreRadioStations = async () => {
-    if (isLoading) {
-      return;
-    }
-
-    // Set loading state to true
-    isLoadingStore.set(true);
-
-    // Increment the page number
-    pageStore.set(get(pageStore) + 1);
-
-    let queryUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/api/radio-stations?page=${get(pageStore)}`;
-
-    if (get(searchQueryStore).trim().length > 0) {
-      queryUrl += `&q=${get(searchQueryStore)}`;
-    }
-
-    // Fetch the next radio stations
-    const results = await fetch(`${queryUrl}`, {
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => res.json());
-
-    // Detect page that has less than 25 radio stations, meaning it's the last page
-    if (results.data.next_page_url === null) {
-      // Set some state
-      isReachingEndPageStore.set(true);
-      isLoadingStore.set(false);
-
-      // Append new radio stations to the existing radio stations
-      radioStationsStore.update((prevRadioStations) => [
-        ...prevRadioStations,
-        ...results.data.data,
-      ]);
-
-      return;
-    }
-
-    // Append new radio stations to the existing radio stations
-    radioStationsStore.update((prevRadioStations) => [
-      ...prevRadioStations,
-      ...results.data.data,
-    ]);
-
-    isLoadingStore.set(false);
-  };
+function LoadMore({
+  isLoading,
+  isReachingEndPage,
+  stationCount,
+  onLoadMore,
+}: LoadMoreProps) {
+  if (stationCount === 0 || isReachingEndPage) {
+    return null;
+  }
 
   return (
-    <>
-      {radioStations.length > 0 && !isReachingEndPage ? (
-        <div className="mt-14 flex w-full items-center">
-          <Button
-            variant="outline"
-            size="default"
-            type="button"
-            className="mx-auto mt-3 w-36 cursor-pointer gap-1.5"
-            onClick={loadMoreRadioStations}
-          >
-            {isLoading ? (
-              <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-            ) : (
-              "Load more"
-            )}
-          </Button>
-        </div>
-      ) : null}
-    </>
+    <div className="mt-14 flex w-full items-center">
+      <Button
+        variant="outline"
+        size="default"
+        type="button"
+        className="mx-auto mt-3 w-36 cursor-pointer gap-1.5"
+        onClick={onLoadMore}
+      >
+        {isLoading ? (
+          <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+        ) : (
+          "Load more"
+        )}
+      </Button>
+    </div>
   );
-};
+}
 
-const NotFound = () => {
-  const searchParams = useSearchParams();
-  const queryParam = searchParams?.get("q") || "";
-
-  const isNotFound = useReadable(isNotFoundStore);
+function NotFound({
+  isNotFound,
+  queryParam,
+}: {
+  isNotFound: boolean;
+  queryParam: string;
+}) {
+  if (!isNotFound) {
+    return null;
+  }
 
   return (
-    <>
-      {isNotFound ? (
-        <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-3">
-          <Frown className="h-8 w-8" />
-          <div className="text-center text-sm">
-            Your search for <strong>{queryParam}</strong> did not return any
-            results.
-          </div>
-        </div>
-      ) : null}
-    </>
+    <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-3">
+      <Frown className="h-8 w-8" />
+      <div className="text-center text-sm">
+        Your search for <strong>{queryParam}</strong> did not return any
+        results.
+      </div>
+    </div>
   );
-};
+}
 
 export default function RadioStations() {
   const searchParams = useSearchParams();
   const queryParam = searchParams?.get("q") || "";
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isReachingEndPage, setIsReachingEndPage] = useState(false);
+  const [stations, setStations] = useState<RadioStation[]>([]);
+  const [isNotFound, setIsNotFound] = useState(false);
+
+  const loadInitialStations = useCallback(async (query: string) => {
+    setIsLoading(true);
+    setIsNotFound(false);
+    setIsReachingEndPage(false);
+    setPage(1);
+
+    const results = await fetchRadioStations(query, 1);
+    const nextStations = results.data.data;
+
+    setStations(nextStations);
+    setIsLoading(false);
+    setIsNotFound(nextStations.length === 0);
+    setIsReachingEndPage(results.data.next_page_url === null);
+  }, []);
+
+  const runSearch = useCallback(
+    async (query: string) => {
+      const trimmedQuery = query.trim();
+
+      if (trimmedQuery === "") {
+        return;
+      }
+
+      await loadInitialStations(trimmedQuery);
+      setSearchQuery(trimmedQuery);
+      history.pushState({}, "", `/apps/radio?q=${trimmedQuery}`);
+    },
+    [loadInitialStations],
+  );
+
+  const resetFilter = useCallback(async () => {
+    setSearchQuery("");
+    setStations([]);
+    setIsNotFound(false);
+    history.pushState({}, "", "/apps/radio");
+    await loadInitialStations("");
+  }, [loadInitialStations]);
+
+  const loadMoreRadioStations = useCallback(async () => {
+    if (isLoading || isReachingEndPage) {
+      return;
+    }
+
+    const nextPage = page + 1;
+    setIsLoading(true);
+
+    const results = await fetchRadioStations(searchQuery, nextPage);
+    const nextStations = results.data.data;
+
+    setPage(nextPage);
+    setStations((prevStations) => [...prevStations, ...nextStations]);
+    setIsReachingEndPage(results.data.next_page_url === null);
+    setIsLoading(false);
+  }, [isLoading, isReachingEndPage, page, searchQuery]);
+
   useEffect(() => {
-    searchQueryStore.set(queryParam);
+    setSearchQuery(queryParam);
   }, [queryParam]);
 
   useEffect(() => {
-    if (
-      get(searchQueryStore).trim() !== "" &&
-      get(searchQueryStore).trim().length > 0
-    ) {
-      getInitialRadioStations(get(searchQueryStore));
-    } else {
-      getInitialRadioStations("");
-    }
-
-    // Do unmount cleanup
-    return () => {
-      radioStationsStore.set([]);
-      searchQueryStore.set("");
-      isLoadingStore.set(false);
-      isReachingEndPageStore.set(false);
-      isNotFoundStore.set(false);
-    };
-  }, []);
+    void loadInitialStations(queryParam);
+  }, [loadInitialStations, queryParam]);
 
   return (
-    <>
-      <div className="mt-7">
-        <Search />
-        <div className="mt-11">
-          <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
-            <List />
-          </div>
-          <div className="flex flex-wrap gap-7 md:gap-9">
-            <NotFound />
-          </div>
-          <LoadMore />
+    <div className="mt-7">
+      <SearchBar
+        isLoading={isLoading}
+        searchQuery={searchQuery}
+        showReset={queryParam !== ""}
+        onReset={() => {
+          void resetFilter();
+        }}
+        onSearch={(query) => {
+          void runSearch(query);
+        }}
+        onSearchQueryChange={setSearchQuery}
+      />
+      <div className="mt-11">
+        <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+          <RadioList isLoading={isLoading} stations={stations} />
         </div>
+        <div className="flex flex-wrap gap-7 md:gap-9">
+          <NotFound isNotFound={isNotFound} queryParam={queryParam} />
+        </div>
+        <LoadMore
+          isLoading={isLoading}
+          isReachingEndPage={isReachingEndPage}
+          stationCount={stations.length}
+          onLoadMore={() => {
+            void loadMoreRadioStations();
+          }}
+        />
       </div>
-    </>
+    </div>
   );
 }
