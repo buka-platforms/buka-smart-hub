@@ -145,8 +145,8 @@ export default function WidgetUserAvatar() {
                 Contact us
               </Link>
             </li>
-            <li className="rounded-br-md rounded-bl-md px-3 py-2 hover:bg-slate-200">
-              <LogoutButton className="flex cursor-pointer items-center gap-x-2">
+            <li className="rounded-br-md rounded-bl-md">
+              <LogoutButton className="flex w-full cursor-pointer items-center gap-x-2 px-3 py-2 text-left hover:bg-slate-200">
                 <LogOut size={16} color="#808080" />
                 Logout
               </LogoutButton>
