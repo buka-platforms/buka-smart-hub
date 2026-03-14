@@ -1,23 +1,10 @@
-import { getWelcomeEmailTemplate } from "@/data/email-template";
-import { sendMail } from "@/lib/mailer";
-import {
-  createDirectus,
-  createItem,
-  readItems,
-  rest,
-  staticToken,
-  updateItem,
-} from "@directus/sdk";
-import { SignJWT } from "jose";
+import { upsertUserSessionViaBackend } from "@/lib/auth-session";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-// NOTES:
-// GitHub doesn't provide multiple redirect URIs, so we can't use the same redirect URI for multiple environments.
-// So if you want to test, then test on the production environment.
+const identityProviderName = "GitHub";
 
 export async function GET(request: Request) {
-  // Check if the request query contains the code
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
 
@@ -25,7 +12,6 @@ export async function GET(request: Request) {
     return redirect("/");
   }
 
-  // Check all data against identity provider token endpoint
   const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
   const clientSecret = process.env.SECRET_GITHUB_CLIENT_SECRET;
   const redirectUri = process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI;
@@ -34,9 +20,8 @@ export async function GET(request: Request) {
     return redirect("/");
   }
 
-  // Get the access token from the identity provider based on the code
   const accessTokenResponse = await fetch(
-    `https://github.com/login/oauth/access_token`,
+    "https://github.com/login/oauth/access_token",
     {
       method: "POST",
       headers: {
@@ -53,14 +38,11 @@ export async function GET(request: Request) {
   );
 
   const accessToken = await accessTokenResponse.json();
-
   if (!accessTokenResponse.ok) {
     return redirect("/");
   }
 
   const { access_token } = accessToken;
-
-  // Get the user info from identity provider based on the access token on the response
   const userInfoResponse = await fetch("https://api.github.com/user", {
     headers: {
       authorization: `Bearer ${access_token}`,
@@ -68,19 +50,10 @@ export async function GET(request: Request) {
   });
 
   const userInfo = await userInfoResponse.json();
-
   if (!userInfoResponse.ok) {
     return redirect("/");
   }
 
-  let userSession;
-  let newUser;
-  let userId;
-  let user;
-  const identityProviderCode = "github";
-  const identityProviderName = "GitHub";
-
-  // Create a hash based on the user agent and the user id
   const userAgent = request.headers.get("User-Agent") || "";
   const hashBuffer = await crypto.subtle.digest(
     "SHA-256",
@@ -90,217 +63,42 @@ export async function GET(request: Request) {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 
-  // Create a new Directus client
-  const client = createDirectus(process.env.SECRET_DIRECTUS_BASE_URL as string)
-    .with(staticToken(process.env.SECRET_DIRECTUS_ACCESS_TOKEN as string))
-    .with(rest());
+  const userSession = await upsertUserSessionViaBackend({
+    provider: "github",
+    userInfo,
+    deviceId,
+    userAgent,
+  });
 
-  // Check if email/username and identity provider code exists on users table
-  if (userInfo.email) {
-    // Get user with filter
-    user = await client.request(
-      readItems("users", {
-        filter: {
-          _and: [
-            {
-              email: {
-                _eq: userInfo.email,
-              },
-            },
-            {
-              identity_provider_code: {
-                _eq: identityProviderCode,
-              },
-            },
-          ],
-        },
-      }),
-    );
-
-    if (user.length === 0) {
-      // Create new user on users table
-      newUser = await client.request(
-        createItem("users", {
-          email: userInfo.email,
-          verified: "1",
-          username: userInfo.login,
-          identity_provider_code: identityProviderCode,
-          name: userInfo.name ? userInfo.name : null,
-          picture_url: userInfo.avatar_url ? userInfo.avatar_url : null,
-          source_identity_id: userInfo.id,
-          user_data_details: JSON.stringify(userInfo),
-          last_login_at: new Date().toISOString(),
-        }),
-      );
-
-      // Prepare email template
-      let emailTemplate = getWelcomeEmailTemplate();
-      emailTemplate = emailTemplate.replace(
-        "###FIRST_NAME###",
-        userInfo.name ? userInfo.name : "Buka User",
-      );
-
-      // Send email to confirm the user e-mail, using nodemailer (if only email exists)
-      sendMail(
-        userInfo.email,
-        `Hi ${userInfo.name ? userInfo.name : "Buka User"}! Welcome to Buka`,
-        emailTemplate,
-        emailTemplate,
-      );
-    } else {
-      userId = user[0].id;
-
-      // Update user data on users table
-      await client.request(
-        updateItem("users", userId, {
-          email: userInfo.email ? userInfo.email : null,
-          username: userInfo.login ? userInfo.login : null,
-          identity_provider_code: identityProviderCode,
-          name: userInfo.name ? userInfo.name : null,
-          picture_url: userInfo.avatar_url ? userInfo.avatar_url : null,
-          source_identity_id: userInfo.id,
-          user_data_details: JSON.stringify(userInfo),
-          last_login_at: new Date().toISOString(),
-        }),
-      );
-    }
-  } else {
-    user = await client.request(
-      readItems("users", {
-        filter: {
-          _and: [
-            {
-              username: {
-                _eq: userInfo.login,
-              },
-            },
-            {
-              identity_provider_code: {
-                _eq: identityProviderCode,
-              },
-            },
-          ],
-        },
-      }),
-    );
-
-    if (user.length === 0) {
-      // Create new user on users table
-      newUser = await client.request(
-        createItem("users", {
-          username: userInfo.login,
-          verified: "1",
-          identity_provider_code: identityProviderCode,
-          name: userInfo.name ? userInfo.name : null,
-          picture_url: userInfo.avatar_url ? userInfo.avatar_url : null,
-          source_identity_id: userInfo.id,
-          user_data_details: JSON.stringify(userInfo),
-        }),
-      );
-
-      userId = newUser.id;
-    } else {
-      userId = user[0].id;
-
-      // Update user data on users table
-      await client.request(
-        updateItem("users", userId, {
-          username: userInfo.login ? userInfo.login : null,
-          identity_provider_code: identityProviderCode,
-          name: userInfo.name ? userInfo.name : null,
-          picture_url: userInfo.avatar_url ? userInfo.avatar_url : null,
-          source_identity_id: userInfo.id,
-          user_data_details: JSON.stringify(userInfo),
-        }),
-      );
-    }
+  if (!userSession) {
+    return redirect("/");
   }
-
-  // Check if the user session exists
-  userSession = await client.request(
-    readItems("user_sessions", {
-      filter: {
-        _and: [
-          {
-            user_id: {
-              _eq: userId,
-            },
-          },
-          {
-            device_id: {
-              _eq: deviceId,
-            },
-          },
-        ],
-      },
-    }),
-  );
-
-  if (userSession.length === 0) {
-    // Payload to be included in the user session token
-    const payload = {
-      user_id: userId,
-      device_id: deviceId,
-      identity_provider_code: identityProviderCode,
-    };
-
-    const secret = new TextEncoder().encode(process.env.SECRET_JWT_SECRET);
-
-    // Generate the JWT token
-    const jwt = await new SignJWT(payload)
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setIssuer("buka.sh")
-      .setAudience("buka.sh")
-      .sign(secret);
-
-    // Create a new user session on user_sessions table
-    userSession = await client.request(
-      createItem("user_sessions", {
-        user_id: userId,
-        session_token: jwt,
-        device_id: deviceId,
-      }),
-    );
-  }
-
-  // Check if the userSession is array, if array then userSession is the first index else userSession is the object
-  userSession = Array.isArray(userSession) ? userSession[0] : userSession;
-
-  // userSession = userSession.data;
 
   const cookieStore = await cookies();
 
-  // Set cookie _b_ust (user session token)
   cookieStore.set("_b_ust", userSession.session_token, {
     path: "/",
     httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7,
   });
 
-  // Set cookie _b_uid (user id)
   cookieStore.set("_b_uid", userSession.user_id, {
     path: "/",
     httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7,
   });
 
-  // Set cookie _b_did (device id)
   cookieStore.set("_b_did", userSession.device_id, {
     path: "/",
     httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7,
   });
 
-  // Prepare first name for the cookie
   const firstName = userInfo.name ? userInfo.name.split(" ")[0] : "";
-
-  // Prepare last name for the cookie
   const lastName = userInfo.name
     ? userInfo.name.split(" ").slice(1).join(" ")
     : "";
 
-  // Prepare user data for the cookie
   const cookieUserData = {
     provider_id: userInfo.email ? userInfo.email : userInfo.login,
     name: userInfo.name ? userInfo.name : null,
@@ -312,25 +110,18 @@ export async function GET(request: Request) {
     provider_name: identityProviderName,
   };
 
-  // Set cookie _b_ud (user data)
   cookieStore.set("_b_ud", JSON.stringify(cookieUserData), {
     path: "/",
     httpOnly: false,
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   if (cookieStore.has("_b_crt")) {
-    // Get cookie named _b_crt
     const cookieCurrentRoute = cookieStore.get("_b_crt");
-
     if (cookieCurrentRoute && typeof cookieCurrentRoute.value === "string") {
-      // Redirect page to the last visited page
       return redirect(cookieCurrentRoute.value);
-    } else {
-      // Redirect page to the home page
-      return redirect("/");
     }
-  } else {
-    return redirect("/");
   }
+
+  return redirect("/");
 }

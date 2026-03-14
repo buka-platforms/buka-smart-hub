@@ -244,7 +244,7 @@ function AppsWorkspaceShell({
                         <form action="/logout" method="post">
                           <button
                             type="submit"
-                            className="flex w-full items-center"
+                            className="flex w-full cursor-pointer items-center"
                           >
                             <LogOut className="mr-2 size-4" />
                             Log out
