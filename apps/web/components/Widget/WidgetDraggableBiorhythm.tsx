@@ -30,7 +30,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 const WIDGET_ID = "biorhythm";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const BIRTH_DATE_KEY = "widgetBiorhythmBirthDate";
-const TARGET_DATE_KEY = "widgetBiorhythmTargetDate";
 const DISPLAY_MODE_KEY = "widgetBiorhythmDisplayMode";
 const WIDGET_VERSION = "0.1.0";
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -62,6 +61,10 @@ type DisplayMode = "bar" | "sine";
 function toLocalInputDate(date: Date): string {
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 10);
+}
+
+function getTodayInputDate(): string {
+  return toLocalInputDate(new Date());
 }
 
 function toUtcTimestamp(dateValue: string): number | null {
@@ -107,15 +110,7 @@ export default function WidgetDraggableBiorhythm() {
       return "";
     }
   });
-  const [targetDate, setTargetDate] = useState(() => {
-    const today = toLocalInputDate(new Date());
-    if (typeof window === "undefined") return today;
-    try {
-      return localStorage.getItem(TARGET_DATE_KEY) || today;
-    } catch {
-      return today;
-    }
-  });
+  const [targetDate, setTargetDate] = useState(getTodayInputDate);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(() => {
     if (typeof window === "undefined") return "bar";
     try {
@@ -139,14 +134,6 @@ export default function WidgetDraggableBiorhythm() {
       // Ignore storage errors
     }
   }, [birthDate]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(TARGET_DATE_KEY, targetDate);
-    } catch {
-      // Ignore storage errors
-    }
-  }, [targetDate]);
 
   useEffect(() => {
     try {
