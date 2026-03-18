@@ -395,7 +395,7 @@ export default function WidgetLauncherDock() {
         </DialogContent>
       </Dialog>
       <Dialog open={isWorldNewsOpen} onOpenChange={setIsWorldNewsOpen}>
-        <DialogContent className="w-[min(1680px,96vw)] max-w-none gap-0 overflow-hidden border border-white/10 bg-black/90 p-0 text-white shadow-[0_40px_140px_rgba(0,0,0,0.72)] backdrop-blur-2xl sm:rounded-3xl [&>button]:hidden">
+        <DialogContent className="w-[min(1680px,96vw)] max-w-none gap-0 overflow-hidden border border-white/10 bg-black/90 p-0 text-white shadow-[0_40px_140px_rgba(0,0,0,0.72)] backdrop-blur-2xl sm:rounded-xl [&>button]:hidden">
           <DialogTitle className="sr-only">World News</DialogTitle>
           <DialogDescription className="sr-only">
             Watch world news channels in a large modal.

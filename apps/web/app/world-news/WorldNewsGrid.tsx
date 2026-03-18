@@ -287,7 +287,7 @@ export default function WorldNewsGrid({
 
   return (
     <div ref={setContainerRef} className="container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6">
-      <div className="sticky top-0 z-20 mb-4 rounded-2xl border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4">
+      <div className="sticky top-0 z-20 mb-4 rounded-lg border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -395,7 +395,7 @@ export default function WorldNewsGrid({
         {selectedChannels.map((channel) => (
           <div
             key={channel.id}
-            className="overflow-hidden rounded-2xl border border-white/10 bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
+            className="overflow-hidden rounded-lg border border-white/10 bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
           >
             <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3">
               <div className="min-w-0">
