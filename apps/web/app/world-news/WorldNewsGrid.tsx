@@ -10,7 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, Maximize2, Minimize2, Pause, Play, X } from "lucide-react";
+import {
+  Home,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  Volume2,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
@@ -250,6 +258,15 @@ export default function WorldNewsGrid({
     sendCommandToAll("playVideo");
   };
 
+  const playChannelWithSound = (channelId: string) => {
+    const player = playersRef.current[channelId];
+    if (!player) return;
+
+    player.unMute?.();
+    player.setVolume?.(100);
+    player.playVideo?.();
+  };
+
   const toggleChannel = (channelId: string, checked: boolean) => {
     setSelectedChannelIds((prev) => {
       if (checked) {
@@ -286,7 +303,10 @@ export default function WorldNewsGrid({
   };
 
   return (
-    <div ref={setContainerRef} className="container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6">
+    <div
+      ref={setContainerRef}
+      className="container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6"
+    >
       <div className="sticky top-0 z-20 mb-4 rounded-lg border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
@@ -310,20 +330,33 @@ export default function WorldNewsGrid({
                   Select Action
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" container={containerElement ?? undefined} className="max-h-[70vh] w-[20rem] overflow-y-auto">
+              <DropdownMenuContent
+                align="end"
+                container={containerElement ?? undefined}
+                className="max-h-[70vh] w-[20rem] overflow-y-auto"
+              >
                 <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
                   <Play className="mr-2 h-4 w-4" />
                   Play All
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={playAllMuted}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={playAllMuted}
+                >
                   <Play className="mr-2 h-4 w-4" />
                   Play All (Muted)
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => sendCommandToAll("pauseVideo")}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => sendCommandToAll("pauseVideo")}
+                >
                   <Pause className="mr-2 h-4 w-4" />
                   Pause All
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={toggleFullscreen}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={toggleFullscreen}
+                >
                   {isFullscreen ? (
                     <span className="inline-flex items-center">
                       <Minimize2 className="mr-2 h-4 w-4" />
@@ -348,21 +381,27 @@ export default function WorldNewsGrid({
                 </DropdownMenuLabel>
                 {channels.map((channel) => {
                   const isSelected = selectedChannelIds.includes(channel.id);
-                  const reachedMax = !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
-                  const isLastSelected = isSelected && selectedChannelIds.length <= 1;
+                  const reachedMax =
+                    !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
+                  const isLastSelected =
+                    isSelected && selectedChannelIds.length <= 1;
 
                   return (
                     <DropdownMenuCheckboxItem
                       key={channel.id}
                       checked={isSelected}
                       disabled={reachedMax || isLastSelected}
-                      onCheckedChange={(checked) => toggleChannel(channel.id, checked === true)}
+                      onCheckedChange={(checked) =>
+                        toggleChannel(channel.id, checked === true)
+                      }
                       onSelect={(event) => event.preventDefault()}
                       className="cursor-pointer"
                     >
                       <div className="flex min-w-0 flex-col">
                         <span className="truncate">{channel.name}</span>
-                        <span className="text-xs text-muted-foreground">{channel.country}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {channel.country}
+                        </span>
                       </div>
                     </DropdownMenuCheckboxItem>
                   );
@@ -381,7 +420,12 @@ export default function WorldNewsGrid({
                 <X className="h-4 w-4" />
               </Button>
             ) : (
-              <Button asChild variant="outline" size="icon" className="cursor-pointer">
+              <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="cursor-pointer"
+              >
                 <Link href="/" aria-label="Back to home" title="Back to Home">
                   <Home className="h-4 w-4" />
                 </Link>
@@ -402,13 +446,27 @@ export default function WorldNewsGrid({
                 <h2 className="truncate text-sm font-semibold text-white md:text-base">
                   {channel.name}
                 </h2>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/55">
+                <p className="text-xs tracking-[0.2em] text-white/55 uppercase">
                   {channel.country}
                 </p>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 cursor-pointer"
+                onClick={() => playChannelWithSound(channel.id)}
+              >
+                <Volume2 className="mr-2 h-4 w-4" />
+                Listen
+              </Button>
             </div>
             <div className="relative aspect-video w-full bg-black">
-              <div id={`yt-${channel.id}`} title={channel.name} className="absolute inset-0 h-full w-full border-0" />
+              <div
+                id={`yt-${channel.id}`}
+                title={channel.name}
+                className="absolute inset-0 h-full w-full border-0"
+              />
             </div>
           </div>
         ))}
