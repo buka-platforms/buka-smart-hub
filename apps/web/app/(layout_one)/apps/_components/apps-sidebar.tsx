@@ -109,7 +109,10 @@ const SidebarContent = ({
   className,
   ...props
 }: React.ComponentProps<"div">) => (
-  <div className={cn("flex-1 overflow-y-auto p-3", className)} {...props} />
+  <div
+    className={cn("sidebar-scroll flex-1 overflow-y-auto p-3 pb-10", className)}
+    {...props}
+  />
 );
 
 const SidebarFooter = ({
