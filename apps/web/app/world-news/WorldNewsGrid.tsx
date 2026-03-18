@@ -6,7 +6,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -44,11 +43,10 @@ type Props = {
 
 type YouTubeCommand = "playVideo" | "pauseVideo" | "mute" | "unMute";
 
-const MAX_CHANNELS = 8;
 const STORAGE_KEY = "world-news:selected-channel-ids:v1";
 
 function getDefaultSelectedIds(channels: Channel[]) {
-  return channels.map((channel) => channel.id).slice(0, MAX_CHANNELS);
+  return channels.map((channel) => channel.id);
 }
 
 function sanitizeSelectedIds(
@@ -57,8 +55,7 @@ function sanitizeSelectedIds(
 ) {
   return candidateIds
     .filter((id, idx) => candidateIds.indexOf(id) === idx)
-    .filter((id) => availableIds.has(id))
-    .slice(0, MAX_CHANNELS);
+    .filter((id) => availableIds.has(id));
 }
 
 export default function WorldNewsGrid({
@@ -260,8 +257,7 @@ export default function WorldNewsGrid({
   const toggleChannel = (channelId: string, checked: boolean) => {
     setSelectedChannelIds((prev) => {
       if (checked) {
-        if (prev.includes(channelId) || prev.length >= MAX_CHANNELS)
-          return prev;
+        if (prev.includes(channelId)) return prev;
         return [...prev, channelId];
       }
 
@@ -312,7 +308,7 @@ export default function WorldNewsGrid({
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="inline-flex items-center rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/95 shadow-lg backdrop-blur-md">
-              Selected channels: {selectedChannels.length}/{MAX_CHANNELS}
+              Selected channels: {selectedChannels.length}
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -366,13 +362,8 @@ export default function WorldNewsGrid({
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Display Channels (max {MAX_CHANNELS})
-                </DropdownMenuLabel>
                 {channels.map((channel) => {
                   const isSelected = selectedChannelIds.includes(channel.id);
-                  const reachedMax =
-                    !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
                   const isLastSelected =
                     isSelected && selectedChannelIds.length <= 1;
 
@@ -380,7 +371,7 @@ export default function WorldNewsGrid({
                     <DropdownMenuCheckboxItem
                       key={channel.id}
                       checked={isSelected}
-                      disabled={reachedMax || isLastSelected}
+                      disabled={isLastSelected}
                       onCheckedChange={(checked) =>
                         toggleChannel(channel.id, checked === true)
                       }
