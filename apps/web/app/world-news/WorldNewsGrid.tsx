@@ -583,7 +583,7 @@ export default function WorldNewsGrid({
                           Replace Channel
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="cursor-pointer text-red-200 focus:text-red-100"
+                          className="cursor-pointer text-red-400 focus:bg-red-500/10 focus:text-red-400"
                           onClick={() => removeChannel(channel.id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
