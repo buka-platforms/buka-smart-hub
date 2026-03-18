@@ -246,11 +246,22 @@ export default function WorldNewsGrid({
     loadYouTubeAPI().then((YT) => {
       if (!mounted) return;
 
+      const nextVisibleIds = new Set(
+        visibleChannels.map((channel) => channel.id),
+      );
+
+      Object.keys(playersRef.current).forEach((channelId) => {
+        if (nextVisibleIds.has(channelId)) return;
+
+        const player = playersRef.current[channelId];
+        if (player?.destroy) player.destroy();
+        delete playersRef.current[channelId];
+      });
+
       visibleChannels.forEach((c) => {
+        if (playersRef.current[c.id]) return;
+
         const elId = `yt-${c.id}`;
-        if (playersRef.current[c.id]?.destroy) {
-          playersRef.current[c.id].destroy();
-        }
         playersRef.current[c.id] = new YT.Player(elId, {
           host: "https://www.youtube-nocookie.com",
           videoId: c.source_id,
@@ -271,13 +282,18 @@ export default function WorldNewsGrid({
 
     return () => {
       mounted = false;
+    };
+  }, [embedOrigin, visibleChannels]);
+
+  useEffect(() => {
+    return () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Object.values(playersRef.current).forEach((p: any) => {
         if (p && p.destroy) p.destroy();
       });
       playersRef.current = {};
     };
-  }, [embedOrigin, visibleChannels]);
+  }, []);
 
   const sendCommandToAll = (command: YouTubeCommand) => {
     visibleChannels.forEach((channel) => {
