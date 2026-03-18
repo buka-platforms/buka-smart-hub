@@ -3,25 +3,15 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Home,
-  Maximize2,
-  Minimize2,
-  Pause,
-  Play,
-  X,
-} from "lucide-react";
+import { Home, Maximize2, Minimize2, Pause, Play, X } from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -37,45 +27,15 @@ type Channel = {
 
 type Props = {
   channels: Channel[];
-  defaultChannels: Channel[];
   embedOrigin: string;
 };
 
 type YouTubeCommand = "playVideo" | "pauseVideo" | "mute" | "unMute";
 
-const STORAGE_KEY = "world-news:selected-channel-ids:v1";
-
-function getDefaultSelectedIds(channels: Channel[]) {
-  return channels.map((channel) => channel.id);
-}
-
-function sanitizeSelectedIds(
-  candidateIds: string[],
-  availableIds: Set<string>,
-) {
-  return candidateIds
-    .filter((id, idx) => candidateIds.indexOf(id) === idx)
-    .filter((id) => availableIds.has(id));
-}
-
-export default function WorldNewsGrid({
-  channels,
-  defaultChannels,
-  embedOrigin,
-}: Props) {
+export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const playersRef = useRef<Record<string, any>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const didRestoreSelectionRef = useRef(false);
-  const availableIds = useMemo(
-    () => new Set(channels.map((channel) => channel.id)),
-    [channels],
-  );
-  const defaultSelectedIds = useMemo(
-    () =>
-      sanitizeSelectedIds(getDefaultSelectedIds(defaultChannels), availableIds),
-    [defaultChannels, availableIds],
-  );
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
@@ -84,66 +44,10 @@ export default function WorldNewsGrid({
     () => window.parent !== window,
     () => false,
   );
-  const [selectedChannelIds, setSelectedChannelIds] =
-    useState<string[]>(defaultSelectedIds);
   const setContainerRef = useCallback((node: HTMLDivElement | null) => {
     containerRef.current = node;
     setContainerElement(node);
   }, []);
-
-  useEffect(() => {
-    if (didRestoreSelectionRef.current) return;
-    if (typeof window === "undefined") return;
-
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      setTimeout(() => {
-        didRestoreSelectionRef.current = true;
-      }, 0);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(raw);
-      const candidateIds = Array.isArray(parsed)
-        ? parsed.filter((id): id is string => typeof id === "string")
-        : [];
-      const sanitizedIds = sanitizeSelectedIds(candidateIds, availableIds);
-      const nextIds =
-        sanitizedIds.length > 0 ? sanitizedIds : defaultSelectedIds;
-
-      setTimeout(() => {
-        setSelectedChannelIds((prev) =>
-          JSON.stringify(prev) === JSON.stringify(nextIds) ? prev : nextIds,
-        );
-        didRestoreSelectionRef.current = true;
-      }, 0);
-    } catch {
-      setTimeout(() => {
-        didRestoreSelectionRef.current = true;
-      }, 0);
-    }
-  }, [availableIds, defaultSelectedIds]);
-
-  // embedUrls removed — using programmatic YT.Player instances instead
-  const selectedChannels = useMemo(() => {
-    const selectedSet = new Set(selectedChannelIds);
-    const selected = channels.filter((channel) => selectedSet.has(channel.id));
-
-    // Preserve the user-selected ordering first, then append any missing channels.
-    const selectedById = new Map(
-      selected.map((channel) => [channel.id, channel]),
-    );
-    return selectedChannelIds
-      .map((id) => selectedById.get(id))
-      .filter((channel): channel is Channel => Boolean(channel));
-  }, [channels, selectedChannelIds]);
-
-  useEffect(() => {
-    if (!didRestoreSelectionRef.current) return;
-    if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedChannelIds));
-  }, [selectedChannelIds]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -189,7 +93,7 @@ export default function WorldNewsGrid({
     loadYouTubeAPI().then((YT) => {
       if (!mounted) return;
 
-      selectedChannels.forEach((c) => {
+      channels.forEach((c) => {
         const elId = `yt-${c.id}`;
         if (playersRef.current[c.id]?.destroy) {
           playersRef.current[c.id].destroy();
@@ -220,10 +124,10 @@ export default function WorldNewsGrid({
       });
       playersRef.current = {};
     };
-  }, [selectedChannels, embedOrigin]);
+  }, [channels, embedOrigin]);
 
   const sendCommandToAll = (command: YouTubeCommand) => {
-    selectedChannels.forEach((channel) => {
+    channels.forEach((channel) => {
       const player = playersRef.current[channel.id];
       if (!player) return;
 
@@ -254,18 +158,6 @@ export default function WorldNewsGrid({
     sendCommandToAll("playVideo");
   };
 
-  const toggleChannel = (channelId: string, checked: boolean) => {
-    setSelectedChannelIds((prev) => {
-      if (checked) {
-        if (prev.includes(channelId)) return prev;
-        return [...prev, channelId];
-      }
-
-      if (prev.length <= 1) return prev;
-      return prev.filter((id) => id !== channelId);
-    });
-  };
-
   const toggleFullscreen = async () => {
     const container = containerRef.current;
     if (!container) return;
@@ -291,9 +183,19 @@ export default function WorldNewsGrid({
   return (
     <div
       ref={setContainerRef}
-      className="container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6"
+      className={
+        isEmbedded
+          ? "h-screen w-full overflow-y-auto px-0 py-0 [scrollbar-color:rgba(255,255,255,0.22)_rgba(255,255,255,0.04)] [scrollbar-gutter:stable] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+          : "container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6"
+      }
     >
-      <div className="sticky top-0 z-20 mb-4 rounded-lg border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4">
+      <div
+        className={
+          isEmbedded
+            ? "sticky top-0 z-20 mb-4 border-b border-white/10 bg-black/85 px-3 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl md:mb-5 md:px-4"
+            : "mb-4 rounded-lg border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4"
+        }
+      >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -308,7 +210,7 @@ export default function WorldNewsGrid({
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="inline-flex items-center rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/95 shadow-lg backdrop-blur-md">
-              Selected channels: {selectedChannels.length}
+              Channels: {channels.length}
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -339,54 +241,32 @@ export default function WorldNewsGrid({
                   <Pause className="mr-2 h-4 w-4" />
                   Pause All
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={toggleFullscreen}
-                >
-                  {isFullscreen ? (
-                    <span className="inline-flex items-center">
-                      <Minimize2 className="mr-2 h-4 w-4" />
-                      Exit Fullscreen
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center">
-                      <Maximize2 className="mr-2 h-4 w-4" />
-                      Fullscreen
-                    </span>
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/">
-                    <Home className="mr-2 h-4 w-4" />
-                    Back to Home
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {channels.map((channel) => {
-                  const isSelected = selectedChannelIds.includes(channel.id);
-                  const isLastSelected =
-                    isSelected && selectedChannelIds.length <= 1;
-
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={channel.id}
-                      checked={isSelected}
-                      disabled={isLastSelected}
-                      onCheckedChange={(checked) =>
-                        toggleChannel(channel.id, checked === true)
-                      }
-                      onSelect={(event) => event.preventDefault()}
+                {!isEmbedded ? (
+                  <>
+                    <DropdownMenuItem
                       className="cursor-pointer"
+                      onClick={toggleFullscreen}
                     >
-                      <div className="flex min-w-0 flex-col">
-                        <span className="truncate">{channel.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {channel.country}
+                      {isFullscreen ? (
+                        <span className="inline-flex items-center">
+                          <Minimize2 className="mr-2 h-4 w-4" />
+                          Exit Fullscreen
                         </span>
-                      </div>
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
+                      ) : (
+                        <span className="inline-flex items-center">
+                          <Maximize2 className="mr-2 h-4 w-4" />
+                          Fullscreen
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link href="/">
+                        <Home className="mr-2 h-4 w-4" />
+                        Back to Home
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
             {isEmbedded ? (
@@ -417,7 +297,7 @@ export default function WorldNewsGrid({
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4">
-        {selectedChannels.map((channel) => (
+        {channels.map((channel) => (
           <div
             key={channel.id}
             className="overflow-hidden rounded-lg border border-white/10 bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"

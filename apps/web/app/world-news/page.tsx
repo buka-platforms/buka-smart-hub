@@ -6,17 +6,6 @@ export const metadata: Metadata = {
   referrer: "strict-origin-when-cross-origin",
 };
 
-const DEFAULT_CHANNEL_SLUGS = [
-  "aljazeera",
-  "france24",
-  "fox-news",
-  "skynews",
-  "wion",
-  "cgtn-europe",
-  "dw",
-  "trtworld",
-];
-
 export default async function WorldNewsPage() {
   const availableChannels = tv
     .filter(
@@ -31,26 +20,11 @@ export default async function WorldNewsPage() {
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  const defaultChannels = DEFAULT_CHANNEL_SLUGS.flatMap((slug) => {
-    const channel = tv.find((t) => t.slug === slug);
-    return channel ? [channel] : [];
-  }).map((channel) => ({
-    id: channel.id,
-    slug: channel.slug,
-    name: channel.name,
-    country: channel.country,
-    source_id: channel.source_id,
-  }));
-
   const embedOrigin = process.env.NEXT_PUBLIC_BASE_URL || "";
 
   return (
     <div className="relative z-0 min-h-screen w-full bg-black">
-      <WorldNewsGrid
-        channels={availableChannels}
-        defaultChannels={defaultChannels}
-        embedOrigin={embedOrigin}
-      />
+      <WorldNewsGrid channels={availableChannels} embedOrigin={embedOrigin} />
     </div>
   );
 }
