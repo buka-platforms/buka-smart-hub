@@ -628,14 +628,14 @@ export default function WorldNewsGrid({
                           onClick={() => openReplaceChannelPicker(index)}
                         >
                           <RefreshCw className="mr-2 h-4 w-4" />
-                          Replace Channel
+                          Change Channel
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer text-red-400 focus:bg-red-500/10 focus:text-red-400"
                           onClick={() => removeChannel(channel.id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Channel
+                          Remove Channel
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -688,7 +688,7 @@ export default function WorldNewsGrid({
           <DialogHeader className="border-b border-white/10 px-4 py-3 text-left">
             <DialogTitle className="text-base text-white">
               {channelPickerState?.mode === "replace"
-                ? "Replace Channel"
+                ? "Change Channel"
                 : "Add Channel"}
             </DialogTitle>
             <DialogDescription className="text-sm text-white/55">
