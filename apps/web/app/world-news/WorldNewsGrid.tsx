@@ -486,7 +486,7 @@ export default function WorldNewsGrid({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="cursor-pointer">
-                    Select Action
+                    Actions
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -545,9 +545,9 @@ export default function WorldNewsGrid({
               </DropdownMenu>
               {isEmbedded ? (
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className="cursor-pointer"
+                  className="cursor-pointer border border-white/15 text-white/70 hover:bg-white/10 hover:text-white"
                   onClick={closeModal}
                   aria-label="Close world news modal"
                   title="Close"
@@ -557,9 +557,9 @@ export default function WorldNewsGrid({
               ) : (
                 <Button
                   asChild
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className="cursor-pointer"
+                  className="cursor-pointer border border-white/15 text-white/70 hover:bg-white/10 hover:text-white"
                 >
                   <Link href="/" aria-label="Back to home" title="Back to Home">
                     <Home className="h-4 w-4" />
