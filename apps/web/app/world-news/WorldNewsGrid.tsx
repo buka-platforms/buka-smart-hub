@@ -413,7 +413,7 @@ export default function WorldNewsGrid({
 
   const pickerDescription = channelPickerState
     ? channelPickerState.mode === "replace"
-      ? `Replace ${pickerTargetChannel?.name ?? "this channel"} with another live news source.`
+      ? `Replace ${pickerTargetChannel?.name ?? "this channel"} with another live channel source.`
       : `Add another live news channel. You can show up to ${MAX_VISIBLE_CHANNELS} tiles at once.`
     : "";
 
