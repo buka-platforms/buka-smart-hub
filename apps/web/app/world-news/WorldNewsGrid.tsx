@@ -286,136 +286,130 @@ export default function WorldNewsGrid({
   };
 
   return (
-    <div
-      ref={setContainerRef}
-      className="container mx-auto flex h-dvh flex-col overflow-hidden p-2 md:p-4"
-    >
-      <div className="mb-2 flex shrink-0 items-center justify-end">
-        <span className="mr-2 inline-flex items-center rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/95 shadow-lg backdrop-blur-md">
-          Selected channels: {selectedChannels.length}/{MAX_CHANNELS}
-        </span>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="cursor-pointer">
-                Select Action
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              container={containerElement ?? undefined}
-              className="max-h-[70vh] w-[20rem] overflow-y-auto"
-            >
-              <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
-                <Play className="mr-2 h-4 w-4" />
-                Play All
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={playAllMuted}
-              >
-                <Play className="mr-2 h-4 w-4" />
-                Play All (Muted)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => sendCommandToAll("pauseVideo")}
-              >
-                <Pause className="mr-2 h-4 w-4" />
-                Pause All
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={toggleFullscreen}
-              >
-                {isFullscreen ? (
-                  <>
-                    <Minimize2 className="mr-2 h-4 w-4" />
-                    Exit Fullscreen
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="mr-2 h-4 w-4" />
-                    Fullscreen
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/">
-                  <Home className="mr-2 h-4 w-4" />
-                  Back to Home
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
-                Display Channels (max {MAX_CHANNELS})
-              </DropdownMenuLabel>
-              {channels.map((channel) => {
-                const isSelected = selectedChannelIds.includes(channel.id);
-                const reachedMax =
-                  !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
-                const isLastSelected =
-                  isSelected && selectedChannelIds.length <= 1;
+    <div ref={setContainerRef} className="container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6">
+      <div className="sticky top-0 z-20 mb-4 rounded-2xl border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-lg font-semibold tracking-tight text-white md:text-xl">
+                World News
+              </h1>
+            </div>
+            <p className="mt-1 max-w-2xl text-sm text-white/65">
+              Watch live news from around the world.
+            </p>
+          </div>
 
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={channel.id}
-                    checked={isSelected}
-                    disabled={reachedMax || isLastSelected}
-                    onCheckedChange={(checked) =>
-                      toggleChannel(channel.id, checked === true)
-                    }
-                    onSelect={(event) => event.preventDefault()}
-                    className="cursor-pointer"
-                  >
-                    <div className="flex min-w-0 flex-col">
-                      <span className="truncate">{channel.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {channel.country}
-                      </span>
-                    </div>
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {isEmbedded ? (
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer"
-              onClick={closeModal}
-              aria-label="Close world news modal"
-              title="Close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              asChild
-              variant="outline"
-              size="icon"
-              className="cursor-pointer"
-            >
-              <Link href="/" aria-label="Back to home" title="Back to Home">
-                <Home className="h-4 w-4" />
-              </Link>
-            </Button>
-          )}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="inline-flex items-center rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/95 shadow-lg backdrop-blur-md">
+              Selected channels: {selectedChannels.length}/{MAX_CHANNELS}
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="cursor-pointer">
+                  Select Action
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" container={containerElement ?? undefined} className="max-h-[70vh] w-[20rem] overflow-y-auto">
+                <DropdownMenuItem className="cursor-pointer" onClick={playAll}>
+                  <Play className="mr-2 h-4 w-4" />
+                  Play All
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={playAllMuted}>
+                  <Play className="mr-2 h-4 w-4" />
+                  Play All (Muted)
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => sendCommandToAll("pauseVideo")}>
+                  <Pause className="mr-2 h-4 w-4" />
+                  Pause All
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={toggleFullscreen}>
+                  {isFullscreen ? (
+                    <span className="inline-flex items-center">
+                      <Minimize2 className="mr-2 h-4 w-4" />
+                      Exit Fullscreen
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center">
+                      <Maximize2 className="mr-2 h-4 w-4" />
+                      Fullscreen
+                    </span>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/">
+                    <Home className="mr-2 h-4 w-4" />
+                    Back to Home
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  Display Channels (max {MAX_CHANNELS})
+                </DropdownMenuLabel>
+                {channels.map((channel) => {
+                  const isSelected = selectedChannelIds.includes(channel.id);
+                  const reachedMax = !isSelected && selectedChannelIds.length >= MAX_CHANNELS;
+                  const isLastSelected = isSelected && selectedChannelIds.length <= 1;
+
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={channel.id}
+                      checked={isSelected}
+                      disabled={reachedMax || isLastSelected}
+                      onCheckedChange={(checked) => toggleChannel(channel.id, checked === true)}
+                      onSelect={(event) => event.preventDefault()}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex min-w-0 flex-col">
+                        <span className="truncate">{channel.name}</span>
+                        <span className="text-xs text-muted-foreground">{channel.country}</span>
+                      </div>
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {isEmbedded ? (
+              <Button
+                variant="outline"
+                size="icon"
+                className="cursor-pointer"
+                onClick={closeModal}
+                aria-label="Close world news modal"
+                title="Close"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button asChild variant="outline" size="icon" className="cursor-pointer">
+                <Link href="/" aria-label="Back to home" title="Back to Home">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4">
         {selectedChannels.map((channel) => (
           <div
             key={channel.id}
-            className="relative h-full w-full overflow-hidden rounded-lg border"
+            className="overflow-hidden rounded-2xl border border-white/10 bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
           >
-            <div
-              id={`yt-${channel.id}`}
-              title={channel.name}
-              className="absolute inset-0 h-full w-full border-0"
-            />
+            <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-semibold text-white md:text-base">
+                  {channel.name}
+                </h2>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/55">
+                  {channel.country}
+                </p>
+              </div>
+            </div>
+            <div className="relative aspect-video w-full bg-black">
+              <div id={`yt-${channel.id}`} title={channel.name} className="absolute inset-0 h-full w-full border-0" />
+            </div>
           </div>
         ))}
       </div>
