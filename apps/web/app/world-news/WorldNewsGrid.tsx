@@ -310,7 +310,7 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
                 <h2 className="truncate text-sm font-semibold text-white md:text-base">
                   {channel.name}
                 </h2>
-                <p className="text-xs tracking-[0.2em] text-white/55 uppercase">
+                <p className="text-xs tracking-[0.08em] text-white/55 uppercase">
                   {channel.country}
                 </p>
               </div>
