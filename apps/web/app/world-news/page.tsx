@@ -18,34 +18,28 @@ const DEFAULT_WORLD_NEWS_CHANNEL_IDS = [
 ];
 
 export default async function WorldNewsPage() {
-  const newsChannelsById = new Map(
-    tv
-      .filter(
-        (channel) =>
-          channel.source === "YouTube" && channel.category === "News",
-      )
-      .map((channel) => [
-        channel.id,
-        {
-          id: channel.id,
-          slug: channel.slug,
-          name: channel.name,
-          country: channel.country,
-          source_id: channel.source_id,
-        },
-      ]),
-  );
-
-  const availableChannels = DEFAULT_WORLD_NEWS_CHANNEL_IDS.flatMap((id) => {
-    const channel = newsChannelsById.get(id);
-    return channel ? [channel] : [];
-  });
+  const allNewsChannels = tv
+    .filter(
+      (channel) => channel.source === "YouTube" && channel.category === "News",
+    )
+    .map((channel) => ({
+      id: channel.id,
+      slug: channel.slug,
+      name: channel.name,
+      country: channel.country,
+      source_id: channel.source_id,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const embedOrigin = process.env.NEXT_PUBLIC_BASE_URL || "";
 
   return (
     <div className="relative z-0 min-h-screen w-full bg-black">
-      <WorldNewsGrid channels={availableChannels} embedOrigin={embedOrigin} />
+      <WorldNewsGrid
+        allChannels={allNewsChannels}
+        defaultChannelIds={DEFAULT_WORLD_NEWS_CHANNEL_IDS}
+        embedOrigin={embedOrigin}
+      />
     </div>
   );
 }
