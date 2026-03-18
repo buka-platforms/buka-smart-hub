@@ -296,7 +296,13 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        className={
+          isEmbedded
+            ? "grid grid-cols-1 gap-3 px-3 pb-3 sm:grid-cols-2 md:gap-4 md:px-4 md:pb-4 lg:grid-cols-3 xl:grid-cols-4"
+            : "grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+        }
+      >
         {channels.map((channel) => (
           <div
             key={channel.id}
