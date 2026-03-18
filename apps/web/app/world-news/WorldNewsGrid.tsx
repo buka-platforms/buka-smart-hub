@@ -16,7 +16,6 @@ import {
   Minimize2,
   Pause,
   Play,
-  Volume2,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -258,15 +257,6 @@ export default function WorldNewsGrid({
     sendCommandToAll("playVideo");
   };
 
-  const playChannelWithSound = (channelId: string) => {
-    const player = playersRef.current[channelId];
-    if (!player) return;
-
-    player.unMute?.();
-    player.setVolume?.(100);
-    player.playVideo?.();
-  };
-
   const toggleChannel = (channelId: string, checked: boolean) => {
     setSelectedChannelIds((prev) => {
       if (checked) {
@@ -441,7 +431,7 @@ export default function WorldNewsGrid({
             key={channel.id}
             className="overflow-hidden rounded-lg border border-white/10 bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
           >
-            <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3">
+            <div className="border-b border-white/10 px-4 py-3">
               <div className="min-w-0">
                 <h2 className="truncate text-sm font-semibold text-white md:text-base">
                   {channel.name}
@@ -450,16 +440,6 @@ export default function WorldNewsGrid({
                   {channel.country}
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="shrink-0 cursor-pointer"
-                onClick={() => playChannelWithSound(channel.id)}
-              >
-                <Volume2 className="mr-2 h-4 w-4" />
-                Listen
-              </Button>
             </div>
             <div className="relative aspect-video w-full bg-black">
               <div
