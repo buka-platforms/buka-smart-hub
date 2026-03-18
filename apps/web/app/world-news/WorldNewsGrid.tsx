@@ -209,9 +209,6 @@ export default function WorldNewsGrid({ channels, embedOrigin }: Props) {
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className="inline-flex items-center rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-medium text-white/95 shadow-lg backdrop-blur-md">
-              Channels: {channels.length}
-            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="cursor-pointer">
