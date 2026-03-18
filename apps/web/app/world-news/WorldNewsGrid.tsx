@@ -636,7 +636,7 @@ export default function WorldNewsGrid({
           if (!open) closeChannelPicker();
         }}
       >
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl gap-0 border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
           <DialogHeader className="border-b border-white/10 px-4 py-3 text-left">
             <DialogTitle className="text-base text-white">
               {channelPickerState?.mode === "replace"
@@ -650,7 +650,7 @@ export default function WorldNewsGrid({
           <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:border-white/10 **:[[cmdk-input-wrapper]]:bg-transparent">
             <CommandInput
               placeholder="Search channels..."
-              className="h-10 text-sm text-white placeholder:text-white/35"
+              className="h-auto py-2 text-sm text-white placeholder:text-white/35"
             />
             <CommandList className="max-h-[min(70vh,34rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
               <CommandEmpty className="px-3 py-6 text-sm text-white/55">
