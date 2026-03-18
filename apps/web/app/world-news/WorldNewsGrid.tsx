@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Check,
+  GripVertical,
   Home,
   Maximize2,
   Minimize2,
@@ -84,6 +85,8 @@ export default function WorldNewsGrid({
   const playersRef = useRef<Record<string, any>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
   const didHydrateVisibleChannelsRef = useRef(false);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [containerElement, setContainerElement] =
     useState<HTMLDivElement | null>(null);
@@ -389,6 +392,39 @@ export default function WorldNewsGrid({
     closeChannelPicker();
   };
 
+  const handleDragStart = (index: number) => {
+    dragIndexRef.current = index;
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const dragIndex = dragIndexRef.current;
+    if (dragIndex == null || dragIndex === dropIndex) {
+      dragIndexRef.current = null;
+      setDragOverIndex(null);
+      return;
+    }
+    setVisibleChannelIds((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(dragIndex, 1);
+      next.splice(dropIndex, 0, moved);
+      return next;
+    });
+    dragIndexRef.current = null;
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    dragIndexRef.current = null;
+    setDragOverIndex(null);
+  };
+
   const toggleFullscreen = async () => {
     const container = containerRef.current;
     if (!container) return;
@@ -545,17 +581,29 @@ export default function WorldNewsGrid({
             visibleChannels.map((channel, index) => (
               <div
                 key={channel.id}
-                className="overflow-hidden rounded-lg border border-white/10 bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`overflow-hidden rounded-lg border bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition-[opacity,border-color] duration-150 ${
+                  dragOverIndex === index
+                    ? "border-white/40"
+                    : "border-white/10"
+                }`}
               >
                 <div className="border-b border-white/10 px-4 py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="truncate text-sm font-semibold text-white md:text-base">
-                        {channel.name}
-                      </h2>
-                      <p className="text-xs tracking-[0.08em] text-white/55 uppercase">
-                        {channel.country}
-                      </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-white/35 active:cursor-grabbing" />
+                      <div className="min-w-0">
+                        <h2 className="truncate text-sm font-semibold text-white md:text-base">
+                          {channel.name}
+                        </h2>
+                        <p className="text-xs tracking-[0.08em] text-white/55 uppercase">
+                          {channel.country}
+                        </p>
+                      </div>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
