@@ -460,7 +460,7 @@ export default function WorldNewsGrid({
         className={
           isEmbedded
             ? "h-screen w-full overflow-y-auto px-0 py-0 [scrollbar-color:rgba(255,255,255,0.22)_rgba(255,255,255,0.04)] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
-            : "container mx-auto max-w-450 px-3 py-4 md:px-4 md:py-6"
+            : "min-h-screen w-full px-3 py-4 md:px-4 md:py-6"
         }
       >
         <div
