@@ -594,33 +594,18 @@ export default function WorldNewsGrid({
             <button
               type="button"
               onClick={() => openAddChannelPicker(null)}
-              className="group overflow-hidden rounded-lg border border-dashed border-white/12 bg-black/30 text-left shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-colors hover:border-white/22 hover:bg-black/40"
+              className="group cursor-pointer overflow-hidden rounded-lg border border-dashed border-white/12 bg-black/30 text-left shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-colors **:cursor-pointer hover:border-white/22 hover:bg-black/40"
             >
-              <div className="border-b border-dashed border-white/10 px-4 py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <span className="block text-sm font-semibold text-white">
-                      Add Channel
-                    </span>
-                    <span className="block text-xs tracking-[0.08em] text-white/45 uppercase">
-                      Open Slot
-                    </span>
-                  </div>
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/6 text-white/75 transition-colors group-hover:border-white/20 group-hover:bg-white/10 group-hover:text-white">
-                    <Plus className="h-4 w-4" />
-                  </span>
-                </div>
-              </div>
               <div className="flex aspect-video w-full items-center justify-center px-6 text-center">
                 <div>
-                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/12 bg-white/5 text-white/75 transition-colors group-hover:border-white/20 group-hover:bg-white/10 group-hover:text-white">
+                  <span className="mx-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white/12 bg-white/5 text-white/75 transition-colors group-hover:border-white/20 group-hover:bg-white/10 group-hover:text-white">
                     <Plus className="h-5 w-5" />
                   </span>
                   <span className="mt-4 block text-sm font-semibold text-white">
-                    Add Another Stream
+                    Add Channel
                   </span>
                   <span className="mt-1 block max-w-52 text-xs text-white/55">
-                    Fill this slot with another live news channel.
+                    Fill this slot with a live channel.
                   </span>
                 </div>
               </div>
