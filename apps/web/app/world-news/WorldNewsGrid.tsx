@@ -398,9 +398,7 @@ export default function WorldNewsGrid({
   const pickerDescription = channelPickerState
     ? channelPickerState.mode === "replace"
       ? `Replace ${pickerTargetChannel?.name ?? "this channel"} with another live news source.`
-      : `Add another live news channel${
-          pickerTargetChannel ? ` after ${pickerTargetChannel.name}` : ""
-        }. You can show up to ${MAX_VISIBLE_CHANNELS} tiles at once.`
+      : `Add another live news channel. You can show up to ${MAX_VISIBLE_CHANNELS} tiles at once.`
     : "";
 
   return (
@@ -561,15 +559,6 @@ export default function WorldNewsGrid({
                         container={containerElement ?? undefined}
                         className="w-48"
                       >
-                        {visibleChannels.length < MAX_VISIBLE_CHANNELS ? (
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() => openAddChannelPicker(index)}
-                          >
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Channel
-                          </DropdownMenuItem>
-                        ) : null}
                         <DropdownMenuItem
                           className="cursor-pointer"
                           onClick={() => openReplaceChannelPicker(index)}
@@ -598,24 +587,26 @@ export default function WorldNewsGrid({
               </div>
             ))
           ) : (
-            <div className="col-span-full rounded-2xl border border-dashed border-white/12 bg-white/3 px-6 py-10 text-center shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-xl">
-              <p className="text-base font-semibold text-white">
-                No channels on screen
-              </p>
-              <p className="mt-2 text-sm text-white/60">
-                Start a fresh layout by adding a live news channel.
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-5 cursor-pointer"
-                onClick={() => openAddChannelPicker(null)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Channel
-              </Button>
-            </div>
+            <></>
           )}
+
+          {visibleChannels.length < MAX_VISIBLE_CHANNELS ? (
+            <button
+              type="button"
+              onClick={() => openAddChannelPicker(null)}
+              className="group flex aspect-video w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-white/12 bg-white/3 px-6 py-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-colors hover:border-white/22 hover:bg-white/6"
+            >
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/12 bg-white/6 text-white/80 transition-colors group-hover:border-white/20 group-hover:bg-white/10 group-hover:text-white">
+                <Plus className="h-5 w-5" />
+              </span>
+              <span className="mt-4 text-sm font-semibold text-white">
+                Add Channel
+              </span>
+              <span className="mt-1 max-w-52 text-xs text-white/55">
+                Fill the next open slot with another live news stream.
+              </span>
+            </button>
+          ) : null}
         </div>
       </div>
 
