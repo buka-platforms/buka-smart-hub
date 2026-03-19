@@ -245,7 +245,7 @@ export default function WidgetLauncherDock() {
           >
             <LayoutGrid className="h-4 w-4" />
             <span className="hidden md:inline">Widgets</span>
-            <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700 dark:bg-purple-600/30 dark:text-purple-300">
+            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground dark:bg-muted dark:text-muted-foreground">
               {visibleCount}
             </span>
           </button>
@@ -286,9 +286,9 @@ export default function WidgetLauncherDock() {
           <Command className="rounded-lg bg-transparent">
             <div className="flex items-center justify-between border-b px-4 py-3">
               <div className="flex items-center gap-2">
-                <LayoutGrid className="h-4 w-4 text-purple-400" />
+                <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Widgets</span>
-                <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700 dark:bg-purple-600/30 dark:text-purple-300">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                   {visibleCount}/{allWidgets.length}
                 </span>
               </div>
@@ -304,14 +304,14 @@ export default function WidgetLauncherDock() {
                       onSelect={() => toggleWidget(widget.id)}
                       className={`mb-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2.5 py-2.5 ${
                         isActive
-                          ? "bg-purple-600/20 data-[selected=true]:bg-purple-600/30"
+                          ? "bg-accent data-[selected=true]:bg-accent"
                           : "data-[selected=true]:bg-accent"
                       }`}
                     >
                       <div
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-all ${
                           isActive
-                            ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                            ? "bg-foreground text-background"
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
@@ -327,7 +327,7 @@ export default function WidgetLauncherDock() {
                       </div>
                       <div
                         className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
-                          isActive ? "bg-purple-600" : "bg-muted"
+                          isActive ? "bg-foreground" : "bg-muted"
                         }`}
                       >
                         <div
