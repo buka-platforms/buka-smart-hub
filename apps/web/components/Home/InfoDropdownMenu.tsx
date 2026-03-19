@@ -26,12 +26,12 @@ export default function InfoDropdownMenu() {
           className="cursor-pointer"
           title={`${process.env.NEXT_PUBLIC_APP_TITLE} information`}
         >
-          <InfoIcon className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
+          <InfoIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="mr-1 w-fit">
           <DropdownMenuLabel className="flex items-center justify-between">
             <span className="mr-2">{process.env.NEXT_PUBLIC_APP_TITLE}</span>
-            <span className="rounded-sm bg-gray-900 p-1 px-2 text-xs text-slate-300">
+            <span className="rounded-sm bg-muted p-1 px-2 text-xs text-muted-foreground">
               v{pkg.version}
             </span>
           </DropdownMenuLabel>

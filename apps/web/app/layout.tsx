@@ -4,6 +4,7 @@ import Audio from "@/components/General/Audio";
 import ClientSideOperationOnPage from "@/components/General/ClientSideOperationOnPage";
 import { GoogleAnalytics } from "@/components/General/GoogleAnalytics";
 import JotaiProvider from "@/components/JotaiProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
@@ -80,7 +81,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {process.env.NEXT_PUBLIC_HOSTNAME ===
         process.env.NEXT_PUBLIC_FINAL_HOSTNAME ? (
@@ -102,10 +103,17 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <JotaiProvider>
-          {children}
-          <Audio />
-        </JotaiProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <JotaiProvider>
+            {children}
+            <Audio />
+          </JotaiProvider>
+        </ThemeProvider>
       </body>
       <ClientSideOperationOnPage />
     </html>

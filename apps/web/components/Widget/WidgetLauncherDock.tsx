@@ -229,7 +229,7 @@ export default function WidgetLauncherDock() {
   return (
     <>
       <div
-        className={`pointer-events-auto relative z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-visible rounded-lg bg-black/80 shadow-2xl ring-1 ring-white/15 transition-opacity duration-200 md:mt-5 md:ml-4 ${
+        className={`pointer-events-auto relative z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-visible rounded-lg border bg-card shadow-lg transition-opacity duration-200 md:mt-5 md:ml-4 ${
           isVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         style={{ justifySelf: "start" }}
@@ -240,7 +240,7 @@ export default function WidgetLauncherDock() {
           {/* Widgets button — opens the command dialog */}
           <button
             onClick={() => setIsWidgetPickerOpen(true)}
-            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
             title="Show all widgets"
           >
             <LayoutGrid className="h-4 w-4" />
@@ -250,13 +250,13 @@ export default function WidgetLauncherDock() {
             </span>
           </button>
 
-          <div className="mx-1 h-10 w-px bg-white/10" />
+          <div className="mx-1 h-10 w-px bg-border" />
 
           {/* Apps CTA */}
           <Link
             href="/apps"
             title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-            className="flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            className="flex h-10 items-center gap-2 rounded-lg border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
           >
             <AppWindow className="h-4 w-4" />
             <span className="hidden md:inline">Apps</span>
@@ -266,25 +266,25 @@ export default function WidgetLauncherDock() {
           <button
             title="World News"
             onClick={() => setIsWorldNewsOpen(true)}
-            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
           >
             <Globe className="h-4 w-4" />
             <span className="hidden md:inline">World News</span>
           </button>
 
-          <div className="mx-1 h-10 w-px bg-white/10" />
+          <div className="mx-1 h-10 w-px bg-border" />
 
           <WidgetUserAvatar />
         </div>
       </div>
       <Dialog open={isWidgetPickerOpen} onOpenChange={setIsWidgetPickerOpen}>
-        <DialogContent className="w-[min(640px,96vw)] max-w-none border-white/15 bg-black/90 p-0 text-white">
+        <DialogContent className="w-[min(640px,96vw)] max-w-none border bg-popover p-0 text-popover-foreground">
           <DialogTitle className="sr-only">Widget List</DialogTitle>
           <DialogDescription className="sr-only">
             Toggle widget visibility.
           </DialogDescription>
-          <Command className="rounded-lg bg-transparent text-white">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <Command className="rounded-lg bg-transparent">
+            <div className="flex items-center justify-between border-b px-4 py-3">
               <div className="flex items-center gap-2">
                 <LayoutGrid className="h-4 w-4 text-purple-400" />
                 <span className="text-sm font-medium">Widgets</span>
@@ -293,7 +293,7 @@ export default function WidgetLauncherDock() {
                 </span>
               </div>
             </div>
-            <CommandList className="max-h-[55vh] p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:bg-white/5">
+            <CommandList className="max-h-[55vh] p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:bg-muted/50">
               <CommandGroup>
                 {allWidgets.map((widget) => {
                   const isActive = visibility[widget.id];
@@ -302,17 +302,17 @@ export default function WidgetLauncherDock() {
                       key={widget.id}
                       value={`${widget.label} ${widget.description}`}
                       onSelect={() => toggleWidget(widget.id)}
-                      className={`mb-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2.5 py-2.5 text-white data-[selected=true]:text-white ${
+                      className={`mb-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-2.5 py-2.5 ${
                         isActive
                           ? "bg-purple-600/20 data-[selected=true]:bg-purple-600/30"
-                          : "bg-white/0 text-white/70 data-[selected=true]:bg-white/10"
+                          : "data-[selected=true]:bg-accent"
                       }`}
                     >
                       <div
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-all ${
                           isActive
                             ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                            : "bg-white/10 text-white/55"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {widget.icon}
@@ -321,13 +321,13 @@ export default function WidgetLauncherDock() {
                         <div className="text-sm font-medium">
                           {widget.label}
                         </div>
-                        <div className="text-[11px] text-white/45">
+                        <div className="text-[11px] text-muted-foreground">
                           {widget.description}
                         </div>
                       </div>
                       <div
                         className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
-                          isActive ? "bg-purple-600" : "bg-white/20"
+                          isActive ? "bg-purple-600" : "bg-muted"
                         }`}
                       >
                         <div
@@ -340,14 +340,14 @@ export default function WidgetLauncherDock() {
                   );
                 })}
               </CommandGroup>
-              <CommandSeparator className="my-2 bg-white/10" />
+              <CommandSeparator className="my-2" />
               <CommandGroup>
                 <CommandItem
                   onSelect={() => {
                     setIsWidgetPickerOpen(false);
                     window.location.href = "/apps";
                   }}
-                  className="cursor-pointer rounded-lg px-2.5 py-2.5 text-white/85 data-[selected=true]:bg-white/10 data-[selected=true]:text-white"
+                  className="cursor-pointer rounded-lg px-2.5 py-2.5 data-[selected=true]:bg-accent"
                 >
                   <AppWindow className="mr-2 h-4 w-4" />
                   Open Apps
@@ -357,19 +357,19 @@ export default function WidgetLauncherDock() {
                     setIsWidgetPickerOpen(false);
                     setIsWorldNewsOpen(true);
                   }}
-                  className="cursor-pointer rounded-lg px-2.5 py-2.5 text-white/85 data-[selected=true]:bg-white/10 data-[selected=true]:text-white"
+                  className="cursor-pointer rounded-lg px-2.5 py-2.5 data-[selected=true]:bg-accent"
                 >
                   <Globe className="mr-2 h-4 w-4" />
                   World News
                 </CommandItem>
               </CommandGroup>
             </CommandList>
-            <div className="border-t border-white/10 px-3 py-2 text-right">
+            <div className="border-t px-3 py-2 text-right">
               {visibleCount === 0 ? (
                 <button
                   type="button"
                   onClick={restoreAllWidgets}
-                  className="mr-2 cursor-pointer rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 hover:bg-white/20"
+                  className="mr-2 cursor-pointer rounded-md border bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-accent"
                 >
                   Show All
                 </button>
@@ -377,7 +377,7 @@ export default function WidgetLauncherDock() {
                 <button
                   type="button"
                   onClick={hideAllWidgets}
-                  className="mr-2 cursor-pointer rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 hover:bg-white/20"
+                  className="mr-2 cursor-pointer rounded-md border bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-accent"
                 >
                   Hide All
                 </button>
@@ -385,7 +385,7 @@ export default function WidgetLauncherDock() {
               <DialogClose asChild>
                 <button
                   type="button"
-                  className="cursor-pointer rounded-md border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white"
+                  className="cursor-pointer rounded-md border bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-accent"
                 >
                   Close
                 </button>

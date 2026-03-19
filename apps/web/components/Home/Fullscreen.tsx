@@ -42,7 +42,7 @@ export default function FullScreen() {
         title="Fullscreen mode"
         onClick={toggleFullscreen}
       >
-        <Fullscreen className="text-shadow-1 h-5 w-5 text-white opacity-80 hover:opacity-100" />
+        <Fullscreen className="h-5 w-5 text-muted-foreground hover:text-foreground" />
       </div>
     </>
   );
