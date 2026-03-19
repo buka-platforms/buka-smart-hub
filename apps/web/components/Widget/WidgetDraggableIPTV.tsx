@@ -48,6 +48,16 @@ import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Tv } from "lucide-react";
 // Link import removed (unused)
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  widgetCommandDialogContentClass,
+  widgetCommandItemActiveClass,
+  widgetCommandItemClass,
+  widgetCommandListClass,
+  widgetCommandSearchInputClass,
+  widgetCommandSelectContentClass,
+  widgetCommandSelectTriggerClass,
+  widgetLogoPlateClass,
+} from "./widgetCommandDialogStyles";
 
 // Basic IPTV channel shape
 interface IPTVChannel {
@@ -97,12 +107,6 @@ const WIDGET_VERSION = "1.0.0";
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableIPTV() {
-  const commandItemClass =
-    "group cursor-pointer rounded-md px-2 py-1.5 text-foreground transition-colors hover:bg-foreground/10 data-[highlighted=true]:bg-foreground/10 data-[highlighted=true]:text-foreground data-[selected=true]:bg-foreground/10 data-[selected=true]:text-foreground";
-  const commandItemActiveClass = "bg-foreground/10 text-foreground";
-  const logoPlateClass =
-    "overflow-hidden rounded-md border border-border bg-gradient-to-br from-background to-muted shadow-sm";
-
   const WIDGET_ID = "iptv";
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<HTMLDivElement | null>(null);
@@ -743,7 +747,7 @@ export default function WidgetDraggableIPTV() {
               {/* Channel Logo */}
               {selectedChannel?.logo_url && (
                 <div
-                  className={`relative h-6 w-6 shrink-0 ${logoPlateClass} p-0.5`}
+                  className={`relative h-6 w-6 shrink-0 ${widgetLogoPlateClass} p-0.5`}
                 >
                   <img
                     src={selectedChannel.logo_url}
@@ -848,7 +852,7 @@ export default function WidgetDraggableIPTV() {
       </Dialog>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-border bg-popover/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
+        <DialogContent className={widgetCommandDialogContentClass}>
           <DialogHeader className="sr-only">
             <DialogTitle>Select IPTV channel</DialogTitle>
             <DialogDescription>
@@ -859,7 +863,7 @@ export default function WidgetDraggableIPTV() {
             <div className="flex flex-wrap items-center gap-2 border-b border-border p-2 pr-10">
               <CommandInput
                 placeholder="Search channels..."
-                className="h-9 min-w-52 flex-1 text-sm text-foreground placeholder:text-muted-foreground"
+                className={widgetCommandSearchInputClass}
               />
               <Select
                 value={countryFilter ?? "all"}
@@ -869,11 +873,11 @@ export default function WidgetDraggableIPTV() {
               >
                 <SelectTrigger
                   aria-label="Filter by country"
-                  className="h-9 w-auto max-w-44 min-w-32 cursor-pointer gap-2 border-border bg-muted/50 text-xs text-muted-foreground hover:bg-accent focus:ring-0"
+                  className={widgetCommandSelectTriggerClass}
                 >
                   <SelectValue placeholder="All countries" />
                 </SelectTrigger>
-                <SelectContent className="max-h-72 border-border bg-popover text-foreground">
+                <SelectContent className={widgetCommandSelectContentClass}>
                   <SelectItem
                     value="all"
                     className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
@@ -894,7 +898,7 @@ export default function WidgetDraggableIPTV() {
             </div>
             <CommandList
               ref={channelListRef}
-              className="max-h-[min(70vh,32rem)] overflow-y-auto bg-transparent [&_[cmdk-group-items]]:space-y-0.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
+              className={widgetCommandListClass}
             >
               <CommandEmpty className="px-3 py-2 text-xs text-muted-foreground">
                 No channels found.
@@ -916,16 +920,16 @@ export default function WidgetDraggableIPTV() {
                       data-current-channel={
                         channel.id === selectedChannel?.id ? "true" : undefined
                       }
-                      className={`${commandItemClass} ${
+                      className={`${widgetCommandItemClass} ${
                         channel.id === selectedChannel?.id
-                          ? commandItemActiveClass
+                          ? widgetCommandItemActiveClass
                           : ""
                       }`}
                     >
                       <div className="flex w-full items-center gap-3">
                         {channel.logo_url && (
                           <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center ${logoPlateClass} p-1`}
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
                           >
                             <img
                               src={channel.logo_url}
@@ -975,16 +979,16 @@ export default function WidgetDraggableIPTV() {
                             ? "true"
                             : undefined
                         }
-                        className={`${commandItemClass} ${
+                        className={`${widgetCommandItemClass} ${
                           channel.id === selectedChannel?.id
-                            ? commandItemActiveClass
+                            ? widgetCommandItemActiveClass
                             : ""
                         }`}
                       >
                         <div className="flex w-full items-center gap-3">
                           {channel.logo_url && (
                             <div
-                              className={`flex h-8 w-8 shrink-0 items-center justify-center ${logoPlateClass} p-1`}
+                              className={`flex h-8 w-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
                             >
                               <img
                                 src={channel.logo_url}
