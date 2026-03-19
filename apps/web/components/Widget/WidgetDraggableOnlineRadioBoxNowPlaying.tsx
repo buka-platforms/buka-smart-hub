@@ -658,7 +658,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   <button
                     type="button"
                     onClick={() => playStation(selectedStation)}
-                    className="pointer-events-auto z-10 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black transition-all hover:scale-105 hover:bg-green-400"
+                    className="pointer-events-auto z-10 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-muted text-foreground transition-all hover:scale-105 hover:bg-accent"
                     title={isPlaying ? "Pause" : "Play"}
                   >
                     {isAudioLoading ? (
@@ -739,11 +739,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
                         {/* Track Info - Takes remaining space, truncates */}
                         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                          <span
-                            className={`truncate text-[11px] font-medium ${isThisPlaying ? "text-green-400" : "text-foreground"}`}
-                            title={station.title}
-                          >
-                            {station.title || "Unknown Title"}
+                      <span
+                          className="truncate text-[11px] font-medium text-foreground"
+                          title={station.title}
+                        >
+                          {station.title || "Unknown Title"}
                           </span>
                           <span
                             className="truncate text-[10px] text-muted-foreground"
@@ -765,7 +765,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                           onClick={() => playStation(station)}
                           className={`pointer-events-auto z-10 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                             isThisPlaying
-                              ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
+                              ? "bg-muted text-foreground ring-1 ring-border"
                               : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
                           title={

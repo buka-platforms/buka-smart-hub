@@ -396,18 +396,18 @@ export default function RadioNowPlayingStations() {
               )}
               {isPlaying && (
                 <div className="absolute inset-0 flex items-end justify-center bg-linear-to-t from-black/40 to-transparent pb-1">
-                  <div className="flex items-end gap-0.5">
-                    <span className="inline-block h-2 w-0.5 animate-pulse rounded-full bg-green-400" />
+                <div className="flex items-end gap-0.5">
+                    <span className="inline-block h-2 w-0.5 animate-pulse rounded-full bg-white/70" />
                     <span
-                      className="inline-block h-3 w-0.5 animate-pulse rounded-full bg-green-400"
+                      className="inline-block h-3 w-0.5 animate-pulse rounded-full bg-white/70"
                       style={{ animationDelay: "0.15s" }}
                     />
                     <span
-                      className="inline-block h-1.5 w-0.5 animate-pulse rounded-full bg-green-400"
+                      className="inline-block h-1.5 w-0.5 animate-pulse rounded-full bg-white/70"
                       style={{ animationDelay: "0.3s" }}
                     />
                     <span
-                      className="inline-block h-2.5 w-0.5 animate-pulse rounded-full bg-green-400"
+                      className="inline-block h-2.5 w-0.5 animate-pulse rounded-full bg-white/70"
                       style={{ animationDelay: "0.45s" }}
                     />
                   </div>
@@ -417,7 +417,7 @@ export default function RadioNowPlayingStations() {
 
             {/* Track Info */}
             <div className="min-w-0 flex-1 text-center sm:text-left">
-              <p className="text-[11px] font-semibold tracking-widest text-green-400 uppercase">
+              <p className="text-[11px] font-semibold tracking-widest text-white/70 uppercase">
                 Now Playing
               </p>
               <h3
@@ -488,7 +488,7 @@ export default function RadioNowPlayingStations() {
               <button
                 type="button"
                 onClick={() => playStation(selectedStation)}
-                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-green-500 text-black shadow-lg transition-all hover:scale-105 hover:bg-green-400"
+                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white shadow-lg transition-all hover:scale-105 hover:bg-white/20"
                 title={isPlaying ? "Pause" : "Play"}
               >
                 {isAudioLoading ? (
@@ -612,7 +612,7 @@ export default function RadioNowPlayingStations() {
                   key={station.radioId}
                   className={`group flex items-center gap-3 rounded-lg border bg-white p-3 transition-all hover:shadow-md ${
                     isThisPlaying
-                      ? "border-green-300 bg-green-50/50 ring-1 ring-green-200"
+                      ? "border-slate-300 bg-slate-50 ring-1 ring-slate-200"
                       : "border-slate-200/80 hover:border-slate-300"
                   }`}
                 >
@@ -644,9 +644,7 @@ export default function RadioNowPlayingStations() {
                   {/* Track Info */}
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span
-                      className={`truncate text-sm font-semibold ${
-                        isThisPlaying ? "text-green-700" : "text-slate-900"
-                      }`}
+                      className="truncate text-sm font-semibold text-slate-900"
                       title={station.title}
                     >
                       {station.title || "Unknown Title"}
@@ -671,7 +669,7 @@ export default function RadioNowPlayingStations() {
                     onClick={() => playStation(station)}
                     className={`flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                       isThisPlaying
-                        ? "bg-green-500 text-white shadow-md hover:bg-green-600"
+                        ? "bg-slate-900 text-white shadow-md hover:bg-slate-800"
                         : "bg-slate-100 text-slate-600 group-hover:bg-slate-200 hover:bg-slate-200 hover:text-slate-900"
                     }`}
                     title={
