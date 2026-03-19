@@ -362,7 +362,7 @@ export default function WidgetDraggableBiorhythm() {
                       onClick={() => setDisplayMode("bar")}
                       className={`cursor-pointer rounded px-2 py-1 text-[10px] font-semibold ${
                         displayMode === "bar"
-                          ? "bg-accent text-foreground"
+                          ? "bg-background text-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
@@ -373,7 +373,7 @@ export default function WidgetDraggableBiorhythm() {
                       onClick={() => setDisplayMode("sine")}
                       className={`cursor-pointer rounded px-2 py-1 text-[10px] font-semibold ${
                         displayMode === "sine"
-                          ? "bg-accent text-foreground"
+                          ? "bg-background text-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
