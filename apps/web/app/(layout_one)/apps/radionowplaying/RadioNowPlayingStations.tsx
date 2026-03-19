@@ -396,7 +396,7 @@ export default function RadioNowPlayingStations() {
               )}
               {isPlaying && (
                 <div className="absolute inset-0 flex items-end justify-center bg-linear-to-t from-black/40 to-transparent pb-1">
-                <div className="flex items-end gap-0.5">
+                  <div className="flex items-end gap-0.5">
                     <span className="inline-block h-2 w-0.5 animate-pulse rounded-full bg-white/70" />
                     <span
                       className="inline-block h-3 w-0.5 animate-pulse rounded-full bg-white/70"
