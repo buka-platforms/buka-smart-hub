@@ -245,7 +245,7 @@ export default function WidgetLauncherDock() {
           >
             <LayoutGrid className="h-4 w-4" />
             <span className="hidden md:inline">Widgets</span>
-            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground dark:bg-muted dark:text-muted-foreground">
+            <span className="rounded-full bg-foreground/15 px-1.5 py-0.5 text-[10px] font-semibold text-foreground dark:bg-foreground/20">
               {visibleCount}
             </span>
           </button>
