@@ -212,7 +212,7 @@ export default function WidgetDraggableWeather() {
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 rounded-t-lg border-b border-border bg-muted/50 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
             <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Weather

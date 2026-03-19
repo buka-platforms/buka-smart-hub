@@ -266,7 +266,7 @@ export default function WidgetDraggableMusicPreview() {
           onDragEnd={handleDragEnd}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          className="flex h-8 w-full cursor-move items-center gap-2 border-b border-border px-3 select-none"
+          className="flex h-8 w-full cursor-move items-center gap-2 rounded-t-lg border-b border-border bg-muted/50 px-3 select-none"
         >
           <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
             Music Preview
