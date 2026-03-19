@@ -762,7 +762,7 @@ export default function WidgetDraggablePomodoro() {
             <div className="flex gap-2">
               <button
                 onClick={toggleRun}
-                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${isRunning ? "bg-red-500/20 text-red-200 hover:bg-red-500/30" : "bg-green-500/20 text-green-200 hover:bg-green-500/30"}`}
+                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${isRunning ? "bg-red-500/20 text-red-700 hover:bg-red-500/30 dark:text-red-200" : "bg-green-500/20 text-green-700 hover:bg-green-500/30 dark:text-green-200"}`}
                 title={isRunning ? "Pause" : "Start"}
               >
                 {isRunning ? (
@@ -781,7 +781,7 @@ export default function WidgetDraggablePomodoro() {
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-3 gap-2 px-3 pb-3 text-[11px] text-white/70">
+          <div className="mt-2 grid grid-cols-3 gap-2 px-3 pb-3 text-[11px] text-muted-foreground">
             {(
               [
                 ["focus", "Focus"],

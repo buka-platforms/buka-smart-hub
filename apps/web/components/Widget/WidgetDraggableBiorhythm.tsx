@@ -344,7 +344,7 @@ export default function WidgetDraggableBiorhythm() {
             </div>
 
             {calculation.error ? (
-              <p className="rounded-md border border-amber-300/30 bg-amber-500/10 px-2.5 py-2 text-xs text-amber-200">
+              <p className="rounded-md border border-amber-300/30 bg-amber-500/10 px-2.5 py-2 text-xs text-amber-800 dark:text-amber-200">
                 {calculation.error}
               </p>
             ) : (
@@ -396,7 +396,9 @@ export default function WidgetDraggableBiorhythm() {
                           </span>
                           <span
                             className={
-                              positive ? "text-emerald-300" : "text-rose-300"
+                              positive
+                                ? "text-emerald-700 dark:text-emerald-300"
+                                : "text-rose-700 dark:text-rose-300"
                             }
                           >
                             {percentage > 0 ? "+" : ""}
@@ -451,7 +453,7 @@ export default function WidgetDraggableBiorhythm() {
                         y1={CHART_HEIGHT / 2}
                         x2={CHART_WIDTH}
                         y2={CHART_HEIGHT / 2}
-                        stroke="rgba(255,255,255,0.20)"
+                        className="stroke-border"
                         strokeDasharray="4 3"
                       />
                       {calculation.cycles?.map((cycle) => {

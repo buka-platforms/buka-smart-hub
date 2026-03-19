@@ -403,16 +403,10 @@ export default function WidgetDraggableRadioPlayer() {
                   title="Loading"
                   aria-disabled
                 >
-                  <Loading
-                    className="h-5 w-5 animate-spin text-muted-foreground"
-                    color="#f5f5f5"
-                  />
+                  <Loading className="h-5 w-5 animate-spin text-muted-foreground" />
                 </button>
               ) : radioAudioState.isLoading ? (
-                <Loading
-                  className="h-10 w-10 animate-spin text-muted-foreground"
-                  color="#f5f5f5"
-                />
+                <Loading className="h-10 w-10 animate-spin text-muted-foreground" />
               ) : radioAudioState.isPlaying ? (
                 <button
                   onClick={() => void stop()}
