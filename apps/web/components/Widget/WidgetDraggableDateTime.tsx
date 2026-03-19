@@ -351,7 +351,7 @@ export default function WidgetDraggableDateTime() {
               size="sm"
               onClick={toggleTimeFormat}
               title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
-              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
               {timeFormat === "12h" ? "24H" : "12H"}
             </Button>
