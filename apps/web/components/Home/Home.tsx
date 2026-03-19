@@ -1,8 +1,5 @@
 import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
 import RequestHeadersProvider from "@/components/General/RequestHeadersProvider";
-import Fullscreen from "@/components/Home/Fullscreen";
-import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import WidgetContainer from "@/components/Widget/WidgetContainer";
 import { getRequestHeaders } from "@/lib/header";
 
@@ -28,13 +25,6 @@ export default async function Home() {
       <div className="relative z-0 min-h-screen w-full">
         {/* Widget Container: Launcher Dock + All Widgets */}
         <WidgetContainer />
-        <div className="fixed right-3 bottom-3 z-10 md:right-3 md:bottom-3">
-          <div className="flex gap-x-2">
-            <ThemeToggle />
-            <Fullscreen />
-            <InfoDropdownMenu />
-          </div>
-        </div>
         <AudioSpectrumCanvas />
       </div>
     </>

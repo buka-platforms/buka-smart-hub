@@ -1,5 +1,8 @@
 "use client";
 
+import Fullscreen from "@/components/Home/Fullscreen";
+import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Command,
   CommandGroup,
@@ -275,6 +278,14 @@ export default function WidgetLauncherDock() {
           <div className="mx-1 h-8 w-px bg-border" />
 
           <WidgetUserAvatar />
+
+          <div className="mx-1 h-8 w-px bg-border" />
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Fullscreen />
+            <InfoDropdownMenu />
+          </div>
         </div>
       </div>
       <Dialog open={isWidgetPickerOpen} onOpenChange={setIsWidgetPickerOpen}>
