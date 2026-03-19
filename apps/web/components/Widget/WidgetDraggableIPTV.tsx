@@ -98,7 +98,8 @@ const WIDGET_VERSION = "1.0.0";
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableIPTV() {
   const commandItemClass =
-    "group cursor-pointer rounded-md px-2 py-1.5 text-foreground transition-colors hover:bg-accent/50 data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground";
+    "group cursor-pointer rounded-md px-2 py-1.5 text-foreground transition-colors hover:bg-foreground/10 data-[highlighted=true]:bg-foreground/10 data-[highlighted=true]:text-foreground data-[selected=true]:bg-foreground/10 data-[selected=true]:text-foreground";
+  const commandItemActiveClass = "bg-foreground/10 text-foreground";
   const logoPlateClass =
     "overflow-hidden rounded-md border border-border bg-gradient-to-br from-background to-muted shadow-sm";
 
@@ -847,7 +848,7 @@ export default function WidgetDraggableIPTV() {
       </Dialog>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-border bg-[#0c0c10]/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-border bg-popover/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Select IPTV channel</DialogTitle>
             <DialogDescription>
@@ -872,7 +873,7 @@ export default function WidgetDraggableIPTV() {
                 >
                   <SelectValue placeholder="All countries" />
                 </SelectTrigger>
-                <SelectContent className="max-h-72 border-border bg-[#121218] text-foreground">
+                <SelectContent className="max-h-72 border-border bg-popover text-foreground">
                   <SelectItem
                     value="all"
                     className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
@@ -893,7 +894,7 @@ export default function WidgetDraggableIPTV() {
             </div>
             <CommandList
               ref={channelListRef}
-              className="max-h-[min(70vh,32rem)] overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
+              className="max-h-[min(70vh,32rem)] overflow-y-auto bg-transparent [&_[cmdk-group-items]]:space-y-0.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
             >
               <CommandEmpty className="px-3 py-2 text-xs text-muted-foreground">
                 No channels found.
@@ -917,7 +918,7 @@ export default function WidgetDraggableIPTV() {
                       }
                       className={`${commandItemClass} ${
                         channel.id === selectedChannel?.id
-                          ? "bg-muted text-foreground"
+                          ? commandItemActiveClass
                           : ""
                       }`}
                     >
@@ -976,7 +977,7 @@ export default function WidgetDraggableIPTV() {
                         }
                         className={`${commandItemClass} ${
                           channel.id === selectedChannel?.id
-                            ? "bg-muted text-foreground"
+                            ? commandItemActiveClass
                             : ""
                         }`}
                       >
