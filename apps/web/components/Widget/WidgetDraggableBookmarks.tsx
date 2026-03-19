@@ -353,6 +353,7 @@ export default function WidgetDraggableBookmarks() {
                 variant="secondary"
                 onClick={openAddDialog}
                 disabled={isSubmitting}
+                className="cursor-pointer"
               >
                 <BookmarkPlus data-icon="inline-start" />
                 Add bookmark
@@ -477,6 +478,7 @@ export default function WidgetDraggableBookmarks() {
               variant="outline"
               onClick={() => handleAddDialogChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
               Cancel
             </Button>
@@ -484,6 +486,7 @@ export default function WidgetDraggableBookmarks() {
               type="button"
               onClick={() => void submitBookmark()}
               disabled={isAuthenticated === false || isSubmitting}
+              className="cursor-pointer"
             >
               <BookmarkPlus data-icon="inline-start" />
               {isSubmitting ? "Saving..." : "Save bookmark"}
