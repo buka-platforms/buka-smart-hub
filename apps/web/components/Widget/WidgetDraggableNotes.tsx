@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -41,7 +40,7 @@ import {
   type WidgetId,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
-import { MoreHorizontal, Pencil, Save, StickyNote, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, StickyNote, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "notes";
@@ -50,7 +49,7 @@ const WIDGET_VERSION = "0.2.0";
 
 export default function WidgetDraggableNotes() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const titleInputRef = useRef<HTMLInputElement>(null);
+  const noteBodyRef = useRef<HTMLTextAreaElement>(null);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -60,8 +59,6 @@ export default function WidgetDraggableNotes() {
   const [noteBody, setNoteBody] = useState("");
   const [items, setItems] = useState<NoteEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
-  const [editingBody, setEditingBody] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -75,7 +72,7 @@ export default function WidgetDraggableNotes() {
   useEffect(() => {
     if (!addDialogOpen) return;
     const frame = requestAnimationFrame(() => {
-      titleInputRef.current?.focus();
+      noteBodyRef.current?.focus();
     });
     return () => cancelAnimationFrame(frame);
   }, [addDialogOpen]);
@@ -154,18 +151,38 @@ export default function WidgetDraggableNotes() {
     setIsSubmitting(true);
     setSyncError(null);
     try {
-      const created = await createNote({ title, body });
-      setItems((prev) => [created, ...prev]);
+      if (editingId) {
+        const updated = await editNote({
+          id: editingId,
+          title,
+          body,
+        });
+        setItems((prev) =>
+          prev.map((entry) => (entry.id === updated.id ? updated : entry)),
+        );
+      } else {
+        const created = await createNote({ title, body });
+        setItems((prev) => [created, ...prev]);
+      }
       setIsAuthenticated(true);
+      setEditingId(null);
       setNoteTitle("");
       setNoteBody("");
       setAddDialogOpen(false);
     } catch (error: unknown) {
       if (isNotesUnauthorizedError(error)) {
         setIsAuthenticated(false);
-        setSyncError("Sign in required to save notes.");
+        setSyncError(
+          editingId
+            ? "Sign in required to edit notes."
+            : "Sign in required to save notes.",
+        );
       } else {
-        setSyncError("Unable to save note right now.");
+        setSyncError(
+          editingId
+            ? "Unable to save note changes."
+            : "Unable to save note right now.",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -173,45 +190,14 @@ export default function WidgetDraggableNotes() {
     try {
       triggerLayoutUpdate();
     } catch {}
-  }, [isSubmitting, noteBody, noteTitle]);
+  }, [editingId, isSubmitting, noteBody, noteTitle]);
 
   const startEdit = useCallback((item: NoteEntry) => {
+    setAddDialogOpen(true);
     setEditingId(item.id);
-    setEditingTitle(item.title);
-    setEditingBody(item.body);
+    setNoteTitle(item.title);
+    setNoteBody(item.body);
   }, []);
-
-  const saveEdit = useCallback(async () => {
-    if (!editingId || isSubmitting) return;
-    setIsSubmitting(true);
-    setSyncError(null);
-    try {
-      const updated = await editNote({
-        id: editingId,
-        title: editingTitle || "Untitled note",
-        body: editingBody,
-      });
-      setIsAuthenticated(true);
-      setItems((prev) =>
-        prev.map((entry) => (entry.id === updated.id ? updated : entry)),
-      );
-      setEditingId(null);
-      setEditingTitle("");
-      setEditingBody("");
-    } catch (error: unknown) {
-      if (isNotesUnauthorizedError(error)) {
-        setIsAuthenticated(false);
-        setSyncError("Sign in required to edit notes.");
-      } else {
-        setSyncError("Unable to save note changes.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-    try {
-      triggerLayoutUpdate();
-    } catch {}
-  }, [editingBody, editingId, editingTitle, isSubmitting]);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -224,8 +210,9 @@ export default function WidgetDraggableNotes() {
         setItems((prev) => prev.filter((entry) => entry.id !== id));
         if (editingId === id) {
           setEditingId(null);
-          setEditingTitle("");
-          setEditingBody("");
+          setNoteTitle("");
+          setNoteBody("");
+          setAddDialogOpen(false);
         }
       } catch (error: unknown) {
         if (isNotesUnauthorizedError(error)) {
@@ -248,16 +235,19 @@ export default function WidgetDraggableNotes() {
   const visibleItems = items.slice(0, 5);
   const hasMoreItems = items.length > visibleItems.length;
   const openAddDialog = useCallback(() => {
+    setEditingId(null);
+    setNoteTitle("");
+    setNoteBody("");
     setAddDialogOpen(true);
   }, []);
   const handleAddDialogChange = useCallback((open: boolean) => {
     setAddDialogOpen(open);
     if (!open) {
+      setEditingId(null);
       setNoteTitle("");
       setNoteBody("");
     }
   }, []);
-
   return (
     <>
       <div
@@ -396,74 +386,37 @@ export default function WidgetDraggableNotes() {
               </p>
             ) : (
               visibleItems.map((item) => {
-                const isEditing = editingId === item.id;
                 return (
                   <div
                     key={item.id}
                     className="rounded-md border border-border bg-muted/50 p-2"
                   >
-                    {isEditing ? (
-                      <div className="space-y-2">
-                        <Input
-                          value={editingTitle}
-                          onChange={(e) => setEditingTitle(e.target.value)}
-                          className="h-8 border-input bg-background text-foreground"
-                        />
-                        <textarea
-                          value={editingBody}
-                          onChange={(e) => setEditingBody(e.target.value)}
-                          className="min-h-20 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground outline-none"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => void saveEdit()}
-                            disabled={isSubmitting}
-                            className="flex h-7 cursor-pointer items-center gap-1 rounded-md border bg-secondary px-2 text-[11px] font-semibold text-secondary-foreground hover:bg-accent"
-                          >
-                            <Save className="h-3.5 w-3.5" />
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(null)}
-                            disabled={isSubmitting}
-                            className="h-7 cursor-pointer rounded-md border bg-muted/50 px-2 text-[11px] font-semibold text-muted-foreground hover:bg-accent"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="truncate text-xs font-semibold text-foreground">
-                          {item.title}
-                        </p>
-                        <p className="mt-1 line-clamp-4 text-xs whitespace-pre-wrap text-muted-foreground">
-                          {item.body}
-                        </p>
-                        <div className="mt-2 flex gap-1">
-                          <button
-                            type="button"
-                            onClick={() => startEdit(item)}
-                            disabled={isSubmitting}
-                            className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                            title="Edit note"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void handleDelete(item.id)}
-                            disabled={isSubmitting}
-                            className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-500 dark:hover:text-red-300"
-                            title="Delete note"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </>
-                    )}
+                    <p className="truncate text-xs font-semibold text-foreground">
+                      {item.title}
+                    </p>
+                    <p className="mt-1 line-clamp-4 text-xs whitespace-pre-wrap text-muted-foreground">
+                      {item.body}
+                    </p>
+                    <div className="mt-2 flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(item)}
+                        disabled={isSubmitting}
+                        className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                        title="Edit note"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(item.id)}
+                        disabled={isSubmitting}
+                        className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-500 dark:hover:text-red-300"
+                        title="Delete note"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 );
               })
@@ -480,7 +433,7 @@ export default function WidgetDraggableNotes() {
       <Sheet open={addDialogOpen} onOpenChange={handleAddDialogChange}>
         <SheetContent
           side="right"
-          className="data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-[32rem] sm:max-w-[32rem] sm:rounded-none sm:border-t-0 sm:border-l"
+          className="data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-[32rem] sm:max-w-[32rem] sm:rounded-none sm:border-t-0 sm:border-l [&>button]:cursor-pointer"
         >
           <div className="flex h-full flex-col">
             <div className="px-4 pt-3 sm:hidden">
@@ -488,11 +441,7 @@ export default function WidgetDraggableNotes() {
             </div>
 
             <SheetHeader className="border-b border-border/80 px-4 py-4 sm:px-6 sm:py-5">
-              <SheetTitle>Add Note</SheetTitle>
-              <SheetDescription>
-                A calmer writing surface for quick capture. Use Ctrl/Cmd + Enter
-                to save.
-              </SheetDescription>
+              <SheetTitle>{editingId ? "Edit Note" : "Add Note"}</SheetTitle>
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
@@ -508,20 +457,20 @@ export default function WidgetDraggableNotes() {
                   </p>
                 ) : null}
 
-                <div className="rounded-2xl border border-border/80 bg-muted/20 p-3 sm:p-4">
+                <div className="bg-transparent">
                   <Input
-                    ref={titleInputRef}
                     value={noteTitle}
                     onChange={(e) => setNoteTitle(e.target.value)}
-                    className="h-10 border-input bg-background text-foreground"
-                    placeholder="Title (optional)"
+                    className="h-10 border-0 bg-transparent px-0 text-lg font-medium text-foreground shadow-none placeholder:text-lg placeholder:font-medium focus-visible:ring-0 md:!text-lg"
+                    placeholder="Title"
                     disabled={isAuthenticated === false || isSubmitting}
                   />
                   <textarea
+                    ref={noteBodyRef}
                     value={noteBody}
                     onChange={(e) => setNoteBody(e.target.value)}
-                    placeholder="Write your note..."
-                    className="mt-3 min-h-56 w-full resize-none rounded-xl border border-input bg-background px-3 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring sm:min-h-72"
+                    placeholder="Take a note..."
+                    className="min-h-64 w-full resize-none bg-transparent px-0 py-3 text-base text-foreground outline-none placeholder:text-muted-foreground/90 sm:min-h-80"
                     disabled={isAuthenticated === false || isSubmitting}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -530,10 +479,6 @@ export default function WidgetDraggableNotes() {
                       }
                     }}
                   />
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Keep it short and actionable. The newest notes stay at the
-                    top of the widget.
-                  </p>
                 </div>
               </div>
             </div>
@@ -560,7 +505,11 @@ export default function WidgetDraggableNotes() {
                   className="cursor-pointer"
                 >
                   <StickyNote data-icon="inline-start" />
-                  {isSubmitting ? "Saving..." : "Save note"}
+                  {isSubmitting
+                    ? "Saving..."
+                    : editingId
+                      ? "Update note"
+                      : "Save note"}
                 </Button>
               </div>
             </div>

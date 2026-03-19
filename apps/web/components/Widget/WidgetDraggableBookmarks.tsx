@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import {
   createBookmark,
   deleteBookmark,
+  editBookmark,
   isBookmarksUnauthorizedError,
   listBookmarks,
   type BookmarkEntry,
@@ -37,6 +38,7 @@ import {
   BookmarkPlus,
   ExternalLink,
   MoreHorizontal,
+  Pencil,
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -73,6 +75,7 @@ export default function WidgetDraggableBookmarks() {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [items, setItems] = useState<BookmarkEntry[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -168,12 +171,24 @@ export default function WidgetDraggableBookmarks() {
     setIsSubmitting(true);
     setSyncError(null);
     try {
-      const created = await createBookmark({
-        title: trimmedTitle,
-        url: parsed,
-      });
-      setItems((prev) => [created, ...prev]);
+      if (editingId) {
+        const updated = await editBookmark({
+          id: editingId,
+          title: trimmedTitle,
+          url: parsed,
+        });
+        setItems((prev) =>
+          prev.map((entry) => (entry.id === updated.id ? updated : entry)),
+        );
+      } else {
+        const created = await createBookmark({
+          title: trimmedTitle,
+          url: parsed,
+        });
+        setItems((prev) => [created, ...prev]);
+      }
       setIsAuthenticated(true);
+      setEditingId(null);
       setTitle("");
       setUrl("");
       setError("");
@@ -181,9 +196,17 @@ export default function WidgetDraggableBookmarks() {
     } catch (submitError: unknown) {
       if (isBookmarksUnauthorizedError(submitError)) {
         setIsAuthenticated(false);
-        setSyncError("Sign in required to save bookmarks.");
+        setSyncError(
+          editingId
+            ? "Sign in required to edit bookmarks."
+            : "Sign in required to save bookmarks.",
+        );
       } else {
-        setSyncError("Unable to save bookmark right now.");
+        setSyncError(
+          editingId
+            ? "Unable to save bookmark changes."
+            : "Unable to save bookmark right now.",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -192,7 +215,15 @@ export default function WidgetDraggableBookmarks() {
     try {
       triggerLayoutUpdate();
     } catch {}
-  }, [isSubmitting, title, url]);
+  }, [editingId, isSubmitting, title, url]);
+
+  const startEdit = useCallback((item: BookmarkEntry) => {
+    setEditingId(item.id);
+    setTitle(item.title);
+    setUrl(item.url);
+    setError("");
+    setAddDialogOpen(true);
+  }, []);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -203,6 +234,13 @@ export default function WidgetDraggableBookmarks() {
         await deleteBookmark(id);
         setIsAuthenticated(true);
         setItems((prev) => prev.filter((entry) => entry.id !== id));
+        if (editingId === id) {
+          setEditingId(null);
+          setTitle("");
+          setUrl("");
+          setError("");
+          setAddDialogOpen(false);
+        }
       } catch (deleteError: unknown) {
         if (isBookmarksUnauthorizedError(deleteError)) {
           setIsAuthenticated(false);
@@ -218,19 +256,23 @@ export default function WidgetDraggableBookmarks() {
         triggerLayoutUpdate();
       } catch {}
     },
-    [isSubmitting],
+    [editingId, isSubmitting],
   );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const visibleItems = items.slice(0, 5);
   const hasMoreItems = items.length > visibleItems.length;
   const openAddDialog = useCallback(() => {
+    setEditingId(null);
+    setTitle("");
+    setUrl("");
     setError("");
     setAddDialogOpen(true);
   }, []);
   const handleAddDialogChange = useCallback((open: boolean) => {
     setAddDialogOpen(open);
     if (!open) {
+      setEditingId(null);
       setTitle("");
       setUrl("");
       setError("");
@@ -404,6 +446,15 @@ export default function WidgetDraggableBookmarks() {
                   </a>
                   <button
                     type="button"
+                    onClick={() => startEdit(item)}
+                    disabled={isSubmitting}
+                    className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                    title="Edit bookmark"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void handleDelete(item.id)}
                     disabled={isSubmitting}
                     className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-300"
@@ -426,10 +477,13 @@ export default function WidgetDraggableBookmarks() {
       <Dialog open={addDialogOpen} onOpenChange={handleAddDialogChange}>
         <DialogContent className="sm:max-w-[32rem]">
           <DialogHeader>
-            <DialogTitle>Add Bookmark</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Edit Bookmark" : "Add Bookmark"}
+            </DialogTitle>
             <DialogDescription className="text-left">
-              Save a link from a focused dialog instead of filling the widget
-              inline.
+              {editingId
+                ? "Update the saved link from a focused dialog."
+                : "Save a link from a focused dialog instead of filling the widget inline."}
             </DialogDescription>
           </DialogHeader>
 
@@ -489,7 +543,11 @@ export default function WidgetDraggableBookmarks() {
               className="cursor-pointer"
             >
               <BookmarkPlus data-icon="inline-start" />
-              {isSubmitting ? "Saving..." : "Save bookmark"}
+              {isSubmitting
+                ? "Saving..."
+                : editingId
+                  ? "Update bookmark"
+                  : "Save bookmark"}
             </Button>
           </div>
         </DialogContent>

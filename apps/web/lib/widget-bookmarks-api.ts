@@ -117,6 +117,33 @@ export async function createBookmark(input: {
   return bookmark;
 }
 
+export async function editBookmark(input: {
+  id: string;
+  title: string;
+  url: string;
+}): Promise<BookmarkEntry> {
+  const response = await fetchAuthenticatedApi(
+    `/api/bookmarks/${encodeURIComponent(input.id)}`,
+    {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: input.title,
+        url: input.url,
+      }),
+    },
+  );
+  const payload = await parseResponse<{ data?: unknown }>(response);
+  const bookmark = normalizeBookmark(payload?.data);
+  if (!bookmark) {
+    throw new BookmarksApiError("Unexpected bookmarks response.", 500);
+  }
+
+  return bookmark;
+}
+
 export async function deleteBookmark(id: string): Promise<void> {
   const response = await fetchAuthenticatedApi(
     `/api/bookmarks/${encodeURIComponent(id)}`,
