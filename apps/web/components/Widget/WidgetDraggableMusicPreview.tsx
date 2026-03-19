@@ -391,7 +391,7 @@ export default function WidgetDraggableMusicPreview() {
                         }}
                         className={`pointer-events-auto z-10 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                           isPlaying && audioRef.current?.src === t.previewUrl
-                            ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
+                            ? "bg-muted text-foreground"
                             : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
                         }`}
                         title={
