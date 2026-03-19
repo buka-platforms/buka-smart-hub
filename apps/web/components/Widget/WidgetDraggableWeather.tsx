@@ -25,7 +25,6 @@ import {
 import type { WidgetId } from "@/lib/widget-positions";
 import { useAtom, useAtomValue } from "jotai";
 import { Droplets, MoreHorizontal, Thermometer, Wind } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
@@ -367,17 +366,6 @@ export default function WidgetDraggableWeather() {
               className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
               °{unit === "metric" ? "F" : "C"}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
-            >
-              <Link href="/apps/weather" title="Open weather app">
-                More
-              </Link>
             </Button>
           </div>
         </div>
