@@ -87,7 +87,7 @@ export default function WidgetUserAvatar() {
   return (
     <Popover>
       <PopoverTrigger
-        className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border bg-secondary/50 px-3 text-sm font-semibold text-secondary-foreground backdrop-blur transition-all hover:bg-accent hover:text-accent-foreground"
+        className="flex h-8 cursor-pointer items-center gap-2 rounded-lg border bg-secondary/50 px-3 text-xs font-medium text-secondary-foreground backdrop-blur transition-all hover:bg-accent hover:text-accent-foreground"
         title={isAuthenticated ? userDetails?.name || "Account" : "Account"}
       >
         {loading ? (

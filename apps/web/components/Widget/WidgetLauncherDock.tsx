@@ -240,7 +240,7 @@ export default function WidgetLauncherDock() {
           {/* Widgets button — opens the command dialog */}
           <button
             onClick={() => setIsWidgetPickerOpen(true)}
-            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
+            className="flex h-8 cursor-pointer items-center gap-2 rounded-lg border bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
             title="Show all widgets"
           >
             <LayoutGrid className="h-4 w-4" />
@@ -250,13 +250,13 @@ export default function WidgetLauncherDock() {
             </span>
           </button>
 
-          <div className="mx-1 h-10 w-px bg-border" />
+          <div className="mx-1 h-8 w-px bg-border" />
 
           {/* Apps CTA */}
           <Link
             href="/apps"
             title={`${process.env.NEXT_PUBLIC_APP_TITLE} Apps`}
-            className="flex h-10 items-center gap-2 rounded-lg border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
+            className="flex h-8 items-center gap-2 rounded-lg border bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
           >
             <AppWindow className="h-4 w-4" />
             <span className="hidden md:inline">Apps</span>
@@ -266,13 +266,13 @@ export default function WidgetLauncherDock() {
           <button
             title="World News"
             onClick={() => setIsWorldNewsOpen(true)}
-            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
+            className="flex h-8 cursor-pointer items-center gap-2 rounded-lg border bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
           >
             <Globe className="h-4 w-4" />
             <span className="hidden md:inline">World News</span>
           </button>
 
-          <div className="mx-1 h-10 w-px bg-border" />
+          <div className="mx-1 h-8 w-px bg-border" />
 
           <WidgetUserAvatar />
         </div>
