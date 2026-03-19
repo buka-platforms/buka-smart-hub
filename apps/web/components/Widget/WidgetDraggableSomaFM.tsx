@@ -481,33 +481,35 @@ export default function WidgetDraggableSomaFM() {
 
               {/* Play/Pause Button on right */}
               <div>
-                <button
-                  disabled={!streamUrl}
-                  onClick={async () => {
-                    if (!streamUrl) return;
-                    try {
-                      if (somafmAudioState?.lastStream === streamUrl) {
-                        if (somafmAudioState?.isPlaying) {
-                          stopSomaFM();
+                {isLoading ? (
+                  <Disc3 className="h-10 w-10 animate-spin text-muted-foreground" />
+                ) : (
+                  <button
+                    disabled={!streamUrl}
+                    onClick={async () => {
+                      if (!streamUrl) return;
+                      try {
+                        if (somafmAudioState?.lastStream === streamUrl) {
+                          if (somafmAudioState?.isPlaying) {
+                            stopSomaFM();
+                          } else {
+                            await playSomaFMStream(streamUrl, selected);
+                          }
                         } else {
                           await playSomaFMStream(streamUrl, selected);
                         }
-                      } else {
-                        await playSomaFMStream(streamUrl, selected);
-                      }
-                    } catch {}
-                  }}
-                  className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-muted" : "bg-muted hover:bg-accent"} text-foreground transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
-                  title={isPlaying ? "Pause" : "Play"}
-                >
-                  {isLoading ? (
-                    <Disc3 className="h-10 w-10 animate-spin" />
-                  ) : isPlaying ? (
-                    <Pause className="h-5 w-5" fill="currentColor" />
-                  ) : (
-                    <PlayIcon className="h-5 w-5" fill="currentColor" />
-                  )}
-                </button>
+                      } catch {}
+                    }}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-accent ${!streamUrl ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+                    title={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-5 w-5" fill="currentColor" />
+                    ) : (
+                      <PlayIcon className="h-5 w-5" fill="currentColor" />
+                    )}
+                  </button>
+                )}
               </div>
             </div>
 
