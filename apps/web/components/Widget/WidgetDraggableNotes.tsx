@@ -375,13 +375,13 @@ export default function WidgetDraggableNotes() {
               </p>
               <Button
                 type="button"
+                variant="ghost"
                 size="sm"
-                variant="secondary"
                 onClick={openAddDialog}
                 disabled={isSubmitting}
-                className="cursor-pointer"
+                className="h-8 cursor-pointer rounded-lg border bg-secondary px-3 text-xs font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
               >
-                <StickyNote data-icon="inline-start" />
+                <StickyNote className="h-4 w-4" />
                 Add note
               </Button>
             </div>

@@ -406,13 +406,13 @@ export default function WidgetDraggableBookmarks() {
               </p>
               <Button
                 type="button"
+                variant="ghost"
                 size="sm"
-                variant="secondary"
                 onClick={openAddDialog}
                 disabled={isSubmitting}
-                className="cursor-pointer"
+                className="h-8 cursor-pointer rounded-lg border bg-secondary px-3 text-xs font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
               >
-                <BookmarkPlus data-icon="inline-start" />
+                <BookmarkPlus className="h-4 w-4" />
                 Add bookmark
               </Button>
             </div>
