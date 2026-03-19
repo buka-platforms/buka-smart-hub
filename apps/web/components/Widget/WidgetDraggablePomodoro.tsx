@@ -774,14 +774,14 @@ export default function WidgetDraggablePomodoro() {
           <div className="mt-2 grid grid-cols-3 gap-2 px-3 pb-3 text-[11px] text-muted-foreground">
             {(
               [
-                ["focus", "Focus"],
-                ["short_break", "Short"],
-                ["long_break", "Long"],
-              ] as [Mode, string][]
-            ).map(([key, label]) => (
+                ["focus", "Focus", "border-emerald-400/60 ring-emerald-400/30"],
+                ["short_break", "Short", "border-sky-400/60 ring-sky-400/30"],
+                ["long_break", "Long", "border-rose-400/60 ring-rose-400/30"],
+              ] as [Mode, string, string][]
+            ).map(([key, label, activeRing]) => (
               <div
                 key={key}
-                className={`flex flex-col rounded-md border border-border bg-muted/50 p-2 ${mode === key ? "ring-1 ring-foreground/20" : ""}`}
+                className={`flex flex-col rounded-md border bg-muted/50 p-2 transition-colors ${mode === key ? `${activeRing} ring-1` : "border-border"}`}
                 onClick={() => switchMode(key)}
                 role="button"
                 tabIndex={0}
