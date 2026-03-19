@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { widgetVisibilityAtom } from "@/data/store";
+import { cn } from "@/lib/utils";
 import {
   createBookmark,
   deleteBookmark,
@@ -61,10 +63,12 @@ function normalizeUrl(input: string): string | null {
 
 export default function WidgetDraggableBookmarks() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -78,6 +82,14 @@ export default function WidgetDraggableBookmarks() {
   useEffect(() => {
     queueMicrotask(() => setIsPositionLoaded(true));
   }, []);
+
+  useEffect(() => {
+    if (!addDialogOpen) return;
+    const frame = requestAnimationFrame(() => {
+      titleInputRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [addDialogOpen]);
 
   useEffect(() => {
     let mounted = true;
@@ -165,6 +177,7 @@ export default function WidgetDraggableBookmarks() {
       setTitle("");
       setUrl("");
       setError("");
+      setAddDialogOpen(false);
     } catch (submitError: unknown) {
       if (isBookmarksUnauthorizedError(submitError)) {
         setIsAuthenticated(false);
@@ -209,17 +222,33 @@ export default function WidgetDraggableBookmarks() {
   );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
+  const visibleItems = items.slice(0, 5);
+  const hasMoreItems = items.length > visibleItems.length;
+  const openAddDialog = useCallback(() => {
+    setError("");
+    setAddDialogOpen(true);
+  }, []);
+  const handleAddDialogChange = useCallback((open: boolean) => {
+    setAddDialogOpen(open);
+    if (!open) {
+      setTitle("");
+      setUrl("");
+      setError("");
+    }
+  }, []);
 
   return (
     <>
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg border bg-card shadow-sm ${
+        className={cn(
+          "pointer-events-auto flex rounded-lg border bg-card shadow-sm",
           isDragging
             ? "shadow-none transition-none"
-            : "transition-opacity duration-300"
-        } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+            : "transition-opacity duration-300",
+          isVisible ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
       >
         <div className="flex w-full flex-col">
           <div
@@ -242,9 +271,10 @@ export default function WidgetDraggableBookmarks() {
                 }
               } catch {}
             }}
-            className={`flex h-8 cursor-move items-center gap-2 rounded-t-lg border-b border-border bg-muted/50 px-3 select-none ${
-              isDragging ? "opacity-60" : "opacity-100"
-            }`}
+            className={cn(
+              "flex h-8 cursor-move items-center gap-2 rounded-t-lg border-b border-border bg-muted/50 px-3 select-none",
+              isDragging ? "opacity-60" : "opacity-100",
+            )}
           >
             <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Bookmarks
@@ -302,7 +332,7 @@ export default function WidgetDraggableBookmarks() {
             </div>
           </div>
 
-          <div className="space-y-2 p-3">
+          <div className="flex flex-col gap-3 p-3">
             {isAuthenticated === false ? (
               <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-800 dark:text-amber-200">
                 Sign in to use synced bookmarks.
@@ -313,55 +343,37 @@ export default function WidgetDraggableBookmarks() {
                 {syncError}
               </p>
             ) : null}
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="h-8 border-input bg-background text-foreground"
-              placeholder="Title (optional)"
-              disabled={isAuthenticated === false || isSubmitting}
-            />
-            <div className="flex gap-2">
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="h-8 border-input bg-background text-foreground"
-                placeholder="https://example.com"
-                disabled={isAuthenticated === false || isSubmitting}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    void submitBookmark();
-                  }
-                }}
-              />
-              <button
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[11px] leading-4 text-muted-foreground">
+                Showing up to 5 recent bookmarks.
+              </p>
+              <Button
                 type="button"
-                onClick={() => void submitBookmark()}
-                disabled={isAuthenticated === false || isSubmitting}
-                className="flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-md border bg-secondary px-2.5 text-xs font-semibold text-secondary-foreground hover:bg-accent"
-                title="Add bookmark"
+                size="sm"
+                variant="secondary"
+                onClick={openAddDialog}
+                disabled={isSubmitting}
               >
-                <BookmarkPlus className="h-3.5 w-3.5" />
-                {isSubmitting ? "Saving..." : "Add"}
-              </button>
+                <BookmarkPlus data-icon="inline-start" />
+                Add bookmark
+              </Button>
             </div>
-            {error ? <p className="text-[11px] text-red-300">{error}</p> : null}
           </div>
 
           <div className="border-t border-border" />
-          <div className="max-h-72 space-y-1 overflow-y-auto p-2">
+          <div className="flex max-h-72 flex-col gap-1 overflow-y-auto p-2">
             {isLoading ? (
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 Loading bookmarks...
               </p>
-            ) : items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 {isAuthenticated !== false
-                  ? "No bookmarks yet. Add your first URL above."
+                  ? "No bookmarks yet. Add your first bookmark."
                   : "Sign in to start saving bookmarks."}
               </p>
             ) : (
-              items.map((item) => (
+              visibleItems.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-2 py-1.5"
@@ -401,9 +413,84 @@ export default function WidgetDraggableBookmarks() {
                 </div>
               ))
             )}
+            {hasMoreItems ? (
+              <p className="px-1 pt-1 text-[11px] text-muted-foreground">
+                Showing {visibleItems.length} of {items.length} bookmarks.
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
+
+      <Dialog open={addDialogOpen} onOpenChange={handleAddDialogChange}>
+        <DialogContent className="sm:max-w-[32rem]">
+          <DialogHeader>
+            <DialogTitle>Add Bookmark</DialogTitle>
+            <DialogDescription className="text-left">
+              Save a link from a focused dialog instead of filling the widget
+              inline.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-3">
+            {isAuthenticated === false ? (
+              <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-200">
+                Sign in to save synced bookmarks.
+              </p>
+            ) : null}
+            {syncError ? (
+              <p className="rounded-md border border-red-200/20 bg-red-500/10 px-3 py-2 text-sm text-red-800 dark:text-red-200">
+                {syncError}
+              </p>
+            ) : null}
+
+            <Input
+              ref={titleInputRef}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="h-9 border-input bg-background text-foreground"
+              placeholder="Title (optional)"
+              disabled={isAuthenticated === false || isSubmitting}
+            />
+            <Input
+              value={url}
+              onChange={(e) => {
+                setUrl(e.target.value);
+                if (error) setError("");
+              }}
+              className="h-9 border-input bg-background text-foreground"
+              placeholder="https://example.com"
+              disabled={isAuthenticated === false || isSubmitting}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void submitBookmark();
+                }
+              }}
+            />
+            {error ? <p className="text-xs text-red-300">{error}</p> : null}
+          </div>
+
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleAddDialogChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void submitBookmark()}
+              disabled={isAuthenticated === false || isSubmitting}
+            >
+              <BookmarkPlus data-icon="inline-start" />
+              {isSubmitting ? "Saving..." : "Save bookmark"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
