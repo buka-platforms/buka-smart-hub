@@ -200,7 +200,7 @@ export default function WidgetDraggableWeather() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Top Title - Drag Handle */}
 
@@ -212,9 +212,9 @@ export default function WidgetDraggableWeather() {
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Weather
             </span>
             <div className="ml-auto">
@@ -226,7 +226,7 @@ export default function WidgetDraggableWeather() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -285,7 +285,7 @@ export default function WidgetDraggableWeather() {
           {/* Weather Row */}
           <div className="flex items-center gap-3 p-3">
             {/* Weather Icon */}
-            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted">
               {data && (
                 <img
                   src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`}
@@ -299,18 +299,20 @@ export default function WidgetDraggableWeather() {
 
             {/* Weather Info */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-              <span className="block truncate text-xs text-white/60">
+              <span className="block truncate text-xs text-muted-foreground">
                 {data?.name}
                 {data?.sys?.country ? `, ${data.sys.country}` : ""}
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-semibold text-white">
+                <span className="text-2xl font-semibold text-foreground">
                   {temperatureValue}°
                 </span>
-                <span className="text-xs text-white/60">{temperatureUnit}</span>
+                <span className="text-xs text-muted-foreground">
+                  {temperatureUnit}
+                </span>
               </div>
               <span
-                className="max-w-full truncate text-xs text-white/70"
+                className="max-w-full truncate text-xs text-muted-foreground"
                 title={
                   data?.weather[0].description
                     ? data.weather[0].description.charAt(0).toUpperCase() +
@@ -326,7 +328,7 @@ export default function WidgetDraggableWeather() {
             </div>
 
             {/* Additional Info */}
-            <div className="flex shrink-0 flex-col gap-1 text-[10px] text-white/50">
+            <div className="flex shrink-0 flex-col gap-1 text-[10px] text-muted-foreground">
               <div
                 className="flex items-center gap-1"
                 title={`Feels like ${feelsLikeValue}°${temperatureUnit}`}
@@ -354,11 +356,11 @@ export default function WidgetDraggableWeather() {
           </div>
 
           {/* Separator and action bar */}
-          <div className="border-t border-white/10" />
+          <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
               onClick={toggleUnit}
-              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              className="flex h-8 cursor-pointer items-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
               title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
             >
               <span>°{unit === "metric" ? "F" : "C"}</span>
@@ -366,7 +368,7 @@ export default function WidgetDraggableWeather() {
 
             <Link
               href="/apps/weather"
-              className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              className="flex h-8 items-center justify-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
               title="Open weather app"
             >
               More

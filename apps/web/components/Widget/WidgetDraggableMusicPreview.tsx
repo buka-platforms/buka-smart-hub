@@ -257,7 +257,7 @@ export default function WidgetDraggableMusicPreview() {
     <div
       ref={containerRef}
       data-widget-id="musicpreview"
-      className={`pointer-events-auto flex w-full max-w-full overflow-hidden rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`pointer-events-auto flex w-full max-w-full overflow-hidden rounded-lg border bg-card shadow-md ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       <div className="relative flex w-full flex-col">
         <div
@@ -266,9 +266,9 @@ export default function WidgetDraggableMusicPreview() {
           onDragEnd={handleDragEnd}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          className="flex h-8 w-full cursor-move items-center gap-2 border-b border-white/10 px-3 select-none"
+          className="flex h-8 w-full cursor-move items-center gap-2 border-b border-border px-3 select-none"
         >
-          <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+          <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
             Music Preview
           </span>
           <div className="ml-auto">
@@ -280,7 +280,7 @@ export default function WidgetDraggableMusicPreview() {
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="More options"
-                  className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                  className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                   title="More options"
                   onContextMenu={(e) => e.preventDefault()}
                 >
@@ -332,25 +332,25 @@ export default function WidgetDraggableMusicPreview() {
                   if (e.key === "Enter") void search(query);
                 }}
                 placeholder="Search tracks, artists, albums..."
-                className="w-full rounded-md border border-white/10 bg-black/90 px-2 py-1.5 text-xs text-white placeholder:text-white/40"
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground"
               />
               <button
                 onClick={() => void search(query)}
-                className="flex h-8 cursor-pointer items-center justify-center rounded-md bg-white/5 px-2 text-xs font-semibold text-white/80"
+                className="flex h-8 cursor-pointer items-center justify-center rounded-md bg-muted/50 px-2 text-xs font-semibold text-muted-foreground"
               >
                 Search
               </button>
             </div>
 
-            <div className="mt-3 max-h-48 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
+            <div className="mt-3 max-h-48 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:cursor-default [&::-webkit-scrollbar-thumb]:cursor-default [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:cursor-default [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50">
               <div className="space-y-2">
                 {results.map((t) => (
                   <div
                     key={t.trackId}
-                    className="flex cursor-pointer items-center gap-2 rounded-md p-1.5 hover:bg-white/5"
+                    className="flex cursor-pointer items-center gap-2 rounded-md p-1.5 hover:bg-accent/50"
                     onClick={() => void handleSelect(t)}
                   >
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-white/5">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-muted/50">
                       {t.artworkUrl100 ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -359,20 +359,20 @@ export default function WidgetDraggableMusicPreview() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-white/30">
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                           <Music className="h-5 w-5" />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div
-                        className="truncate text-xs font-semibold text-white"
+                        className="truncate text-xs font-semibold text-foreground"
                         title={t.trackName}
                       >
                         {t.trackName}
                       </div>
                       <div
-                        className="truncate text-[11px] text-white/60"
+                        className="truncate text-[11px] text-muted-foreground"
                         title={
                           t.collectionName
                             ? `${t.artistName} • ${t.collectionName}`
@@ -392,7 +392,7 @@ export default function WidgetDraggableMusicPreview() {
                         className={`pointer-events-auto z-10 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                           isPlaying && audioRef.current?.src === t.previewUrl
                             ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
-                            : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                            : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
                         }`}
                         title={
                           isPlaying && audioRef.current?.src === t.previewUrl
@@ -413,13 +413,13 @@ export default function WidgetDraggableMusicPreview() {
             </div>
           </div>
 
-          <div className="-mx-3 border-t border-white/10" />
+          <div className="-mx-3 border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <Popover>
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border bg-secondary text-secondary-foreground transition-colors hover:bg-accent"
                   title="Volume"
                 >
                   {volume === 0 ? (
@@ -434,11 +434,11 @@ export default function WidgetDraggableMusicPreview() {
               <PopoverContent
                 align="start"
                 sideOffset={6}
-                className="flex w-36 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                className="flex w-36 flex-col gap-2 rounded-md border bg-popover p-3 shadow-lg"
               >
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
                   <span>Volume</span>
-                  <span className="text-white/60">
+                  <span className="text-muted-foreground">
                     {Math.round(volume * 100)}%
                   </span>
                 </div>
@@ -455,7 +455,7 @@ export default function WidgetDraggableMusicPreview() {
             </Popover>
 
             <div className="flex-1">
-              <div className="h-1.5 w-full rounded-full bg-white/10">
+              <div className="h-1.5 w-full rounded-full bg-muted">
                 <div
                   className="h-1.5 rounded-full bg-purple-600"
                   style={{ width: `${progress}%` }}

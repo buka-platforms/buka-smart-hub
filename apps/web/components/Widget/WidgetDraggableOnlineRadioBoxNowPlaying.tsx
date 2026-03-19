@@ -481,12 +481,12 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <div className="relative flex w-full flex-col">
           {/* Top Title - Drag Handle */}
           <div
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
             draggable
             onDragStart={(e) => {
               try {
@@ -509,7 +509,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
               } catch {}
             }}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Radio Now Playing
             </span>
             <div className="ml-auto">
@@ -521,7 +521,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -579,14 +579,14 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
           {/* Main Column */}
           <div className="flex w-full flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
+            <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
               <div className="flex items-center gap-2">
-                <Radio className="h-4 w-4 text-white/70" />
-                <span className="text-xs font-semibold text-white/90">
+                <Radio className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs font-semibold text-foreground">
                   Live Radio
                 </span>
                 {selectedCountry && (
-                  <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
                     {selectedCountry.name}
                   </span>
                 )}
@@ -595,7 +595,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                 <button
                   onClick={fetchNowPlaying}
                   disabled={isLoading}
-                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white/80 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   title="Refresh"
                 >
                   <RefreshCw
@@ -607,10 +607,10 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
             {/* Selected Station Player */}
             {selectedStation && (
-              <div className="border-b border-white/10 bg-white/5 px-3 py-3">
+              <div className="border-b border-border bg-muted/50 px-3 py-3">
                 <div className="flex items-center gap-3">
                   {/* Cover Art */}
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted shadow-lg">
                     {selectedStation.trackImg ? (
                       <img
                         src={selectedStation.trackImg}
@@ -627,7 +627,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <Music className="h-5 w-5 text-white/30" />
+                        <Music className="h-5 w-5 text-muted-foreground/50" />
                       </div>
                     )}
                   </div>
@@ -635,19 +635,19 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   {/* Track Info */}
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span
-                      className="truncate text-xs font-semibold text-white"
+                      className="truncate text-xs font-semibold text-foreground"
                       title={selectedStation.title}
                     >
                       {selectedStation.title || "Unknown Title"}
                     </span>
                     <span
-                      className="truncate text-[11px] text-white/70"
+                      className="truncate text-[11px] text-muted-foreground"
                       title={selectedStation.artist}
                     >
                       {selectedStation.artist || "Unknown Artist"}
                     </span>
                     <span
-                      className="truncate text-[10px] text-white/50"
+                      className="truncate text-[10px] text-muted-foreground"
                       title={selectedStation.radioName}
                     >
                       {selectedStation.radioName}
@@ -673,7 +673,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                   {/* Close Button */}
                   <button
                     onClick={clearSelectedStation}
-                    className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
+                    className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-muted-foreground"
                     title="Close"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -684,19 +684,19 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
             {/* Station List */}
             <div
-              className="max-h-64 overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30"
+              className="max-h-64 overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30"
               draggable={false}
             >
               {isLoading && stations.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
-                  <LoaderCircle className="h-6 w-6 animate-spin text-white/40" />
+                  <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : error ? (
                 <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
                   <span className="text-xs text-red-400/80">{error}</span>
                   <button
                     onClick={fetchNowPlaying}
-                    className="text-xs text-white/50 underline hover:text-white/80"
+                    className="text-xs text-muted-foreground underline hover:text-muted-foreground"
                   >
                     Try again
                   </button>
@@ -710,10 +710,10 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                     return (
                       <div
                         key={station.radioId}
-                        className={`group flex items-center gap-2 px-3 py-2 transition-colors hover:bg-white/5 ${isThisPlaying ? "bg-white/5" : ""}`}
+                        className={`group flex items-center gap-2 px-3 py-2 transition-colors hover:bg-accent/50 ${isThisPlaying ? "bg-muted/50" : ""}`}
                       >
                         {/* Cover Art - Clean, no overlay */}
-                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-white/10">
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-muted">
                           {station.trackImg ? (
                             <img
                               src={station.trackImg}
@@ -732,7 +732,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center">
-                              <Music className="h-4 w-4 text-white/30" />
+                              <Music className="h-4 w-4 text-muted-foreground/50" />
                             </div>
                           )}
                         </div>
@@ -740,19 +740,19 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                         {/* Track Info - Takes remaining space, truncates */}
                         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span
-                            className={`truncate text-[11px] font-medium ${isThisPlaying ? "text-green-400" : "text-white/90"}`}
+                            className={`truncate text-[11px] font-medium ${isThisPlaying ? "text-green-400" : "text-foreground"}`}
                             title={station.title}
                           >
                             {station.title || "Unknown Title"}
                           </span>
                           <span
-                            className="truncate text-[10px] text-white/60"
+                            className="truncate text-[10px] text-muted-foreground"
                             title={station.artist}
                           >
                             {station.artist || "Unknown Artist"}
                           </span>
                           <span
-                            className="truncate text-[9px] text-white/40"
+                            className="truncate text-[9px] text-muted-foreground"
                             title={station.radioName}
                           >
                             {station.radioName}
@@ -766,7 +766,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                           className={`pointer-events-auto z-10 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all ${
                             isThisPlaying
                               ? "bg-green-500/20 text-green-400 ring-1 ring-green-500/50"
-                              : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                              : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
                           title={
                             isThisPlaying && isPlaying
@@ -790,14 +790,14 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
             </div>
 
             {/* Action Bar */}
-            <div className="border-t border-white/10" />
+            <div className="border-t border-border" />
             <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
               {/* Volume Control */}
               <Popover>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-muted text-foreground transition-colors hover:bg-accent"
                     title="Volume"
                   >
                     {volume === 0 ? (
@@ -812,11 +812,11 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                 <PopoverContent
                   align="start"
                   sideOffset={6}
-                  className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                  className="flex w-32 flex-col gap-2 rounded-md border border-border bg-popover p-3 shadow-lg"
                 >
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
                     <span>Volume</span>
-                    <span className="text-white/60">
+                    <span className="text-muted-foreground">
                       {Math.round(volume * 100)}%
                     </span>
                   </div>
@@ -836,7 +836,7 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
 
               {/* Country Selector */}
               <button
-                className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-[10px] font-semibold tracking-wide text-foreground uppercase transition-colors hover:bg-accent"
                 type="button"
                 onClick={() => setCountryDialogOpen(true)}
               >
@@ -848,20 +848,20 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
       </div>
 
       <Dialog open={countryDialogOpen} onOpenChange={setCountryDialogOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-border bg-[#0c0c10]/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Select Country</DialogTitle>
             <DialogDescription>
               Search and select a country for radio now playing.
             </DialogDescription>
           </DialogHeader>
-          <Command className="bg-transparent text-white">
+          <Command className="bg-transparent text-foreground">
             <CommandInput
               placeholder="Search country..."
-              className="h-11 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
+              className="h-11 border-b border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
             />
-            <CommandList className="max-h-[min(70vh,24rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-              <CommandEmpty className="py-6 text-center text-sm text-white/50">
+            <CommandList className="max-h-[min(70vh,24rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50">
+              <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No country found.
               </CommandEmpty>
               {COUNTRIES.map((c) => (
@@ -872,16 +872,18 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                     setCountry(c.code);
                     setCountryDialogOpen(false);
                   }}
-                  className={`cursor-pointer rounded-md px-2 py-2 text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white ${
-                    country === c.code ? "bg-white/10" : ""
+                  className={`cursor-pointer rounded-md px-2 py-2 text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground ${
+                    country === c.code ? "bg-muted" : ""
                   }`}
                 >
-                  <span className="mr-2 w-8 text-[10px] font-semibold tracking-wide text-white/60 uppercase">
+                  <span className="mr-2 w-8 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                     {c.code}
                   </span>
-                  <span className="flex-1 text-sm text-white/90">{c.name}</span>
+                  <span className="flex-1 text-sm text-foreground">
+                    {c.name}
+                  </span>
                   {country === c.code && (
-                    <Check className="h-3.5 w-3.5 text-white/80" />
+                    <Check className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
                 </CommandItem>
               ))}

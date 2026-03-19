@@ -430,7 +430,7 @@ export default function WidgetDraggableQuran() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Top Title - Drag Handle */}
 
@@ -441,9 +441,9 @@ export default function WidgetDraggableQuran() {
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Quran
             </span>
             <div className="ml-auto flex items-center gap-2">
@@ -451,7 +451,7 @@ export default function WidgetDraggableQuran() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -530,10 +530,10 @@ export default function WidgetDraggableQuran() {
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-semibold text-white/60">
+                  <div className="text-xs font-semibold text-muted-foreground">
                     {surahData?.englishName || "Surah"}
                   </div>
-                  <div className="truncate text-sm font-medium text-white">
+                  <div className="truncate text-sm font-medium text-foreground">
                     {surahData?.name ||
                       (selectedSurah ? `Surah ${selectedSurah}` : "—")}
                   </div>
@@ -545,7 +545,7 @@ export default function WidgetDraggableQuran() {
 
               <div
                 ref={textContainerRef}
-                className="mt-2 max-h-34 overflow-auto text-xs text-white/80 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30"
+                className="mt-2 max-h-34 overflow-auto text-xs text-foreground [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30"
               >
                 {useMemo(
                   () =>
@@ -554,15 +554,15 @@ export default function WidgetDraggableQuran() {
                       <React.Fragment key={a.number}>
                         <div
                           data-ayah-index={idx}
-                          className={`group relative px-2 py-1 ${idx === currentAyahIndex ? "rounded bg-white/5" : ""}`}
+                          className={`group relative px-2 py-1 ${idx === currentAyahIndex ? "rounded bg-muted/50" : ""}`}
                         >
                           <div className="flex items-start gap-2 py-1">
                             <button
                               onClick={() => playAyah(idx)}
                               className={`mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200 ${
                                 idx === currentAyahIndex
-                                  ? "bg-white/20 text-white opacity-100"
-                                  : "bg-white/10 text-white/60 opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:text-white"
+                                  ? "bg-accent text-foreground opacity-100"
+                                  : "bg-muted text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-accent hover:text-foreground"
                               }`}
                               title={`Play Ayah ${a.numberInSurah}`}
                             >
@@ -579,21 +579,21 @@ export default function WidgetDraggableQuran() {
                               <div className="text-right text-2xl leading-tight">
                                 {a.text}
                               </div>
-                              <div className="mt-1 text-xs text-white/60">
+                              <div className="mt-1 text-xs text-muted-foreground">
                                 Ayah {a.numberInSurah}
                               </div>
                             </div>
                           </div>
                         </div>
                         {idx < (surahData?.ayahs?.length || 0) - 1 && (
-                          <div className="my-1 border-b border-white/10" />
+                          <div className="my-1 border-b border-border" />
                         )}
                       </React.Fragment>
                     )),
                   [surahData?.ayahs, currentAyahIndex, isPlaying, playAyah],
                 )}
                 {!surahData && (
-                  <div className="text-xs text-white/60">Loading…</div>
+                  <div className="text-xs text-muted-foreground">Loading…</div>
                 )}
               </div>
             </div>
@@ -601,10 +601,10 @@ export default function WidgetDraggableQuran() {
 
           {/* Centered transport controls moved below the surah text */}
           <div className="px-3 py-2">
-            <div className="mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-md bg-white/3 p-2">
+            <div className="mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-md bg-muted/30 p-2">
               <button
                 onClick={jumpToFirstAyah}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-accent"
                 title="First Ayah"
               >
                 <ChevronsLeft className="h-4 w-4" />
@@ -612,7 +612,7 @@ export default function WidgetDraggableQuran() {
 
               <button
                 onClick={prevAyah}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-accent"
                 title="Previous"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -620,7 +620,7 @@ export default function WidgetDraggableQuran() {
 
               <button
                 onClick={togglePlay}
-                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-accent"
                 title={isPlaying ? "Pause" : "Play"}
               >
                 {isLoading ? (
@@ -634,7 +634,7 @@ export default function WidgetDraggableQuran() {
 
               <button
                 onClick={nextAyah}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-accent"
                 title="Next"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -642,7 +642,7 @@ export default function WidgetDraggableQuran() {
 
               <button
                 onClick={jumpToLastAyah}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-accent"
                 title="Last Ayah"
               >
                 <ChevronsRight className="h-4 w-4" />
@@ -650,13 +650,13 @@ export default function WidgetDraggableQuran() {
             </div>
           </div>
 
-          <div className="border-t border-white/10" />
+          <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <Popover>
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border bg-secondary text-secondary-foreground transition-colors hover:bg-accent"
                   title="Volume"
                 >
                   {volume === 0 ? (
@@ -671,11 +671,13 @@ export default function WidgetDraggableQuran() {
               <PopoverContent
                 align="start"
                 sideOffset={6}
-                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                className="flex w-32 flex-col gap-2 rounded-md border bg-popover p-3 shadow-lg"
               >
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
                   <span>Volume</span>
-                  <span className="text-white/60">{Math.round(volume)}%</span>
+                  <span className="text-muted-foreground">
+                    {Math.round(volume)}%
+                  </span>
                 </div>
                 <Slider
                   value={[volume]}
@@ -689,7 +691,7 @@ export default function WidgetDraggableQuran() {
 
             <button
               type="button"
-              className="flex h-8 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white hover:bg-white/20"
+              className="flex h-8 cursor-pointer items-center gap-2 rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground hover:bg-accent"
               onClick={() => setSurahPickerOpen(true)}
             >
               {selectedSurah
@@ -709,10 +711,10 @@ export default function WidgetDraggableQuran() {
                   value={jumpToAyahValue}
                   onChange={(e) => setJumpToAyahValue(e.target.value)}
                   placeholder={`${currentAyahIndex + 1}`}
-                  className="h-8 w-16 rounded border border-white/10 bg-white/10 px-2 text-center text-[10px] font-semibold tracking-wide text-white placeholder:text-white/60 focus:border-white/30 focus:outline-none"
+                  className="h-8 w-16 rounded border border-input bg-background px-2 text-center text-[10px] font-semibold tracking-wide text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
                   title={`Jump to Ayah (1-${surahData.ayahs.length})`}
                 />
-                <span className="text-[10px] text-white/60">
+                <span className="text-[10px] text-muted-foreground">
                   / {surahData.ayahs.length}
                 </span>
               </form>
@@ -722,20 +724,20 @@ export default function WidgetDraggableQuran() {
       </div>
 
       <Dialog open={surahPickerOpen} onOpenChange={setSurahPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-border bg-popover p-0 text-foreground shadow-2xl backdrop-blur-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Select Surah</DialogTitle>
             <DialogDescription>
               Search and choose a Surah to play.
             </DialogDescription>
           </DialogHeader>
-          <Command className="bg-transparent text-white">
+          <Command className="bg-transparent text-foreground">
             <CommandInput
               placeholder="Search surah..."
-              className="h-11 border-b border-white/10 px-3 text-sm text-white placeholder:text-white/40"
+              className="h-11 border-b border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
             />
-            <CommandList className="max-h-[min(70vh,28rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-              <CommandEmpty className="py-6 text-center text-sm text-white/50">
+            <CommandList className="max-h-[min(70vh,28rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50">
+              <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No surah found.
               </CommandEmpty>
               {surahList.map(
@@ -750,24 +752,24 @@ export default function WidgetDraggableQuran() {
                       setSelectedSurah(s.number);
                       setSurahPickerOpen(false);
                     }}
-                    className={`cursor-pointer rounded-md px-2 py-2 text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white ${
-                      s.number === selectedSurah ? "bg-white/10" : ""
+                    className={`cursor-pointer rounded-md px-2 py-2 text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-foreground ${
+                      s.number === selectedSurah ? "bg-accent" : ""
                     }`}
                   >
-                    <div className="mr-2 w-7 text-[10px] font-semibold tracking-wide text-white/60">
+                    <div className="mr-2 w-7 text-[10px] font-semibold tracking-wide text-muted-foreground">
                       {s.number}
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold text-white/90">
+                      <div className="text-sm font-semibold text-foreground">
                         {s.englishName}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-white/60">
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                         <span>{s.name}</span>
                         <span>{s.numberOfAyahs} ayahs</span>
                       </div>
                     </div>
                     {s.number === selectedSurah && (
-                      <Check className="h-3.5 w-3.5 text-white/80" />
+                      <Check className="h-3.5 w-3.5 text-muted-foreground" />
                     )}
                   </CommandItem>
                 ),

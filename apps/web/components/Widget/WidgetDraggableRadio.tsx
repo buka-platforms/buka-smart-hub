@@ -269,7 +269,7 @@ export default function WidgetDraggableRadioPlayer() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Top Title - Drag Handle */}
 
@@ -281,9 +281,9 @@ export default function WidgetDraggableRadioPlayer() {
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Radio
             </span>
             <div className="ml-auto">
@@ -295,7 +295,7 @@ export default function WidgetDraggableRadioPlayer() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -361,7 +361,7 @@ export default function WidgetDraggableRadioPlayer() {
           {/* Player Row */}
           <div className="flex items-center gap-3 p-3">
             {/* Cover Art */}
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-white/10">
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
               <img
                 className="pointer-events-none h-full w-full object-contain"
                 src={artworkSrc || transparent1x1Pixel}
@@ -374,20 +374,20 @@ export default function WidgetDraggableRadioPlayer() {
             {/* Track Info */}
             <div className="flex min-w-0 flex-auto flex-col justify-center gap-0.5">
               <span
-                className="block max-w-full truncate text-xs font-semibold text-white/60"
+                className="block max-w-full truncate text-xs font-semibold text-muted-foreground"
                 title={stationName}
               >
                 {stationName}
               </span>
               <span
-                className="max-w-full truncate text-sm font-medium text-white"
+                className="max-w-full truncate text-sm font-medium text-foreground"
                 title={title}
               >
                 {title || "\u00A0"}
               </span>
               {artist && (
                 <span
-                  className="max-w-full truncate text-xs text-white/70"
+                  className="max-w-full truncate text-xs text-muted-foreground"
                   title={artist}
                 >
                   {artist}
@@ -399,24 +399,24 @@ export default function WidgetDraggableRadioPlayer() {
             <div className="shrink-0">
               {!hasStation ? (
                 <button
-                  className="flex h-10 w-10 cursor-not-allowed items-center justify-center rounded-full bg-white/5 text-white/50"
+                  className="flex h-10 w-10 cursor-not-allowed items-center justify-center rounded-full bg-muted/50 text-muted-foreground"
                   title="Loading"
                   aria-disabled
                 >
                   <Loading
-                    className="h-5 w-5 animate-spin text-white/80"
+                    className="h-5 w-5 animate-spin text-muted-foreground"
                     color="#f5f5f5"
                   />
                 </button>
               ) : radioAudioState.isLoading ? (
                 <Loading
-                  className="h-10 w-10 animate-spin text-white/80"
+                  className="h-10 w-10 animate-spin text-muted-foreground"
                   color="#f5f5f5"
                 />
               ) : radioAudioState.isPlaying ? (
                 <button
                   onClick={() => void stop()}
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-accent"
                   title="Stop"
                 >
                   <Pause className="h-5 w-5" fill="currentColor" />
@@ -424,7 +424,7 @@ export default function WidgetDraggableRadioPlayer() {
               ) : (
                 <button
                   onClick={() => play(false)}
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-accent"
                   title="Play"
                 >
                   <PlayIcon className="h-5 w-5" fill="currentColor" />
@@ -434,11 +434,11 @@ export default function WidgetDraggableRadioPlayer() {
           </div>
 
           {/* Separator and action bar */}
-          <div className="border-t border-white/10" />
+          <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
               onClick={hasStation ? toggleFavorite : undefined}
-              className={`flex h-8 w-8 ${hasStation ? "cursor-pointer" : "cursor-not-allowed opacity-60"} items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20 ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
+              className={`flex h-8 w-8 ${hasStation ? "cursor-pointer" : "cursor-not-allowed opacity-60"} items-center justify-center rounded-full border bg-secondary text-secondary-foreground transition-colors hover:bg-accent ${isFavorite ? "border-pink-400/60 bg-pink-500/30" : ""}`}
               title={isFavorite ? "Remove from favorites" : "Add to favorites"}
               aria-disabled={!hasStation}
             >
@@ -452,7 +452,7 @@ export default function WidgetDraggableRadioPlayer() {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className={`flex h-8 w-8 ${hasStation ? "cursor-pointer" : "cursor-not-allowed opacity-60"} items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20`}
+                  className={`flex h-8 w-8 ${hasStation ? "cursor-pointer" : "cursor-not-allowed opacity-60"} items-center justify-center rounded-full border bg-secondary text-secondary-foreground transition-colors hover:bg-accent`}
                   title="Volume"
                   aria-disabled={!hasStation}
                 >
@@ -468,11 +468,13 @@ export default function WidgetDraggableRadioPlayer() {
               <PopoverContent
                 align="start"
                 sideOffset={6}
-                className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                className="flex w-32 flex-col gap-2 rounded-md border bg-popover p-3 shadow-lg"
               >
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
                   <span>Volume</span>
-                  <span className="text-white/60">{Math.round(volume)}%</span>
+                  <span className="text-muted-foreground">
+                    {Math.round(volume)}%
+                  </span>
                 </div>
                 <Slider
                   value={[volume]}
@@ -487,7 +489,7 @@ export default function WidgetDraggableRadioPlayer() {
 
             <Link
               href="/apps/radio"
-              className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              className="flex h-8 items-center justify-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
               title="Browse more stations"
             >
               Stations
@@ -495,7 +497,7 @@ export default function WidgetDraggableRadioPlayer() {
             {radioStationState.radioStation?.slug && (
               <Link
                 href={`/radio/${radioStationState.radioStation.slug}`}
-                className="flex h-8 items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                className="flex h-8 items-center justify-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
                 title={`Go to ${radioStationState.radioStation.name} details`}
               >
                 Details

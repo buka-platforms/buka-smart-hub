@@ -549,7 +549,7 @@ export default function WidgetDraggablePomodoro() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Top Title - Drag Handle */}
 
@@ -577,9 +577,9 @@ export default function WidgetDraggablePomodoro() {
                   swapWidgetPositions(src as WidgetId, WIDGET_ID as WidgetId);
               } catch {}
             }}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Pomodoro
             </span>
             <div className="ml-auto">
@@ -591,7 +591,7 @@ export default function WidgetDraggablePomodoro() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -662,7 +662,7 @@ export default function WidgetDraggablePomodoro() {
           </div>
           {/* Completion Modal Overlay */}
           {showCompletion && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-black/95 backdrop-blur-sm">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-background/95 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-3 px-4 text-center">
                 {/* Icon */}
                 <div
@@ -681,12 +681,12 @@ export default function WidgetDraggablePomodoro() {
 
                 {/* Message */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-lg font-semibold text-white">
+                  <span className="text-lg font-semibold text-foreground">
                     {completedMode === "focus"
                       ? "Focus Complete!"
                       : "Break Over!"}
                   </span>
-                  <span className="text-sm text-white/60">
+                  <span className="text-sm text-muted-foreground">
                     {completedMode === "focus"
                       ? "Great work! Ready for a break?"
                       : "Time to get back to work!"}
@@ -717,7 +717,7 @@ export default function WidgetDraggablePomodoro() {
                   {completedMode === "focus" && (
                     <button
                       onClick={skipBreak}
-                      className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/20"
+                      className="flex items-center gap-2 rounded-full border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:bg-accent"
                     >
                       <FastForward className="h-4 w-4" /> Skip Break
                     </button>
@@ -726,22 +726,22 @@ export default function WidgetDraggablePomodoro() {
               </div>
             </div>
           )}
-          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/10 text-white/80">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
                 <Clock3 className="h-4 w-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-white">
+                <span className="text-xs font-semibold text-foreground">
                   {modeLabel(mode)}
                 </span>
-                <span className="text-[11px] text-white/50">
+                <span className="text-[11px] text-muted-foreground">
                   Sessions: {completedFocus} • Streak: {focusStreak}/4
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-white/50">
-              <div className="h-1.5 w-14 overflow-hidden rounded-full bg-white/10">
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <div className="h-1.5 w-14 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-purple-500"
                   style={{ width: `${progress}%` }}
@@ -752,17 +752,17 @@ export default function WidgetDraggablePomodoro() {
 
           <div className="flex items-baseline justify-between px-3 pt-3">
             <div className="flex flex-col">
-              <span className="font-mono text-4xl font-semibold text-white tabular-nums">
+              <span className="font-mono text-4xl font-semibold text-foreground tabular-nums">
                 {formatted}
               </span>
-              <span className="text-[11px] text-white/50">
+              <span className="text-[11px] text-muted-foreground">
                 {isRunning ? "Running" : "Paused"}
               </span>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={toggleRun}
-                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${isRunning ? "bg-red-500/20 text-red-200 hover:bg-red-500/30" : "bg-green-500/20 text-green-200 hover:bg-green-500/30"}`}
+                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${isRunning ? "bg-red-500/20 text-red-200 hover:bg-red-500/30" : "bg-green-500/20 text-green-200 hover:bg-green-500/30"}`}
                 title={isRunning ? "Pause" : "Start"}
               >
                 {isRunning ? (
@@ -773,7 +773,7 @@ export default function WidgetDraggablePomodoro() {
               </button>
               <button
                 onClick={resetCurrent}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border bg-secondary text-secondary-foreground transition-colors hover:bg-accent"
                 title="Reset current session"
               >
                 <RotateCcw className="h-4 w-4" />
@@ -791,7 +791,7 @@ export default function WidgetDraggablePomodoro() {
             ).map(([key, label]) => (
               <div
                 key={key}
-                className={`flex flex-col rounded-md border border-white/10 bg-white/5 p-2 ${mode === key ? "ring-1 ring-purple-500/50" : ""}`}
+                className={`flex flex-col rounded-md border border-border bg-muted/50 p-2 ${mode === key ? "ring-1 ring-purple-500/50" : ""}`}
                 onClick={() => switchMode(key)}
                 role="button"
                 tabIndex={0}
@@ -799,9 +799,9 @@ export default function WidgetDraggablePomodoro() {
                   if (e.key === "Enter" || e.key === " ") switchMode(key);
                 }}
               >
-                <div className="flex items-center justify-between text-[10px] text-white/60">
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                   <span>{label}</span>
-                  <TimerReset className="h-3 w-3 text-white/40" />
+                  <TimerReset className="h-3 w-3 text-muted-foreground" />
                 </div>
                 <div className="mt-1 flex items-center gap-1">
                   <input
@@ -812,25 +812,25 @@ export default function WidgetDraggablePomodoro() {
                     onChange={(e) =>
                       setCustomDuration(key, Number(e.target.value))
                     }
-                    className="h-8 w-full rounded-md border border-white/10 bg-black/30 px-2 text-xs text-white outline-none focus:border-purple-500/60"
+                    className="h-8 w-full rounded-md border border-input bg-muted/50 px-2 text-xs text-foreground outline-none focus:border-purple-500/60"
                     title={`Minutes for ${label.toLowerCase()}`}
                   />
-                  <span className="text-[10px] text-white/50">min</span>
+                  <span className="text-[10px] text-muted-foreground">min</span>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Action bar */}
-          <div className="border-t border-white/10" />
+          <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2">
             {/* Audio toggle */}
             <button
               onClick={toggleAudio}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${
                 settings.audioEnabled
                   ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
-                  : "bg-white/10 text-white/50 hover:bg-white/20"
+                  : "bg-muted text-muted-foreground hover:bg-accent"
               }`}
               title={settings.audioEnabled ? "Sound on" : "Sound off"}
             >
@@ -845,14 +845,14 @@ export default function WidgetDraggablePomodoro() {
             <button
               onClick={toggleNotification}
               disabled={notificationPermission === "unsupported"}
-              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 transition-colors ${
+              className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${
                 notificationPermission === "unsupported"
                   ? "cursor-not-allowed opacity-40"
                   : notificationPermission === "denied"
                     ? "cursor-not-allowed bg-red-500/10 text-red-400/50"
                     : settings.notificationEnabled
                       ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
-                      : "bg-white/10 text-white/50 hover:bg-white/20"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
               }`}
               title={
                 notificationPermission === "unsupported"

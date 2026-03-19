@@ -205,7 +205,7 @@ export default function WidgetDraggableDateTime() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         {/* Top Title - Drag Handle */}
 
@@ -232,9 +232,9 @@ export default function WidgetDraggableDateTime() {
                   );
               } catch {}
             }}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Time
             </span>
             <div className="ml-auto">
@@ -246,7 +246,7 @@ export default function WidgetDraggableDateTime() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -300,7 +300,7 @@ export default function WidgetDraggableDateTime() {
           {/* DateTime Row */}
           <div className="flex items-center gap-3 p-3">
             {/* Time of Day Icon */}
-            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-white/15 to-white/5">
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-accent to-muted/50">
               <TimeOfDayIcon
                 hour={hour}
                 className="h-8 w-8 text-amber-300/90"
@@ -309,26 +309,28 @@ export default function WidgetDraggableDateTime() {
 
             {/* Time Display */}
             <div className="flex min-w-0 flex-1 flex-col justify-center">
-              <span className="text-xs text-white/60">{greeting}</span>
+              <span className="text-xs text-muted-foreground">{greeting}</span>
               <div className="flex items-baseline gap-1">
-                <span className="font-rubik text-3xl font-light tracking-tight text-white">
+                <span className="font-rubik text-3xl font-light tracking-tight text-foreground">
                   {formattedTime}
                 </span>
                 {timeFormat === "12h" && (
-                  <span className="text-sm font-medium text-white/70">
+                  <span className="text-sm font-medium text-muted-foreground">
                     {meridiem}
                   </span>
                 )}
-                <span className="ml-0.5 text-xs text-white/40 tabular-nums">
+                <span className="ml-0.5 text-xs text-muted-foreground tabular-nums">
                   :{seconds}
                 </span>
               </div>
             </div>
 
             {/* Date Info */}
-            <div className="flex shrink-0 flex-col items-end gap-0.5 text-right text-[10px] text-white/50">
+            <div className="flex shrink-0 flex-col items-end gap-0.5 text-right text-[10px] text-muted-foreground">
               <div className="flex items-center gap-1" title="Day of week">
-                <span className="font-medium text-white/70">{dayOfWeek}</span>
+                <span className="font-medium text-muted-foreground">
+                  {dayOfWeek}
+                </span>
               </div>
               <div className="flex items-center gap-1" title="Date">
                 <Calendar className="h-3 w-3" />
@@ -341,11 +343,11 @@ export default function WidgetDraggableDateTime() {
           </div>
 
           {/* Separator and action bar */}
-          <div className="border-t border-white/10" />
+          <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
             <button
               onClick={toggleTimeFormat}
-              className="flex h-8 cursor-pointer items-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+              className="flex h-8 cursor-pointer items-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
               title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
             >
               <span>{timeFormat === "12h" ? "24H" : "12H"}</span>

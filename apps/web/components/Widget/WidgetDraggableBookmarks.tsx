@@ -215,7 +215,7 @@ export default function WidgetDraggableBookmarks() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${
           isDragging
             ? "shadow-none transition-none"
             : "transition-opacity duration-300"
@@ -242,11 +242,11 @@ export default function WidgetDraggableBookmarks() {
                 }
               } catch {}
             }}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${
               isDragging ? "opacity-60" : "opacity-100"
             }`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Bookmarks
             </span>
             <div className="ml-auto">
@@ -258,7 +258,7 @@ export default function WidgetDraggableBookmarks() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                   >
                     <MoreHorizontal className="h-2.5 w-2.5" />
@@ -304,19 +304,19 @@ export default function WidgetDraggableBookmarks() {
 
           <div className="space-y-2 p-3">
             {isAuthenticated === false ? (
-              <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-100">
+              <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-800 dark:text-amber-200">
                 Sign in to use synced bookmarks.
               </p>
             ) : null}
             {syncError ? (
-              <p className="rounded-md border border-red-200/20 bg-red-500/10 px-2.5 py-2 text-[11px] text-red-100">
+              <p className="rounded-md border border-red-200/20 bg-red-500/10 px-2.5 py-2 text-[11px] text-red-800 dark:text-red-200">
                 {syncError}
               </p>
             ) : null}
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="h-8 border-white/15 bg-white/5 text-white"
+              className="h-8 border-input bg-background text-foreground"
               placeholder="Title (optional)"
               disabled={isAuthenticated === false || isSubmitting}
             />
@@ -324,7 +324,7 @@ export default function WidgetDraggableBookmarks() {
               <Input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="h-8 border-white/15 bg-white/5 text-white"
+                className="h-8 border-input bg-background text-foreground"
                 placeholder="https://example.com"
                 disabled={isAuthenticated === false || isSubmitting}
                 onKeyDown={(e) => {
@@ -338,7 +338,7 @@ export default function WidgetDraggableBookmarks() {
                 type="button"
                 onClick={() => void submitBookmark()}
                 disabled={isAuthenticated === false || isSubmitting}
-                className="flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2.5 text-xs font-semibold text-white/80 hover:bg-white/20"
+                className="flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-md border bg-secondary px-2.5 text-xs font-semibold text-secondary-foreground hover:bg-accent"
                 title="Add bookmark"
               >
                 <BookmarkPlus className="h-3.5 w-3.5" />
@@ -348,14 +348,14 @@ export default function WidgetDraggableBookmarks() {
             {error ? <p className="text-[11px] text-red-300">{error}</p> : null}
           </div>
 
-          <div className="border-t border-white/10" />
+          <div className="border-t border-border" />
           <div className="max-h-72 space-y-1 overflow-y-auto p-2">
             {isLoading ? (
-              <p className="px-1 py-2 text-xs text-white/50">
+              <p className="px-1 py-2 text-xs text-muted-foreground">
                 Loading bookmarks...
               </p>
             ) : items.length === 0 ? (
-              <p className="px-1 py-2 text-xs text-white/50">
+              <p className="px-1 py-2 text-xs text-muted-foreground">
                 {isAuthenticated !== false
                   ? "No bookmarks yet. Add your first URL above."
                   : "Sign in to start saving bookmarks."}
@@ -364,7 +364,7 @@ export default function WidgetDraggableBookmarks() {
               items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-2 py-1.5"
+                  className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-2 py-1.5"
                 >
                   <a
                     href={item.url}
@@ -373,10 +373,10 @@ export default function WidgetDraggableBookmarks() {
                     className="min-w-0 flex-1"
                     title={item.url}
                   >
-                    <p className="truncate text-xs font-medium text-white">
+                    <p className="truncate text-xs font-medium text-foreground">
                       {item.title}
                     </p>
-                    <p className="truncate text-[10px] text-white/50">
+                    <p className="truncate text-[10px] text-muted-foreground">
                       {item.url}
                     </p>
                   </a>
@@ -384,7 +384,7 @@ export default function WidgetDraggableBookmarks() {
                     href={item.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded p-1 text-white/60 hover:bg-white/10 hover:text-white"
+                    className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                     title="Open link"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -393,7 +393,7 @@ export default function WidgetDraggableBookmarks() {
                     type="button"
                     onClick={() => void handleDelete(item.id)}
                     disabled={isSubmitting}
-                    className="cursor-pointer rounded p-1 text-white/60 hover:bg-white/10 hover:text-red-300"
+                    className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-300"
                     title="Delete bookmark"
                   >
                     <Trash2 className="h-3.5 w-3.5" />

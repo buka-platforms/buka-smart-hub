@@ -98,9 +98,9 @@ const WIDGET_VERSION = "1.0.0";
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableIPTV() {
   const commandItemClass =
-    "group cursor-pointer rounded-md px-2 py-1.5 text-white/80 transition-colors hover:bg-white/5 data-[highlighted=true]:bg-white/10 data-[highlighted=true]:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white";
+    "group cursor-pointer rounded-md px-2 py-1.5 text-foreground transition-colors hover:bg-accent/50 data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground";
   const logoPlateClass =
-    "overflow-hidden rounded-md border border-white/25 bg-gradient-to-br from-white to-zinc-200 shadow-[0_2px_10px_rgba(0,0,0,0.35)]";
+    "overflow-hidden rounded-md border border-border bg-gradient-to-br from-background to-muted shadow-[0_2px_10px_rgba(0,0,0,0.35)]";
 
   const WIDGET_ID = "iptv";
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -660,7 +660,7 @@ export default function WidgetDraggableIPTV() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <div className="relative flex w-full flex-col">
           {/* Top Title - Drag Handle */}
@@ -670,9 +670,9 @@ export default function WidgetDraggableIPTV() {
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex h-8 w-full cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 w-full cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               IPTV
             </span>
             <div className="ml-auto">
@@ -684,7 +684,7 @@ export default function WidgetDraggableIPTV() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                   >
                     <MoreHorizontal className="h-2.5 w-2.5" />
@@ -738,7 +738,7 @@ export default function WidgetDraggableIPTV() {
           {/* Main Column */}
           <div className="flex w-full flex-col">
             {/* Channel Header */}
-            <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+            <div className="flex items-center gap-2 border-b border-border px-3 py-2">
               {/* Channel Logo */}
               {selectedChannel?.logo_url && (
                 <div
@@ -756,10 +756,10 @@ export default function WidgetDraggableIPTV() {
 
               {/* Channel Info */}
               <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-xs font-semibold text-white">
+                <span className="truncate text-xs font-semibold text-foreground">
                   {selectedChannel?.name || "Select Channel"}
                 </span>
-                <span className="truncate text-[10px] text-white/50">
+                <span className="truncate text-[10px] text-muted-foreground">
                   {selectedChannel?.country} • {selectedChannel?.category}
                 </span>
               </div>
@@ -775,7 +775,7 @@ export default function WidgetDraggableIPTV() {
               {/* Channel Picker */}
               <button
                 onClick={() => setChannelPickerOpen(true)}
-                className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[10px] font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-border bg-muted/50 px-2 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 title="Change channel"
               >
                 <Tv className="h-3 w-3" />
@@ -801,7 +801,7 @@ export default function WidgetDraggableIPTV() {
               )}
               {!selectedChannel && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-2 text-white/50">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <Tv className="h-10 w-10" />
                     <span className="text-xs">Select a channel to watch</span>
                   </div>
@@ -810,10 +810,10 @@ export default function WidgetDraggableIPTV() {
             </div>
 
             {/* Player Controls */}
-            <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2">
+            <div className="flex items-center gap-2 border-t border-border px-3 py-2">
               <button
                 onClick={toggleFavorite}
-                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFavorite ? "border-pink-400/60 bg-pink-500/30 text-pink-400" : "border-white/10 bg-white/10 text-white hover:bg-white/20"}`}
+                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFavorite ? "border-pink-400/60 bg-pink-500/30 text-pink-400" : "border-border bg-muted text-foreground hover:bg-accent"}`}
                 title={
                   isFavorite ? "Remove from favorites" : "Add to favorites"
                 }
@@ -847,18 +847,18 @@ export default function WidgetDraggableIPTV() {
       </Dialog>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-border bg-[#0c0c10]/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Select IPTV channel</DialogTitle>
             <DialogDescription>
               Search and choose a live IPTV channel.
             </DialogDescription>
           </DialogHeader>
-          <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 p-2 pr-10">
+          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+            <div className="flex flex-wrap items-center gap-2 border-b border-border p-2 pr-10">
               <CommandInput
                 placeholder="Search channels..."
-                className="h-9 min-w-52 flex-1 text-sm text-white placeholder:text-white/40"
+                className="h-9 min-w-52 flex-1 text-sm text-foreground placeholder:text-muted-foreground"
               />
               <Select
                 value={countryFilter ?? "all"}
@@ -868,14 +868,14 @@ export default function WidgetDraggableIPTV() {
               >
                 <SelectTrigger
                   aria-label="Filter by country"
-                  className="h-9 w-auto max-w-44 min-w-32 cursor-pointer gap-2 border-white/10 bg-white/5 text-xs text-white/80 hover:bg-white/10 focus:ring-0"
+                  className="h-9 w-auto max-w-44 min-w-32 cursor-pointer gap-2 border-border bg-muted/50 text-xs text-muted-foreground hover:bg-accent focus:ring-0"
                 >
                   <SelectValue placeholder="All countries" />
                 </SelectTrigger>
-                <SelectContent className="max-h-72 border-white/10 bg-[#121218] text-white">
+                <SelectContent className="max-h-72 border-border bg-[#121218] text-foreground">
                   <SelectItem
                     value="all"
-                    className="cursor-pointer focus:bg-white/10 focus:text-white"
+                    className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
                   >
                     All countries
                   </SelectItem>
@@ -883,7 +883,7 @@ export default function WidgetDraggableIPTV() {
                     <SelectItem
                       key={country}
                       value={country}
-                      className="cursor-pointer focus:bg-white/10 focus:text-white"
+                      className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
                     >
                       {country}
                     </SelectItem>
@@ -893,16 +893,16 @@ export default function WidgetDraggableIPTV() {
             </div>
             <CommandList
               ref={channelListRef}
-              className="max-h-[min(70vh,32rem)] overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+              className="max-h-[min(70vh,32rem)] overflow-y-auto bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
             >
-              <CommandEmpty className="px-3 py-2 text-xs text-white/60">
+              <CommandEmpty className="px-3 py-2 text-xs text-muted-foreground">
                 No channels found.
               </CommandEmpty>
 
               {favoriteChannels.length > 0 && (
                 <CommandGroup
                   heading={
-                    <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                    <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                       Favorites
                     </span>
                   }
@@ -917,7 +917,7 @@ export default function WidgetDraggableIPTV() {
                       }
                       className={`${commandItemClass} ${
                         channel.id === selectedChannel?.id
-                          ? "bg-white/10 text-white"
+                          ? "bg-muted text-foreground"
                           : ""
                       }`}
                     >
@@ -935,10 +935,10 @@ export default function WidgetDraggableIPTV() {
                           </div>
                         )}
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-[13px] font-medium text-white">
+                          <span className="truncate text-[13px] font-medium text-foreground">
                             {channel.name}
                           </span>
-                          <span className="truncate text-[11px] text-white/50">
+                          <span className="truncate text-[11px] text-muted-foreground">
                             {channel.country}
                           </span>
                         </div>
@@ -959,7 +959,7 @@ export default function WidgetDraggableIPTV() {
                   <CommandGroup
                     key={category}
                     heading={
-                      <span className="text-[10px] font-semibold tracking-wide text-white/50 uppercase">
+                      <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                         {category}
                       </span>
                     }
@@ -976,7 +976,7 @@ export default function WidgetDraggableIPTV() {
                         }
                         className={`${commandItemClass} ${
                           channel.id === selectedChannel?.id
-                            ? "bg-white/10 text-white"
+                            ? "bg-muted text-foreground"
                             : ""
                         }`}
                       >
@@ -994,10 +994,10 @@ export default function WidgetDraggableIPTV() {
                             </div>
                           )}
                           <div className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate text-[13px] font-medium text-white">
+                            <span className="truncate text-[13px] font-medium text-foreground">
                               {channel.name}
                             </span>
-                            <span className="truncate text-[11px] text-white/50">
+                            <span className="truncate text-[11px] text-muted-foreground">
                               {channel.country}
                             </span>
                           </div>

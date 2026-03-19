@@ -345,7 +345,7 @@ export default function WidgetDraggableSomaFM() {
       <div
         ref={containerRef}
         data-widget-id="somafm"
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <div className="relative flex w-full flex-col">
           {/* Top Title (drag handle) */}
@@ -355,9 +355,9 @@ export default function WidgetDraggableSomaFM() {
             onDragEnd={handleDragEnd}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`flex h-8 w-full cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
+            className={`flex h-8 w-full cursor-move items-center gap-2 border-b border-border px-3 select-none ${isDragging ? "opacity-60" : "opacity-100"}`}
           >
-            <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="flex-1 text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               SomaFM
             </span>
             <div>
@@ -369,7 +369,7 @@ export default function WidgetDraggableSomaFM() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -416,10 +416,10 @@ export default function WidgetDraggableSomaFM() {
 
           {/* Main Column */}
           <div className="flex w-full flex-col">
-            <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
+            <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 {/* Channel Art */}
-                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white/10">
+                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted">
                   {visibleNowPlaying?.albumArt ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -443,7 +443,7 @@ export default function WidgetDraggableSomaFM() {
                       draggable={false}
                     />
                   ) : (
-                    <LoaderCircle className="h-8 w-8 animate-spin text-white/40" />
+                    <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
                   )}
                 </div>
 
@@ -451,7 +451,7 @@ export default function WidgetDraggableSomaFM() {
                 <div className="flex min-w-0 flex-auto flex-col justify-center gap-0.5">
                   {currentChannel && (
                     <span
-                      className="truncate text-xs font-semibold text-white/60"
+                      className="truncate text-xs font-semibold text-muted-foreground"
                       title={currentChannel.title}
                     >
                       {currentChannel.title}
@@ -459,7 +459,7 @@ export default function WidgetDraggableSomaFM() {
                   )}
                   {visibleNowPlaying && (
                     <span
-                      className="truncate text-sm font-medium text-white"
+                      className="truncate text-sm font-medium text-foreground"
                       title={visibleNowPlaying.title}
                     >
                       {visibleNowPlaying.title}
@@ -467,7 +467,7 @@ export default function WidgetDraggableSomaFM() {
                   )}
                   {visibleNowPlaying && (
                     <span
-                      className="truncate text-xs text-white/70"
+                      className="truncate text-xs text-muted-foreground"
                       title={`${visibleNowPlaying.artist}${visibleNowPlaying.album ? ` — ${visibleNowPlaying.album}` : ""}`}
                     >
                       {visibleNowPlaying.artist}
@@ -497,7 +497,7 @@ export default function WidgetDraggableSomaFM() {
                       }
                     } catch {}
                   }}
-                  className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-white/10" : "bg-white/10 hover:bg-white/20"} text-white transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
+                  className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${isLoading ? "bg-muted" : "bg-muted hover:bg-accent"} text-foreground transition-colors ${!streamUrl ? "cursor-not-allowed opacity-50" : ""}`}
                   title={isPlaying ? "Pause" : "Play"}
                 >
                   {isLoading ? (
@@ -512,10 +512,10 @@ export default function WidgetDraggableSomaFM() {
             </div>
 
             {currentChannel && (
-              <div className="px-3 pb-3 text-xs text-white">
+              <div className="px-3 pb-3 text-xs text-foreground">
                 {currentChannel.description && (
                   <div
-                    className="mt-1 overflow-hidden leading-snug text-white/70"
+                    className="mt-1 overflow-hidden leading-snug text-muted-foreground"
                     style={{
                       display: "-webkit-box",
                       WebkitLineClamp: 1,
@@ -526,7 +526,7 @@ export default function WidgetDraggableSomaFM() {
                     {currentChannel.description}
                   </div>
                 )}
-                <div className="mt-1 flex flex-nowrap items-center gap-3 text-[10px] text-white/50">
+                <div className="mt-1 flex flex-nowrap items-center gap-3 text-[10px] text-muted-foreground">
                   <span className="flex min-w-0 items-center gap-1">
                     <User className="inline-block h-3 w-3" />
                     <span
@@ -567,13 +567,13 @@ export default function WidgetDraggableSomaFM() {
             {/* audio element managed in shared somafm audio module */}
 
             {/* Separator and action bar */}
-            <div className="border-t border-white/10" />
+            <div className="border-t border-border" />
             <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
               <Popover>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition-colors hover:bg-white/20"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-muted text-foreground transition-colors hover:bg-accent"
                     title="Volume"
                   >
                     {volume === 0 ? (
@@ -588,11 +588,11 @@ export default function WidgetDraggableSomaFM() {
                 <PopoverContent
                   align="start"
                   sideOffset={6}
-                  className="flex w-32 flex-col gap-2 rounded-md border border-white/10 bg-black/90 p-3 shadow-lg"
+                  className="flex w-32 flex-col gap-2 rounded-md border border-border bg-popover p-3 shadow-lg"
                 >
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
                     <span>Volume</span>
-                    <span className="text-white/60">
+                    <span className="text-muted-foreground">
                       {Math.round(volume * 100)}%
                     </span>
                   </div>
@@ -612,7 +612,7 @@ export default function WidgetDraggableSomaFM() {
               </Popover>
               {/* CHANNELS button with searchable command dialog */}
               <button
-                className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 px-3 text-[10px] font-semibold tracking-wide text-white uppercase transition-colors hover:bg-white/20"
+                className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-border bg-muted px-3 text-[10px] font-semibold tracking-wide text-foreground uppercase transition-colors hover:bg-accent"
                 type="button"
                 aria-label="Select channel"
                 onClick={async () => {
@@ -636,23 +636,23 @@ export default function WidgetDraggableSomaFM() {
       </div>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-border bg-[#0c0c10]/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Select Channel</DialogTitle>
             <DialogDescription>
               Search and choose a SomaFM channel.
             </DialogDescription>
           </DialogHeader>
-          <Command className="bg-transparent text-white">
+          <Command className="bg-transparent text-foreground">
             <CommandInput
               placeholder="Search channels..."
-              className="h-10 border-b border-white/10 bg-transparent px-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
+              className="h-10 border-b border-border bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
             <CommandList
               ref={channelListRef}
-              className="max-h-[min(70vh,32rem)] overflow-y-auto p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+              className="max-h-[min(70vh,32rem)] overflow-y-auto p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
             >
-              <CommandEmpty className="py-6 text-center text-sm text-white/50">
+              <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No channels found.
               </CommandEmpty>
               {[...channels]
@@ -678,7 +678,7 @@ export default function WidgetDraggableSomaFM() {
                     data-current-channel={
                       c.id === selected ? "true" : undefined
                     }
-                    className={`group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-white/10 focus:bg-white/10 data-[selected=true]:bg-transparent data-[selected=true]:text-white ${
+                    className={`group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-accent focus:bg-accent data-[selected=true]:bg-transparent data-[selected=true]:text-accent-foreground ${
                       c.id === selected ? "bg-blue-500/10" : ""
                     }`}
                   >
@@ -689,20 +689,20 @@ export default function WidgetDraggableSomaFM() {
                         <img
                           src={c.image}
                           alt={c.title}
-                          className="mt-1 h-8 w-8 rounded border border-white/20 bg-white/10 object-contain shadow-lg transition-all group-hover:border-white/40"
+                          className="mt-1 h-8 w-8 rounded border border-border bg-muted object-contain shadow-lg transition-all group-hover:border-border"
                           style={{ minWidth: 32, minHeight: 32 }}
                           draggable={false}
                         />
                       )}
                       <div className="flex min-w-0 flex-1 flex-col">
                         {/* Title */}
-                        <span className="truncate text-[13px] font-bold text-white transition-all group-hover:text-white/95">
+                        <span className="truncate text-[13px] font-bold text-foreground transition-all group-hover:text-foreground">
                           {c.title}
                         </span>
                         {/* Description (truncated) */}
                         {c.description && (
                           <span
-                            className="truncate text-[12px] text-white/65 transition-colors group-hover:text-white/75"
+                            className="truncate text-[12px] text-muted-foreground transition-colors group-hover:text-muted-foreground"
                             title={c.description}
                             style={{ maxWidth: 220 }}
                           >
@@ -712,20 +712,22 @@ export default function WidgetDraggableSomaFM() {
                         {/* Last playing */}
                         {c.lastPlaying && (
                           <span
-                            className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
+                            className="truncate text-[11px] text-muted-foreground transition-colors group-hover:text-muted-foreground"
                             title={c.lastPlaying}
                           >
-                            <span className="text-white/40">Last:</span>{" "}
+                            <span className="text-muted-foreground">Last:</span>{" "}
                             {c.lastPlaying}
                           </span>
                         )}
                         {/* Genre */}
                         {c.genre && (
                           <span
-                            className="truncate text-[11px] text-white/50 transition-colors group-hover:text-white/60"
+                            className="truncate text-[11px] text-muted-foreground transition-colors group-hover:text-muted-foreground"
                             title={c.genre.replace(/\|/g, ", ")}
                           >
-                            <span className="text-white/40">Genre:</span>{" "}
+                            <span className="text-muted-foreground">
+                              Genre:
+                            </span>{" "}
                             {c.genre.replace(/\|/g, ", ")}
                           </span>
                         )}
@@ -733,7 +735,7 @@ export default function WidgetDraggableSomaFM() {
                       {/* Listeners */}
                       <span className="ml-2 flex min-w-9.5 flex-col items-end">
                         <span
-                          className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-white shadow-lg ring-1 ring-white/10 transition-all group-hover:bg-blue-500/20"
+                          className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-foreground shadow-lg ring-1 ring-border transition-all group-hover:bg-blue-500/20"
                           title={`Listeners: ${c.listeners}`}
                         >
                           <Users className="inline-block h-3.5 w-3.5" />

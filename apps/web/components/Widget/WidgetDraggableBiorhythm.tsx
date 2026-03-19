@@ -42,17 +42,17 @@ const SINE_STYLES: Record<
   physical: {
     line: "rgba(110, 231, 183, 0.95)",
     marker: "rgba(167, 243, 208, 1)",
-    label: "text-emerald-200",
+    label: "text-emerald-700 dark:text-emerald-300",
   },
   emotional: {
     line: "rgba(125, 211, 252, 0.95)",
     marker: "rgba(186, 230, 253, 1)",
-    label: "text-sky-200",
+    label: "text-sky-700 dark:text-sky-300",
   },
   intellectual: {
     line: "rgba(253, 164, 175, 0.95)",
     marker: "rgba(255, 205, 210, 1)",
-    label: "text-rose-200",
+    label: "text-rose-700 dark:text-rose-300",
   },
 };
 
@@ -230,7 +230,7 @@ export default function WidgetDraggableBiorhythm() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg bg-black/80 shadow-lg ring-1 ring-white/15 ${
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${
           isDragging
             ? "shadow-none transition-none"
             : "transition-opacity duration-300"
@@ -257,11 +257,11 @@ export default function WidgetDraggableBiorhythm() {
                 }
               } catch {}
             }}
-            className={`flex h-8 cursor-move items-center gap-2 border-b border-white/10 px-3 select-none ${
+            className={`flex h-8 cursor-move items-center gap-2 border-b border-border px-3 select-none ${
               isDragging ? "opacity-60" : "opacity-100"
             }`}
           >
-            <span className="text-[10px] leading-none font-semibold tracking-widest text-white/50 uppercase">
+            <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Biorhythm
             </span>
             <div className="ml-auto">
@@ -273,7 +273,7 @@ export default function WidgetDraggableBiorhythm() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 text-white/50 transition-colors hover:bg-white/8"
+                    className="flex h-5 w-5 min-w-5 cursor-pointer items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
                     title="More options"
                   >
                     <MoreHorizontal className="h-2.5 w-2.5" />
@@ -319,7 +319,7 @@ export default function WidgetDraggableBiorhythm() {
 
           <div className="space-y-3 p-3">
             <div className="grid gap-2">
-              <label className="text-[11px] font-medium text-white/70">
+              <label className="text-[11px] font-medium text-muted-foreground">
                 Birth date
               </label>
               <Input
@@ -327,11 +327,11 @@ export default function WidgetDraggableBiorhythm() {
                 value={birthDate}
                 max={targetDate}
                 onChange={(e) => setBirthDate(e.target.value)}
-                className="h-8 border-white/15 bg-white/5 text-white"
+                className="h-8 border-input bg-background text-foreground"
               />
             </div>
             <div className="grid gap-2">
-              <label className="text-[11px] font-medium text-white/70">
+              <label className="text-[11px] font-medium text-muted-foreground">
                 Target date
               </label>
               <Input
@@ -339,7 +339,7 @@ export default function WidgetDraggableBiorhythm() {
                 value={targetDate}
                 min={birthDate || undefined}
                 onChange={(e) => setTargetDate(e.target.value)}
-                className="h-8 border-white/15 bg-white/5 text-white"
+                className="h-8 border-input bg-background text-foreground"
               />
             </div>
 
@@ -348,22 +348,22 @@ export default function WidgetDraggableBiorhythm() {
                 {calculation.error}
               </p>
             ) : (
-              <div className="space-y-2 rounded-md border border-white/10 bg-white/5 p-2.5">
+              <div className="space-y-2 rounded-md border border-border bg-muted/50 p-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-[11px] text-white/60">
+                  <div className="text-[11px] text-muted-foreground">
                     Days since birth:{" "}
-                    <span className="font-semibold text-white/85">
+                    <span className="font-semibold text-foreground">
                       {calculation.days}
                     </span>
                   </div>
-                  <div className="inline-flex rounded-md border border-white/15 bg-black/30 p-0.5">
+                  <div className="inline-flex rounded-md border border-border bg-muted/50 p-0.5">
                     <button
                       type="button"
                       onClick={() => setDisplayMode("bar")}
                       className={`cursor-pointer rounded px-2 py-1 text-[10px] font-semibold ${
                         displayMode === "bar"
-                          ? "bg-white/20 text-white"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-accent text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       Bar
@@ -373,8 +373,8 @@ export default function WidgetDraggableBiorhythm() {
                       onClick={() => setDisplayMode("sine")}
                       className={`cursor-pointer rounded px-2 py-1 text-[10px] font-semibold ${
                         displayMode === "sine"
-                          ? "bg-white/20 text-white"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-accent text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       Sine
@@ -403,7 +403,7 @@ export default function WidgetDraggableBiorhythm() {
                             {percentage}% • {getCycleLabel(cycle.value)}
                           </span>
                         </div>
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                           <div
                             className="h-full"
                             style={{
@@ -416,7 +416,7 @@ export default function WidgetDraggableBiorhythm() {
                     );
                   })
                 ) : (
-                  <div className="space-y-2 rounded-md border border-white/10 bg-black/20 p-2">
+                  <div className="space-y-2 rounded-md border border-border bg-muted/50 p-2">
                     <div className="flex flex-wrap gap-2 text-[10px]">
                       {calculation.cycles?.map((cycle) => {
                         const percentage = Math.round(cycle.value * 100);
@@ -424,7 +424,7 @@ export default function WidgetDraggableBiorhythm() {
                         return (
                           <div
                             key={`legend-${cycle.key}`}
-                            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-1"
+                            className="flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2 py-1"
                           >
                             <span
                               className="h-2 w-2 rounded-full"
@@ -433,7 +433,7 @@ export default function WidgetDraggableBiorhythm() {
                             <span className={`font-medium ${style.label}`}>
                               {cycle.label}
                             </span>
-                            <span className="text-white/60">
+                            <span className="text-muted-foreground">
                               {percentage > 0 ? "+" : ""}
                               {percentage}%
                             </span>
@@ -481,7 +481,7 @@ export default function WidgetDraggableBiorhythm() {
                         );
                       })}
                     </svg>
-                    <div className="grid gap-0.5 text-[10px] text-white/60">
+                    <div className="grid gap-0.5 text-[10px] text-muted-foreground">
                       {calculation.cycles?.map((cycle) => (
                         <div key={`day-${cycle.key}`}>
                           {cycle.label}: Cycle day {cycle.phase + 1} /{" "}
