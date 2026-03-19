@@ -364,7 +364,7 @@ export default function WidgetDraggableWeather() {
               size="sm"
               onClick={toggleUnit}
               title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
-              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
               °{unit === "metric" ? "F" : "C"}
             </Button>
@@ -373,7 +373,7 @@ export default function WidgetDraggableWeather() {
               variant="outline"
               size="sm"
               asChild
-              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
               <Link href="/apps/weather" title="Open weather app">
                 More
