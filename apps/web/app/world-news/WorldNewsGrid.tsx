@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
   CommandEmpty,
@@ -95,7 +96,7 @@ export default function WorldNewsGrid({
   const isEmbedded = useSyncExternalStore(
     () => () => {},
     () => window.parent !== window,
-    () => false,
+    () => null,
   );
   const availableChannelIds = useMemo(
     () => new Set(allChannels.map((channel) => channel.id)),
@@ -515,7 +516,7 @@ export default function WorldNewsGrid({
                     <Pause className="mr-2 h-4 w-4" />
                     Pause All
                   </DropdownMenuItem>
-                  {!isEmbedded ? (
+                  {isEmbedded === false ? (
                     <>
                       <DropdownMenuItem
                         className="cursor-pointer"
@@ -543,7 +544,9 @@ export default function WorldNewsGrid({
                   ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {isEmbedded ? (
+              {isEmbedded === null ? (
+                <Skeleton className="h-8 w-8 rounded-md" />
+              ) : isEmbedded ? (
                 <Button
                   variant="ghost"
                   size="icon"
