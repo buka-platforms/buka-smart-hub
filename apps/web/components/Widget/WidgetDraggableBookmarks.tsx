@@ -86,8 +86,9 @@ export default function WidgetDraggableBookmarks() {
   const [error, setError] = useState("");
   const [items, setItems] = useState<BookmarkEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleteCandidate, setDeleteCandidate] =
-    useState<BookmarkEntry | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<BookmarkEntry | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);

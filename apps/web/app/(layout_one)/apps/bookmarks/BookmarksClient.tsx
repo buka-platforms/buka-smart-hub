@@ -71,8 +71,9 @@ function formatDate(dateStr: string) {
 
 export default function BookmarksClient() {
   const [items, setItems] = useState<BookmarkEntry[]>([]);
-  const [deleteCandidate, setDeleteCandidate] =
-    useState<BookmarkEntry | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<BookmarkEntry | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
