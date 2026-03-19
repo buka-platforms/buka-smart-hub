@@ -479,7 +479,7 @@ export default function QuranReader() {
           <Command>
             <CommandInput
               placeholder="Search surah…"
-              className="h-12 border-b px-4 text-sm"
+              className="h-12 text-sm"
             />
             <CommandList className="max-h-[min(70vh,28rem)] overflow-y-auto p-2">
               <CommandEmpty className="py-6 text-center text-sm text-slate-400">

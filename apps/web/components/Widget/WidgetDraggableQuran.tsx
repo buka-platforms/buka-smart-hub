@@ -3,6 +3,7 @@
 import {
   Command,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -58,6 +59,13 @@ import React, {
   useRef,
   useState,
 } from "react";
+import {
+  widgetCommandDialogContentClass,
+  widgetCommandItemActiveClass,
+  widgetCommandItemClass,
+  widgetCommandListClass,
+  widgetCommandSearchInputClass,
+} from "./widgetCommandDialogStyles";
 
 const WIDGET_ID = "quran";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
@@ -724,56 +732,64 @@ export default function WidgetDraggableQuran() {
       </div>
 
       <Dialog open={surahPickerOpen} onOpenChange={setSurahPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-border bg-popover p-0 text-foreground shadow-2xl backdrop-blur-xl">
+        <DialogContent
+          className={`${widgetCommandDialogContentClass} max-w-md [&>button]:cursor-pointer`}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Select Surah</DialogTitle>
             <DialogDescription>
               Search and choose a Surah to play.
             </DialogDescription>
           </DialogHeader>
-          <Command className="bg-transparent text-foreground">
-            <CommandInput
-              placeholder="Search surah..."
-              className="h-11 border-b border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
-            />
-            <CommandList className="max-h-[min(70vh,28rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50">
+          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+            <div className="border-b border-border p-2 pr-10">
+              <CommandInput
+                placeholder="Search surah..."
+                className={widgetCommandSearchInputClass}
+              />
+            </div>
+            <CommandList className={`${widgetCommandListClass} p-2`}>
               <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No surah found.
               </CommandEmpty>
-              {surahList.map(
-                (
-                  s: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  any,
-                ) => (
-                  <CommandItem
-                    key={s.number}
-                    value={`${s.number} ${s.englishName} ${s.name}`}
-                    onSelect={() => {
-                      setSelectedSurah(s.number);
-                      setSurahPickerOpen(false);
-                    }}
-                    className={`cursor-pointer rounded-md px-2 py-2 text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-foreground ${
-                      s.number === selectedSurah ? "bg-accent" : ""
-                    }`}
-                  >
-                    <div className="mr-2 w-7 text-[10px] font-semibold tracking-wide text-muted-foreground">
-                      {s.number}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold text-foreground">
-                        {s.englishName}
+              <CommandGroup>
+                {surahList.map(
+                  (
+                    s: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    any,
+                  ) => (
+                    <CommandItem
+                      key={s.number}
+                      value={`${s.number} ${s.englishName} ${s.name}`}
+                      onSelect={() => {
+                        setSelectedSurah(s.number);
+                        setSurahPickerOpen(false);
+                      }}
+                      className={`${widgetCommandItemClass} px-2 py-2 ${
+                        s.number === selectedSurah
+                          ? widgetCommandItemActiveClass
+                          : ""
+                      }`}
+                    >
+                      <div className="mr-2 w-7 text-[10px] font-semibold tracking-wide text-muted-foreground">
+                        {s.number}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>{s.name}</span>
-                        <span>{s.numberOfAyahs} ayahs</span>
+                      <div className="flex-1 text-left">
+                        <div className="text-sm font-semibold text-foreground">
+                          {s.englishName}
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                          <span>{s.name}</span>
+                          <span>{s.numberOfAyahs} ayahs</span>
+                        </div>
                       </div>
-                    </div>
-                    {s.number === selectedSurah && (
-                      <Check className="h-3.5 w-3.5 text-muted-foreground" />
-                    )}
-                  </CommandItem>
-                ),
-              )}
+                      {s.number === selectedSurah && (
+                        <Check className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </CommandItem>
+                  ),
+                )}
+              </CommandGroup>
             </CommandList>
           </Command>
         </DialogContent>

@@ -44,7 +44,6 @@ import {
   type WidgetId,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
-import Link from "next/link";
 import {
   BookmarkPlus,
   ExternalLink,
@@ -52,6 +51,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "bookmarks";
