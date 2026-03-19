@@ -3,6 +3,7 @@
 import {
   Command,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -58,7 +59,15 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  widgetCommandDialogContentClass,
+  widgetCommandItemActiveClass,
+  widgetCommandItemClass,
+  widgetCommandListClass,
+  widgetCommandSearchInputClass,
+  widgetLogoPlateClass,
+} from "./widgetCommandDialogStyles";
 
 interface SomaFMChannel {
   id: string;
@@ -219,6 +228,13 @@ export default function WidgetDraggableSomaFM() {
   const streamUrl = currentChannel?.id
     ? `https://ice1.somafm.com/${currentChannel.id}-128-mp3`
     : "";
+  const sortedChannels = useMemo(
+    () =>
+      [...channels].sort(
+        (a, b) => (Number(b.listeners) || 0) - (Number(a.listeners) || 0),
+      ),
+    [channels],
+  );
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   const visibleNowPlaying = selected ? nowPlaying : null;
 
@@ -638,35 +654,40 @@ export default function WidgetDraggableSomaFM() {
       </div>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl border-border bg-[#0c0c10]/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
+        <DialogContent className={widgetCommandDialogContentClass}>
           <DialogHeader className="sr-only">
             <DialogTitle>Select Channel</DialogTitle>
             <DialogDescription>
               Search and choose a SomaFM channel.
             </DialogDescription>
           </DialogHeader>
-          <Command className="bg-transparent text-foreground">
-            <CommandInput
-              placeholder="Search channels..."
-              className="h-10 border-b border-border bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-            />
+          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+            <div className="flex items-center gap-2 border-b border-border p-2 pr-10">
+              <CommandInput
+                placeholder="Search channels..."
+                className={widgetCommandSearchInputClass}
+              />
+            </div>
             <CommandList
               ref={channelListRef}
-              className="max-h-[min(70vh,32rem)] overflow-y-auto p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
+              className={widgetCommandListClass}
             >
-              <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+              <CommandEmpty className="px-3 py-2 text-xs text-muted-foreground">
                 No channels found.
               </CommandEmpty>
-              {[...channels]
-                .slice()
-                .sort(
-                  (a, b) =>
-                    (Number(b.listeners) || 0) - (Number(a.listeners) || 0),
-                )
-                .map((c) => (
+              <CommandGroup
+                heading={
+                  <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                    Channels
+                  </span>
+                }
+              >
+                {sortedChannels.map((c) => (
                   <CommandItem
                     key={c.id}
-                    value={c.title}
+                    value={[c.title, c.description, c.genre, c.lastPlaying]
+                      .filter(Boolean)
+                      .join(" ")}
                     onSelect={async () => {
                       setSelected(c.id);
                       setChannelPickerOpen(false);
@@ -680,51 +701,48 @@ export default function WidgetDraggableSomaFM() {
                     data-current-channel={
                       c.id === selected ? "true" : undefined
                     }
-                    className={`group cursor-pointer rounded-md px-2! py-2! transition-all duration-200 hover:bg-accent focus:bg-accent data-[selected=true]:bg-transparent data-[selected=true]:text-accent-foreground ${
-                      c.id === selected ? "bg-blue-500/10" : ""
+                    className={`${widgetCommandItemClass} ${
+                      c.id === selected ? widgetCommandItemActiveClass : ""
                     }`}
                   >
                     <div className="flex w-full items-start gap-3">
-                      {/* Logo */}
                       {c.image && (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={c.image}
-                          alt={c.title}
-                          className="mt-1 h-8 w-8 rounded border border-border bg-muted object-contain shadow-lg transition-all group-hover:border-border"
-                          style={{ minWidth: 32, minHeight: 32 }}
-                          draggable={false}
-                        />
+                        <div
+                          className={`flex size-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={c.image}
+                            alt={c.title}
+                            className="h-full w-full object-contain"
+                            draggable={false}
+                          />
+                        </div>
                       )}
                       <div className="flex min-w-0 flex-1 flex-col">
-                        {/* Title */}
-                        <span className="truncate text-[13px] font-bold text-foreground transition-all group-hover:text-foreground">
+                        <span className="truncate text-[13px] font-medium text-foreground">
                           {c.title}
                         </span>
-                        {/* Description (truncated) */}
                         {c.description && (
                           <span
-                            className="truncate text-[12px] text-muted-foreground transition-colors group-hover:text-muted-foreground"
+                            className="truncate text-[11px] text-muted-foreground"
                             title={c.description}
-                            style={{ maxWidth: 220 }}
                           >
                             {c.description}
                           </span>
                         )}
-                        {/* Last playing */}
                         {c.lastPlaying && (
                           <span
-                            className="truncate text-[11px] text-muted-foreground transition-colors group-hover:text-muted-foreground"
+                            className="truncate text-[11px] text-muted-foreground"
                             title={c.lastPlaying}
                           >
                             <span className="text-muted-foreground">Last:</span>{" "}
                             {c.lastPlaying}
                           </span>
                         )}
-                        {/* Genre */}
                         {c.genre && (
                           <span
-                            className="truncate text-[11px] text-muted-foreground transition-colors group-hover:text-muted-foreground"
+                            className="truncate text-[11px] text-muted-foreground"
                             title={c.genre.replace(/\|/g, ", ")}
                           >
                             <span className="text-muted-foreground">
@@ -734,19 +752,17 @@ export default function WidgetDraggableSomaFM() {
                           </span>
                         )}
                       </div>
-                      {/* Listeners */}
-                      <span className="ml-2 flex min-w-9.5 flex-col items-end">
-                        <span
-                          className="flex items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-[12px] font-bold text-foreground shadow-lg ring-1 ring-border transition-all group-hover:bg-blue-500/20"
-                          title={`Listeners: ${c.listeners}`}
-                        >
-                          <Users className="inline-block h-3.5 w-3.5" />
-                          {c.listeners}
-                        </span>
+                      <span
+                        className="ml-2 flex min-w-9.5 items-center gap-1 rounded-md border border-border bg-muted/50 px-2 py-1 text-[12px] font-medium text-foreground"
+                        title={`Listeners: ${c.listeners}`}
+                      >
+                        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                        {c.listeners}
                       </span>
                     </div>
                   </CommandItem>
                 ))}
+              </CommandGroup>
             </CommandList>
           </Command>
         </DialogContent>
