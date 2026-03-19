@@ -51,6 +51,7 @@ import {
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
 import { MoreHorizontal, Pencil, StickyNote, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const WIDGET_ID = "notes";
@@ -442,6 +443,17 @@ export default function WidgetDraggableNotes() {
                 Showing {visibleItems.length} of {items.length} notes.
               </p>
             ) : null}
+          </div>
+          <div className="border-t border-border" />
+          <div className="flex items-center justify-end px-3 py-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+            >
+              <Link href="/apps/notes">Open Notes</Link>
+            </Button>
           </div>
         </div>
       </div>

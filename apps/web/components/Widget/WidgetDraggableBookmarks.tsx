@@ -44,6 +44,7 @@ import {
   type WidgetId,
 } from "@/lib/widget-positions";
 import { useAtom } from "jotai";
+import Link from "next/link";
 import {
   BookmarkPlus,
   ExternalLink,
@@ -484,6 +485,17 @@ export default function WidgetDraggableBookmarks() {
                 Showing {visibleItems.length} of {items.length} bookmarks.
               </p>
             ) : null}
+          </div>
+          <div className="border-t border-border" />
+          <div className="flex items-center justify-end px-3 py-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+            >
+              <Link href="/apps/bookmarks">Open Bookmarks</Link>
+            </Button>
           </div>
         </div>
       </div>
