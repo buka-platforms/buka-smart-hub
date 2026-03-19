@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -345,13 +346,15 @@ export default function WidgetDraggableDateTime() {
           {/* Separator and action bar */}
           <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={toggleTimeFormat}
-              className="flex h-8 cursor-pointer items-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
               title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
+              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
-              <span>{timeFormat === "12h" ? "24H" : "12H"}</span>
-            </button>
+              {timeFormat === "12h" ? "24H" : "12H"}
+            </Button>
           </div>
         </div>
       </div>

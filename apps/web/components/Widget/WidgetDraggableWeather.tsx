@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -358,21 +359,26 @@ export default function WidgetDraggableWeather() {
           {/* Separator and action bar */}
           <div className="border-t border-border" />
           <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={toggleUnit}
-              className="flex h-8 cursor-pointer items-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
               title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
+              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
-              <span>°{unit === "metric" ? "F" : "C"}</span>
-            </button>
+              °{unit === "metric" ? "F" : "C"}
+            </Button>
 
-            <Link
-              href="/apps/weather"
-              className="flex h-8 items-center justify-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
-              title="Open weather app"
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
-              More
-            </Link>
+              <Link href="/apps/weather" title="Open weather app">
+                More
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

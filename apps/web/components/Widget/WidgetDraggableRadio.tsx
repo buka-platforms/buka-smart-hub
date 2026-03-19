@@ -1,6 +1,7 @@
 "use client";
 
 import { Loading } from "@/components/General/AudioUI";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -481,21 +482,30 @@ export default function WidgetDraggableRadioPlayer() {
               </PopoverContent>
             </Popover>
 
-            <Link
-              href="/apps/radio"
-              className="flex h-8 items-center justify-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
-              title="Browse more stations"
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
             >
-              Stations
-            </Link>
-            {radioStationState.radioStation?.slug && (
-              <Link
-                href={`/radio/${radioStationState.radioStation.slug}`}
-                className="flex h-8 items-center justify-center rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground uppercase transition-colors hover:bg-accent"
-                title={`Go to ${radioStationState.radioStation.name} details`}
-              >
-                Details
+              <Link href="/apps/radio" title="Browse more stations">
+                Stations
               </Link>
+            </Button>
+            {radioStationState.radioStation?.slug && (
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+              >
+                <Link
+                  href={`/radio/${radioStationState.radioStation.slug}`}
+                  title={`Go to ${radioStationState.radioStation.name} details`}
+                >
+                  Details
+                </Link>
+              </Button>
             )}
           </div>
         </div>
