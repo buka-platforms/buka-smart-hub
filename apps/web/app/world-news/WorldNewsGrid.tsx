@@ -460,14 +460,14 @@ export default function WorldNewsGrid({
         className={
           isEmbedded
             ? "h-screen w-full overflow-y-auto px-0 py-0 [scrollbar-color:hsl(var(--muted-foreground)/0.22)_hsl(var(--muted)/0.5)] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
-            : "min-h-screen w-full px-3 py-4 md:px-4 md:py-6"
+            : "min-h-screen w-full"
         }
       >
         <div
           className={
             isEmbedded
               ? "sticky top-0 z-20 mb-4 border-b border-border bg-background/85 px-3 py-3 shadow-sm backdrop-blur-xl md:mb-5 md:px-4"
-              : "mb-4 rounded-lg border border-border bg-card px-3 py-3 shadow-sm backdrop-blur-xl md:mb-6 md:px-4"
+              : "sticky top-0 z-20 mb-4 border-b border-border bg-background/85 px-3 py-3 shadow-sm backdrop-blur-xl md:mb-6 md:px-4"
           }
         >
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -574,7 +574,7 @@ export default function WorldNewsGrid({
           className={
             isEmbedded
               ? "grid grid-cols-1 gap-3 px-3 pb-3 sm:grid-cols-2 md:gap-4 md:px-4 md:pb-4 lg:grid-cols-3 xl:grid-cols-4"
-              : "grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+              : "grid grid-cols-1 gap-3 px-3 pb-4 sm:grid-cols-2 md:gap-4 md:px-4 md:pb-6 lg:grid-cols-3 xl:grid-cols-4"
           }
         >
           {visibleChannels.length > 0 ? (
