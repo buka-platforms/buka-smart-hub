@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -59,6 +69,9 @@ export default function WidgetDraggableNotes() {
   const [noteBody, setNoteBody] = useState("");
   const [items, setItems] = useState<NoteEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<NoteEntry | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -145,7 +158,7 @@ export default function WidgetDraggableNotes() {
     if (isSubmitting) return;
 
     const body = noteBody.trim();
-    const title = noteTitle.trim() || "Untitled note";
+    const title = noteTitle.trim() || null;
     if (!body) return;
 
     setIsSubmitting(true);
@@ -195,7 +208,7 @@ export default function WidgetDraggableNotes() {
   const startEdit = useCallback((item: NoteEntry) => {
     setAddDialogOpen(true);
     setEditingId(item.id);
-    setNoteTitle(item.title);
+    setNoteTitle(item.title ?? "");
     setNoteBody(item.body);
   }, []);
 
@@ -208,6 +221,7 @@ export default function WidgetDraggableNotes() {
         await deleteNote(id);
         setIsAuthenticated(true);
         setItems((prev) => prev.filter((entry) => entry.id !== id));
+        setDeleteCandidate((prev) => (prev?.id === id ? null : prev));
         if (editingId === id) {
           setEditingId(null);
           setNoteTitle("");
@@ -391,9 +405,11 @@ export default function WidgetDraggableNotes() {
                     key={item.id}
                     className="rounded-md border border-border bg-muted/50 p-2"
                   >
-                    <p className="truncate text-xs font-semibold text-foreground">
-                      {item.title}
-                    </p>
+                    {item.title?.trim() ? (
+                      <p className="truncate text-xs font-semibold text-foreground">
+                        {item.title}
+                      </p>
+                    ) : null}
                     <p className="mt-1 line-clamp-4 text-xs whitespace-pre-wrap text-muted-foreground">
                       {item.body}
                     </p>
@@ -409,7 +425,7 @@ export default function WidgetDraggableNotes() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void handleDelete(item.id)}
+                        onClick={() => setDeleteCandidate(item)}
                         disabled={isSubmitting}
                         className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-500 dark:hover:text-red-300"
                         title="Delete note"
@@ -532,6 +548,41 @@ export default function WidgetDraggableNotes() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={deleteCandidate !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteCandidate(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete note?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The note will be removed from your
+              synced notes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isSubmitting || deleteCandidate === null}
+              onClick={(event) => {
+                event.preventDefault();
+                if (!deleteCandidate) return;
+                void handleDelete(deleteCandidate.id);
+              }}
+              className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600"
+            >
+              {isSubmitting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

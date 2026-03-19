@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import {
   createNote,
@@ -36,6 +46,9 @@ export default function NotesClient() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingBody, setEditingBody] = useState("");
+  const [deleteCandidate, setDeleteCandidate] = useState<NoteEntry | null>(
+    null,
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -76,7 +89,7 @@ export default function NotesClient() {
     const q = searchQuery.toLowerCase();
     return items.filter(
       (item) =>
-        item.title.toLowerCase().includes(q) ||
+        (item.title ?? "").toLowerCase().includes(q) ||
         item.body.toLowerCase().includes(q),
     );
   }, [items, searchQuery]);
@@ -96,7 +109,7 @@ export default function NotesClient() {
   const submitNote = useCallback(async () => {
     if (isSubmitting) return;
     const body = noteBody.trim();
-    const title = noteTitle.trim() || "Untitled note";
+    const title = noteTitle.trim() || null;
     if (!body) return;
 
     setIsSubmitting(true);
@@ -122,7 +135,7 @@ export default function NotesClient() {
 
   const startEdit = useCallback((item: NoteEntry) => {
     setEditingId(item.id);
-    setEditingTitle(item.title);
+    setEditingTitle(item.title ?? "");
     setEditingBody(item.body);
     setShowForm(false);
     setExpandedId(item.id);
@@ -141,7 +154,7 @@ export default function NotesClient() {
     try {
       const updated = await editNote({
         id: editingId,
-        title: editingTitle || "Untitled note",
+        title: editingTitle.trim() || null,
         body: editingBody,
       });
       setIsAuthenticated(true);
@@ -172,6 +185,7 @@ export default function NotesClient() {
         await deleteNote(id);
         setIsAuthenticated(true);
         setItems((prev) => prev.filter((entry) => entry.id !== id));
+        setDeleteCandidate((prev) => (prev?.id === id ? null : prev));
         if (editingId === id) {
           setEditingId(null);
           setEditingTitle("");
@@ -363,9 +377,11 @@ export default function NotesClient() {
                         }
                         className="min-w-0 flex-1 cursor-pointer text-left"
                       >
-                        <h3 className="truncate text-sm font-semibold text-slate-900">
-                          {item.title}
-                        </h3>
+                        {item.title?.trim() ? (
+                          <h3 className="truncate text-sm font-semibold text-slate-900">
+                            {item.title}
+                          </h3>
+                        ) : null}
                       </button>
                       <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                         <button
@@ -379,7 +395,7 @@ export default function NotesClient() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => void handleDelete(item.id)}
+                          onClick={() => setDeleteCandidate(item)}
                           disabled={isSubmitting}
                           className="cursor-pointer rounded p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
                           title="Delete note"
@@ -403,6 +419,40 @@ export default function NotesClient() {
           })}
         </div>
       )}
+      <AlertDialog
+        open={deleteCandidate !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteCandidate(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete note?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The note will be permanently removed
+              from your synced notes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isSubmitting || deleteCandidate === null}
+              onClick={(event) => {
+                event.preventDefault();
+                if (!deleteCandidate) return;
+                void handleDelete(deleteCandidate.id);
+              }}
+              className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600"
+            >
+              {isSubmitting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

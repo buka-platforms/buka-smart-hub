@@ -2,7 +2,7 @@ import { fetchAuthenticatedApi } from "./authenticated-api";
 
 export interface NoteEntry {
   id: string;
-  title: string;
+  title: string | null;
   body: string;
   createdAt: string;
   updatedAt: string;
@@ -27,7 +27,12 @@ const normalizeNote = (value: unknown): NoteEntry | null => {
       : typeof raw.id === "number"
         ? String(raw.id)
         : null;
-  const title = typeof raw.title === "string" ? raw.title : null;
+  const title =
+    typeof raw.title === "string"
+      ? raw.title
+      : raw.title === null
+        ? null
+        : null;
   const body = typeof raw.body === "string" ? raw.body : null;
   const createdAt =
     typeof raw.created_at === "string"
@@ -42,7 +47,7 @@ const normalizeNote = (value: unknown): NoteEntry | null => {
         ? raw.updatedAt
         : null;
 
-  if (!id || !title || !body || !createdAt || !updatedAt) {
+  if (!id || !body || !createdAt || !updatedAt) {
     return null;
   }
 
@@ -90,7 +95,7 @@ export async function listNotes(): Promise<NoteEntry[]> {
 }
 
 export async function createNote(input: {
-  title: string;
+  title: string | null;
   body: string;
 }): Promise<NoteEntry> {
   const response = await fetchAuthenticatedApi("/api/notes", {
@@ -114,7 +119,7 @@ export async function createNote(input: {
 
 export async function editNote(input: {
   id: string;
-  title: string;
+  title: string | null;
   body: string;
 }): Promise<NoteEntry> {
   const response = await fetchAuthenticatedApi(
