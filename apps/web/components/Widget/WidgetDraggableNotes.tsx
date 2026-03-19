@@ -1,12 +1,20 @@
 "use client";
 
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +39,7 @@ import {
   unobserveWidget,
   type WidgetId,
 } from "@/lib/widget-positions";
+import { cn } from "@/lib/utils";
 import { useAtom } from "jotai";
 import { MoreHorizontal, Pencil, Save, StickyNote, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -41,10 +50,12 @@ const WIDGET_VERSION = "0.2.0";
 
 export default function WidgetDraggableNotes() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteBody, setNoteBody] = useState("");
   const [items, setItems] = useState<NoteEntry[]>([]);
@@ -60,6 +71,14 @@ export default function WidgetDraggableNotes() {
   useEffect(() => {
     queueMicrotask(() => setIsPositionLoaded(true));
   }, []);
+
+  useEffect(() => {
+    if (!addDialogOpen) return;
+    const frame = requestAnimationFrame(() => {
+      titleInputRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [addDialogOpen]);
 
   useEffect(() => {
     let mounted = true;
@@ -140,6 +159,7 @@ export default function WidgetDraggableNotes() {
       setIsAuthenticated(true);
       setNoteTitle("");
       setNoteBody("");
+      setAddDialogOpen(false);
     } catch (error: unknown) {
       if (isNotesUnauthorizedError(error)) {
         setIsAuthenticated(false);
@@ -225,17 +245,29 @@ export default function WidgetDraggableNotes() {
   );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
+  const visibleItems = items.slice(0, 5);
+  const hasMoreItems = items.length > visibleItems.length;
+  const openAddDialog = useCallback(() => {
+    setAddDialogOpen(true);
+  }, []);
+  const handleAddDialogChange = useCallback((open: boolean) => {
+    setAddDialogOpen(open);
+    if (!open) {
+      setNoteTitle("");
+      setNoteBody("");
+    }
+  }, []);
 
   return (
     <>
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg border bg-card shadow-sm ${
-          isDragging
-            ? "shadow-none transition-none"
-            : "transition-opacity duration-300"
-        } ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={cn(
+          "pointer-events-auto flex rounded-lg border bg-card shadow-sm",
+          isDragging ? "shadow-none transition-none" : "transition-opacity duration-300",
+          isVisible ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
       >
         <div className="flex w-full flex-col">
           <div
@@ -258,9 +290,10 @@ export default function WidgetDraggableNotes() {
                 }
               } catch {}
             }}
-            className={`flex h-8 cursor-move items-center gap-2 rounded-t-lg border-b border-border bg-muted/50 px-3 select-none ${
-              isDragging ? "opacity-60" : "opacity-100"
-            }`}
+            className={cn(
+              "flex h-8 cursor-move items-center gap-2 rounded-t-lg border-b border-border bg-muted/50 px-3 select-none",
+              isDragging ? "opacity-60" : "opacity-100",
+            )}
           >
             <span className="text-[10px] leading-none font-semibold tracking-widest text-muted-foreground uppercase">
               Notes
@@ -318,7 +351,7 @@ export default function WidgetDraggableNotes() {
             </div>
           </div>
 
-          <div className="space-y-2 p-3">
+          <div className="flex flex-col gap-3 p-3">
             {isAuthenticated === false ? (
               <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-800 dark:text-amber-200">
                 Sign in to use synced notes.
@@ -329,45 +362,38 @@ export default function WidgetDraggableNotes() {
                 {syncError}
               </p>
             ) : null}
-            <Input
-              value={noteTitle}
-              onChange={(e) => setNoteTitle(e.target.value)}
-              className="h-8 border-input bg-background text-foreground"
-              placeholder="Title (optional)"
-              disabled={isAuthenticated === false || isSubmitting}
-            />
-            <textarea
-              value={noteBody}
-              onChange={(e) => setNoteBody(e.target.value)}
-              placeholder="Write your note..."
-              className="min-h-18 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-ring"
-              disabled={isAuthenticated === false || isSubmitting}
-            />
-            <button
-              type="button"
-              onClick={() => void submitNote()}
-              disabled={isAuthenticated === false || isSubmitting}
-              className="flex h-8 w-full cursor-pointer items-center justify-center gap-1 rounded-md border bg-secondary text-xs font-semibold text-secondary-foreground hover:bg-accent"
-            >
-              <StickyNote className="h-3.5 w-3.5" />
-              {isSubmitting ? "Saving..." : "Save Note"}
-            </button>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[11px] leading-4 text-muted-foreground">
+                Add notes from a focused dialog.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={openAddDialog}
+                disabled={isSubmitting}
+                className="cursor-pointer"
+              >
+                <StickyNote data-icon="inline-start" />
+                Add note
+              </Button>
+            </div>
           </div>
 
           <div className="border-t border-border" />
-          <div className="max-h-80 space-y-2 overflow-y-auto p-2">
+          <div className="max-h-80 flex flex-col gap-2 overflow-y-auto p-2">
             {isLoading ? (
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 Loading notes...
               </p>
-            ) : items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 {isAuthenticated !== false
-                  ? "No notes yet. Add your first note above."
+                  ? "No notes yet. Add your first note."
                   : "Sign in to start saving notes."}
               </p>
             ) : (
-              items.map((item) => {
+              visibleItems.map((item) => {
                 const isEditing = editingId === item.id;
                 return (
                   <div
@@ -440,9 +466,103 @@ export default function WidgetDraggableNotes() {
                 );
               })
             )}
+            {hasMoreItems ? (
+              <p className="px-1 pt-1 text-[11px] text-muted-foreground">
+                Showing {visibleItems.length} of {items.length} notes.
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
+
+      <Sheet open={addDialogOpen} onOpenChange={handleAddDialogChange}>
+        <SheetContent
+          side="right"
+          className="inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-[32rem] sm:max-w-[32rem] sm:rounded-none sm:border-l sm:border-t-0 sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right"
+        >
+          <div className="flex h-full flex-col">
+            <div className="px-4 pt-3 sm:hidden">
+              <div className="mx-auto h-1.5 w-12 rounded-full bg-muted" />
+            </div>
+
+            <SheetHeader className="border-b border-border/80 px-4 py-4 sm:px-6 sm:py-5">
+              <SheetTitle>Add Note</SheetTitle>
+              <SheetDescription>
+                A calmer writing surface for quick capture. Use Ctrl/Cmd + Enter
+                to save.
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+              <div className="flex h-full flex-col gap-4">
+                {isAuthenticated === false ? (
+                  <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-200">
+                    Sign in to save synced notes.
+                  </p>
+                ) : null}
+                {syncError ? (
+                  <p className="rounded-md border border-red-200/20 bg-red-500/10 px-3 py-2 text-sm text-red-800 dark:text-red-200">
+                    {syncError}
+                  </p>
+                ) : null}
+
+                <div className="rounded-2xl border border-border/80 bg-muted/20 p-3 sm:p-4">
+                  <Input
+                    ref={titleInputRef}
+                    value={noteTitle}
+                    onChange={(e) => setNoteTitle(e.target.value)}
+                    className="h-10 border-input bg-background text-foreground"
+                    placeholder="Title (optional)"
+                    disabled={isAuthenticated === false || isSubmitting}
+                  />
+                  <textarea
+                    value={noteBody}
+                    onChange={(e) => setNoteBody(e.target.value)}
+                    placeholder="Write your note..."
+                    className="mt-3 min-h-56 w-full resize-none rounded-xl border border-input bg-background px-3 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring sm:min-h-72"
+                    disabled={isAuthenticated === false || isSubmitting}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        void submitNote();
+                      }
+                    }}
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Keep it short and actionable. The newest notes stay at the
+                    top of the widget.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm sm:px-6 sm:py-4">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleAddDialogChange(false)}
+                  disabled={isSubmitting}
+                  className="cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void submitNote()}
+                  disabled={
+                    isAuthenticated === false || isSubmitting || !noteBody.trim()
+                  }
+                  className="cursor-pointer"
+                >
+                  <StickyNote data-icon="inline-start" />
+                  {isSubmitting ? "Saving..." : "Save note"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
         <DialogContent className="sm:max-w-106.25">
