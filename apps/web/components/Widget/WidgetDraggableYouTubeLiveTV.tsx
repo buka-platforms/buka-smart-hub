@@ -87,7 +87,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const commandItemClass =
     "group cursor-pointer rounded-md px-2 py-1.5 text-foreground transition-colors hover:bg-accent/50 data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground";
   const logoPlateClass =
-    "overflow-hidden rounded-md border border-border bg-gradient-to-br from-background to-muted shadow-[0_2px_10px_rgba(0,0,0,0.35)]";
+    "overflow-hidden rounded-md border border-border bg-gradient-to-br from-background to-muted shadow-sm";
 
   const WIDGET_ID = "youtubelivetv";
   const containerRef = useRef<HTMLDivElement>(null); // wrapper
