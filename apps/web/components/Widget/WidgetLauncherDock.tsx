@@ -395,7 +395,7 @@ export default function WidgetLauncherDock() {
         </DialogContent>
       </Dialog>
       <Dialog open={isWorldNewsOpen} onOpenChange={setIsWorldNewsOpen}>
-        <DialogContent className="h-dvh w-screen max-w-none gap-0 overflow-hidden border-0 bg-black p-0 text-white shadow-none sm:rounded-none [&>button]:hidden">
+        <DialogContent className="h-dvh w-screen max-w-none gap-0 overflow-hidden border-0 bg-background p-0 text-foreground shadow-none sm:rounded-none [&>button]:hidden">
           <DialogTitle className="sr-only">World News</DialogTitle>
           <DialogDescription className="sr-only">
             Watch world news channels in a large modal.
@@ -404,7 +404,7 @@ export default function WidgetLauncherDock() {
             <iframe
               src="/world-news"
               title="World News"
-              className="h-full w-full border-0 bg-black"
+              className="h-full w-full border-0 bg-background"
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             />
           ) : null}

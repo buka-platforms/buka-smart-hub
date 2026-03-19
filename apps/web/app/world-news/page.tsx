@@ -34,7 +34,7 @@ export default async function WorldNewsPage() {
   const embedOrigin = process.env.NEXT_PUBLIC_BASE_URL || "";
 
   return (
-    <div className="relative z-0 min-h-screen w-full bg-black">
+    <div className="relative z-0 min-h-screen w-full bg-background">
       <WorldNewsGrid
         allChannels={allNewsChannels}
         defaultChannelIds={DEFAULT_WORLD_NEWS_CHANNEL_IDS}

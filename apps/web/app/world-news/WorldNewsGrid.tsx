@@ -144,7 +144,7 @@ export default function WorldNewsGrid({
     ? (allChannelsById.get(pickerTargetChannelId) ?? null)
     : null;
   const commandItemClass =
-    "cursor-pointer rounded-lg border border-transparent px-3 py-3 text-white aria-disabled:cursor-not-allowed data-[selected=true]:border-white/10 data-[selected=true]:bg-white/8 data-[selected=true]:text-white";
+    "cursor-pointer rounded-lg border border-transparent px-3 py-3 text-foreground aria-disabled:cursor-not-allowed data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground";
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -459,25 +459,25 @@ export default function WorldNewsGrid({
         ref={setContainerRef}
         className={
           isEmbedded
-            ? "h-screen w-full overflow-y-auto px-0 py-0 [scrollbar-color:rgba(255,255,255,0.22)_rgba(255,255,255,0.04)] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5"
+            ? "h-screen w-full overflow-y-auto px-0 py-0 [scrollbar-color:hsl(var(--muted-foreground)/0.22)_hsl(var(--muted)/0.5)] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50"
             : "min-h-screen w-full px-3 py-4 md:px-4 md:py-6"
         }
       >
         <div
           className={
             isEmbedded
-              ? "sticky top-0 z-20 mb-4 border-b border-white/10 bg-black/85 px-3 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl md:mb-5 md:px-4"
-              : "mb-4 rounded-lg border border-white/10 bg-black/55 px-3 py-3 shadow-2xl backdrop-blur-xl md:mb-6 md:px-4"
+              ? "sticky top-0 z-20 mb-4 border-b border-border bg-background/85 px-3 py-3 shadow-sm backdrop-blur-xl md:mb-5 md:px-4"
+              : "mb-4 rounded-lg border border-border bg-card px-3 py-3 shadow-sm backdrop-blur-xl md:mb-6 md:px-4"
           }
         >
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg font-semibold tracking-tight text-white md:text-xl">
+                <h1 className="text-lg font-semibold tracking-tight text-foreground md:text-xl">
                   World News
                 </h1>
               </div>
-              <p className="mt-1 max-w-2xl text-sm text-white/65">
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
                 Watch live news from around the world.
               </p>
             </div>
@@ -547,7 +547,7 @@ export default function WorldNewsGrid({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="cursor-pointer border border-white/15 text-white/70 hover:bg-white/10 hover:text-white"
+                  className="cursor-pointer border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
                   onClick={closeModal}
                   aria-label="Close world news modal"
                   title="Close"
@@ -559,7 +559,7 @@ export default function WorldNewsGrid({
                   asChild
                   variant="ghost"
                   size="icon"
-                  className="cursor-pointer border border-white/15 text-white/70 hover:bg-white/10 hover:text-white"
+                  className="cursor-pointer border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
                   <Link href="/" aria-label="Back to home" title="Back to Home">
                     <Home className="h-4 w-4" />
@@ -586,21 +586,21 @@ export default function WorldNewsGrid({
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                className={`overflow-hidden rounded-lg border bg-black/55 shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition-[opacity,border-color] duration-150 ${
+                className={`overflow-hidden rounded-lg border bg-card shadow-sm transition-[opacity,border-color] duration-150 ${
                   dragOverIndex === index
-                    ? "border-white/40"
-                    : "border-white/10"
+                    ? "border-foreground/40"
+                    : "border-border"
                 }`}
               >
-                <div className="border-b border-white/10 px-4 py-3">
+                <div className="border-b border-border px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
-                      <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-white/35 active:cursor-grabbing" />
+                      <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
                       <div className="min-w-0">
-                        <h2 className="truncate text-sm font-semibold text-white md:text-base">
+                        <h2 className="truncate text-sm font-semibold text-foreground md:text-base">
                           {channel.name}
                         </h2>
-                        <p className="text-xs tracking-[0.08em] text-white/55 uppercase">
+                        <p className="text-xs tracking-[0.08em] text-muted-foreground uppercase">
                           {channel.country}
                         </p>
                       </div>
@@ -611,7 +611,7 @@ export default function WorldNewsGrid({
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 shrink-0 cursor-pointer rounded-full text-white/60 hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
+                          className="h-8 w-8 shrink-0 cursor-pointer rounded-full text-muted-foreground hover:bg-accent hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
                           aria-label={`Manage ${channel.name}`}
                         >
                           <MoreHorizontal className="h-4 w-4" />
@@ -658,17 +658,17 @@ export default function WorldNewsGrid({
             <button
               type="button"
               onClick={() => openAddChannelPicker(null)}
-              className="group cursor-pointer overflow-hidden rounded-lg border border-dashed border-white/12 bg-black/30 text-left shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-colors **:cursor-pointer hover:border-white/22 hover:bg-black/40"
+              className="group cursor-pointer overflow-hidden rounded-lg border border-dashed border-border bg-muted/30 text-left shadow-sm transition-colors **:cursor-pointer hover:border-foreground/20 hover:bg-muted/50"
             >
               <div className="flex aspect-video w-full items-center justify-center px-6 text-center">
                 <div>
-                  <span className="mx-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-white/12 bg-white/5 text-white/75 transition-colors group-hover:border-white/20 group-hover:bg-white/10 group-hover:text-white">
+                  <span className="mx-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-border bg-muted/50 text-muted-foreground transition-colors group-hover:border-foreground/20 group-hover:bg-accent group-hover:text-foreground">
                     <Plus className="h-5 w-5" />
                   </span>
-                  <span className="mt-4 block text-sm font-semibold text-white">
+                  <span className="mt-4 block text-sm font-semibold text-foreground">
                     Add Channel
                   </span>
-                  <span className="mt-1 block max-w-52 text-xs text-white/55">
+                  <span className="mt-1 block max-w-52 text-xs text-muted-foreground">
                     Fill this slot with a live channel.
                   </span>
                 </div>
@@ -684,24 +684,24 @@ export default function WorldNewsGrid({
           if (!open) closeChannelPicker();
         }}
       >
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl gap-0 border-white/10 bg-[#0c0c10]/95 p-0 text-white shadow-2xl backdrop-blur-xl">
-          <DialogHeader className="border-b border-white/10 px-4 py-3 text-left">
-            <DialogTitle className="text-base text-white">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl gap-0 border-border bg-popover/95 p-0 text-popover-foreground shadow-2xl backdrop-blur-xl">
+          <DialogHeader className="border-b border-border px-4 py-3 text-left">
+            <DialogTitle className="text-base text-foreground">
               {channelPickerState?.mode === "replace"
                 ? "Change Channel"
                 : "Add Channel"}
             </DialogTitle>
-            <DialogDescription className="text-sm text-white/55">
+            <DialogDescription className="text-sm text-muted-foreground">
               {pickerDescription}
             </DialogDescription>
           </DialogHeader>
-          <Command className="border-0 bg-transparent text-white **:[[cmdk-input-wrapper]]:border-white/10 **:[[cmdk-input-wrapper]]:bg-transparent">
+          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:border-border **:[[cmdk-input-wrapper]]:bg-transparent">
             <CommandInput
               placeholder="Search channels..."
-              className="h-auto py-2 text-sm text-white placeholder:text-white/35"
+              className="h-auto py-2 text-sm text-foreground placeholder:text-muted-foreground"
             />
-            <CommandList className="max-h-[min(70vh,34rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:hover:bg-white/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-white/5">
-              <CommandEmpty className="px-3 py-6 text-sm text-white/55">
+            <CommandList className="max-h-[min(70vh,34rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50">
+              <CommandEmpty className="px-3 py-6 text-sm text-muted-foreground">
                 No channels found.
               </CommandEmpty>
               {allChannels.map((channel) => {
@@ -727,24 +727,24 @@ export default function WorldNewsGrid({
                   >
                     <div className="flex w-full items-center gap-3">
                       <div className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-[13px] font-medium text-white">
+                        <span className="truncate text-[13px] font-medium text-foreground">
                           {channel.name}
                         </span>
-                        <span className="truncate text-[11px] text-white/45">
+                        <span className="truncate text-[11px] text-muted-foreground">
                           {channel.country}
                         </span>
                       </div>
                       {isCurrentChannel ? (
-                        <span className="rounded-full border border-white/10 bg-white/6 px-2 py-1 text-[10px] font-medium text-white/55 uppercase">
+                        <span className="rounded-full border border-border bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground uppercase">
                           Current
                         </span>
                       ) : isVisibleElsewhere ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/6 px-2 py-1 text-[10px] font-medium text-white/65 uppercase">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground uppercase">
                           <Check className="h-3 w-3" />
                           On Screen
                         </span>
                       ) : (
-                        <span className="text-[10px] font-medium text-white/35 uppercase">
+                        <span className="text-[10px] font-medium text-muted-foreground/50 uppercase">
                           Available
                         </span>
                       )}
