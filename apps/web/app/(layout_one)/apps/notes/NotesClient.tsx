@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   createNote,
@@ -436,19 +437,26 @@ export default function NotesClient() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>
+            <AlertDialogCancel
+              disabled={isSubmitting}
+              className="cursor-pointer"
+            >
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isSubmitting || deleteCandidate === null}
-              onClick={(event) => {
-                event.preventDefault();
-                if (!deleteCandidate) return;
-                void handleDelete(deleteCandidate.id);
-              }}
-              className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600"
-            >
-              {isSubmitting ? "Deleting..." : "Delete"}
+            <AlertDialogAction asChild>
+              <Button
+                type="button"
+                variant="destructive"
+                className="cursor-pointer"
+                disabled={isSubmitting || deleteCandidate === null}
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (!deleteCandidate) return;
+                  void handleDelete(deleteCandidate.id);
+                }}
+              >
+                {isSubmitting ? "Deleting..." : "Delete"}
+              </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

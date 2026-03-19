@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -76,6 +86,8 @@ export default function WidgetDraggableBookmarks() {
   const [error, setError] = useState("");
   const [items, setItems] = useState<BookmarkEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteCandidate, setDeleteCandidate] =
+    useState<BookmarkEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -234,6 +246,7 @@ export default function WidgetDraggableBookmarks() {
         await deleteBookmark(id);
         setIsAuthenticated(true);
         setItems((prev) => prev.filter((entry) => entry.id !== id));
+        setDeleteCandidate((prev) => (prev?.id === id ? null : prev));
         if (editingId === id) {
           setEditingId(null);
           setTitle("");
@@ -455,7 +468,7 @@ export default function WidgetDraggableBookmarks() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => void handleDelete(item.id)}
+                    onClick={() => setDeleteCandidate(item)}
                     disabled={isSubmitting}
                     className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-accent hover:text-red-300"
                     title="Delete bookmark"
@@ -569,6 +582,48 @@ export default function WidgetDraggableBookmarks() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={deleteCandidate !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteCandidate(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete bookmark?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The bookmark will be removed from
+              your synced bookmarks.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isSubmitting}
+              className="cursor-pointer"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                type="button"
+                variant="destructive"
+                className="cursor-pointer"
+                disabled={isSubmitting || deleteCandidate === null}
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (!deleteCandidate) return;
+                  void handleDelete(deleteCandidate.id);
+                }}
+              >
+                {isSubmitting ? "Deleting..." : "Delete"}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
