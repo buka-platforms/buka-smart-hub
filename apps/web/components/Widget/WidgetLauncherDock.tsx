@@ -245,7 +245,7 @@ export default function WidgetLauncherDock() {
           >
             <LayoutGrid className="h-4 w-4" />
             <span className="hidden md:inline">Widgets</span>
-            <span className="rounded-full bg-purple-600/30 px-1.5 py-0.5 text-[10px] font-semibold text-purple-300">
+            <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700 dark:bg-purple-600/30 dark:text-purple-300">
               {visibleCount}
             </span>
           </button>
@@ -288,7 +288,7 @@ export default function WidgetLauncherDock() {
               <div className="flex items-center gap-2">
                 <LayoutGrid className="h-4 w-4 text-purple-400" />
                 <span className="text-sm font-medium">Widgets</span>
-                <span className="rounded-full bg-purple-600/30 px-2 py-0.5 text-[10px] font-semibold text-purple-300">
+                <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700 dark:bg-purple-600/30 dark:text-purple-300">
                   {visibleCount}/{allWidgets.length}
                 </span>
               </div>
