@@ -215,7 +215,7 @@ export default function WidgetDraggableBookmarks() {
       <div
         ref={containerRef}
         data-widget-id={WIDGET_ID}
-        className={`pointer-events-auto flex rounded-lg border bg-card shadow-md ${
+        className={`pointer-events-auto flex rounded-lg border bg-card shadow-sm ${
           isDragging
             ? "shadow-none transition-none"
             : "transition-opacity duration-300"

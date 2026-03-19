@@ -229,7 +229,7 @@ export default function WidgetLauncherDock() {
   return (
     <>
       <div
-        className={`pointer-events-auto relative z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-visible rounded-lg border bg-card shadow-lg transition-opacity duration-200 md:mt-5 md:ml-4 ${
+        className={`pointer-events-auto relative z-50 mt-5 ml-3 flex cursor-pointer justify-self-start overflow-visible rounded-lg border bg-card shadow-sm transition-opacity duration-200 md:mt-5 md:ml-4 ${
           isVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         style={{ justifySelf: "start" }}
