@@ -665,13 +665,7 @@ export default function WidgetDraggablePomodoro() {
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-r-lg bg-background/95 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-3 px-4 text-center">
                 {/* Icon */}
-                <div
-                  className={`flex h-14 w-14 items-center justify-center rounded-full ${
-                    completedMode === "focus"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-purple-500/20 text-purple-400"
-                  }`}
-                >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-foreground">
                   {completedMode === "focus" ? (
                     <CheckCircle2 className="h-7 w-7" />
                   ) : (
@@ -697,11 +691,7 @@ export default function WidgetDraggablePomodoro() {
                 <div className="mt-2 flex gap-2">
                   <button
                     onClick={continueToNextPhase}
-                    className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
-                      completedMode === "focus"
-                        ? "bg-purple-500 text-white hover:bg-purple-400"
-                        : "bg-green-500 text-white hover:bg-green-400"
-                    }`}
+                    className="flex items-center gap-2 rounded-full border bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-accent"
                   >
                     {completedMode === "focus" ? (
                       <>
@@ -743,7 +733,7 @@ export default function WidgetDraggablePomodoro() {
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <div className="h-1.5 w-14 overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-purple-500"
+                  className="h-full rounded-full bg-foreground/30"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -762,7 +752,7 @@ export default function WidgetDraggablePomodoro() {
             <div className="flex gap-2">
               <button
                 onClick={toggleRun}
-                className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${isRunning ? "bg-red-500/20 text-red-700 hover:bg-red-500/30 dark:text-red-200" : "bg-green-500/20 text-green-700 hover:bg-green-500/30 dark:text-green-200"}`}
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border bg-muted text-foreground transition-colors hover:bg-accent"
                 title={isRunning ? "Pause" : "Start"}
               >
                 {isRunning ? (
@@ -791,7 +781,7 @@ export default function WidgetDraggablePomodoro() {
             ).map(([key, label]) => (
               <div
                 key={key}
-                className={`flex flex-col rounded-md border border-border bg-muted/50 p-2 ${mode === key ? "ring-1 ring-purple-500/50" : ""}`}
+                className={`flex flex-col rounded-md border border-border bg-muted/50 p-2 ${mode === key ? "ring-1 ring-foreground/20" : ""}`}
                 onClick={() => switchMode(key)}
                 role="button"
                 tabIndex={0}
@@ -812,7 +802,7 @@ export default function WidgetDraggablePomodoro() {
                     onChange={(e) =>
                       setCustomDuration(key, Number(e.target.value))
                     }
-                    className="h-8 w-full rounded-md border border-input bg-muted/50 px-2 text-xs text-foreground outline-none focus:border-purple-500/60"
+                    className="h-8 w-full rounded-md border border-input bg-muted/50 px-2 text-xs text-foreground outline-none focus:border-foreground/30"
                     title={`Minutes for ${label.toLowerCase()}`}
                   />
                   <span className="text-[10px] text-muted-foreground">min</span>
@@ -829,7 +819,7 @@ export default function WidgetDraggablePomodoro() {
               onClick={toggleAudio}
               className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border transition-colors ${
                 settings.audioEnabled
-                  ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30"
+                  ? "bg-muted text-foreground hover:bg-accent"
                   : "bg-muted text-muted-foreground hover:bg-accent"
               }`}
               title={settings.audioEnabled ? "Sound on" : "Sound off"}
@@ -849,9 +839,9 @@ export default function WidgetDraggablePomodoro() {
                 notificationPermission === "unsupported"
                   ? "cursor-not-allowed opacity-40"
                   : notificationPermission === "denied"
-                    ? "cursor-not-allowed bg-red-500/10 text-red-400/50"
+                    ? "cursor-not-allowed bg-muted text-muted-foreground/50"
                     : settings.notificationEnabled
-                      ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
+                      ? "bg-muted text-foreground hover:bg-accent"
                       : "bg-muted text-muted-foreground hover:bg-accent"
               }`}
               title={
