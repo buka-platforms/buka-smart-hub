@@ -45,8 +45,8 @@ const SidebarTrigger = React.forwardRef<
     <Button
       ref={ref}
       variant="ghost"
-      size="icon-sm"
-      className={cn("cursor-pointer md:hidden", className)}
+      size="icon"
+      className={cn("size-8 cursor-pointer md:hidden", className)}
       onClick={() => setOpenMobile(true)}
       {...props}
     >

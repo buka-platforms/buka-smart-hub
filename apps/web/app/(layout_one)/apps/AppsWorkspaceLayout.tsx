@@ -385,8 +385,8 @@ function AppsWorkspaceShell({
               <SidebarTrigger />
               <Button
                 variant="ghost"
-                size="icon-sm"
-                className="hidden cursor-pointer md:inline-flex"
+                size="icon"
+                className="hidden size-8 cursor-pointer md:inline-flex"
                 onClick={() => setCollapsed((value) => !value)}
               >
                 <PanelLeft className="size-4" />

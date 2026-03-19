@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +15,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { widgetVisibilityAtom } from "@/data/store";
+import { cn } from "@/lib/utils";
 import {
   createNote,
   deleteNote,
@@ -39,7 +40,6 @@ import {
   unobserveWidget,
   type WidgetId,
 } from "@/lib/widget-positions";
-import { cn } from "@/lib/utils";
 import { useAtom } from "jotai";
 import { MoreHorizontal, Pencil, Save, StickyNote, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -265,7 +265,9 @@ export default function WidgetDraggableNotes() {
         data-widget-id={WIDGET_ID}
         className={cn(
           "pointer-events-auto flex rounded-lg border bg-card shadow-sm",
-          isDragging ? "shadow-none transition-none" : "transition-opacity duration-300",
+          isDragging
+            ? "shadow-none transition-none"
+            : "transition-opacity duration-300",
           isVisible ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       >
@@ -381,7 +383,7 @@ export default function WidgetDraggableNotes() {
           </div>
 
           <div className="border-t border-border" />
-          <div className="max-h-80 flex flex-col gap-2 overflow-y-auto p-2">
+          <div className="flex max-h-80 flex-col gap-2 overflow-y-auto p-2">
             {isLoading ? (
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 Loading notes...
@@ -478,7 +480,7 @@ export default function WidgetDraggableNotes() {
       <Sheet open={addDialogOpen} onOpenChange={handleAddDialogChange}>
         <SheetContent
           side="right"
-          className="inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-[32rem] sm:max-w-[32rem] sm:rounded-none sm:border-l sm:border-t-0 sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right"
+          className="data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-[32rem] sm:max-w-[32rem] sm:rounded-none sm:border-t-0 sm:border-l"
         >
           <div className="flex h-full flex-col">
             <div className="px-4 pt-3 sm:hidden">
@@ -551,7 +553,9 @@ export default function WidgetDraggableNotes() {
                   type="button"
                   onClick={() => void submitNote()}
                   disabled={
-                    isAuthenticated === false || isSubmitting || !noteBody.trim()
+                    isAuthenticated === false ||
+                    isSubmitting ||
+                    !noteBody.trim()
                   }
                   className="cursor-pointer"
                 >

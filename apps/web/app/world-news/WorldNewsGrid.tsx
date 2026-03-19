@@ -17,11 +17,12 @@ import {
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import {
   Check,
   GripVertical,
@@ -69,6 +70,29 @@ type ChannelPickerState = {
 
 const MAX_VISIBLE_CHANNELS = 8;
 const VISIBLE_CHANNELS_STORAGE_KEY = "world-news:visible-channel-ids:v1";
+
+function PortaledDropdownMenuContent({
+  container,
+  className,
+  sideOffset = 4,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & {
+  container?: HTMLElement | null;
+}) {
+  return (
+    <DropdownMenuPrimitive.Portal container={container ?? undefined}>
+      <DropdownMenuPrimitive.Content
+        sideOffset={sideOffset}
+        className={cn(
+          "z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-dropdown-menu-content-transform-origin]",
+          className,
+        )}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
+  );
+}
 
 function sanitizeChannelIds(candidateIds: string[], availableIds: Set<string>) {
   return candidateIds
@@ -490,7 +514,7 @@ export default function WorldNewsGrid({
                     Actions
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
+                <PortaledDropdownMenuContent
                   align="end"
                   container={containerElement ?? undefined}
                   className="max-h-[70vh] w-[20rem] overflow-y-auto"
@@ -542,7 +566,7 @@ export default function WorldNewsGrid({
                       </DropdownMenuItem>
                     </>
                   ) : null}
-                </DropdownMenuContent>
+                </PortaledDropdownMenuContent>
               </DropdownMenu>
               {isEmbedded === null ? (
                 <Skeleton className="h-8 w-8 rounded-md" />
@@ -620,7 +644,7 @@ export default function WorldNewsGrid({
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent
+                      <PortaledDropdownMenuContent
                         align="end"
                         sideOffset={8}
                         container={containerElement ?? undefined}
@@ -640,7 +664,7 @@ export default function WorldNewsGrid({
                           <Trash2 className="mr-2 h-4 w-4" />
                           Remove Channel
                         </DropdownMenuItem>
-                      </DropdownMenuContent>
+                      </PortaledDropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 </div>
