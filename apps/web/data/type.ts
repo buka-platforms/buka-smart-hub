@@ -97,7 +97,7 @@ export interface UserSession {
 export interface TVChannel {
   id: string;
   slug: string;
-  audience_type: string;
+  audience_type?: string | null;
   country: string;
   name: string;
   short_description: string;
@@ -107,5 +107,9 @@ export interface TVChannel {
   source_id: string;
   category: string;
   external?: boolean;
-  external_url?: string;
+  external_url?: string | null;
+  sort_order?: number;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
 }

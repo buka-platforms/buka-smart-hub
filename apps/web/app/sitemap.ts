@@ -1,7 +1,11 @@
-import { tv } from "@/data/youtube_live_tv";
+import { fetchYoutubeLiveTvChannels } from "@/lib/youtube-live-tv-api";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const tv = await fetchYoutubeLiveTvChannels(
+    {},
+    { next: { revalidate: 300 } },
+  );
   // Get all tv stations that don't have an 'external' property (assume missing means false)
   const tvChannels = tv.filter(
     (channel) => !("external" in channel && channel.external),

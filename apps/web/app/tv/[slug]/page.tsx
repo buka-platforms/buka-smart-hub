@@ -6,9 +6,13 @@ import ClientSideOperationOnPage from "@/components/General/ClientSideOperationO
 import SignedInHeader from "@/components/General/SignedInHeader";
 import YouTubeIframePlayer from "@/components/General/YouTubeIframePlayer";
 import type { UserSession } from "@/data/type";
-import { tv } from "@/data/youtube_live_tv";
 import { getRequestHeaders } from "@/lib/header";
 import { checkUserSession } from "@/lib/user";
+import {
+  fetchYoutubeLiveTvChannel,
+  fetchYoutubeLiveTvChannels,
+  groupTvChannelsByCategory,
+} from "@/lib/youtube-live-tv-api";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -19,7 +23,10 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug;
-  const selectedTv = tv.find((tv) => tv.slug === slug);
+  const selectedTv = await fetchYoutubeLiveTvChannel(
+    { slug },
+    { next: { revalidate: 300 } },
+  );
 
   // If the selectedTv is not found, return not found
   if (!selectedTv) {
@@ -72,25 +79,19 @@ export default async function TvDetailPage({
 
   const slug = (await params).slug;
 
-  const selectedTv = tv.find((tv) => tv.slug === slug);
-  const tvChannelsExceptSelected = tv.filter((tv) => tv.slug !== slug);
+  const [selectedTv, allChannels] = await Promise.all([
+    fetchYoutubeLiveTvChannel({ slug }, { next: { revalidate: 300 } }),
+    fetchYoutubeLiveTvChannels({}, { next: { revalidate: 300 } }),
+  ]);
 
-  const categorizedTvs = tvChannelsExceptSelected.reduce((groups, item) => {
-    const category = item.category;
-    groups[category] = groups[category] || [];
-    groups[category].push(item);
-    return groups;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }, {} as any);
+  if (!selectedTv) {
+    return notFound();
+  }
 
-  // Sort the categorizedTvs object by category
-  const sortedCategorizedTvs = Object.keys(categorizedTvs)
-    .sort()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .reduce((obj: any, key: any) => {
-      obj[key] = categorizedTvs[key];
-      return obj;
-    }, {});
+  const tvChannelsExceptSelected = allChannels.filter((tv) => tv.slug !== slug);
+  const sortedCategorizedTvs = groupTvChannelsByCategory(
+    tvChannelsExceptSelected,
+  );
 
   return (
     <>
@@ -99,57 +100,12 @@ export default async function TvDetailPage({
         <SignedInHeader userSession={userSession} />
         <main className="flex items-center justify-center bg-black">
           <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden md:w-[60%]">
-            {selectedTv?.source === "YouTube" ? (
-              <YouTubeIframePlayer
-                videoId={selectedTv?.source_id ?? ""}
-                title={selectedTv?.name ?? "YouTube video player"}
-                autoplay
-                className="absolute top-0 left-0 h-full w-full"
-              />
-            ) : selectedTv?.source === "NHK World" ? (
-              <iframe
-                className="absolute top-0 left-0 h-full w-full"
-                id="nPlayerFrame"
-                src="https://www3.nhk.or.jp/nhkworld/common/player/world-player/iframe/player.html?playerId=tTvLive__player&src=https%3A%2F%2Fmasterpl.hls.nhkworld.jp%2Fhls%2Fw%2Flive%2Fmaster.m3u8&analyticsCookie=true&playspeed=1&quality=auto&volume=1"
-                allowFullScreen
-                title="NHK World"
-              ></iframe>
-            ) : selectedTv?.source === "WION" ? (
-              <iframe
-                className="absolute top-0 left-0 h-full w-full"
-                id="vidgyor_iframe"
-                src="https://www.wionews.com/videos/live-tv.html?videoId=zee_wion&amp;title=WION&amp;extraParam1=WION&amp;extraParam2=https://www.wionews.com/&amp;taptounmute=0&amp;mute=0&amp;piv=0&amp;pip=0&amp;autoplay=1"
-                allowFullScreen
-                title="WION"
-              ></iframe>
-            ) : selectedTv?.source === "RT" ? (
-              <iframe
-                id="odysee-iframe"
-                className="absolute top-0 left-0 h-full w-full"
-                src="https://odysee.com/$/embed/@RT?feature=livenow"
-                allowFullScreen
-                title="RT"
-              ></iframe>
-            ) : selectedTv?.source === "CNBC Indonesia" ? (
-              <iframe
-                title="CNBC Indonesia"
-                src="https://www.cnbcindonesia.com/embed/tv?smartautoplay=true&amp;comscore=off"
-                frameBorder="0"
-                allowFullScreen
-                className="absolute top-0 left-0 h-full w-full"
-              ></iframe>
-            ) : selectedTv?.source === "Detik TV" ? (
-              <iframe
-                src="https://20.detik.com/watch/breakingnews-20d?counterviews=true&amp;counterviews_title=false"
-                scrolling="no"
-                frameBorder="0"
-                allowFullScreen={true}
-                title="Detik TV"
-                className="absolute top-0 left-0 h-full w-full"
-              >
-                This browser does not support iframe.
-              </iframe>
-            ) : null}
+            <YouTubeIframePlayer
+              videoId={selectedTv?.source_id ?? ""}
+              title={selectedTv?.name ?? "YouTube video player"}
+              autoplay
+              className="absolute top-0 left-0 h-full w-full"
+            />
           </div>
         </main>
         <div className="container mx-auto mt-3">
@@ -173,26 +129,20 @@ export default async function TvDetailPage({
           </p>
           <h2 className="mt-12 self-start text-lg font-medium">TV Channels</h2>
           <section className="mt-7 flex flex-col flex-wrap gap-3 md:flex-row md:gap-5 md:px-0">
-            {Object.entries(sortedCategorizedTvs).map(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ([category, apps]: [any, any]) => (
-                <section key={category} className="flex w-full flex-col">
-                  <h3 className="py-2 text-lg font-medium">{category}</h3>
-                  <div className="flex w-full flex-col flex-wrap gap-3 md:flex-row md:gap-5">
-                    {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      apps.map((app: any) =>
-                        !app.external === true ? (
-                          <InternalTvLink app={app} key={app.id} />
-                        ) : app.external === true ? (
-                          <ExternalTvLink app={app} key={app.id} />
-                        ) : null,
-                      )
-                    }
-                  </div>
-                </section>
-              ),
-            )}
+            {Object.entries(sortedCategorizedTvs).map(([category, apps]) => (
+              <section key={category} className="flex w-full flex-col">
+                <h3 className="py-2 text-lg font-medium">{category}</h3>
+                <div className="flex w-full flex-col flex-wrap gap-3 md:flex-row md:gap-5">
+                  {apps.map((app) =>
+                    !app.external === true ? (
+                      <InternalTvLink app={app} key={app.id} />
+                    ) : app.external === true ? (
+                      <ExternalTvLink app={app} key={app.id} />
+                    ) : null,
+                  )}
+                </div>
+              </section>
+            ))}
           </section>
         </div>
         <div className="mt-11 flex w-full justify-center">

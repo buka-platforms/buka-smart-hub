@@ -9,7 +9,7 @@ interface TvApp {
   logo_url: string;
   short_description: string;
   external?: boolean;
-  external_url?: string;
+  external_url?: string | null;
   category: string;
 }
 
@@ -50,6 +50,10 @@ export const InternalTvLink = ({ app }: TvLinkProps) => {
 
 /* eslint-disable @next/next/no-img-element */
 export const ExternalTvLink = ({ app }: TvLinkProps) => {
+  if (!app.external_url) {
+    return null;
+  }
+
   return (
     <a
       rel="noopener noreferrer"

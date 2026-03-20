@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/select";
 import { widgetVisibilityAtom } from "@/data/store";
 import type { TVChannel } from "@/data/type";
-import { tv } from "@/data/youtube_live_tv";
 import {
   observeWidget,
   setWidgetMeasuredHeight,
@@ -40,10 +39,16 @@ import {
   WIDGET_POSITION_KEYS,
   type WidgetId,
 } from "@/lib/widget-positions";
+import {
+  buildYoutubeLiveTvCollectionUrl,
+  fetchYoutubeLiveTvChannelsFromUrl,
+  groupTvChannelsByCategory,
+} from "@/lib/youtube-live-tv-api";
 import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Tv } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useSWR from "swr";
 import {
   widgetCommandDialogContentClass,
   widgetCommandItemActiveClass,
@@ -57,39 +62,13 @@ import {
 
 // containerRef = draggable wrapper; playerRef = inner video container
 
-// Filter only YouTube-based channels for the widget
-const youtubeChannels = (tv as TVChannel[]).filter(
-  (channel) => channel.source === "YouTube",
-);
-
-// Group channels by category
-const groupedChannels = youtubeChannels.reduce(
-  (acc, channel) => {
-    const category = channel.category || "Other";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(channel);
-    return acc;
-  },
-  {} as Record<string, TVChannel[]>,
-);
-
-// Sort channels alphabetically within each category
-Object.keys(groupedChannels).forEach((category) => {
-  groupedChannels[category].sort((a, b) => a.name.localeCompare(b.name));
-});
-
-// Sort categories alphabetically
-const sortedCategories = Object.keys(groupedChannels).sort();
-
-// Get unique countries for filtering
-const countries = [...new Set(youtubeChannels.map((c) => c.country))].sort();
-
 // Storage keys
 const SELECTED_CHANNEL_KEY = "widgetYouTubeLiveTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetYouTubeLiveTVFavorites";
 const VOLUME_KEY = "widgetYouTubeLiveTVVolume";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "1.0.0";
+const YOUTUBE_LIVE_TV_WIDGET_URL = buildYoutubeLiveTvCollectionUrl();
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {
@@ -101,7 +80,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [isDragging, setIsDragging] = useState(false);
 
   // Player state
-  const [selectedChannel, setSelectedChannel] = useState<TVChannel | null>(
+  const [selectedChannelSlug, setSelectedChannelSlug] = useState<string | null>(
     null,
   );
   const [isPlaying, setIsPlaying] = useState(false);
@@ -114,6 +93,52 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
   const channelListRef = useRef<HTMLDivElement>(null);
+  const didHydrateSavedStateRef = useRef(false);
+  const {
+    data: youtubeChannels = [],
+    error: youtubeChannelsError,
+    isLoading: isLoadingChannels,
+  } = useSWR<TVChannel[]>(
+    YOUTUBE_LIVE_TV_WIDGET_URL,
+    fetchYoutubeLiveTvChannelsFromUrl,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
+  );
+  const groupedChannels = useMemo(
+    () => groupTvChannelsByCategory(youtubeChannels),
+    [youtubeChannels],
+  );
+  const sortedCategories = useMemo(
+    () => Object.keys(groupedChannels).sort(),
+    [groupedChannels],
+  );
+  const countries = useMemo(
+    () =>
+      [...new Set(youtubeChannels.map((channel) => channel.country))].sort(),
+    [youtubeChannels],
+  );
+  const selectedChannel = useMemo(() => {
+    if (youtubeChannels.length === 0) return null;
+
+    if (selectedChannelSlug) {
+      return (
+        youtubeChannels.find(
+          (channel) => channel.slug === selectedChannelSlug,
+        ) ??
+        youtubeChannels.find((channel) => channel.category === "News") ??
+        youtubeChannels[0] ??
+        null
+      );
+    }
+
+    return (
+      youtubeChannels.find((channel) => channel.category === "News") ??
+      youtubeChannels[0] ??
+      null
+    );
+  }, [selectedChannelSlug, youtubeChannels]);
 
   // YouTube Player API
   const playerInstanceRef = useRef<YTPlayer | null>(null);
@@ -124,38 +149,37 @@ export default function WidgetDraggableYouTubeLiveTV() {
 
   // Load saved state on mount
   useEffect(() => {
+    if (didHydrateSavedStateRef.current || youtubeChannels.length === 0) return;
+
     queueMicrotask(() => {
-      // Load selected channel
       try {
         const savedChannelSlug = localStorage.getItem(SELECTED_CHANNEL_KEY);
-        if (savedChannelSlug) {
-          const channel = youtubeChannels.find(
-            (c) => c.slug === savedChannelSlug,
-          );
-          if (channel) setSelectedChannel(channel);
-        }
-        if (!savedChannelSlug) {
-          // Default to first news channel
-          const defaultChannel =
-            youtubeChannels.find((c) => c.category === "News") ||
-            youtubeChannels[0];
-          if (defaultChannel) setSelectedChannel(defaultChannel);
-        }
-
-        // Load favorites
         const savedFavorites = localStorage.getItem(FAVORITE_CHANNELS_KEY);
+        const savedVolume = localStorage.getItem(VOLUME_KEY);
+
         if (savedFavorites) {
           setFavorites(JSON.parse(savedFavorites));
         }
 
-        // Load volume
-        const savedVolume = localStorage.getItem(VOLUME_KEY);
-        if (savedVolume) setVolume(Number(savedVolume));
+        if (savedVolume) {
+          setVolume(Number(savedVolume));
+        }
+
+        const initialChannel = savedChannelSlug
+          ? youtubeChannels.find((channel) => channel.slug === savedChannelSlug)
+          : (youtubeChannels.find((channel) => channel.category === "News") ??
+            youtubeChannels[0]);
+
+        if (initialChannel) {
+          setSelectedChannelSlug(initialChannel.slug);
+        }
+
+        didHydrateSavedStateRef.current = true;
       } catch {
         // Ignore
       }
     });
-  }, []);
+  }, [youtubeChannels]);
 
   // Mark position loaded after mount (layout system will place widgets)
   useEffect(() => {
@@ -414,7 +438,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
     (channel: TVChannel) => {
       shouldAutoPlayRef.current = isPlaying;
       setIsPlaying(false);
-      setSelectedChannel(channel);
+      setSelectedChannelSlug(channel.slug);
       setChannelPickerOpen(false);
       try {
         localStorage.setItem(SELECTED_CHANNEL_KEY, channel.slug);
@@ -457,12 +481,12 @@ export default function WidgetDraggableYouTubeLiveTV() {
       }
     }
     return filtered;
-  }, [countryFilter]);
+  }, [countryFilter, groupedChannels]);
 
   // Favorite channels for quick access
   const favoriteChannels = useMemo(
     () => youtubeChannels.filter((c) => favorites.includes(c.slug)),
-    [favorites],
+    [favorites, youtubeChannels],
   );
 
   // When channel picker opens, jump to the current selected channel.
@@ -598,10 +622,19 @@ export default function WidgetDraggableYouTubeLiveTV() {
               {/* Channel Info */}
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-xs font-semibold text-foreground">
-                  {selectedChannel?.name || "Select Channel"}
+                  {selectedChannel?.name ||
+                    (isLoadingChannels
+                      ? "Loading channels..."
+                      : "Select Channel")}
                 </span>
                 <span className="truncate text-[10px] text-muted-foreground">
-                  {selectedChannel?.country} • {selectedChannel?.category}
+                  {selectedChannel
+                    ? `${selectedChannel.country} • ${selectedChannel.category}`
+                    : youtubeChannelsError
+                      ? "Unable to load live channels"
+                      : isLoadingChannels
+                        ? "Fetching from backend"
+                        : "Choose a live channel"}
                 </span>
               </div>
 
@@ -616,6 +649,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
               {/* Channel Picker */}
               <button
                 onClick={() => setChannelPickerOpen(true)}
+                disabled={youtubeChannels.length === 0}
                 className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-border bg-muted/50 px-2 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 title="Change channel"
               >
@@ -628,15 +662,37 @@ export default function WidgetDraggableYouTubeLiveTV() {
               ref={playerRef}
               className="relative aspect-video overflow-hidden bg-black"
             >
-              {/* Loading state */}
-              {!selectedChannel && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+              {youtubeChannelsError && (
+                <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                  <div className="flex max-w-56 flex-col items-center gap-2 text-muted-foreground">
                     <Tv className="h-10 w-10" />
-                    <span className="text-xs">Select a channel to watch</span>
+                    <span className="text-xs">
+                      Unable to load channels from the backend API.
+                    </span>
                   </div>
                 </div>
               )}
+              {!youtubeChannelsError &&
+                isLoadingChannels &&
+                !selectedChannel && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Tv className="h-10 w-10 animate-pulse" />
+                      <span className="text-xs">Loading live channels</span>
+                    </div>
+                  </div>
+                )}
+              {/* Loading state */}
+              {!youtubeChannelsError &&
+                !isLoadingChannels &&
+                !selectedChannel && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Tv className="h-10 w-10" />
+                      <span className="text-xs">Select a channel to watch</span>
+                    </div>
+                  </div>
+                )}
             </div>
 
             {/* Quick Actions */}

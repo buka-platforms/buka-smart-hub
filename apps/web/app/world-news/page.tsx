@@ -1,4 +1,4 @@
-import { tv } from "@/data/youtube_live_tv";
+import { fetchYoutubeLiveTvChannels } from "@/lib/youtube-live-tv-api";
 import type { Metadata } from "next";
 import WorldNewsGrid from "./WorldNewsGrid";
 
@@ -18,10 +18,12 @@ const DEFAULT_WORLD_NEWS_CHANNEL_IDS = [
 ];
 
 export default async function WorldNewsPage() {
-  const allNewsChannels = tv
-    .filter(
-      (channel) => channel.source === "YouTube" && channel.category === "News",
+  const allNewsChannels = (
+    await fetchYoutubeLiveTvChannels(
+      { category: "News" },
+      { next: { revalidate: 300 } },
     )
+  )
     .map((channel) => ({
       id: channel.id,
       slug: channel.slug,

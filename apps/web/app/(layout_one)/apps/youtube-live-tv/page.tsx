@@ -2,7 +2,10 @@ import {
   ExternalTvLink,
   InternalTvLink,
 } from "@/app/(layout_one)/apps/youtube-live-tv/links";
-import { tv } from "@/data/youtube_live_tv";
+import {
+  fetchYoutubeLiveTvChannels,
+  groupTvChannelsByCategory,
+} from "@/lib/youtube-live-tv-api";
 import type { Metadata } from "next";
 import AppPageIntro from "../AppPageIntro";
 
@@ -40,22 +43,11 @@ export const metadata: Metadata = {
 };
 
 export default async function TvPage() {
-  const categorizedTvs = tv.reduce((groups, item) => {
-    const category = item.category;
-    groups[category] = groups[category] || [];
-    groups[category].push(item);
-    return groups;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }, {} as any);
-
-  // Sort the categorizedTvs object by category
-  const sortedCategorizedTvs = Object.keys(categorizedTvs)
-    .sort()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .reduce((obj: any, key: any) => {
-      obj[key] = categorizedTvs[key];
-      return obj;
-    }, {});
+  const channels = await fetchYoutubeLiveTvChannels(
+    {},
+    { next: { revalidate: 300 } },
+  );
+  const sortedCategorizedTvs = groupTvChannelsByCategory(channels);
 
   /* eslint-disable @next/next/no-img-element */
   return (
@@ -64,27 +56,20 @@ export default async function TvPage() {
       <h1 className="hidden">{pageDescription}</h1>
       <div className="mt-6 w-full">
         <main className="flex flex-col flex-wrap gap-3 md:flex-row md:gap-5 md:px-0">
-          {Object.entries(sortedCategorizedTvs).map(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ([category, apps]: [any, any]) => (
-              <section key={category} className="flex w-full flex-col">
-                <h2 className="py-2 text-lg font-medium">{category}</h2>
-                <div className="flex w-full flex-col flex-wrap gap-3 md:flex-row md:gap-5">
-                  {apps.map(
-                    (
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      app: any,
-                    ) =>
-                      !app.external === true ? (
-                        <InternalTvLink app={app} key={app.id} />
-                      ) : app.external === true ? (
-                        <ExternalTvLink app={app} key={app.id} />
-                      ) : null,
-                  )}
-                </div>
-              </section>
-            ),
-          )}
+          {Object.entries(sortedCategorizedTvs).map(([category, apps]) => (
+            <section key={category} className="flex w-full flex-col">
+              <h2 className="py-2 text-lg font-medium">{category}</h2>
+              <div className="flex w-full flex-col flex-wrap gap-3 md:flex-row md:gap-5">
+                {apps.map((app) =>
+                  !app.external === true ? (
+                    <InternalTvLink app={app} key={app.id} />
+                  ) : app.external === true ? (
+                    <ExternalTvLink app={app} key={app.id} />
+                  ) : null,
+                )}
+              </div>
+            </section>
+          ))}
         </main>
       </div>
       <div className="mt-11 flex w-full justify-center">
