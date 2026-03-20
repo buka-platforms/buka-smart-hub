@@ -482,11 +482,12 @@ export default function WidgetDraggableRadioPlayer() {
               </PopoverContent>
             </Popover>
 
+            <div className="ml-auto flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               asChild
-              className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+              className="h-7 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
             >
               <Link href="/apps/radio" title="Browse more stations">
                 Stations
@@ -494,10 +495,10 @@ export default function WidgetDraggableRadioPlayer() {
             </Button>
             {radioStationState.radioStation?.slug && (
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 asChild
-                className="h-7 rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+                className="h-7 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
               >
                 <Link
                   href={`/radio/${radioStationState.radioStation.slug}`}
@@ -507,6 +508,7 @@ export default function WidgetDraggableRadioPlayer() {
                 </Link>
               </Button>
             )}
+            </div>
           </div>
         </div>
       </div>

@@ -628,26 +628,28 @@ export default function WidgetDraggableSomaFM() {
                   />
                 </PopoverContent>
               </Popover>
-              {/* CHANNELS button with searchable command dialog */}
-              <button
-                className="flex h-8 cursor-pointer items-center justify-center rounded-full border border-border bg-muted px-3 text-[10px] font-semibold tracking-wide text-foreground uppercase transition-colors hover:bg-accent"
-                type="button"
-                aria-label="Select channel"
-                onClick={async () => {
-                  setChannelPickerOpen(true);
-                  try {
-                    const res = await fetch("https://somafm.com/channels.json");
-                    const data = await res.json();
-                    const sortedChannels = (data.channels || [])
-                      .slice()
-                      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                      .sort((a: any, b: any) => a.title.localeCompare(b.title));
-                    setChannels(sortedChannels);
-                  } catch {}
-                }}
-              >
-                Channels
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {/* CHANNELS button with searchable command dialog */}
+                <button
+                  className="flex h-7 cursor-pointer items-center justify-center rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
+                  type="button"
+                  aria-label="Select channel"
+                  onClick={async () => {
+                    setChannelPickerOpen(true);
+                    try {
+                      const res = await fetch("https://somafm.com/channels.json");
+                      const data = await res.json();
+                      const sortedChannels = (data.channels || [])
+                        .slice()
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                        .sort((a: any, b: any) => a.title.localeCompare(b.title));
+                      setChannels(sortedChannels);
+                    } catch {}
+                  }}
+                >
+                  Channels
+                </button>
+              </div>
             </div>
           </div>
         </div>
