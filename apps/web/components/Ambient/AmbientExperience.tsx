@@ -1,6 +1,13 @@
 "use client";
 
 import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { transparent1x1Pixel } from "@/data/general";
 import {
   audioVisualizationStateAtom,
@@ -17,6 +24,7 @@ import {
   Fullscreen,
   ImageDown,
   Loader2,
+  MoreHorizontal,
   Music2,
   Pause,
   Play,
@@ -63,6 +71,7 @@ export default function AmbientExperience({
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
 
   const [isFetchingImage, setIsFetchingImage] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isResumingRadio, setIsResumingRadio] = useState(false);
   const [wallpaperLayers, setWallpaperLayers] = useState<
     [string | null, string | null]
@@ -184,6 +193,19 @@ export default function AmbientExperience({
     radioAudioState.isPlaying,
     radioStationState.radioStation?.slug,
   ]);
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    syncFullscreenState();
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+    };
+  }, []);
 
   useEffect(() => {
     const imageUrl =
@@ -455,32 +477,50 @@ export default function AmbientExperience({
             </button>
           ) : null}
           <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={refreshWallpaper}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-              title="Random wallpaper"
-              style={{
-                backgroundColor: "rgba(10, 10, 10, 0.28)",
-                borderColor: "rgba(255,255,255,0.08)",
-              }}
-            >
-              <ImageDown
-                className={`h-3.5 w-3.5 ${isFetchingImage ? "animate-spin" : ""}`}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
-              title="Fullscreen"
-              style={{
-                backgroundColor: "rgba(10, 10, 10, 0.28)",
-                borderColor: "rgba(255,255,255,0.08)",
-              }}
-            >
-              <Fullscreen className="h-3.5 w-3.5" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+                  title="More actions"
+                  style={{
+                    backgroundColor: "rgba(10, 10, 10, 0.28)",
+                    borderColor: "rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-fit min-w-0">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      void refreshWallpaper();
+                    }}
+                  >
+                    {isFetchingImage ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <ImageDown className="mr-2 h-4 w-4" />
+                    )}
+                    <span>Change image</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                    onSelect={() => {
+                      void toggleFullscreen();
+                    }}
+                  >
+                    <Fullscreen className="mr-2 h-4 w-4" />
+                    <span>
+                      {isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {mode === "dialog" && onClose ? (
               <button
                 type="button"
