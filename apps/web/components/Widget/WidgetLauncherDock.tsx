@@ -291,7 +291,7 @@ export default function WidgetLauncherDock() {
         </div>
       </div>
       <Dialog open={isWidgetPickerOpen} onOpenChange={setIsWidgetPickerOpen}>
-        <DialogContent className="w-[min(640px,96vw)] max-w-none border bg-popover p-0 text-popover-foreground">
+        <DialogContent className="w-[min(640px,96vw)] max-w-none border bg-popover p-0 text-popover-foreground [&>button]:cursor-pointer">
           <DialogTitle className="sr-only">Widget List</DialogTitle>
           <DialogDescription className="sr-only">
             Toggle widget visibility.
