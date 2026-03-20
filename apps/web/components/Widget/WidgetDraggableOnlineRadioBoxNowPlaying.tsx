@@ -3,6 +3,7 @@
 import {
   Command,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -64,6 +65,13 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  widgetCommandDialogContentClass,
+  widgetCommandItemActiveClass,
+  widgetCommandItemClass,
+  widgetCommandListClass,
+  widgetCommandSearchInputClass,
+} from "./widgetCommandDialogStyles";
 
 interface NowPlayingStation {
   radioId: string;
@@ -834,59 +842,67 @@ export default function WidgetDraggableOnlineRadioBoxNowPlaying() {
                 </PopoverContent>
               </Popover>
 
-              {/* Country Selector */}
-              <button
-                className="flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-[10px] font-semibold tracking-wide text-foreground uppercase transition-colors hover:bg-accent"
-                type="button"
-                onClick={() => setCountryDialogOpen(true)}
-              >
-                Country: {selectedCountry?.code.toUpperCase() || "ID"}
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {/* Country Selector */}
+                <button
+                  className="flex h-7 cursor-pointer items-center justify-center gap-1 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
+                  type="button"
+                  onClick={() => setCountryDialogOpen(true)}
+                >
+                  Country: {selectedCountry?.code.toUpperCase() || "ID"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <Dialog open={countryDialogOpen} onOpenChange={setCountryDialogOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-md border-border bg-[#0c0c10]/95 p-0 text-foreground shadow-2xl backdrop-blur-xl">
+        <DialogContent
+          className={`${widgetCommandDialogContentClass} max-w-md [&>button]:cursor-pointer`}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Select Country</DialogTitle>
             <DialogDescription>
               Search and select a country for radio now playing.
             </DialogDescription>
           </DialogHeader>
-          <Command className="bg-transparent text-foreground">
-            <CommandInput
-              placeholder="Search country..."
-              className="h-11 border-b border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
-            />
-            <CommandList className="max-h-[min(70vh,24rem)] overflow-y-auto bg-transparent p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted/50">
+          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+            <div className="border-b border-border p-2 pr-10">
+              <CommandInput
+                placeholder="Search country..."
+                className={widgetCommandSearchInputClass}
+              />
+            </div>
+            <CommandList className={`${widgetCommandListClass} p-2`}>
               <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                 No country found.
               </CommandEmpty>
-              {COUNTRIES.map((c) => (
-                <CommandItem
-                  key={c.code}
-                  value={`${c.name} ${c.code}`}
-                  onSelect={() => {
-                    setCountry(c.code);
-                    setCountryDialogOpen(false);
-                  }}
-                  className={`cursor-pointer rounded-md px-2 py-2 text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground ${
-                    country === c.code ? "bg-muted" : ""
-                  }`}
-                >
-                  <span className="mr-2 w-8 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
-                    {c.code}
-                  </span>
-                  <span className="flex-1 text-sm text-foreground">
-                    {c.name}
-                  </span>
-                  {country === c.code && (
-                    <Check className="h-3.5 w-3.5 text-muted-foreground" />
-                  )}
-                </CommandItem>
-              ))}
+              <CommandGroup>
+                {COUNTRIES.map((c) => (
+                  <CommandItem
+                    key={c.code}
+                    value={`${c.name} ${c.code}`}
+                    onSelect={() => {
+                      setCountry(c.code);
+                      setCountryDialogOpen(false);
+                    }}
+                    className={`${widgetCommandItemClass} px-2 py-2 ${
+                      country === c.code ? widgetCommandItemActiveClass : ""
+                    }`}
+                  >
+                    <span className="mr-2 w-8 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      {c.code}
+                    </span>
+                    <span className="flex-1 text-sm text-foreground">
+                      {c.name}
+                    </span>
+                    {country === c.code && (
+                      <Check className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             </CommandList>
           </Command>
         </DialogContent>

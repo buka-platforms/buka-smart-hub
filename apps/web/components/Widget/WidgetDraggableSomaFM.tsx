@@ -637,12 +637,16 @@ export default function WidgetDraggableSomaFM() {
                   onClick={async () => {
                     setChannelPickerOpen(true);
                     try {
-                      const res = await fetch("https://somafm.com/channels.json");
+                      const res = await fetch(
+                        "https://somafm.com/channels.json",
+                      );
                       const data = await res.json();
                       const sortedChannels = (data.channels || [])
                         .slice()
                         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                        .sort((a: any, b: any) => a.title.localeCompare(b.title));
+                        .sort((a: any, b: any) =>
+                          a.title.localeCompare(b.title),
+                        );
                       setChannels(sortedChannels);
                     } catch {}
                   }}

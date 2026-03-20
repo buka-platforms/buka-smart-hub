@@ -483,31 +483,31 @@ export default function WidgetDraggableRadioPlayer() {
             </Popover>
 
             <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="h-7 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
-            >
-              <Link href="/apps/radio" title="Browse more stations">
-                Stations
-              </Link>
-            </Button>
-            {radioStationState.radioStation?.slug && (
               <Button
                 variant="ghost"
                 size="sm"
                 asChild
                 className="h-7 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
               >
-                <Link
-                  href={`/radio/${radioStationState.radioStation.slug}`}
-                  title={`Go to ${radioStationState.radioStation.name} details`}
-                >
-                  Details
+                <Link href="/apps/radio" title="Browse more stations">
+                  Stations
                 </Link>
               </Button>
-            )}
+              {radioStationState.radioStation?.slug && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="h-7 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Link
+                    href={`/radio/${radioStationState.radioStation.slug}`}
+                    title={`Go to ${radioStationState.radioStation.name} details`}
+                  >
+                    Details
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
