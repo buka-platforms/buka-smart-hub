@@ -464,7 +464,7 @@ export default function WidgetDraggableNotes() {
       <Sheet open={addDialogOpen} onOpenChange={handleAddDialogChange}>
         <SheetContent
           side="right"
-          className="data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-[32rem] sm:max-w-[32rem] sm:rounded-none sm:border-t-0 sm:border-l [&>button]:cursor-pointer"
+          className="data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right inset-x-0 top-auto bottom-0 h-[85dvh] w-full rounded-t-3xl border-t border-l-0 bg-background/98 p-0 backdrop-blur-sm sm:inset-y-0 sm:right-0 sm:left-auto sm:h-full sm:w-lg sm:max-w-lg sm:rounded-none sm:border-t-0 sm:border-l [&>button]:cursor-pointer"
         >
           <div className="flex h-full flex-col">
             <div className="px-4 pt-3 sm:hidden">
@@ -492,7 +492,7 @@ export default function WidgetDraggableNotes() {
                   <Input
                     value={noteTitle}
                     onChange={(e) => setNoteTitle(e.target.value)}
-                    className="h-10 border-0 bg-transparent px-0 text-lg font-medium text-foreground shadow-none placeholder:text-lg placeholder:font-medium focus-visible:ring-0 md:!text-lg"
+                    className="h-10 border-0 bg-transparent px-0 text-lg font-medium text-foreground shadow-none placeholder:text-lg placeholder:font-medium focus-visible:ring-0 md:text-lg!"
                     placeholder="Title"
                     disabled={isAuthenticated === false || isSubmitting}
                   />
