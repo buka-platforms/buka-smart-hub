@@ -697,36 +697,38 @@ export default function WidgetDraggableQuran() {
               </PopoverContent>
             </Popover>
 
-            <button
-              type="button"
-              className="flex h-8 cursor-pointer items-center gap-2 rounded-full border bg-secondary px-3 text-[10px] font-semibold tracking-wide text-secondary-foreground hover:bg-accent"
-              onClick={() => setSurahPickerOpen(true)}
-            >
-              {selectedSurah
-                ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
-                : "Select Surah"}
-            </button>
-
-            {surahData && (
-              <form
-                onSubmit={handleJumpToAyahSubmit}
-                className="flex items-center gap-1"
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                className="flex h-7 cursor-pointer items-center justify-center gap-1 rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
+                onClick={() => setSurahPickerOpen(true)}
               >
-                <input
-                  type="number"
-                  min={1}
-                  max={surahData.ayahs.length}
-                  value={jumpToAyahValue}
-                  onChange={(e) => setJumpToAyahValue(e.target.value)}
-                  placeholder={`${currentAyahIndex + 1}`}
-                  className="h-8 w-16 rounded border border-input bg-background px-2 text-center text-[10px] font-semibold tracking-wide text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
-                  title={`Jump to Ayah (1-${surahData.ayahs.length})`}
-                />
-                <span className="text-[10px] text-muted-foreground">
-                  / {surahData.ayahs.length}
-                </span>
-              </form>
-            )}
+                {selectedSurah
+                  ? `${selectedSurah}. ${surahList.find((s) => s.number === selectedSurah)?.englishName || "Surah"}`
+                  : "Select Surah"}
+              </button>
+
+              {surahData && (
+                <form
+                  onSubmit={handleJumpToAyahSubmit}
+                  className="flex items-center gap-1"
+                >
+                  <input
+                    type="number"
+                    min={1}
+                    max={surahData.ayahs.length}
+                    value={jumpToAyahValue}
+                    onChange={(e) => setJumpToAyahValue(e.target.value)}
+                    placeholder={`${currentAyahIndex + 1}`}
+                    className="h-7 w-16 rounded-sm border border-input bg-background px-2 text-center text-[10px] font-semibold tracking-wide text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
+                    title={`Jump to Ayah (1-${surahData.ayahs.length})`}
+                  />
+                  <span className="text-[10px] text-muted-foreground">
+                    / {surahData.ayahs.length}
+                  </span>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

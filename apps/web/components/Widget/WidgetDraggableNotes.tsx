@@ -450,7 +450,7 @@ export default function WidgetDraggableNotes() {
               asChild
               variant="outline"
               size="sm"
-              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
+              className="h-7 cursor-pointer rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
             >
               <Link href="/apps/notes">Open Notes</Link>
             </Button>
