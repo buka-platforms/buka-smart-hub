@@ -1,5 +1,6 @@
 "use client";
 
+import AmbientLauncher from "@/components/Ambient/AmbientLauncher";
 import Fullscreen from "@/components/Home/Fullscreen";
 import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -282,6 +283,7 @@ export default function WidgetLauncherDock() {
           <div className="mx-1 h-8 w-px bg-border" />
 
           <div className="flex items-center gap-3">
+            <AmbientLauncher />
             <ThemeToggle />
             <Fullscreen />
             <InfoDropdownMenu />

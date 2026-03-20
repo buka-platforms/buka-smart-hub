@@ -25,7 +25,7 @@ export default async function Home() {
       <div className="relative z-0 min-h-screen w-full">
         {/* Widget Container: Launcher Dock + All Widgets */}
         <WidgetContainer />
-        <AudioSpectrumCanvas />
+        <AudioSpectrumCanvas hideWhenAmbientDialogOpen />
       </div>
     </>
   );

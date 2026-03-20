@@ -75,6 +75,10 @@ export const audioVisualizationStateAtom = atom({
   activeSource: null as AudioVisualizationSourceId | null,
 });
 
+export const ambientScreenStateAtom = atom({
+  isDialogOpen: false,
+});
+
 // Widget Launcher Dock State
 export type WidgetId =
   | "time"

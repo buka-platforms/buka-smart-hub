@@ -95,9 +95,8 @@ export default function BackgroundImageContainerClient() {
 
     let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true`;
 
-    // Check if randomBackgroundImageId is not set, then include ?query
     if (!localStorage.getItem(RANDOM_BACKGROUND_IMAGE_ID_KEY)) {
-      apiUrl += `?query=${backgroundImageQuery}`;
+      apiUrl += `&query=${encodeURIComponent(backgroundImageQuery)}`;
     }
 
     // Fetch data in parallel
