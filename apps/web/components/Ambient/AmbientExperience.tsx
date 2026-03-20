@@ -11,10 +11,19 @@ import {
   somafmAudioStateAtom,
 } from "@/data/store";
 import type { Unsplash } from "@/data/type";
+import { loadRadioStationBySlug, play, stop } from "@/lib/radio-audio";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Fullscreen, ImageDown, Loader2, Music2, X } from "lucide-react";
+import {
+  Fullscreen,
+  ImageDown,
+  Loader2,
+  Music2,
+  Pause,
+  Play,
+  X,
+} from "lucide-react";
 import { Manrope } from "next/font/google";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type AmbientExperienceProps = {
   mode?: "page" | "dialog";
@@ -54,6 +63,7 @@ export default function AmbientExperience({
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
 
   const [isFetchingImage, setIsFetchingImage] = useState(false);
+  const [isResumingRadio, setIsResumingRadio] = useState(false);
   const [wallpaperLayers, setWallpaperLayers] = useState<
     [string | null, string | null]
   >([null, null]);
@@ -67,7 +77,13 @@ export default function AmbientExperience({
     radioStationState.exposedArtwork !== transparent1x1Pixel
       ? radioStationState.exposedArtwork
       : null;
-
+  const isAmbientAudioPlaying =
+    radioAudioState.isPlaying ||
+    onlineRadioState.isPlaying ||
+    somaFmAudioState.isPlaying ||
+    (activeSource === "iptv" && visualizationState.isActive);
+  const shouldShowRadioControl =
+    !isAmbientAudioPlaying || radioAudioState.isPlaying;
   const currentAudioSummary = useMemo(() => {
     if (activeSource === "radio" && radioAudioState.isPlaying) {
       const title =
@@ -126,6 +142,47 @@ export default function AmbientExperience({
     somaFmAudioState.isPlaying,
     somaFmAudioState.lastChannelId,
     visualizationState.isActive,
+  ]);
+
+  const handleRadioControl = useCallback(async () => {
+    if (isResumingRadio) {
+      return;
+    }
+
+    if (radioAudioState.isPlaying) {
+      await stop();
+      return;
+    }
+
+    if (isAmbientAudioPlaying) {
+      return;
+    }
+
+    const currentSlug = radioStationState.radioStation?.slug;
+    const savedSlug =
+      typeof window !== "undefined"
+        ? localStorage.getItem("widgetRadioPlayerStationSlug")
+        : null;
+    const fallbackSlug =
+      process.env.NEXT_PUBLIC_DEFAULT_RADIO_STATION_SLUG || "gold905";
+    const nextSlug = currentSlug || savedSlug || fallbackSlug;
+
+    setIsResumingRadio(true);
+
+    try {
+      if (!currentSlug || currentSlug !== nextSlug) {
+        await loadRadioStationBySlug(nextSlug);
+      }
+
+      await play(false);
+    } finally {
+      setIsResumingRadio(false);
+    }
+  }, [
+    isAmbientAudioPlaying,
+    isResumingRadio,
+    radioAudioState.isPlaying,
+    radioStationState.radioStation?.slug,
   ]);
 
   useEffect(() => {
@@ -367,43 +424,80 @@ export default function AmbientExperience({
       <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(15,23,42,0.55),rgba(15,23,42,0.12)_35%,rgba(2,6,23,0.72))]" />
 
       <div className="absolute top-4 right-4 z-20 md:top-6 md:right-6">
-        <div
-          className="flex items-center gap-0.5 rounded-full border p-0.5 shadow-lg shadow-black/20 backdrop-blur-xl"
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0.48)",
-            borderColor: "rgba(0, 0, 0, 0.44)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={refreshWallpaper}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/12"
-            title="Random wallpaper"
-          >
-            <ImageDown
-              className={`h-3.5 w-3.5 ${isFetchingImage ? "animate-spin" : ""}`}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/12"
-            title="Fullscreen"
-          >
-            <Fullscreen className="h-3.5 w-3.5" />
-          </button>
-          {mode === "dialog" && onClose ? (
+        <div className="flex items-center gap-2">
+          {shouldShowRadioControl ? (
             <button
               type="button"
               onClick={() => {
-                void handleClose();
+                void handleRadioControl();
               }}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/12"
-              title="Close"
+              disabled={isResumingRadio}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-90"
+              title={
+                isResumingRadio
+                  ? "Starting radio"
+                  : radioAudioState.isPlaying
+                    ? "Pause current radio widget station"
+                    : "Play current radio widget station"
+              }
+              style={{
+                backgroundColor: "rgba(10, 10, 10, 0.28)",
+                borderColor: "rgba(255,255,255,0.08)",
+              }}
             >
-              <X className="h-3.5 w-3.5" />
+              {isResumingRadio ? (
+                <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+              ) : radioAudioState.isPlaying ? (
+                <Pause className="h-3.5 w-3.5 shrink-0 fill-current" />
+              ) : (
+                <Play className="h-3.5 w-3.5 shrink-0 fill-current" />
+              )}
             </button>
           ) : null}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={refreshWallpaper}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+              title="Random wallpaper"
+              style={{
+                backgroundColor: "rgba(10, 10, 10, 0.28)",
+                borderColor: "rgba(255,255,255,0.08)",
+              }}
+            >
+              <ImageDown
+                className={`h-3.5 w-3.5 ${isFetchingImage ? "animate-spin" : ""}`}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+              title="Fullscreen"
+              style={{
+                backgroundColor: "rgba(10, 10, 10, 0.28)",
+                borderColor: "rgba(255,255,255,0.08)",
+              }}
+            >
+              <Fullscreen className="h-3.5 w-3.5" />
+            </button>
+            {mode === "dialog" && onClose ? (
+              <button
+                type="button"
+                onClick={() => {
+                  void handleClose();
+                }}
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+                title="Close"
+                style={{
+                  backgroundColor: "rgba(10, 10, 10, 0.28)",
+                  borderColor: "rgba(255,255,255,0.08)",
+                }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 
