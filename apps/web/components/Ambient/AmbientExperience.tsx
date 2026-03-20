@@ -418,7 +418,7 @@ export default function AmbientExperience({
 
       {ambientImage ? (
         <div
-          className={`absolute right-3 bottom-3 z-20 text-right md:right-4 md:bottom-4 ${manrope.className}`}
+          className={`absolute right-4 bottom-3 z-20 text-right md:right-6 md:bottom-5 ${manrope.className}`}
         >
           <div
             className="px-2.5 py-1.5 text-xs text-white shadow-lg shadow-black/20 backdrop-blur-xl"
@@ -449,7 +449,7 @@ export default function AmbientExperience({
       ) : null}
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="p-3 pr-20 md:p-4 md:pr-28">
+        <header className="p-4 pr-20 md:p-6 md:pr-28">
           <div
             className={`inline-flex h-14 max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden shadow-lg shadow-black/20 backdrop-blur-xl ${manrope.className}`}
             style={{ backgroundColor: "rgba(0, 0, 0, 0.34)" }}
