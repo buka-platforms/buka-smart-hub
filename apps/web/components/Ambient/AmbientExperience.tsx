@@ -1,6 +1,7 @@
 "use client";
 
 import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
+import { transparent1x1Pixel } from "@/data/general";
 import {
   audioVisualizationStateAtom,
   backgroundImageStateAtom,
@@ -11,13 +12,19 @@ import {
 } from "@/data/store";
 import type { Unsplash } from "@/data/type";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Fullscreen, ImageDown, Loader2, X } from "lucide-react";
+import { Fullscreen, ImageDown, Loader2, Music2, X } from "lucide-react";
+import { Manrope } from "next/font/google";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type AmbientExperienceProps = {
   mode?: "page" | "dialog";
   onClose?: () => void;
 };
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
 
 function normalizeUnsplashImage(data: Unsplash) {
   return {
@@ -52,6 +59,11 @@ export default function AmbientExperience({
 
   const activeSource = visualizationState.activeSource;
   const ambientImage = backgroundImageState.randomBackgroundImage;
+  const currentArtwork =
+    radioStationState.exposedArtwork &&
+    radioStationState.exposedArtwork !== transparent1x1Pixel
+      ? radioStationState.exposedArtwork
+      : null;
 
   const currentAudioSummary = useMemo(() => {
     if (activeSource === "radio" && radioAudioState.isPlaying) {
@@ -405,7 +417,9 @@ export default function AmbientExperience({
       ) : null}
 
       {ambientImage ? (
-        <div className="absolute right-3 bottom-3 z-20 text-right md:right-4 md:bottom-4">
+        <div
+          className={`absolute right-3 bottom-3 z-20 text-right md:right-4 md:bottom-4 ${manrope.className}`}
+        >
           <div
             className="px-2.5 py-1.5 text-xs text-white shadow-lg shadow-black/20 backdrop-blur-xl"
             style={{
@@ -435,15 +449,30 @@ export default function AmbientExperience({
       ) : null}
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="flex flex-col gap-4 p-4 pr-20 md:p-6 md:pr-28">
-          <div className="max-w-2xl space-y-3">
-            <div className="space-y-1">
-              <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-6xl">
+        <header className="p-3 pr-20 md:p-4 md:pr-28">
+          <div
+            className={`inline-flex h-14 max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden shadow-lg shadow-black/20 backdrop-blur-xl ${manrope.className}`}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.34)" }}
+          >
+            <div className="flex aspect-square h-full shrink-0 items-center justify-center overflow-hidden bg-black/35">
+              {currentArtwork ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={currentArtwork}
+                  alt={currentAudioSummary.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Music2 className="h-4.5 w-4.5 text-white/70" />
+              )}
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col justify-center px-3">
+              <div className="truncate text-[15px] font-semibold tracking-[-0.01em] text-white">
                 {currentAudioSummary.title}
-              </h1>
-              <p className="max-w-xl text-sm leading-6 text-white/72 md:text-base">
+              </div>
+              <div className="truncate text-[12px] font-medium tracking-[0.01em] text-white/78">
                 {currentAudioSummary.subtitle}
-              </p>
+              </div>
             </div>
           </div>
         </header>
