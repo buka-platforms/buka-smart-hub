@@ -113,11 +113,7 @@ export default function AmbientExperience({
       };
     }
 
-    return {
-      title: "Wallpaper, light motion, live sound",
-      subtitle:
-        "Start Radio, Radio Now Playing, SomaFM, or another supported stream to wake the visualization.",
-    };
+    return null;
   }, [
     activeSource,
     onlineRadioState.isPlaying,
@@ -453,33 +449,35 @@ export default function AmbientExperience({
       ) : null}
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="p-4 pr-20 md:p-6 md:pr-28">
-          <div
-            className={`inline-flex h-14 max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden shadow-lg shadow-black/20 backdrop-blur-xl ${manrope.className}`}
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.34)" }}
-          >
-            <div className="flex aspect-square h-full shrink-0 items-center justify-center overflow-hidden bg-black/35">
-              {currentArtwork ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={currentArtwork}
-                  alt={currentAudioSummary.title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <Music2 className="h-4.5 w-4.5 text-white/70" />
-              )}
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col justify-center px-3">
-              <div className="truncate text-[15px] font-semibold tracking-[-0.01em] text-white">
-                {currentAudioSummary.title}
+        {currentAudioSummary ? (
+          <header className="p-4 pr-20 md:p-6 md:pr-28">
+            <div
+              className={`inline-flex h-14 max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden shadow-lg shadow-black/20 backdrop-blur-xl ${manrope.className}`}
+              style={{ backgroundColor: "rgba(0, 0, 0, 0.34)" }}
+            >
+              <div className="flex aspect-square h-full shrink-0 items-center justify-center overflow-hidden bg-black/35">
+                {currentArtwork ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={currentArtwork}
+                    alt={currentAudioSummary.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Music2 className="h-4.5 w-4.5 text-white/70" />
+                )}
               </div>
-              <div className="truncate text-[12px] font-medium tracking-[0.01em] text-white/78">
-                {currentAudioSummary.subtitle}
+              <div className="flex min-w-0 flex-1 flex-col justify-center px-3">
+                <div className="truncate text-[15px] font-semibold tracking-[-0.01em] text-white">
+                  {currentAudioSummary.title}
+                </div>
+                <div className="truncate text-[12px] font-medium tracking-[0.01em] text-white/78">
+                  {currentAudioSummary.subtitle}
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
+        ) : null}
 
         <div className="flex-1" />
 
