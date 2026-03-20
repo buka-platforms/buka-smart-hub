@@ -26,6 +26,9 @@ const manrope = Manrope({
   weight: ["500", "600", "700"],
 });
 
+const getPreferredWallpaperOrientation = () =>
+  window.matchMedia("(max-width: 767px)").matches ? "portrait" : "landscape";
+
 function normalizeUnsplashImage(data: Unsplash) {
   return {
     id: data.id,
@@ -261,8 +264,9 @@ export default function AmbientExperience({
     }));
 
     try {
+      const orientation = getPreferredWallpaperOrientation();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true`,
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true&orientation=${orientation}`,
         {
           cache: "no-cache",
         },

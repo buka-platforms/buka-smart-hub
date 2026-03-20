@@ -14,6 +14,8 @@ interface RequestHeaders {
 
 // Storage keys
 const RANDOM_BACKGROUND_IMAGE_ID_KEY = "randomBackgroundImageId";
+const getPreferredWallpaperOrientation = () =>
+  window.matchMedia("(max-width: 767px)").matches ? "portrait" : "landscape";
 
 export default function BackgroundImageContainerClient() {
   const backgroundImageState = useAtomValue(backgroundImageStateAtom);
@@ -92,8 +94,9 @@ export default function BackgroundImageContainerClient() {
 
     const requestHeaders = requestHeadersState as unknown as RequestHeaders;
     const backgroundImageQuery = (requestHeaders ?? {})["cf-region"] || "Bali";
+    const orientation = getPreferredWallpaperOrientation();
 
-    let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true`;
+    let apiUrl = `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true&orientation=${orientation}`;
 
     if (!localStorage.getItem(RANDOM_BACKGROUND_IMAGE_ID_KEY)) {
       apiUrl += `&query=${encodeURIComponent(backgroundImageQuery)}`;

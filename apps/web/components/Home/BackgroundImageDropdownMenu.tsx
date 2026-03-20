@@ -25,6 +25,8 @@ import { useEffect, useState } from "react";
 
 // Storage keys
 const RANDOM_BACKGROUND_IMAGE_ID_KEY = "randomBackgroundImageId";
+const getPreferredWallpaperOrientation = () =>
+  window.matchMedia("(max-width: 767px)").matches ? "portrait" : "landscape";
 
 /* eslint-disable @next/next/no-img-element */
 export default function BackgroundImageDropdownMenu() {
@@ -49,7 +51,7 @@ export default function BackgroundImageDropdownMenu() {
     }));
 
     const request = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true`,
+      `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?random=true&orientation=${getPreferredWallpaperOrientation()}`,
       {
         cache: "no-cache",
       },
@@ -87,7 +89,7 @@ export default function BackgroundImageDropdownMenu() {
     if (dialogOpen) {
       Promise.resolve().then(() => setLoading(true));
       fetch(
-        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?randoms=true`,
+        `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-images?random=true&orientation=${getPreferredWallpaperOrientation()}`,
       )
         .then((res) => res.json())
         .then((json) => {
@@ -150,7 +152,7 @@ export default function BackgroundImageDropdownMenu() {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-image?randoms=true`,
+                    `${process.env.NEXT_PUBLIC_API_URL_V1}/api/background-images?random=true&orientation=${getPreferredWallpaperOrientation()}`,
                   )
                     .then((res) => res.json())
                     .then((json) => {
