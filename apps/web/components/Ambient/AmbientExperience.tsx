@@ -297,7 +297,7 @@ export default function AmbientExperience({
             type="button"
             onClick={refreshWallpaper}
             className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white/72 transition-colors hover:bg-white/12 hover:text-white"
-            title="New wallpaper"
+            title="Random wallpaper"
           >
             <ImageDown
               className={`h-3.5 w-3.5 ${isFetchingImage ? "animate-spin" : ""}`}
