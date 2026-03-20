@@ -501,7 +501,7 @@ export default function WidgetDraggableBookmarks() {
       </div>
 
       <Dialog open={addDialogOpen} onOpenChange={handleAddDialogChange}>
-        <DialogContent className="sm:max-w-[32rem]">
+        <DialogContent className="sm:max-w-[32rem] [&>button]:cursor-pointer">
           <DialogHeader>
             <DialogTitle>
               {editingId ? "Edit Bookmark" : "Add Bookmark"}
@@ -509,7 +509,7 @@ export default function WidgetDraggableBookmarks() {
             <DialogDescription className="text-left">
               {editingId
                 ? "Update the saved link from a focused dialog."
-                : "Save a link from a focused dialog instead of filling the widget inline."}
+                : "Save your favorite link."}
             </DialogDescription>
           </DialogHeader>
 
@@ -580,7 +580,7 @@ export default function WidgetDraggableBookmarks() {
       </Dialog>
 
       <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
-        <DialogContent className="sm:max-w-106.25">
+        <DialogContent className="sm:max-w-106.25 [&>button]:cursor-pointer">
           <DialogHeader>
             <DialogTitle>About Bookmarks Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
