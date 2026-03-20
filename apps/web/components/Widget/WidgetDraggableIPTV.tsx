@@ -35,8 +35,9 @@ import {
   stopAudioVisualizationForSource,
 } from "@/lib/audio-visualizer";
 import {
-  buildIptvCollectionUrl,
-  fetchIptvChannelsFromUrl,
+  fetchIptvChannel,
+  fetchIptvCollection,
+  fetchIptvFilterOptions,
   groupIptvChannelsByCategory,
 } from "@/lib/iptv-api";
 import {
@@ -52,7 +53,14 @@ import Hls from "hls.js";
 import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Tv } from "lucide-react";
 // Link import removed (unused)
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import useSWR from "swr";
 import {
   widgetCommandDialogContentClass,
@@ -72,11 +80,7 @@ const VOLUME_KEY = "widgetIPTVVolume";
 const QUALITY_KEY = "widgetIPTVQuality";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "1.0.0";
-const IPTV_WIDGET_URL = (() => {
-  const url = new URL(buildIptvCollectionUrl());
-  url.searchParams.set("v", "iptv-schema-v2");
-  return url.toString();
-})();
+const CHANNEL_PAGE_SIZE = 50;
 
 const normalizeIptvSlug = (value: string | null | undefined) =>
   (value ?? "").trim().replaceAll("_", "-");
@@ -112,10 +116,18 @@ export default function WidgetDraggableIPTV() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [channelSearchInput, setChannelSearchInput] = useState("");
+  const deferredChannelSearchInput = useDeferredValue(channelSearchInput);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasRenderedFrame, setHasRenderedFrame] = useState(false);
+  const [isInitializingChannel, setIsInitializingChannel] = useState(true);
+  const [dialogChannels, setDialogChannels] = useState<IPTVChannel[]>([]);
+  const [dialogPage, setDialogPage] = useState(1);
+  const [hasMoreDialogChannels, setHasMoreDialogChannels] = useState(true);
+  const [isDialogLoading, setIsDialogLoading] = useState(false);
+  const [dialogError, setDialogError] = useState<string | null>(null);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
 
   const channelListRef = useRef<HTMLDivElement>(null);
@@ -126,46 +138,55 @@ export default function WidgetDraggableIPTV() {
   const pendingVolumeRef = useRef<number | null>(null);
   const prevPlayerPointerRef = useRef<string | null>(null);
   const didHydrateSavedStateRef = useRef(false);
+  const dialogRequestIdRef = useRef(0);
   const {
-    data: iptvChannels = [],
-    error: iptvChannelsError,
-    isLoading: isLoadingChannels,
-  } = useSWR<IPTVChannel[]>(IPTV_WIDGET_URL, fetchIptvChannelsFromUrl, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+    data: selectedChannel,
+    error: selectedChannelError,
+    isLoading: isLoadingSelectedChannel,
+  } = useSWR<IPTVChannel | null, Error, [string, string] | null>(
+    selectedChannelSlug ? ["iptv-channel", selectedChannelSlug] : null,
+    ([, slug]) => fetchIptvChannel({ slug }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
+  );
+  const { data: iptvFilterOptions, error: iptvFilterOptionsError } = useSWR(
+    channelPickerOpen ? "iptv-filter-options" : null,
+    fetchIptvFilterOptions,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
+  );
+  const { data: favoriteChannels = [] } = useSWR<
+    IPTVChannel[],
+    Error,
+    [string, ...string[]] | null
+  >(
+    favorites.length > 0 ? ["iptv-favorites", ...favorites] : null,
+    async ([, ...slugs]) => {
+      const channels = await Promise.all(
+        slugs.map((slug) => fetchIptvChannel({ slug })),
+      );
+      return channels.filter((channel): channel is IPTVChannel =>
+        Boolean(channel),
+      );
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
+  );
   const groupedChannels = useMemo(
-    () => groupIptvChannelsByCategory(iptvChannels),
-    [iptvChannels],
+    () => groupIptvChannelsByCategory(dialogChannels),
+    [dialogChannels],
   );
   const sortedCategories = useMemo(
     () => Object.keys(groupedChannels).sort(),
     [groupedChannels],
   );
-  const countries = useMemo(
-    () =>
-      [
-        ...new Set(
-          iptvChannels
-            .map((channel) => channel.country)
-            .filter((country): country is string => Boolean(country)),
-        ),
-      ].sort(),
-    [iptvChannels],
-  );
-  const selectedChannel = useMemo(() => {
-    if (iptvChannels.length === 0) return null;
-
-    if (!selectedChannelSlug) {
-      return iptvChannels[0] ?? null;
-    }
-
-    return (
-      iptvChannels.find((channel) => channel.slug === selectedChannelSlug) ??
-      iptvChannels[0] ??
-      null
-    );
-  }, [iptvChannels, selectedChannelSlug]);
+  const countries = iptvFilterOptions?.countries ?? [];
 
   const JW_KEY = process.env.NEXT_PUBLIC_JWPLAYER_KEY || "";
 
@@ -217,53 +238,66 @@ export default function WidgetDraggableIPTV() {
   }, [JW_KEY]);
 
   useEffect(() => {
-    if (didHydrateSavedStateRef.current || iptvChannels.length === 0) return;
+    if (didHydrateSavedStateRef.current) return;
 
-    queueMicrotask(() => {
+    let isCancelled = false;
+
+    const hydrate = async () => {
       try {
         const savedChannelValue = localStorage.getItem(SELECTED_CHANNEL_KEY);
         const normalizedSavedSlug = normalizeIptvSlug(savedChannelValue);
-        if (savedChannelValue) {
-          const channel = iptvChannels.find(
-            (item) =>
-              item.slug === normalizedSavedSlug ||
-              String(item.id) === savedChannelValue,
-          );
-          if (channel) setSelectedChannelSlug(channel.slug);
-        }
-        if (!savedChannelValue && iptvChannels.length > 0) {
-          setSelectedChannelSlug(iptvChannels[0].slug);
-        }
         const savedFavorites = localStorage.getItem(FAVORITE_CHANNELS_KEY);
+        const savedVolume = localStorage.getItem(VOLUME_KEY);
+        const savedQuality = localStorage.getItem(QUALITY_KEY);
+
         if (savedFavorites) {
           const parsedFavorites = JSON.parse(savedFavorites) as string[];
-          const normalizedFavorites = parsedFavorites
-            .map((value) => {
-              const normalizedSlug = normalizeIptvSlug(value);
-              const channel = iptvChannels.find(
-                (item) =>
-                  item.slug === normalizedSlug || String(item.id) === value,
-              );
-
-              return channel?.slug ?? null;
-            })
-            .filter((value): value is string => Boolean(value));
-
-          setFavorites([...new Set(normalizedFavorites)]);
+          setFavorites(
+            [
+              ...new Set(
+                parsedFavorites.map((value) => normalizeIptvSlug(value)),
+              ),
+            ].filter(Boolean),
+          );
         }
-        const savedVolume = localStorage.getItem(VOLUME_KEY);
+
         if (savedVolume) setVolume(Number(savedVolume));
-        const savedQuality = localStorage.getItem(QUALITY_KEY);
         if (savedQuality) {
           if (savedQuality === "auto") setSelectedQuality("auto");
           else setSelectedQuality(Number(savedQuality));
         }
+
+        if (savedChannelValue && normalizedSavedSlug) {
+          if (!isCancelled) {
+            setSelectedChannelSlug(normalizedSavedSlug);
+          }
+        } else {
+          const firstPage = await fetchIptvCollection({
+            page: 1,
+            limit: 1,
+          });
+
+          if (!isCancelled) {
+            setSelectedChannelSlug(firstPage.data[0]?.slug ?? null);
+          }
+        }
+
         didHydrateSavedStateRef.current = true;
       } catch {
         /* ignore */
+      } finally {
+        if (!isCancelled) {
+          setIsInitializingChannel(false);
+        }
       }
-    });
-  }, [iptvChannels]);
+    };
+
+    void hydrate();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     queueMicrotask(() => setIsPositionLoaded(true));
@@ -625,6 +659,64 @@ export default function WidgetDraggableIPTV() {
     applyPlayerVolume(volume);
   }, [volume, applyPlayerVolume]);
 
+  const loadDialogChannels = useCallback(
+    async (page: number, mode: "replace" | "append") => {
+      const requestId = ++dialogRequestIdRef.current;
+      setIsDialogLoading(true);
+      setDialogError(null);
+
+      try {
+        const collection = await fetchIptvCollection({
+          page,
+          limit: CHANNEL_PAGE_SIZE,
+          q: deferredChannelSearchInput.trim() || undefined,
+          country: countryFilter ?? undefined,
+        });
+
+        if (dialogRequestIdRef.current !== requestId) {
+          return;
+        }
+
+        setDialogPage(page);
+        setHasMoreDialogChannels(collection.nextPageUrl !== null);
+        setDialogChannels((prev) =>
+          mode === "append" ? [...prev, ...collection.data] : collection.data,
+        );
+      } catch (error) {
+        if (dialogRequestIdRef.current !== requestId) {
+          return;
+        }
+
+        setDialogError(
+          error instanceof Error ? error.message : "Unable to load channels.",
+        );
+        if (mode === "replace") {
+          setDialogChannels([]);
+        }
+        setHasMoreDialogChannels(false);
+      } finally {
+        if (dialogRequestIdRef.current === requestId) {
+          setIsDialogLoading(false);
+        }
+      }
+    },
+    [countryFilter, deferredChannelSearchInput],
+  );
+
+  const loadMoreDialogChannels = useCallback(async () => {
+    if (isDialogLoading || !hasMoreDialogChannels) {
+      return;
+    }
+
+    await loadDialogChannels(dialogPage + 1, "append");
+  }, [dialogPage, hasMoreDialogChannels, isDialogLoading, loadDialogChannels]);
+
+  useEffect(() => {
+    if (!channelPickerOpen) return;
+
+    void loadDialogChannels(1, "replace");
+  }, [channelPickerOpen, loadDialogChannels]);
+
   const selectChannel = useCallback((channel: IPTVChannel) => {
     // Channel selection is an explicit user action; always autoplay next stream.
     // Relying on transient `isPlaying` can fail during buffering and leave only poster/frame.
@@ -655,23 +747,6 @@ export default function WidgetDraggableIPTV() {
       return newFavorites;
     });
   }, [selectedChannel]);
-
-  const filteredChannels = useMemo(() => {
-    if (!countryFilter) return groupedChannels;
-    const filtered: Record<string, IPTVChannel[]> = {};
-    for (const [category, channels] of Object.entries(groupedChannels)) {
-      const categoryChannels = channels.filter(
-        (c) => c.country === countryFilter,
-      );
-      if (categoryChannels.length > 0) filtered[category] = categoryChannels;
-    }
-    return filtered;
-  }, [countryFilter, groupedChannels]);
-
-  const favoriteChannels = useMemo(
-    () => iptvChannels.filter((c) => favorites.includes(c.slug)),
-    [favorites, iptvChannels],
-  );
 
   // When channel picker opens, jump to the current selected channel.
   useEffect(() => {
@@ -801,16 +876,16 @@ export default function WidgetDraggableIPTV() {
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-xs font-semibold text-foreground">
                   {selectedChannel?.name ||
-                    (isLoadingChannels
+                    (isInitializingChannel || isLoadingSelectedChannel
                       ? "Loading channels..."
                       : "Select Channel")}
                 </span>
                 <span className="truncate text-[10px] text-muted-foreground">
                   {selectedChannel
                     ? `${selectedChannel.country ?? "Unknown"} • ${selectedChannel.category ?? "Other"}`
-                    : iptvChannelsError
+                    : selectedChannelError
                       ? "Unable to load live IPTV"
-                      : isLoadingChannels
+                      : isInitializingChannel || isLoadingSelectedChannel
                         ? "Fetching from backend"
                         : "Choose a live channel"}
                 </span>
@@ -827,7 +902,7 @@ export default function WidgetDraggableIPTV() {
               {/* Channel Picker */}
               <button
                 onClick={() => setChannelPickerOpen(true)}
-                disabled={iptvChannels.length === 0}
+                disabled={isInitializingChannel}
                 className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-border bg-muted/50 px-2 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 title="Change channel"
               >
@@ -842,7 +917,7 @@ export default function WidgetDraggableIPTV() {
               data-first-frame={hasRenderedFrame ? "true" : "false"}
               className="relative aspect-video overflow-hidden bg-black"
             >
-              {iptvChannelsError && (
+              {selectedChannelError && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                   <div className="flex max-w-56 flex-col items-center gap-2 text-muted-foreground">
                     <Tv className="h-10 w-10" />
@@ -862,22 +937,27 @@ export default function WidgetDraggableIPTV() {
                   playsInline
                 />
               )}
-              {!iptvChannelsError && isLoadingChannels && !selectedChannel && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <Tv className="h-10 w-10 animate-pulse" />
-                    <span className="text-xs">Loading IPTV channels</span>
+              {!selectedChannelError &&
+                (isInitializingChannel || isLoadingSelectedChannel) &&
+                !selectedChannel && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Tv className="h-10 w-10 animate-pulse" />
+                      <span className="text-xs">Loading IPTV channels</span>
+                    </div>
                   </div>
-                </div>
-              )}
-              {!iptvChannelsError && !isLoadingChannels && !selectedChannel && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <Tv className="h-10 w-10" />
-                    <span className="text-xs">Select a channel to watch</span>
+                )}
+              {!selectedChannelError &&
+                !isInitializingChannel &&
+                !isLoadingSelectedChannel &&
+                !selectedChannel && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Tv className="h-10 w-10" />
+                      <span className="text-xs">Select a channel to watch</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {/* Player Controls */}
@@ -927,9 +1007,14 @@ export default function WidgetDraggableIPTV() {
               Search and choose a live IPTV channel.
             </DialogDescription>
           </DialogHeader>
-          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+          <Command
+            shouldFilter={false}
+            className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0"
+          >
             <div className="flex flex-wrap items-center gap-2 border-b border-border p-2 pr-10">
               <CommandInput
+                value={channelSearchInput}
+                onValueChange={setChannelSearchInput}
                 placeholder="Search channels..."
                 className={widgetCommandSearchInputClass}
               />
@@ -967,10 +1052,31 @@ export default function WidgetDraggableIPTV() {
             <CommandList
               ref={channelListRef}
               className={widgetCommandListClass}
+              onScroll={(event) => {
+                const target = event.currentTarget;
+                const remaining =
+                  target.scrollHeight - target.scrollTop - target.clientHeight;
+
+                if (remaining < 80) {
+                  void loadMoreDialogChannels();
+                }
+              }}
             >
               <CommandEmpty className="px-3 py-2 text-xs text-muted-foreground">
-                No channels found.
+                {isDialogLoading ? "Loading channels..." : "No channels found."}
               </CommandEmpty>
+
+              {dialogError ? (
+                <div className="px-3 py-3 text-xs text-destructive">
+                  {dialogError}
+                </div>
+              ) : null}
+
+              {iptvFilterOptionsError ? (
+                <div className="px-3 py-3 text-xs text-destructive">
+                  Unable to load country filters.
+                </div>
+              ) : null}
 
               {favoriteChannels.length > 0 && (
                 <CommandGroup
@@ -1027,8 +1133,51 @@ export default function WidgetDraggableIPTV() {
                 </CommandGroup>
               )}
 
+              {selectedChannel ? (
+                <CommandGroup
+                  heading={
+                    <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      Current
+                    </span>
+                  }
+                >
+                  <CommandItem
+                    value={`${selectedChannel.name} ${selectedChannel.country ?? ""} ${selectedChannel.category ?? ""} ${selectedChannel.slug}`}
+                    onSelect={() => selectChannel(selectedChannel)}
+                    data-current-channel="true"
+                    className={`${widgetCommandItemClass} ${widgetCommandItemActiveClass}`}
+                  >
+                    <div className="flex w-full items-center gap-3">
+                      {selectedChannel.logo_url && (
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
+                        >
+                          <img
+                            src={selectedChannel.logo_url}
+                            alt={selectedChannel.name}
+                            className="h-full w-full object-contain"
+                            draggable={false}
+                          />
+                        </div>
+                      )}
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-[13px] font-medium text-foreground">
+                          {selectedChannel.name}
+                        </span>
+                        <span className="truncate text-[11px] text-muted-foreground">
+                          {selectedChannel.country}
+                        </span>
+                      </div>
+                      <span className="ml-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-foreground">
+                        Current
+                      </span>
+                    </div>
+                  </CommandItem>
+                </CommandGroup>
+              ) : null}
+
               {sortedCategories.map((category) => {
-                const channels = filteredChannels[category];
+                const channels = groupedChannels[category];
                 if (!channels || channels.length === 0) return null;
                 return (
                   <CommandGroup
@@ -1088,6 +1237,27 @@ export default function WidgetDraggableIPTV() {
                   </CommandGroup>
                 );
               })}
+
+              {isDialogLoading ? (
+                <div className="flex items-center justify-center gap-2 px-3 py-3 text-xs text-muted-foreground">
+                  <Tv className="h-4 w-4 animate-pulse" />
+                  Loading channels...
+                </div>
+              ) : null}
+
+              {!isDialogLoading && hasMoreDialogChannels ? (
+                <div className="px-3 py-3">
+                  <button
+                    type="button"
+                    className="w-full cursor-pointer rounded-md border border-border bg-muted/50 px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                    onClick={() => {
+                      void loadMoreDialogChannels();
+                    }}
+                  >
+                    Load more channels
+                  </button>
+                </div>
+              ) : null}
             </CommandList>
           </Command>
         </DialogContent>

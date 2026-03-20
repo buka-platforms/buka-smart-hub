@@ -40,14 +40,21 @@ import {
   type WidgetId,
 } from "@/lib/widget-positions";
 import {
-  buildYoutubeLiveTvCollectionUrl,
-  fetchYoutubeLiveTvChannelsFromUrl,
+  fetchYoutubeLiveTvChannel,
+  fetchYoutubeLiveTvCollection,
+  fetchYoutubeLiveTvFilterOptions,
   groupTvChannelsByCategory,
 } from "@/lib/youtube-live-tv-api";
 import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Tv } from "lucide-react";
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import useSWR from "swr";
 import {
   widgetCommandDialogContentClass,
@@ -60,26 +67,31 @@ import {
   widgetLogoPlateClass,
 } from "./widgetCommandDialogStyles";
 
-// containerRef = draggable wrapper; playerRef = inner video container
-
-// Storage keys
 const SELECTED_CHANNEL_KEY = "widgetYouTubeLiveTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetYouTubeLiveTVFavorites";
 const VOLUME_KEY = "widgetYouTubeLiveTVVolume";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "1.0.0";
-const YOUTUBE_LIVE_TV_WIDGET_URL = buildYoutubeLiveTvCollectionUrl();
+const CHANNEL_PAGE_SIZE = 50;
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableYouTubeLiveTV() {
   const WIDGET_ID = "youtubelivetv";
-  const containerRef = useRef<HTMLDivElement>(null); // wrapper
-  const playerRef = useRef<HTMLDivElement>(null); // player container
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const channelListRef = useRef<HTMLDivElement>(null);
+  const playerInstanceRef = useRef<YTPlayer | null>(null);
+  const shouldAutoPlayRef = useRef(false);
+  const volumeRafRef = useRef<number | null>(null);
+  const pendingVolumeRef = useRef<number | null>(null);
+  const prevPlayerPointerRef = useRef<string | null>(null);
+  const didHydrateSavedStateRef = useRef(false);
+  const dialogRequestIdRef = useRef(0);
+  const initialVolumeRef = useRef(100);
+  const initialMutedRef = useRef(false);
 
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-
-  // Player state
   const [selectedChannelSlug, setSelectedChannelSlug] = useState<string | null>(
     null,
   );
@@ -88,147 +100,132 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [channelSearchInput, setChannelSearchInput] = useState("");
+  const deferredChannelSearchInput = useDeferredValue(channelSearchInput);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [isInitializingChannel, setIsInitializingChannel] = useState(true);
+  const [dialogChannels, setDialogChannels] = useState<TVChannel[]>([]);
+  const [dialogPage, setDialogPage] = useState(1);
+  const [hasMoreDialogChannels, setHasMoreDialogChannels] = useState(true);
+  const [isDialogLoading, setIsDialogLoading] = useState(false);
+  const [dialogError, setDialogError] = useState<string | null>(null);
   const [visibility, setVisibility] = useAtom(widgetVisibilityAtom);
-  const channelListRef = useRef<HTMLDivElement>(null);
-  const didHydrateSavedStateRef = useRef(false);
+
   const {
-    data: youtubeChannels = [],
-    error: youtubeChannelsError,
-    isLoading: isLoadingChannels,
-  } = useSWR<TVChannel[]>(
-    YOUTUBE_LIVE_TV_WIDGET_URL,
-    fetchYoutubeLiveTvChannelsFromUrl,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
+    data: selectedChannel,
+    error: selectedChannelError,
+    isLoading: isLoadingSelectedChannel,
+  } = useSWR<TVChannel | null, Error, [string, string] | null>(
+    selectedChannelSlug
+      ? ["youtube-live-tv-channel", selectedChannelSlug]
+      : null,
+    ([, slug]) => fetchYoutubeLiveTvChannel({ slug }),
+    { revalidateOnFocus: false, revalidateOnReconnect: false },
+  );
+  const { data: youtubeFilterOptions, error: youtubeFilterOptionsError } =
+    useSWR(
+      channelPickerOpen ? "youtube-live-tv-filter-options" : null,
+      fetchYoutubeLiveTvFilterOptions,
+      { revalidateOnFocus: false, revalidateOnReconnect: false },
+    );
+  const { data: favoriteChannels = [] } = useSWR<
+    TVChannel[],
+    Error,
+    [string, ...string[]] | null
+  >(
+    favorites.length > 0 ? ["youtube-live-tv-favorites", ...favorites] : null,
+    async ([, ...slugs]) => {
+      const channels = await Promise.all(
+        slugs.map((slug) => fetchYoutubeLiveTvChannel({ slug })),
+      );
+      return channels.filter((channel): channel is TVChannel =>
+        Boolean(channel),
+      );
     },
+    { revalidateOnFocus: false, revalidateOnReconnect: false },
   );
   const groupedChannels = useMemo(
-    () => groupTvChannelsByCategory(youtubeChannels),
-    [youtubeChannels],
+    () => groupTvChannelsByCategory(dialogChannels),
+    [dialogChannels],
   );
   const sortedCategories = useMemo(
     () => Object.keys(groupedChannels).sort(),
     [groupedChannels],
   );
-  const countries = useMemo(
-    () =>
-      [...new Set(youtubeChannels.map((channel) => channel.country))].sort(),
-    [youtubeChannels],
-  );
-  const selectedChannel = useMemo(() => {
-    if (youtubeChannels.length === 0) return null;
+  const countries = youtubeFilterOptions?.countries ?? [];
 
-    if (selectedChannelSlug) {
-      return (
-        youtubeChannels.find(
-          (channel) => channel.slug === selectedChannelSlug,
-        ) ??
-        youtubeChannels.find((channel) => channel.category === "News") ??
-        youtubeChannels[0] ??
-        null
-      );
-    }
-
-    return (
-      youtubeChannels.find((channel) => channel.category === "News") ??
-      youtubeChannels[0] ??
-      null
-    );
-  }, [selectedChannelSlug, youtubeChannels]);
-
-  // YouTube Player API
-  const playerInstanceRef = useRef<YTPlayer | null>(null);
-  const shouldAutoPlayRef = useRef(false);
-  const volumeRafRef = useRef<number | null>(null);
-  const pendingVolumeRef = useRef<number | null>(null);
-  const prevPlayerPointerRef = useRef<string | null>(null);
-
-  // Load saved state on mount
   useEffect(() => {
-    if (didHydrateSavedStateRef.current || youtubeChannels.length === 0) return;
-
-    queueMicrotask(() => {
+    if (didHydrateSavedStateRef.current) return;
+    let isCancelled = false;
+    const hydrate = async () => {
       try {
         const savedChannelSlug = localStorage.getItem(SELECTED_CHANNEL_KEY);
         const savedFavorites = localStorage.getItem(FAVORITE_CHANNELS_KEY);
         const savedVolume = localStorage.getItem(VOLUME_KEY);
-
-        if (savedFavorites) {
-          setFavorites(JSON.parse(savedFavorites));
+        if (savedFavorites)
+          setFavorites(JSON.parse(savedFavorites) as string[]);
+        if (savedVolume) setVolume(Number(savedVolume));
+        if (savedChannelSlug) {
+          if (!isCancelled) setSelectedChannelSlug(savedChannelSlug);
+        } else {
+          const newsCollection = await fetchYoutubeLiveTvCollection({
+            page: 1,
+            limit: 1,
+            category: "News",
+          });
+          const fallbackCollection =
+            newsCollection.data.length > 0
+              ? newsCollection
+              : await fetchYoutubeLiveTvCollection({ page: 1, limit: 1 });
+          if (!isCancelled)
+            setSelectedChannelSlug(fallbackCollection.data[0]?.slug ?? null);
         }
-
-        if (savedVolume) {
-          setVolume(Number(savedVolume));
-        }
-
-        const initialChannel = savedChannelSlug
-          ? youtubeChannels.find((channel) => channel.slug === savedChannelSlug)
-          : (youtubeChannels.find((channel) => channel.category === "News") ??
-            youtubeChannels[0]);
-
-        if (initialChannel) {
-          setSelectedChannelSlug(initialChannel.slug);
-        }
-
         didHydrateSavedStateRef.current = true;
       } catch {
-        // Ignore
+      } finally {
+        if (!isCancelled) setIsInitializingChannel(false);
       }
-    });
-  }, [youtubeChannels]);
+    };
+    void hydrate();
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
-  // Mark position loaded after mount (layout system will place widgets)
   useEffect(() => {
     queueMicrotask(() => setIsPositionLoaded(true));
   }, []);
-
-  // Observe wrapper for layout adjustments
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     observeWidget(WIDGET_ID, el);
     try {
       triggerLayoutUpdate();
-    } catch {
-      // ignore
-    }
+    } catch {}
     return () => unobserveWidget(WIDGET_ID);
   }, []);
-
-  // Listen for global reset events
   useEffect(() => {
-    const handleReset = () => {
-      // No local position state is kept by this component; layout system
-      // will position widgets via the global layout manager.
-    };
-
+    const handleReset = () => {};
     window.addEventListener("widget-positions-reset", handleReset);
     return () =>
       window.removeEventListener("widget-positions-reset", handleReset);
   }, []);
 
-  // Drag/drop handlers (swap behavior)
   const handleDragStart = useCallback((e: React.DragEvent) => {
     e.dataTransfer.setData("text/widget-id", WIDGET_ID);
     e.dataTransfer.effectAllowed = "move";
     setIsDragging(true);
   }, []);
-
   const handleDragEnd = useCallback(() => setIsDragging(false), []);
-
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   }, []);
-
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const source = e.dataTransfer.getData("text/widget-id");
-    // Ensure the dragged id is a known widget id before swapping
     if (
       source &&
       source !== WIDGET_ID &&
@@ -238,7 +235,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
     }
   }, []);
 
-  // Disable pointer events on the embedded player while dragging so iframe doesn't intercept events
   useEffect(() => {
     const el = playerRef.current;
     if (!el) return;
@@ -246,33 +242,22 @@ export default function WidgetDraggableYouTubeLiveTV() {
       prevPlayerPointerRef.current = el.style.pointerEvents ?? null;
       el.style.pointerEvents = "none";
     } else {
-      // restore previous value (or empty string)
-      if (prevPlayerPointerRef.current !== null)
-        el.style.pointerEvents = prevPlayerPointerRef.current;
-      else el.style.pointerEvents = "";
+      el.style.pointerEvents = prevPlayerPointerRef.current ?? "";
       prevPlayerPointerRef.current = null;
     }
   }, [isDragging]);
 
-  // Load YouTube IFrame API
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    // Check if API is already loaded
     if (window.YT && window.YT.Player) {
       queueMicrotask(() => setIsPlayerReady(true));
       return;
     }
-
-    // Load YouTube IFrame API
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     tag.async = true;
-
     const firstScriptTag = document.getElementsByTagName("script")[0];
     firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-
-    // YouTube API callback
     (
       window as unknown as { onYouTubeIframeAPIReady: () => void }
     ).onYouTubeIframeAPIReady = () => {
@@ -280,45 +265,28 @@ export default function WidgetDraggableYouTubeLiveTV() {
     };
   }, []);
 
-  // Store refs for initial player setup (doesn't need to trigger re-render)
-  const initialVolumeRef = useRef(volume);
-  const initialMutedRef = useRef(volume === 0);
-
-  // Update refs when values change
   useEffect(() => {
     initialVolumeRef.current = volume;
     initialMutedRef.current = volume === 0;
   }, [volume]);
 
-  // Initialize YouTube player when API is ready and channel is selected
   useEffect(() => {
     if (!isPlayerReady || !selectedChannel || !playerRef.current) return;
-
-    // Clean up existing player
     if (playerInstanceRef.current) {
       try {
         playerInstanceRef.current.destroy();
-      } catch {
-        // Ignore
-      }
+      } catch {}
       playerInstanceRef.current = null;
     }
-
-    // Create player container if needed
     const playerId = "yt-live-tv-player";
     let playerContainer = document.getElementById(playerId);
-
     if (!playerContainer) {
       playerContainer = document.createElement("div");
       playerContainer.id = playerId;
       playerRef.current.appendChild(playerContainer);
     }
-
-    // Capture current values from refs
     const currentVolume = initialVolumeRef.current;
     const currentMuted = initialMutedRef.current;
-
-    // Create new player
     playerInstanceRef.current = new window.YT.Player(playerId, {
       videoId: selectedChannel.source_id,
       width: "100%",
@@ -340,13 +308,10 @@ export default function WidgetDraggableYouTubeLiveTV() {
           event.target.setVolume(currentVolume);
           if (currentMuted) event.target.mute();
           else event.target.unMute();
-
           if (shouldAutoPlayRef.current) {
             try {
               event.target.playVideo();
-            } catch {
-              // Ignore play errors
-            }
+            } catch {}
             shouldAutoPlayRef.current = false;
             setIsPlaying(true);
           } else {
@@ -354,45 +319,25 @@ export default function WidgetDraggableYouTubeLiveTV() {
           }
         },
         onStateChange: (event: YTOnStateChangeEvent) => {
-          if (event.data === window.YT.PlayerState.PLAYING) {
-            setIsPlaying(true);
-            try {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if (typeof window !== "undefined" && (window as any).gtag) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (window as any).gtag("event", "page_view", {
-                  page_title: `Live TV: ${selectedChannel?.name || selectedChannel?.slug}`,
-                  page_location: window.location.href,
-                  page_path: window.location.pathname,
-                });
-              }
-            } catch {
-              /* ignore */
-            }
-          } else if (
+          if (event.data === window.YT.PlayerState.PLAYING) setIsPlaying(true);
+          else if (
             event.data === window.YT.PlayerState.PAUSED ||
             event.data === window.YT.PlayerState.ENDED
-          ) {
+          )
             setIsPlaying(false);
-          }
         },
       },
     });
-
-    // Cleanup
     return () => {
       if (playerInstanceRef.current) {
         try {
           playerInstanceRef.current.destroy();
-        } catch {
-          // Ignore
-        }
+        } catch {}
         playerInstanceRef.current = null;
       }
     };
   }, [isPlayerReady, selectedChannel]);
 
-  // Measure widget after player/channel changes to ensure height is accurate
   useEffect(() => {
     if (!containerRef.current) return;
     const raf = requestAnimationFrame(() => {
@@ -404,36 +349,66 @@ export default function WidgetDraggableYouTubeLiveTV() {
     return () => cancelAnimationFrame(raf);
   }, [selectedChannel, isPlayerReady, isPositionLoaded, isPlaying]);
 
-  // Apply volume/mute to the iframe player with rAF batching to reduce per-tick work
   const applyPlayerVolume = useCallback((nextVolume: number) => {
     pendingVolumeRef.current = nextVolume;
-
     if (volumeRafRef.current !== null) return;
-
     volumeRafRef.current = requestAnimationFrame(() => {
       volumeRafRef.current = null;
       const player = playerInstanceRef.current;
       const pendingVolume = pendingVolumeRef.current;
       pendingVolumeRef.current = null;
-
       if (!player || pendingVolume === null) return;
-      const shouldMute = pendingVolume <= 0;
       try {
         player.setVolume(pendingVolume);
-        if (shouldMute) player.mute();
+        if (pendingVolume <= 0) player.mute();
         else player.unMute();
-      } catch {
-        // Ignore player errors
-      }
+      } catch {}
     });
   }, []);
-
-  // Sync volume/mute with player (reactive)
   useEffect(() => {
     applyPlayerVolume(volume);
   }, [volume, applyPlayerVolume]);
 
-  // Handle channel selection
+  const loadDialogChannels = useCallback(
+    async (page: number, mode: "replace" | "append") => {
+      const requestId = ++dialogRequestIdRef.current;
+      setIsDialogLoading(true);
+      setDialogError(null);
+      try {
+        const collection = await fetchYoutubeLiveTvCollection({
+          page,
+          limit: CHANNEL_PAGE_SIZE,
+          q: deferredChannelSearchInput.trim() || undefined,
+          country: countryFilter ?? undefined,
+        });
+        if (dialogRequestIdRef.current !== requestId) return;
+        setDialogPage(page);
+        setHasMoreDialogChannels(collection.nextPageUrl !== null);
+        setDialogChannels((prev) =>
+          mode === "append" ? [...prev, ...collection.data] : collection.data,
+        );
+      } catch (error) {
+        if (dialogRequestIdRef.current !== requestId) return;
+        setDialogError(
+          error instanceof Error ? error.message : "Unable to load channels.",
+        );
+        if (mode === "replace") setDialogChannels([]);
+        setHasMoreDialogChannels(false);
+      } finally {
+        if (dialogRequestIdRef.current === requestId) setIsDialogLoading(false);
+      }
+    },
+    [countryFilter, deferredChannelSearchInput],
+  );
+  const loadMoreDialogChannels = useCallback(async () => {
+    if (isDialogLoading || !hasMoreDialogChannels) return;
+    await loadDialogChannels(dialogPage + 1, "append");
+  }, [dialogPage, hasMoreDialogChannels, isDialogLoading, loadDialogChannels]);
+  useEffect(() => {
+    if (!channelPickerOpen) return;
+    void loadDialogChannels(1, "replace");
+  }, [channelPickerOpen, loadDialogChannels]);
+
   const selectChannel = useCallback(
     (channel: TVChannel) => {
       shouldAutoPlayRef.current = isPlaying;
@@ -442,63 +417,30 @@ export default function WidgetDraggableYouTubeLiveTV() {
       setChannelPickerOpen(false);
       try {
         localStorage.setItem(SELECTED_CHANNEL_KEY, channel.slug);
-      } catch {
-        // Ignore
-      }
+      } catch {}
     },
     [isPlaying],
   );
-
-  // Toggle favorite
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
     setFavorites((prev) => {
-      const newFavorites = prev.includes(selectedChannel.slug)
-        ? prev.filter((s) => s !== selectedChannel.slug)
+      const next = prev.includes(selectedChannel.slug)
+        ? prev.filter((slug) => slug !== selectedChannel.slug)
         : [...prev, selectedChannel.slug];
       try {
-        localStorage.setItem(
-          FAVORITE_CHANNELS_KEY,
-          JSON.stringify(newFavorites),
-        );
-      } catch {
-        // Ignore
-      }
-      return newFavorites;
+        localStorage.setItem(FAVORITE_CHANNELS_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
     });
   }, [selectedChannel]);
 
-  // Filtered channels
-  const filteredChannels = useMemo(() => {
-    if (!countryFilter) return groupedChannels;
-    const filtered: Record<string, TVChannel[]> = {};
-    for (const [category, channels] of Object.entries(groupedChannels)) {
-      const categoryChannels = channels.filter(
-        (c) => c.country === countryFilter,
-      );
-      if (categoryChannels.length > 0) {
-        filtered[category] = categoryChannels;
-      }
-    }
-    return filtered;
-  }, [countryFilter, groupedChannels]);
-
-  // Favorite channels for quick access
-  const favoriteChannels = useMemo(
-    () => youtubeChannels.filter((c) => favorites.includes(c.slug)),
-    [favorites, youtubeChannels],
-  );
-
-  // When channel picker opens, jump to the current selected channel.
   useEffect(() => {
     if (!channelPickerOpen) return;
     let raf1 = 0;
     let raf2 = 0;
     raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
-        const listEl = channelListRef.current;
-        if (!listEl) return;
-        const active = listEl.querySelector<HTMLElement>(
+        const active = channelListRef.current?.querySelector<HTMLElement>(
           '[data-current-channel="true"]',
         );
         active?.scrollIntoView({ block: "center" });
@@ -523,7 +465,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
         className={`pointer-events-auto flex rounded-lg border bg-card shadow-sm ${isDragging ? "shadow-none transition-none" : "transition-opacity duration-300"} ${isVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <div className="relative flex w-full flex-col">
-          {/* Top Title - Drag Handle */}
           <div
             draggable
             onDragStart={handleDragStart}
@@ -580,12 +521,6 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   >
                     {isFavorite ? "Remove from favorites" : "Add to favorites"}
                   </DropdownMenuItem>
-                  {/* Open channel page removed */}
-                  <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                    <Link href="/apps/youtube-live-tv">
-                      Browse all channels
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {
                       setMoreMenuOpen(false);
@@ -600,11 +535,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
             </div>
           </div>
 
-          {/* Main Column */}
           <div className="flex w-full flex-col">
-            {/* Channel Header */}
             <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-              {/* Channel Logo */}
               {selectedChannel?.logo_url && (
                 <div
                   className={`relative h-6 w-6 shrink-0 ${widgetLogoPlateClass} p-0.5`}
@@ -618,38 +550,32 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   />
                 </div>
               )}
-
-              {/* Channel Info */}
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-xs font-semibold text-foreground">
                   {selectedChannel?.name ||
-                    (isLoadingChannels
+                    (isInitializingChannel || isLoadingSelectedChannel
                       ? "Loading channels..."
                       : "Select Channel")}
                 </span>
                 <span className="truncate text-[10px] text-muted-foreground">
                   {selectedChannel
                     ? `${selectedChannel.country} • ${selectedChannel.category}`
-                    : youtubeChannelsError
+                    : selectedChannelError
                       ? "Unable to load live channels"
-                      : isLoadingChannels
+                      : isInitializingChannel || isLoadingSelectedChannel
                         ? "Fetching from backend"
                         : "Choose a live channel"}
                 </span>
               </div>
-
-              {/* Live Badge */}
               <div className="flex items-center gap-1 rounded-full bg-red-500/20 px-2 py-0.5">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
                 <span className="text-[10px] font-bold text-red-400 uppercase">
                   Live
                 </span>
               </div>
-
-              {/* Channel Picker */}
               <button
                 onClick={() => setChannelPickerOpen(true)}
-                disabled={youtubeChannels.length === 0}
+                disabled={isInitializingChannel}
                 className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-border bg-muted/50 px-2 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 title="Change channel"
               >
@@ -657,12 +583,11 @@ export default function WidgetDraggableYouTubeLiveTV() {
               </button>
             </div>
 
-            {/* Video Player Area */}
             <div
               ref={playerRef}
               className="relative aspect-video overflow-hidden bg-black"
             >
-              {youtubeChannelsError && (
+              {selectedChannelError && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                   <div className="flex max-w-56 flex-col items-center gap-2 text-muted-foreground">
                     <Tv className="h-10 w-10" />
@@ -672,8 +597,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   </div>
                 </div>
               )}
-              {!youtubeChannelsError &&
-                isLoadingChannels &&
+              {!selectedChannelError &&
+                (isInitializingChannel || isLoadingSelectedChannel) &&
                 !selectedChannel && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -682,9 +607,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
                     </div>
                   </div>
                 )}
-              {/* Loading state */}
-              {!youtubeChannelsError &&
-                !isLoadingChannels &&
+              {!selectedChannelError &&
+                !isInitializingChannel &&
+                !isLoadingSelectedChannel &&
                 !selectedChannel && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -695,16 +620,10 @@ export default function WidgetDraggableYouTubeLiveTV() {
                 )}
             </div>
 
-            {/* Quick Actions */}
             <div className="flex items-center gap-2 border-t border-border px-3 py-2">
-              {/* Favorite */}
               <button
                 onClick={toggleFavorite}
-                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${
-                  isFavorite
-                    ? "border-pink-400/60 bg-pink-500/30 text-pink-400"
-                    : "border-border bg-muted text-foreground hover:bg-accent"
-                }`}
+                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFavorite ? "border-pink-400/60 bg-pink-500/30 text-pink-400" : "border-border bg-muted text-foreground hover:bg-accent"}`}
                 title={
                   isFavorite ? "Remove from favorites" : "Add to favorites"
                 }
@@ -745,9 +664,14 @@ export default function WidgetDraggableYouTubeLiveTV() {
               Search and choose a live YouTube TV channel.
             </DialogDescription>
           </DialogHeader>
-          <Command className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0">
+          <Command
+            shouldFilter={false}
+            className="border-0 bg-transparent text-foreground **:[[cmdk-input-wrapper]]:flex-1 **:[[cmdk-input-wrapper]]:border-0 **:[[cmdk-input-wrapper]]:px-0"
+          >
             <div className="flex flex-wrap items-center gap-2 border-b border-border p-2 pr-10">
               <CommandInput
+                value={channelSearchInput}
+                onValueChange={setChannelSearchInput}
                 placeholder="Search channels..."
                 className={widgetCommandSearchInputClass}
               />
@@ -785,12 +709,26 @@ export default function WidgetDraggableYouTubeLiveTV() {
             <CommandList
               ref={channelListRef}
               className={widgetCommandListClass}
+              onScroll={(event) => {
+                const target = event.currentTarget;
+                const remaining =
+                  target.scrollHeight - target.scrollTop - target.clientHeight;
+                if (remaining < 80) void loadMoreDialogChannels();
+              }}
             >
               <CommandEmpty className="px-3 py-2 text-xs text-muted-foreground">
-                No channels found.
+                {isDialogLoading ? "Loading channels..." : "No channels found."}
               </CommandEmpty>
-
-              {/* Favorites Section */}
+              {dialogError ? (
+                <div className="px-3 py-3 text-xs text-destructive">
+                  {dialogError}
+                </div>
+              ) : null}
+              {youtubeFilterOptionsError ? (
+                <div className="px-3 py-3 text-xs text-destructive">
+                  Unable to load country filters.
+                </div>
+              ) : null}
               {favoriteChannels.length > 0 && (
                 <CommandGroup
                   heading={
@@ -809,46 +747,36 @@ export default function WidgetDraggableYouTubeLiveTV() {
                           ? "true"
                           : undefined
                       }
-                      className={`${widgetCommandItemClass} ${
-                        channel.slug === selectedChannel?.slug
-                          ? widgetCommandItemActiveClass
-                          : ""
-                      }`}
+                      className={`${widgetCommandItemClass} ${channel.slug === selectedChannel?.slug ? widgetCommandItemActiveClass : ""}`}
                     >
-                      <div className="flex w-full items-center gap-3">
-                        {channel.logo_url && (
-                          <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
-                          >
-                            <img
-                              src={channel.logo_url}
-                              alt={channel.name}
-                              className="h-full w-full object-contain"
-                              draggable={false}
-                            />
-                          </div>
-                        )}
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-[13px] font-medium text-foreground">
-                            {channel.name}
-                          </span>
-                          <span className="truncate text-[11px] text-muted-foreground">
-                            {channel.country}
-                          </span>
-                        </div>
-                        <Heart
-                          className="h-3.5 w-3.5 text-pink-400"
-                          fill="currentColor"
-                        />
-                      </div>
+                      <DialogChannelRow channel={channel} isFavorite />
                     </CommandItem>
                   ))}
                 </CommandGroup>
               )}
-
-              {/* Categorized Channels */}
+              {selectedChannel ? (
+                <CommandGroup
+                  heading={
+                    <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      Current
+                    </span>
+                  }
+                >
+                  <CommandItem
+                    value={`${selectedChannel.name} ${selectedChannel.country} ${selectedChannel.category} ${selectedChannel.slug}`}
+                    onSelect={() => selectChannel(selectedChannel)}
+                    data-current-channel="true"
+                    className={`${widgetCommandItemClass} ${widgetCommandItemActiveClass}`}
+                  >
+                    <DialogChannelRow
+                      channel={selectedChannel}
+                      badge="Current"
+                    />
+                  </CommandItem>
+                </CommandGroup>
+              ) : null}
               {sortedCategories.map((category) => {
-                const channels = filteredChannels[category];
+                const channels = groupedChannels[category];
                 if (!channels || channels.length === 0) return null;
                 return (
                   <CommandGroup
@@ -869,45 +797,36 @@ export default function WidgetDraggableYouTubeLiveTV() {
                             ? "true"
                             : undefined
                         }
-                        className={`${widgetCommandItemClass} ${
-                          channel.slug === selectedChannel?.slug
-                            ? widgetCommandItemActiveClass
-                            : ""
-                        }`}
+                        className={`${widgetCommandItemClass} ${channel.slug === selectedChannel?.slug ? widgetCommandItemActiveClass : ""}`}
                       >
-                        <div className="flex w-full items-center gap-3">
-                          {channel.logo_url && (
-                            <div
-                              className={`flex h-8 w-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
-                            >
-                              <img
-                                src={channel.logo_url}
-                                alt={channel.name}
-                                className="h-full w-full object-contain"
-                                draggable={false}
-                              />
-                            </div>
-                          )}
-                          <div className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate text-[13px] font-medium text-foreground">
-                              {channel.name}
-                            </span>
-                            <span className="truncate text-[11px] text-muted-foreground">
-                              {channel.country}
-                            </span>
-                          </div>
-                          {favorites.includes(channel.slug) && (
-                            <Heart
-                              className="h-3.5 w-3.5 text-pink-400"
-                              fill="currentColor"
-                            />
-                          )}
-                        </div>
+                        <DialogChannelRow
+                          channel={channel}
+                          isFavorite={favorites.includes(channel.slug)}
+                        />
                       </CommandItem>
                     ))}
                   </CommandGroup>
                 );
               })}
+              {isDialogLoading ? (
+                <div className="flex items-center justify-center gap-2 px-3 py-3 text-xs text-muted-foreground">
+                  <Tv className="h-4 w-4 animate-pulse" />
+                  Loading channels...
+                </div>
+              ) : null}
+              {!isDialogLoading && hasMoreDialogChannels ? (
+                <div className="px-3 py-3">
+                  <button
+                    type="button"
+                    className="w-full cursor-pointer rounded-md border border-border bg-muted/50 px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                    onClick={() => {
+                      void loadMoreDialogChannels();
+                    }}
+                  >
+                    Load more channels
+                  </button>
+                </div>
+              ) : null}
             </CommandList>
           </Command>
         </DialogContent>
@@ -916,7 +835,49 @@ export default function WidgetDraggableYouTubeLiveTV() {
   );
 }
 
-// YouTube IFrame API types
+function DialogChannelRow({
+  channel,
+  isFavorite = false,
+  badge,
+}: {
+  channel: TVChannel;
+  isFavorite?: boolean;
+  badge?: string;
+}) {
+  return (
+    <div className="flex w-full items-center gap-3">
+      {channel.logo_url ? (
+        <div
+          className={`flex h-8 w-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
+        >
+          <img
+            src={channel.logo_url}
+            alt={channel.name}
+            className="h-full w-full object-contain"
+            draggable={false}
+          />
+        </div>
+      ) : null}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-[13px] font-medium text-foreground">
+          {channel.name}
+        </span>
+        <span className="truncate text-[11px] text-muted-foreground">
+          {channel.country}
+        </span>
+      </div>
+      {badge ? (
+        <span className="ml-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-foreground">
+          {badge}
+        </span>
+      ) : null}
+      {!badge && isFavorite ? (
+        <Heart className="h-3.5 w-3.5 text-pink-400" fill="currentColor" />
+      ) : null}
+    </div>
+  );
+}
+
 interface YTPlayer {
   playVideo(): void;
   pauseVideo(): void;
@@ -928,19 +889,15 @@ interface YTPlayer {
   getVolume(): number;
   destroy(): void;
   loadVideoById(videoId: string): void;
-  // Non-standard helper present on the iframe API instance
   getIframe?: () => HTMLIFrameElement;
 }
-
 interface YTPlayerEvent {
   target: YTPlayer;
 }
-
 interface YTOnStateChangeEvent {
   target: YTPlayer;
   data: number;
 }
-
 interface YTPlayerVars {
   autoplay?: number;
   mute?: number;
@@ -953,7 +910,6 @@ interface YTPlayerVars {
   enablejsapi?: number;
   origin?: string;
 }
-
 interface YTPlayerOptions {
   videoId?: string;
   width?: string | number;
@@ -965,11 +921,9 @@ interface YTPlayerOptions {
     onError?: (event: { data: number }) => void;
   };
 }
-
 interface YTPlayerConstructor {
   new (elementId: string | HTMLElement, options: YTPlayerOptions): YTPlayer;
 }
-
 interface YTNamespace {
   Player: YTPlayerConstructor;
   PlayerState: {
@@ -981,7 +935,6 @@ interface YTNamespace {
     CUED: number;
   };
 }
-
 declare global {
   interface Window {
     YT: YTNamespace;

@@ -7,6 +7,7 @@ type YoutubeLiveTvCollectionResponse = {
     current_page?: number;
     next_page_url?: string | null;
     total?: number;
+    per_page?: number;
   };
 };
 
@@ -25,8 +26,22 @@ type YoutubeLiveTvFetchInit = RequestInit & {
 export type YoutubeLiveTvQuery = {
   q?: string;
   page?: number;
+  limit?: number;
   category?: string;
   country?: string;
+};
+
+export type YoutubeLiveTvCollectionPage = {
+  data: TVChannel[];
+  currentPage: number;
+  nextPageUrl: string | null;
+  total: number;
+  perPage: number;
+};
+
+export type YoutubeLiveTvFilterOptions = {
+  countries: string[];
+  categories: string[];
 };
 
 const getYoutubeLiveTvApiBaseUrl = () => {
@@ -57,6 +72,9 @@ const buildYoutubeLiveTvUrl = (
 export const buildYoutubeLiveTvCollectionUrl = (query?: YoutubeLiveTvQuery) =>
   buildYoutubeLiveTvUrl("/api/youtube-live-tvs", query);
 
+export const buildYoutubeLiveTvFiltersUrl = () =>
+  buildYoutubeLiveTvUrl("/api/youtube-live-tv-filters");
+
 export const buildYoutubeLiveTvDetailUrl = (query: {
   slug?: string;
   id?: string;
@@ -65,6 +83,13 @@ export const buildYoutubeLiveTvDetailUrl = (query: {
 export const fetchYoutubeLiveTvChannelsFromUrl = async (
   url: string,
 ): Promise<TVChannel[]> => {
+  const collection = await fetchYoutubeLiveTvCollectionFromUrl(url);
+  return collection.data;
+};
+
+export const fetchYoutubeLiveTvCollectionFromUrl = async (
+  url: string,
+): Promise<YoutubeLiveTvCollectionPage> => {
   const response = await fetch(url, {
     cache: "no-store",
     headers: {
@@ -82,13 +107,27 @@ export const fetchYoutubeLiveTvChannelsFromUrl = async (
     | YoutubeLiveTvCollectionResponse
     | undefined;
 
-  return payload?.data?.data ?? [];
+  return {
+    data: payload?.data?.data ?? [],
+    currentPage: payload?.data?.current_page ?? 1,
+    nextPageUrl: payload?.data?.next_page_url ?? null,
+    total: payload?.data?.total ?? 0,
+    perPage: payload?.data?.per_page ?? 0,
+  };
 };
 
 export const fetchYoutubeLiveTvChannels = async (
   query?: YoutubeLiveTvQuery,
   init?: YoutubeLiveTvFetchInit,
 ): Promise<TVChannel[]> => {
+  const collection = await fetchYoutubeLiveTvCollection(query, init);
+  return collection.data;
+};
+
+export const fetchYoutubeLiveTvCollection = async (
+  query?: YoutubeLiveTvQuery,
+  init?: YoutubeLiveTvFetchInit,
+): Promise<YoutubeLiveTvCollectionPage> => {
   const response = await fetch(buildYoutubeLiveTvCollectionUrl(query), {
     cache: "force-cache",
     ...init,
@@ -108,7 +147,13 @@ export const fetchYoutubeLiveTvChannels = async (
     | YoutubeLiveTvCollectionResponse
     | undefined;
 
-  return payload?.data?.data ?? [];
+  return {
+    data: payload?.data?.data ?? [],
+    currentPage: payload?.data?.current_page ?? 1,
+    nextPageUrl: payload?.data?.next_page_url ?? null,
+    total: payload?.data?.total ?? 0,
+    perPage: payload?.data?.per_page ?? 0,
+  };
 };
 
 export const fetchYoutubeLiveTvChannel = async (
@@ -140,6 +185,33 @@ export const fetchYoutubeLiveTvChannel = async (
   const payload = (await response.json()) as YoutubeLiveTvSingleResponse;
   return payload?.data ?? null;
 };
+
+export const fetchYoutubeLiveTvFilterOptions =
+  async (): Promise<YoutubeLiveTvFilterOptions> => {
+    const response = await fetch(buildYoutubeLiveTvFiltersUrl(), {
+      cache: "force-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch YouTube Live TV filter options: ${response.status}`,
+      );
+    }
+
+    const payload = (await response.json()) as
+      | {
+          data?: YoutubeLiveTvFilterOptions;
+        }
+      | undefined;
+
+    return {
+      countries: payload?.data?.countries ?? [],
+      categories: payload?.data?.categories ?? [],
+    };
+  };
 
 export const groupTvChannelsByCategory = (channels: TVChannel[]) => {
   const grouped = channels.reduce(
