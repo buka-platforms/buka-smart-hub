@@ -315,7 +315,11 @@ export default function AmbientExperience({
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
       <div
         className={`absolute inset-0 transition-opacity duration-[900ms] ${
-          wallpaperLayers[0] ? (activeWallpaperLayer === 0 ? "opacity-100" : "opacity-0") : "opacity-0"
+          wallpaperLayers[0]
+            ? activeWallpaperLayer === 0
+              ? "opacity-100"
+              : "opacity-0"
+            : "opacity-0"
         }`}
         style={
           wallpaperLayers[0]
@@ -330,7 +334,11 @@ export default function AmbientExperience({
       />
       <div
         className={`absolute inset-0 transition-opacity duration-[900ms] ${
-          wallpaperLayers[1] ? (activeWallpaperLayer === 1 ? "opacity-100" : "opacity-0") : "opacity-0"
+          wallpaperLayers[1]
+            ? activeWallpaperLayer === 1
+              ? "opacity-100"
+              : "opacity-0"
+            : "opacity-0"
         }`}
         style={
           wallpaperLayers[1]
