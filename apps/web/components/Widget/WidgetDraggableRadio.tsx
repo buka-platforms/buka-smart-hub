@@ -83,7 +83,7 @@ const WIDGET_VERSION = "1.0.0";
 
 /* eslint-disable @next/next/no-img-element */
 const WIDGET_ID = "radio";
-const STATION_PAGE_SIZE = 100;
+const STATION_PAGE_SIZE = 50;
 
 type RadioStationsResponse = {
   data: {
@@ -209,6 +209,7 @@ export default function WidgetDraggableRadioPlayer() {
     const trimmedQuery = query.trim();
     const params = new URLSearchParams({
       page: String(page),
+      limit: String(STATION_PAGE_SIZE),
     });
 
     if (trimmedQuery) {
