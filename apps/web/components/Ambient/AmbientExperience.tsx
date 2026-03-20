@@ -12,7 +12,7 @@ import {
 import type { Unsplash } from "@/data/type";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Fullscreen, ImageDown, Loader2, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type AmbientExperienceProps = {
   mode?: "page" | "dialog";
@@ -43,8 +43,12 @@ export default function AmbientExperience({
   const somaFmAudioState = useAtomValue(somafmAudioStateAtom);
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
 
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [isFetchingImage, setIsFetchingImage] = useState(false);
+  const [wallpaperLayers, setWallpaperLayers] = useState<
+    [string | null, string | null]
+  >([null, null]);
+  const [activeWallpaperLayer, setActiveWallpaperLayer] = useState<0 | 1>(0);
+  const animationFrameRef = useRef<number | null>(null);
 
   const activeSource = visualizationState.activeSource;
   const ambientImage = backgroundImageState.randomBackgroundImage;
@@ -118,15 +122,54 @@ export default function AmbientExperience({
       ambientImage?.urls?.full || ambientImage?.urls?.regular || null;
 
     if (!imageUrl) {
-      setImageLoaded(false);
       return;
     }
 
     const image = new Image();
-    image.onload = () => setImageLoaded(true);
-    image.onerror = () => setImageLoaded(false);
+    image.onload = () => {
+      const activeUrl = wallpaperLayers[activeWallpaperLayer];
+
+      if (!activeUrl) {
+        setWallpaperLayers([imageUrl, null]);
+        setActiveWallpaperLayer(0);
+        return;
+      }
+
+      if (activeUrl === imageUrl) {
+        return;
+      }
+
+      const nextLayer = activeWallpaperLayer === 0 ? 1 : 0;
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      setWallpaperLayers((prev) => {
+        const next = [...prev] as [string | null, string | null];
+        next[nextLayer] = imageUrl;
+        return next;
+      });
+      animationFrameRef.current = requestAnimationFrame(() => {
+        setActiveWallpaperLayer(nextLayer);
+        animationFrameRef.current = null;
+      });
+    };
+    image.onerror = () => {};
     image.src = imageUrl;
-  }, [ambientImage?.urls?.full, ambientImage?.urls?.regular]);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [
+    activeWallpaperLayer,
+    ambientImage?.urls?.full,
+    ambientImage?.urls?.regular,
+    wallpaperLayers,
+  ]);
 
   useEffect(() => {
     if (ambientImage) {
@@ -268,19 +311,31 @@ export default function AmbientExperience({
     onClose?.();
   };
 
-  const wallpaperUrl =
-    ambientImage?.urls?.full || ambientImage?.urls?.regular || null;
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
       <div
-        className={`absolute inset-0 transition-all duration-700 ${
-          imageLoaded ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"
+        className={`absolute inset-0 transition-opacity duration-[900ms] ${
+          wallpaperLayers[0] ? (activeWallpaperLayer === 0 ? "opacity-100" : "opacity-0") : "opacity-0"
         }`}
         style={
-          wallpaperUrl
+          wallpaperLayers[0]
             ? {
-                backgroundImage: `url(${wallpaperUrl})`,
+                backgroundImage: `url(${wallpaperLayers[0]})`,
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "cover",
+              }
+            : undefined
+        }
+      />
+      <div
+        className={`absolute inset-0 transition-opacity duration-[900ms] ${
+          wallpaperLayers[1] ? (activeWallpaperLayer === 1 ? "opacity-100" : "opacity-0") : "opacity-0"
+        }`}
+        style={
+          wallpaperLayers[1]
+            ? {
+                backgroundImage: `url(${wallpaperLayers[1]})`,
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "cover",
@@ -292,11 +347,17 @@ export default function AmbientExperience({
       <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(15,23,42,0.55),rgba(15,23,42,0.12)_35%,rgba(2,6,23,0.72))]" />
 
       <div className="absolute top-4 right-4 z-20 md:top-6 md:right-6">
-        <div className="flex items-center gap-0.5 rounded-full border border-white/12 bg-black/18 p-0.5 shadow-lg shadow-black/20 backdrop-blur-xl">
+        <div
+          className="flex items-center gap-0.5 rounded-full border p-0.5 shadow-lg shadow-black/20 backdrop-blur-xl"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.48)",
+            borderColor: "rgba(0, 0, 0, 0.44)",
+          }}
+        >
           <button
             type="button"
             onClick={refreshWallpaper}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white/72 transition-colors hover:bg-white/12 hover:text-white"
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/12"
             title="Random wallpaper"
           >
             <ImageDown
@@ -306,7 +367,7 @@ export default function AmbientExperience({
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white/72 transition-colors hover:bg-white/12 hover:text-white"
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/12"
             title="Fullscreen"
           >
             <Fullscreen className="h-3.5 w-3.5" />
@@ -317,7 +378,7 @@ export default function AmbientExperience({
               onClick={() => {
                 void handleClose();
               }}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white/72 transition-colors hover:bg-white/12 hover:text-white"
+              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/12"
               title="Close"
             >
               <X className="h-3.5 w-3.5" />
@@ -326,11 +387,41 @@ export default function AmbientExperience({
         </div>
       </div>
 
-      {!imageLoaded ? (
+      {!wallpaperLayers[activeWallpaperLayer] ? (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm">
-          <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/80">
+          <div className="flex items-center gap-3 text-sm text-white/80">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading ambient wallpaper
+          </div>
+        </div>
+      ) : null}
+
+      {ambientImage ? (
+        <div className="absolute right-3 bottom-3 z-20 text-right md:right-4 md:bottom-4">
+          <div
+            className="px-2.5 py-1.5 text-xs text-white shadow-lg shadow-black/20 backdrop-blur-xl"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.42)",
+            }}
+          >
+            Photo by{" "}
+            <a
+              href={`${ambientImage.user.links.html}?utm_source=Buka&utm_medium=referral`}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-white underline decoration-white/35"
+            >
+              {ambientImage.user.name}
+            </a>{" "}
+            on{" "}
+            <a
+              href={`${ambientImage.links.html}?utm_source=Buka&utm_medium=referral`}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-white underline decoration-white/35"
+            >
+              Unsplash
+            </a>
           </div>
         </div>
       ) : null}
@@ -352,31 +443,6 @@ export default function AmbientExperience({
         <div className="flex-1" />
 
         <footer className="relative z-10 pt-6">
-          <div className="flex justify-end px-3 pb-4 text-right md:px-4 md:pb-5">
-            {ambientImage ? (
-              <div className="text-xs text-white/72">
-                Photo by{" "}
-                <a
-                  href={`${ambientImage.user.links.html}?utm_source=Buka&utm_medium=referral`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-white underline decoration-white/35"
-                >
-                  {ambientImage.user.name}
-                </a>{" "}
-                on{" "}
-                <a
-                  href={`${ambientImage.links.html}?utm_source=Buka&utm_medium=referral`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-white underline decoration-white/35"
-                >
-                  Unsplash
-                </a>
-              </div>
-            ) : null}
-          </div>
-
           <AudioSpectrumCanvas hideWhenAmbientDialogOpen={false} />
         </footer>
       </div>
