@@ -368,10 +368,10 @@ function Footer({
   return (
     <>
       {isPlaying ? (
-        <div className="fixed right-0 bottom-16 left-0 z-20 h-1 w-full bg-gray-200">
+        <div className="fixed right-0 bottom-16 left-0 z-20 h-1 w-full bg-foreground/15">
           <div
             id="music-preview-progress"
-            className="h-full bg-rose-700"
+            className="h-full bg-foreground"
             style={{ width: `${progress}%` }}
           ></div>
         </div>

@@ -455,9 +455,9 @@ export default function WidgetDraggableMusicPreview() {
             </Popover>
 
             <div className="flex-1">
-              <div className="h-1.5 w-full rounded-full bg-muted">
+              <div className="h-1.5 w-full rounded-full bg-foreground/15">
                 <div
-                  className="h-1.5 rounded-full bg-purple-600"
+                  className="h-1.5 rounded-full bg-foreground"
                   style={{ width: `${progress}%` }}
                 />
               </div>
