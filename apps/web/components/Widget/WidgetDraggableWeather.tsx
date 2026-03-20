@@ -92,9 +92,8 @@ export default function WidgetDraggableWeather() {
     },
   );
 
-  const toggleUnit = useCallback(() => {
-    setUnit((prev) => {
-      const next = prev === "metric" ? "imperial" : "metric";
+  const updateUnit = useCallback((next: "metric" | "imperial") => {
+    setUnit(() => {
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem(UNIT_STORAGE_KEY, next);
@@ -105,6 +104,10 @@ export default function WidgetDraggableWeather() {
       return next;
     });
   }, []);
+
+  const toggleUnit = useCallback(() => {
+    updateUnit(unit === "metric" ? "imperial" : "metric");
+  }, [unit, updateUnit]);
 
   // Load position from localStorage (or auto-arrange) on mount
   useEffect(() => {
@@ -357,16 +360,39 @@ export default function WidgetDraggableWeather() {
 
           {/* Separator and action bar */}
           <div className="border-t border-border" />
-          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleUnit}
-              title={`Switch to ${unit === "metric" ? "Fahrenheit" : "Celsius"}`}
-              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
-            >
-              °{unit === "metric" ? "F" : "C"}
-            </Button>
+          <div className="flex items-center gap-2 px-3 py-1.5 text-[10px] leading-tight">
+            <div className="inline-flex items-center rounded-full border border-border/70 bg-muted/50 p-[2px] shadow-inner">
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => updateUnit("metric")}
+                aria-pressed={unit === "metric"}
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                  unit === "metric"
+                    ? "bg-background text-foreground shadow-sm hover:bg-background"
+                    : "text-muted-foreground"
+                }`}
+                title="Use Celsius"
+              >
+                °C
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => updateUnit("imperial")}
+                aria-pressed={unit === "imperial"}
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                  unit === "imperial"
+                    ? "bg-background text-foreground shadow-sm hover:bg-background"
+                    : "text-muted-foreground"
+                }`}
+                title="Use Fahrenheit"
+              >
+                °F
+              </Button>
+            </div>
           </div>
         </div>
       </div>
