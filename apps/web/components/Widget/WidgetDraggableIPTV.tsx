@@ -28,12 +28,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { iptv } from "@/data/iptv";
 import { widgetVisibilityAtom } from "@/data/store";
+import type { IPTVChannel } from "@/data/type";
 import {
   startAudioVisualizationForSource,
   stopAudioVisualizationForSource,
 } from "@/lib/audio-visualizer";
+import {
+  buildIptvCollectionUrl,
+  fetchIptvChannelsFromUrl,
+  groupIptvChannelsByCategory,
+} from "@/lib/iptv-api";
 import {
   observeWidget,
   setWidgetMeasuredHeight,
@@ -48,6 +53,7 @@ import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Tv } from "lucide-react";
 // Link import removed (unused)
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useSWR from "swr";
 import {
   widgetCommandDialogContentClass,
   widgetCommandItemActiveClass,
@@ -59,44 +65,6 @@ import {
   widgetLogoPlateClass,
 } from "./widgetCommandDialogStyles";
 
-// Basic IPTV channel shape
-interface IPTVChannel {
-  id: string;
-  name: string;
-  stream_url: string;
-  logo_url?: string;
-  category?: string;
-  country?: string;
-  language?: string;
-  status?: string;
-}
-
-// Use iptv data
-const iptvChannels = iptv as IPTVChannel[];
-
-// Group channels by category
-const groupedChannels = Object.fromEntries(
-  Object.entries(
-    iptvChannels.reduce(
-      (acc, channel) => {
-        const category = channel.category || "Other";
-        if (!acc[category]) acc[category] = [];
-        acc[category].push(channel);
-        return acc;
-      },
-      {} as Record<string, IPTVChannel[]>,
-    ),
-  ).map(([category, channels]) => [
-    category,
-    [...channels].sort((a, b) => a.name.localeCompare(b.name)),
-  ]),
-) as Record<string, IPTVChannel[]>;
-
-const sortedCategories = Object.keys(groupedChannels).sort();
-const countries = [
-  ...new Set(iptvChannels.map((c) => c.country).filter(Boolean)),
-].sort() as string[];
-
 // Storage keys
 const SELECTED_CHANNEL_KEY = "widgetIPTVSelectedChannel";
 const FAVORITE_CHANNELS_KEY = "widgetIPTVFavorites";
@@ -104,6 +72,14 @@ const VOLUME_KEY = "widgetIPTVVolume";
 const QUALITY_KEY = "widgetIPTVQuality";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "1.0.0";
+const IPTV_WIDGET_URL = (() => {
+  const url = new URL(buildIptvCollectionUrl());
+  url.searchParams.set("v", "iptv-schema-v2");
+  return url.toString();
+})();
+
+const normalizeIptvSlug = (value: string | null | undefined) =>
+  (value ?? "").trim().replaceAll("_", "-");
 
 /* eslint-disable @next/next/no-img-element */
 export default function WidgetDraggableIPTV() {
@@ -124,8 +100,7 @@ export default function WidgetDraggableIPTV() {
 
   const [isPositionLoaded, setIsPositionLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-
-  const [selectedChannel, setSelectedChannel] = useState<IPTVChannel | null>(
+  const [selectedChannelSlug, setSelectedChannelSlug] = useState<string | null>(
     null,
   );
 
@@ -150,6 +125,47 @@ export default function WidgetDraggableIPTV() {
   const volumeRafRef = useRef<number | null>(null);
   const pendingVolumeRef = useRef<number | null>(null);
   const prevPlayerPointerRef = useRef<string | null>(null);
+  const didHydrateSavedStateRef = useRef(false);
+  const {
+    data: iptvChannels = [],
+    error: iptvChannelsError,
+    isLoading: isLoadingChannels,
+  } = useSWR<IPTVChannel[]>(IPTV_WIDGET_URL, fetchIptvChannelsFromUrl, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+  const groupedChannels = useMemo(
+    () => groupIptvChannelsByCategory(iptvChannels),
+    [iptvChannels],
+  );
+  const sortedCategories = useMemo(
+    () => Object.keys(groupedChannels).sort(),
+    [groupedChannels],
+  );
+  const countries = useMemo(
+    () =>
+      [
+        ...new Set(
+          iptvChannels
+            .map((channel) => channel.country)
+            .filter((country): country is string => Boolean(country)),
+        ),
+      ].sort(),
+    [iptvChannels],
+  );
+  const selectedChannel = useMemo(() => {
+    if (iptvChannels.length === 0) return null;
+
+    if (!selectedChannelSlug) {
+      return iptvChannels[0] ?? null;
+    }
+
+    return (
+      iptvChannels.find((channel) => channel.slug === selectedChannelSlug) ??
+      iptvChannels[0] ??
+      null
+    );
+  }, [iptvChannels, selectedChannelSlug]);
 
   const JW_KEY = process.env.NEXT_PUBLIC_JWPLAYER_KEY || "";
 
@@ -200,20 +216,41 @@ export default function WidgetDraggableIPTV() {
     };
   }, [JW_KEY]);
 
-  // Load saved state
   useEffect(() => {
+    if (didHydrateSavedStateRef.current || iptvChannels.length === 0) return;
+
     queueMicrotask(() => {
       try {
-        const savedId = localStorage.getItem(SELECTED_CHANNEL_KEY);
-        if (savedId) {
-          const ch = iptvChannels.find((c) => c.id === savedId);
-          if (ch) setSelectedChannel(ch);
+        const savedChannelValue = localStorage.getItem(SELECTED_CHANNEL_KEY);
+        const normalizedSavedSlug = normalizeIptvSlug(savedChannelValue);
+        if (savedChannelValue) {
+          const channel = iptvChannels.find(
+            (item) =>
+              item.slug === normalizedSavedSlug ||
+              String(item.id) === savedChannelValue,
+          );
+          if (channel) setSelectedChannelSlug(channel.slug);
         }
-        if (!savedId && iptvChannels.length > 0) {
-          setSelectedChannel(iptvChannels[0]);
+        if (!savedChannelValue && iptvChannels.length > 0) {
+          setSelectedChannelSlug(iptvChannels[0].slug);
         }
         const savedFavorites = localStorage.getItem(FAVORITE_CHANNELS_KEY);
-        if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
+        if (savedFavorites) {
+          const parsedFavorites = JSON.parse(savedFavorites) as string[];
+          const normalizedFavorites = parsedFavorites
+            .map((value) => {
+              const normalizedSlug = normalizeIptvSlug(value);
+              const channel = iptvChannels.find(
+                (item) =>
+                  item.slug === normalizedSlug || String(item.id) === value,
+              );
+
+              return channel?.slug ?? null;
+            })
+            .filter((value): value is string => Boolean(value));
+
+          setFavorites([...new Set(normalizedFavorites)]);
+        }
         const savedVolume = localStorage.getItem(VOLUME_KEY);
         if (savedVolume) setVolume(Number(savedVolume));
         const savedQuality = localStorage.getItem(QUALITY_KEY);
@@ -221,11 +258,12 @@ export default function WidgetDraggableIPTV() {
           if (savedQuality === "auto") setSelectedQuality("auto");
           else setSelectedQuality(Number(savedQuality));
         }
+        didHydrateSavedStateRef.current = true;
       } catch {
         /* ignore */
       }
     });
-  }, []);
+  }, [iptvChannels]);
 
   useEffect(() => {
     queueMicrotask(() => setIsPositionLoaded(true));
@@ -595,19 +633,19 @@ export default function WidgetDraggableIPTV() {
     setIsPlaying(false);
     setIsLoading(true);
     setHasRenderedFrame(false);
-    setSelectedChannel(channel);
+    setSelectedChannelSlug(channel.slug);
     setChannelPickerOpen(false);
     try {
-      localStorage.setItem(SELECTED_CHANNEL_KEY, channel.id);
+      localStorage.setItem(SELECTED_CHANNEL_KEY, channel.slug);
     } catch {}
   }, []);
 
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
     setFavorites((prev) => {
-      const newFavorites = prev.includes(selectedChannel.id)
-        ? prev.filter((s) => s !== selectedChannel.id)
-        : [...prev, selectedChannel.id];
+      const newFavorites = prev.includes(selectedChannel.slug)
+        ? prev.filter((s) => s !== selectedChannel.slug)
+        : [...prev, selectedChannel.slug];
       try {
         localStorage.setItem(
           FAVORITE_CHANNELS_KEY,
@@ -628,11 +666,11 @@ export default function WidgetDraggableIPTV() {
       if (categoryChannels.length > 0) filtered[category] = categoryChannels;
     }
     return filtered;
-  }, [countryFilter]);
+  }, [countryFilter, groupedChannels]);
 
   const favoriteChannels = useMemo(
-    () => iptvChannels.filter((c) => favorites.includes(c.id)),
-    [favorites],
+    () => iptvChannels.filter((c) => favorites.includes(c.slug)),
+    [favorites, iptvChannels],
   );
 
   // When channel picker opens, jump to the current selected channel.
@@ -654,10 +692,10 @@ export default function WidgetDraggableIPTV() {
       cancelAnimationFrame(raf1);
       cancelAnimationFrame(raf2);
     };
-  }, [channelPickerOpen, selectedChannel?.id, countryFilter, favorites]);
+  }, [channelPickerOpen, selectedChannel?.slug, countryFilter, favorites]);
 
   const isFavorite = selectedChannel
-    ? favorites.includes(selectedChannel.id)
+    ? favorites.includes(selectedChannel.slug)
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
   return (
@@ -762,10 +800,19 @@ export default function WidgetDraggableIPTV() {
               {/* Channel Info */}
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-xs font-semibold text-foreground">
-                  {selectedChannel?.name || "Select Channel"}
+                  {selectedChannel?.name ||
+                    (isLoadingChannels
+                      ? "Loading channels..."
+                      : "Select Channel")}
                 </span>
                 <span className="truncate text-[10px] text-muted-foreground">
-                  {selectedChannel?.country} • {selectedChannel?.category}
+                  {selectedChannel
+                    ? `${selectedChannel.country ?? "Unknown"} • ${selectedChannel.category ?? "Other"}`
+                    : iptvChannelsError
+                      ? "Unable to load live IPTV"
+                      : isLoadingChannels
+                        ? "Fetching from backend"
+                        : "Choose a live channel"}
                 </span>
               </div>
 
@@ -780,6 +827,7 @@ export default function WidgetDraggableIPTV() {
               {/* Channel Picker */}
               <button
                 onClick={() => setChannelPickerOpen(true)}
+                disabled={iptvChannels.length === 0}
                 className="flex h-7 cursor-pointer items-center gap-1 rounded-md border border-border bg-muted/50 px-2 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 title="Change channel"
               >
@@ -794,6 +842,16 @@ export default function WidgetDraggableIPTV() {
               data-first-frame={hasRenderedFrame ? "true" : "false"}
               className="relative aspect-video overflow-hidden bg-black"
             >
+              {iptvChannelsError && (
+                <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                  <div className="flex max-w-56 flex-col items-center gap-2 text-muted-foreground">
+                    <Tv className="h-10 w-10" />
+                    <span className="text-xs">
+                      Unable to load IPTV channels from the backend API.
+                    </span>
+                  </div>
+                </div>
+              )}
               {jwLoaded ? (
                 <div ref={jwElRef} className="h-full w-full" />
               ) : (
@@ -804,7 +862,15 @@ export default function WidgetDraggableIPTV() {
                   playsInline
                 />
               )}
-              {!selectedChannel && (
+              {!iptvChannelsError && isLoadingChannels && !selectedChannel && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <Tv className="h-10 w-10 animate-pulse" />
+                    <span className="text-xs">Loading IPTV channels</span>
+                  </div>
+                </div>
+              )}
+              {!iptvChannelsError && !isLoadingChannels && !selectedChannel && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <Tv className="h-10 w-10" />
@@ -917,13 +983,15 @@ export default function WidgetDraggableIPTV() {
                   {favoriteChannels.map((channel) => (
                     <CommandItem
                       key={channel.id}
-                      value={`${channel.id}`}
+                      value={`${channel.name} ${channel.country ?? ""} ${channel.category ?? ""} ${channel.slug}`}
                       onSelect={() => selectChannel(channel)}
                       data-current-channel={
-                        channel.id === selectedChannel?.id ? "true" : undefined
+                        channel.slug === selectedChannel?.slug
+                          ? "true"
+                          : undefined
                       }
                       className={`${widgetCommandItemClass} ${
-                        channel.id === selectedChannel?.id
+                        channel.slug === selectedChannel?.slug
                           ? widgetCommandItemActiveClass
                           : ""
                       }`}
@@ -974,15 +1042,15 @@ export default function WidgetDraggableIPTV() {
                     {channels.map((channel) => (
                       <CommandItem
                         key={channel.id}
-                        value={`${channel.id}`}
+                        value={`${channel.name} ${channel.country ?? ""} ${channel.category ?? ""} ${channel.slug}`}
                         onSelect={() => selectChannel(channel)}
                         data-current-channel={
-                          channel.id === selectedChannel?.id
+                          channel.slug === selectedChannel?.slug
                             ? "true"
                             : undefined
                         }
                         className={`${widgetCommandItemClass} ${
-                          channel.id === selectedChannel?.id
+                          channel.slug === selectedChannel?.slug
                             ? widgetCommandItemActiveClass
                             : ""
                         }`}
@@ -1008,7 +1076,7 @@ export default function WidgetDraggableIPTV() {
                               {channel.country}
                             </span>
                           </div>
-                          {favorites.includes(channel.id) && (
+                          {favorites.includes(channel.slug) && (
                             <Heart
                               className="h-3.5 w-3.5 text-pink-400"
                               fill="currentColor"

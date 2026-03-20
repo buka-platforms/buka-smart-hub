@@ -113,3 +113,20 @@ export interface TVChannel {
   created_at?: string;
   updated_at?: string | null;
 }
+
+export interface IPTVChannel {
+  id: number;
+  slug: string;
+  name: string;
+  stream_url: string;
+  logo_url?: string | null;
+  category?: string | null;
+  country?: string | null;
+  language?: string | null;
+  stream_type?: string | null;
+  status?: string | null;
+  sort_order?: number;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
+}
