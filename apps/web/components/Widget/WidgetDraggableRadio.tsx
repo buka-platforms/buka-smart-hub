@@ -784,12 +784,6 @@ export default function WidgetDraggableRadioPlayer() {
                             {station.country?.name_alias}
                             {station.city ? ` · ${station.city}` : ""}
                           </span>
-                          <span
-                            className="truncate text-[11px] text-muted-foreground"
-                            title={station.slug}
-                          >
-                            /radio/{station.slug}
-                          </span>
                         </div>
                         {isCurrentStation ? (
                           <span className="ml-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-foreground">
