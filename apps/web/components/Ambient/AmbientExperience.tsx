@@ -496,7 +496,7 @@ export default function AmbientExperience({
                 void handleRadioControl();
               }}
               disabled={isResumingRadio}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-90"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-90"
               title={
                 isResumingRadio
                   ? "Starting radio"
@@ -527,7 +527,7 @@ export default function AmbientExperience({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:bg-white/10 hover:text-white"
                   title="More actions"
                   style={{
                     backgroundColor: "rgba(10, 10, 10, 0.28)",
@@ -583,7 +583,7 @@ export default function AmbientExperience({
                 onClick={() => {
                   void handleClose();
                 }}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-white/78 shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:bg-white/10 hover:text-white"
                 title="Close"
                 style={{
                   backgroundColor: "rgba(10, 10, 10, 0.28)",
