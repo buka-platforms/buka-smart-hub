@@ -1,5 +1,6 @@
 "use client";
 
+import AmbientImageBrowserSheet from "@/components/Ambient/AmbientImageBrowserSheet";
 import AudioSpectrumCanvas from "@/components/General/AudioSpectrumCanvas";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import {
   Fullscreen,
   ImageDown,
+  Images,
   Loader2,
   MoreHorizontal,
   Music2,
@@ -71,6 +73,8 @@ export default function AmbientExperience({
   const setBackgroundImageState = useSetAtom(backgroundImageStateAtom);
 
   const [isFetchingImage, setIsFetchingImage] = useState(false);
+  const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const [isBrowseImagesOpen, setIsBrowseImagesOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isResumingRadio, setIsResumingRadio] = useState(false);
   const [wallpaperLayers, setWallpaperLayers] = useState<
@@ -210,6 +214,7 @@ export default function AmbientExperience({
   useEffect(() => {
     const imageUrl =
       ambientImage?.urls?.full || ambientImage?.urls?.regular || null;
+    const imageId = ambientImage?.id || null;
 
     if (!imageUrl) {
       return;
@@ -218,6 +223,18 @@ export default function AmbientExperience({
     const image = new Image();
     image.onload = () => {
       const activeUrl = wallpaperLayers[activeWallpaperLayer];
+
+      setBackgroundImageState((prev) => {
+        if (prev.randomBackgroundImage?.id !== imageId) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          isLoading: false,
+          isLoaded: true,
+        };
+      });
 
       if (!activeUrl) {
         setWallpaperLayers([imageUrl, null]);
@@ -245,7 +262,19 @@ export default function AmbientExperience({
         animationFrameRef.current = null;
       });
     };
-    image.onerror = () => {};
+    image.onerror = () => {
+      setBackgroundImageState((prev) => {
+        if (prev.randomBackgroundImage?.id !== imageId) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          isLoading: false,
+          isLoaded: false,
+        };
+      });
+    };
     image.src = imageUrl;
 
     return () => {
@@ -257,7 +286,9 @@ export default function AmbientExperience({
   }, [
     activeWallpaperLayer,
     ambientImage?.urls?.full,
+    ambientImage?.id,
     ambientImage?.urls?.regular,
+    setBackgroundImageState,
     wallpaperLayers,
   ]);
 
@@ -299,8 +330,8 @@ export default function AmbientExperience({
         if (!controller.signal.aborted && json?.data?.id) {
           setBackgroundImageState((prev) => ({
             ...prev,
-            isLoading: false,
-            isLoaded: true,
+            isLoading: true,
+            isLoaded: false,
             randomBackgroundImage: normalizeUnsplashImage(json.data),
           }));
         }
@@ -352,8 +383,8 @@ export default function AmbientExperience({
         const nextImage = normalizeUnsplashImage(json.data);
         setBackgroundImageState((prev) => ({
           ...prev,
-          isLoading: false,
-          isLoaded: true,
+          isLoading: true,
+          isLoaded: false,
           randomBackgroundImage: nextImage,
         }));
         try {
@@ -402,8 +433,20 @@ export default function AmbientExperience({
     onClose?.();
   };
 
+  const handleOpenBrowseImages = useCallback(() => {
+    setIsActionsMenuOpen(false);
+    window.setTimeout(() => {
+      setIsBrowseImagesOpen(true);
+    }, 0);
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
+      <AmbientImageBrowserSheet
+        open={isBrowseImagesOpen}
+        onOpenChange={setIsBrowseImagesOpen}
+      />
+
       <div
         className={`absolute inset-0 transition-opacity duration-[900ms] ${
           wallpaperLayers[0]
@@ -477,7 +520,11 @@ export default function AmbientExperience({
             </button>
           ) : null}
           <div className="flex items-center gap-1.5">
-            <DropdownMenu>
+            <DropdownMenu
+              modal={false}
+              open={isActionsMenuOpen}
+              onOpenChange={setIsActionsMenuOpen}
+            >
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
@@ -506,6 +553,16 @@ export default function AmbientExperience({
                       <ImageDown className="mr-2 h-4 w-4" />
                     )}
                     <span>Change image</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      handleOpenBrowseImages();
+                    }}
+                  >
+                    <Images className="mr-2 h-4 w-4" />
+                    <span>Browse images</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
