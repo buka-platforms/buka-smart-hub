@@ -11,17 +11,24 @@ import { useTheme } from "next-themes";
 
 export function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
+  const themeToggleTitle =
+    resolvedTheme === "dark" ? "Dark/night mode" : "Light/day mode";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="cursor-pointer" title="Toggle theme">
+        <button
+          type="button"
+          className="cursor-pointer"
+          title={themeToggleTitle}
+          aria-label={themeToggleTitle}
+        >
           {resolvedTheme === "dark" ? (
             <Moon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
           ) : (
             <Sun className="h-5 w-5 text-muted-foreground hover:text-foreground" />
           )}
-        </div>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem

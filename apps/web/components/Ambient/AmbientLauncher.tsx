@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 export default function AmbientLauncher() {
   const [open, setOpen] = useState(false);
   const setAmbientScreenState = useSetAtom(ambientScreenStateAtom);
+  const ambientTitle = "Ambient screen";
 
   useEffect(() => {
     setAmbientScreenState({ isDialogOpen: open });
@@ -28,7 +29,8 @@ export default function AmbientLauncher() {
     <>
       <button
         type="button"
-        title="Ambient screen"
+        title={ambientTitle}
+        aria-label={ambientTitle}
         onClick={() => setOpen(true)}
         className="cursor-pointer"
       >
