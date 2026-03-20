@@ -485,7 +485,6 @@ export default function AmbientExperience({
             : undefined
         }
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_42%),linear-gradient(180deg,rgba(3,7,18,0.16),rgba(3,7,18,0.72)_70%,rgba(2,6,23,0.94))]" />
       <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(15,23,42,0.55),rgba(15,23,42,0.12)_35%,rgba(2,6,23,0.72))]" />
 
       <div className="absolute top-4 right-4 z-20 md:top-6 md:right-6">
