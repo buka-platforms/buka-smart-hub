@@ -2,7 +2,6 @@
 
 import AmbientLauncher from "@/components/Ambient/AmbientLauncher";
 import Fullscreen from "@/components/Home/Fullscreen";
-import InfoDropdownMenu from "@/components/Home/InfoDropdownMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Command,
@@ -249,9 +248,6 @@ export default function WidgetLauncherDock() {
           >
             <LayoutGrid className="h-4 w-4" />
             <span className="hidden md:inline">Widgets</span>
-            <span className="rounded-full bg-foreground/15 px-1.5 py-0.5 text-[10px] font-semibold text-foreground dark:bg-foreground/20">
-              {visibleCount}
-            </span>
           </button>
 
           <div className="mx-1 h-8 w-px bg-border" />
@@ -284,9 +280,8 @@ export default function WidgetLauncherDock() {
 
           <div className="flex items-center gap-3">
             <AmbientLauncher />
-            <ThemeToggle />
             <Fullscreen />
-            <InfoDropdownMenu />
+            <ThemeToggle />
           </div>
         </div>
       </div>
