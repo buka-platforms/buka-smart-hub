@@ -255,6 +255,19 @@ export default function AmbientExperience({
     }
   };
 
+  const handleClose = async () => {
+    if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch {
+        // no-op
+      }
+      return;
+    }
+
+    onClose?.();
+  };
+
   const wallpaperUrl =
     ambientImage?.urls?.full || ambientImage?.urls?.regular || null;
 
@@ -301,7 +314,9 @@ export default function AmbientExperience({
           {mode === "dialog" && onClose ? (
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                void handleClose();
+              }}
               className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white/72 transition-colors hover:bg-white/12 hover:text-white"
               title="Close"
             >
