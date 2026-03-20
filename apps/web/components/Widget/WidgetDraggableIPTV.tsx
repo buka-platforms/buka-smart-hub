@@ -852,7 +852,9 @@ export default function WidgetDraggableIPTV() {
       </Dialog>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className={widgetCommandDialogContentClass}>
+        <DialogContent
+          className={`${widgetCommandDialogContentClass} [&>button]:cursor-pointer`}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Select IPTV channel</DialogTitle>
             <DialogDescription>

@@ -660,7 +660,9 @@ export default function WidgetDraggableSomaFM() {
       </div>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className={widgetCommandDialogContentClass}>
+        <DialogContent
+          className={`${widgetCommandDialogContentClass} [&>button]:cursor-pointer`}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Select Channel</DialogTitle>
             <DialogDescription>

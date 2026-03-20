@@ -680,7 +680,9 @@ export default function WidgetDraggableYouTubeLiveTV() {
       </Dialog>
 
       <Dialog open={channelPickerOpen} onOpenChange={setChannelPickerOpen}>
-        <DialogContent className={widgetCommandDialogContentClass}>
+        <DialogContent
+          className={`${widgetCommandDialogContentClass} [&>button]:cursor-pointer`}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Select YouTube channel</DialogTitle>
             <DialogDescription>
