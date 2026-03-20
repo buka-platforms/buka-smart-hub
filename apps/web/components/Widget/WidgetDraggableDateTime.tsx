@@ -149,10 +149,8 @@ export default function WidgetDraggableDateTime() {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Toggle time format
-  const toggleTimeFormat = useCallback(() => {
-    setTimeFormat((prev) => {
-      const next = prev === "12h" ? "24h" : "12h";
+  const updateTimeFormat = useCallback((next: TimeFormat) => {
+    setTimeFormat(() => {
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem(FORMAT_STORAGE_KEY, next);
@@ -163,6 +161,11 @@ export default function WidgetDraggableDateTime() {
       return next;
     });
   }, []);
+
+  // Toggle time format
+  const toggleTimeFormat = useCallback(() => {
+    updateTimeFormat(timeFormat === "12h" ? "24h" : "12h");
+  }, [timeFormat, updateTimeFormat]);
 
   // Derived values
   const userLocale =
@@ -345,16 +348,39 @@ export default function WidgetDraggableDateTime() {
 
           {/* Separator and action bar */}
           <div className="border-t border-border" />
-          <div className="flex items-center gap-2 px-3 py-2 text-[10px] leading-tight">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleTimeFormat}
-              title={`Switch to ${timeFormat === "12h" ? "24-hour" : "12-hour"} format`}
-              className="h-7 cursor-pointer rounded-full px-3 text-[10px] font-semibold tracking-wide uppercase"
-            >
-              {timeFormat === "12h" ? "24H" : "12H"}
-            </Button>
+          <div className="flex items-center gap-2 px-3 py-1.5 text-[10px] leading-tight">
+            <div className="inline-flex items-center rounded-full border border-border/70 bg-muted/50 p-[2px] shadow-inner">
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => updateTimeFormat("12h")}
+                aria-pressed={timeFormat === "12h"}
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                  timeFormat === "12h"
+                    ? "bg-background text-foreground shadow-sm hover:bg-background"
+                    : "text-muted-foreground"
+                }`}
+                title="Use 12-hour format"
+              >
+                12H
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => updateTimeFormat("24h")}
+                aria-pressed={timeFormat === "24h"}
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                  timeFormat === "24h"
+                    ? "bg-background text-foreground shadow-sm hover:bg-background"
+                    : "text-muted-foreground"
+                }`}
+                title="Use 24-hour format"
+              >
+                24H
+              </Button>
+            </div>
           </div>
         </div>
       </div>

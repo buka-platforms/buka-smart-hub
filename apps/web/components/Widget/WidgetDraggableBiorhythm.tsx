@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -356,29 +357,35 @@ export default function WidgetDraggableBiorhythm() {
                       {calculation.days}
                     </span>
                   </div>
-                  <div className="inline-flex rounded-md border border-border bg-muted/50 p-0.5">
-                    <button
+                  <div className="inline-flex items-center rounded-full border border-border/70 bg-muted/50 p-[2px] shadow-inner">
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       type="button"
                       onClick={() => setDisplayMode("bar")}
-                      className={`cursor-pointer rounded px-2 py-1 text-[10px] font-semibold ${
+                      aria-pressed={displayMode === "bar"}
+                      className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
                         displayMode === "bar"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-background text-foreground shadow-sm hover:bg-background"
+                          : "text-muted-foreground"
                       }`}
                     >
                       Bar
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       type="button"
                       onClick={() => setDisplayMode("sine")}
-                      className={`cursor-pointer rounded px-2 py-1 text-[10px] font-semibold ${
+                      aria-pressed={displayMode === "sine"}
+                      className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
                         displayMode === "sine"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-background text-foreground shadow-sm hover:bg-background"
+                          : "text-muted-foreground"
                       }`}
                     >
                       Sine
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 {displayMode === "bar" ? (
