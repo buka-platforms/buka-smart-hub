@@ -108,7 +108,7 @@ export default function WidgetDraggableNotes() {
         if (isNotesUnauthorizedError(error)) {
           setItems([]);
           setIsAuthenticated(false);
-          setSyncError("Sign in required to load notes.");
+          setSyncError(null);
           return;
         }
 
@@ -362,7 +362,7 @@ export default function WidgetDraggableNotes() {
           <div className="flex flex-col gap-3 p-3">
             {isAuthenticated === false ? (
               <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-800 dark:text-amber-200">
-                Sign in to use synced notes.
+                Sign in first to use this widget.
               </p>
             ) : null}
             {syncError ? (
@@ -398,7 +398,7 @@ export default function WidgetDraggableNotes() {
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 {isAuthenticated !== false
                   ? "No notes yet. Add your first note."
-                  : "Sign in to start saving notes."}
+                  : "Synced notes will appear here."}
               </p>
             ) : (
               visibleItems.map((item) => {

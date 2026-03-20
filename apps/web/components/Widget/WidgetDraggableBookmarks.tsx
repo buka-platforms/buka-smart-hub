@@ -125,7 +125,7 @@ export default function WidgetDraggableBookmarks() {
         if (isBookmarksUnauthorizedError(loadError)) {
           setItems([]);
           setIsAuthenticated(false);
-          setSyncError("Sign in required to load bookmarks.");
+          setSyncError(null);
           return;
         }
 
@@ -393,7 +393,7 @@ export default function WidgetDraggableBookmarks() {
           <div className="flex flex-col gap-3 p-3">
             {isAuthenticated === false ? (
               <p className="rounded-md border border-amber-200/25 bg-amber-500/10 px-2.5 py-2 text-[11px] text-amber-800 dark:text-amber-200">
-                Sign in to use synced bookmarks.
+                Sign in first to use this widget.
               </p>
             ) : null}
             {syncError ? (
@@ -429,7 +429,7 @@ export default function WidgetDraggableBookmarks() {
               <p className="px-1 py-2 text-xs text-muted-foreground">
                 {isAuthenticated !== false
                   ? "No bookmarks yet. Add your first bookmark."
-                  : "Sign in to start saving bookmarks."}
+                  : "Synced bookmarks will appear here."}
               </p>
             ) : (
               visibleItems.map((item) => (
