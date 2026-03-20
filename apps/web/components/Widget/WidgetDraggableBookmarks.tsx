@@ -57,6 +57,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const WIDGET_ID = "bookmarks";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "0.2.0";
+const MAX_VISIBLE_BOOKMARKS = 5;
 
 function normalizeUrl(input: string): string | null {
   const trimmed = input.trim();
@@ -275,7 +276,7 @@ export default function WidgetDraggableBookmarks() {
   );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
-  const visibleItems = items.slice(0, 5);
+  const visibleItems = items.slice(0, MAX_VISIBLE_BOOKMARKS);
   const hasMoreItems = items.length > visibleItems.length;
   const openAddDialog = useCallback(() => {
     setEditingId(null);
@@ -402,7 +403,7 @@ export default function WidgetDraggableBookmarks() {
             ) : null}
             <div className="flex items-center justify-between gap-3">
               <p className="text-[11px] leading-4 text-muted-foreground">
-                Showing up to 5 recent bookmarks.
+                Save links and keep them synced.
               </p>
               <Button
                 type="button"
@@ -480,9 +481,11 @@ export default function WidgetDraggableBookmarks() {
                 </div>
               ))
             )}
-            {hasMoreItems ? (
+            {visibleItems.length > 0 ? (
               <p className="px-1 pt-1 text-[11px] text-muted-foreground">
-                Showing {visibleItems.length} of {items.length} bookmarks.
+                {hasMoreItems
+                  ? `Previewing ${MAX_VISIBLE_BOOKMARKS} latest bookmarks. Open Bookmarks to view all ${items.length}.`
+                  : `Showing your ${visibleItems.length} latest bookmark${visibleItems.length === 1 ? "" : "s"}.`}
               </p>
             ) : null}
           </div>
@@ -494,7 +497,7 @@ export default function WidgetDraggableBookmarks() {
               size="sm"
               className="h-7 cursor-pointer rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
             >
-              <Link href="/apps/bookmarks">Go to bookmark</Link>
+              <Link href="/apps/bookmarks">Go to bookmarks</Link>
             </Button>
           </div>
         </div>

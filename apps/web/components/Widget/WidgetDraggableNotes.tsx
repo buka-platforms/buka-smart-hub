@@ -57,6 +57,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const WIDGET_ID = "notes";
 const WIDGET_VISIBILITY_KEY = "widgetVisibility";
 const WIDGET_VERSION = "0.2.0";
+const MAX_VISIBLE_NOTES = 5;
 
 export default function WidgetDraggableNotes() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -247,7 +248,7 @@ export default function WidgetDraggableNotes() {
   );
 
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
-  const visibleItems = items.slice(0, 5);
+  const visibleItems = items.slice(0, MAX_VISIBLE_NOTES);
   const hasMoreItems = items.length > visibleItems.length;
   const openAddDialog = useCallback(() => {
     setEditingId(null);
@@ -438,9 +439,11 @@ export default function WidgetDraggableNotes() {
                 );
               })
             )}
-            {hasMoreItems ? (
+            {visibleItems.length > 0 ? (
               <p className="px-1 pt-1 text-[11px] text-muted-foreground">
-                Showing {visibleItems.length} of {items.length} notes.
+                {hasMoreItems
+                  ? `Previewing ${MAX_VISIBLE_NOTES} latest notes. Open Notes to view all ${items.length}.`
+                  : `Showing your ${visibleItems.length} latest note${visibleItems.length === 1 ? "" : "s"}.`}
               </p>
             ) : null}
           </div>
@@ -452,7 +455,7 @@ export default function WidgetDraggableNotes() {
               size="sm"
               className="h-7 cursor-pointer rounded-sm border bg-secondary px-2.5 text-[11px] font-medium text-secondary-foreground shadow-none transition-all hover:bg-accent hover:text-accent-foreground"
             >
-              <Link href="/apps/notes">Open Notes</Link>
+              <Link href="/apps/notes">Go to notes</Link>
             </Button>
           </div>
         </div>
