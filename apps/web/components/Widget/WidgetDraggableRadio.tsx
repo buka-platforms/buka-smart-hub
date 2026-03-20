@@ -287,8 +287,6 @@ export default function WidgetDraggableRadioPlayer() {
 
   const handleStationSelect = useCallback(
     async (station: RadioStation) => {
-      setStationPickerOpen(false);
-
       try {
         localStorage.setItem(STATION_SLUG_KEY, station.slug);
       } catch {
