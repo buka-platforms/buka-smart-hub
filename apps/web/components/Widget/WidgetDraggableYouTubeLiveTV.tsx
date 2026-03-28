@@ -597,12 +597,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
               className="relative aspect-video overflow-hidden bg-black"
             >
               {selectedChannel && !isPlayerMounted && (
-                <button
-                  type="button"
-                  onClick={startPlayback}
-                  className="absolute inset-0 z-10 cursor-pointer bg-black text-left transition-opacity hover:opacity-95"
-                  title={`Play ${selectedChannel.name}`}
-                >
+                <>
                   {selectedChannelThumbnail && (
                     <img
                       src={selectedChannelThumbnail}
@@ -624,12 +619,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-black/20" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-lg">
-                      <Play className="ml-1 h-8 w-8 fill-current" />
-                    </span>
-                  </div>
-                </button>
+                </>
               )}
               {selectedChannelError && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
@@ -664,7 +654,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
                 )}
             </div>
 
-            <div className="flex items-center gap-2 border-t border-border px-3 py-2">
+            <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
               <button
                 onClick={toggleFavorite}
                 className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFavorite ? "border-pink-400/60 bg-pink-500/30 text-pink-400" : "border-border bg-muted text-foreground hover:bg-accent"}`}
@@ -676,6 +666,21 @@ export default function WidgetDraggableYouTubeLiveTV() {
                   className="h-3.5 w-3.5"
                   fill={isFavorite ? "currentColor" : "none"}
                 />
+              </button>
+              <button
+                type="button"
+                onClick={startPlayback}
+                disabled={!selectedChannel || isPlayerMounted}
+                className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${selectedChannel && !isPlayerMounted ? "cursor-pointer border-border bg-muted text-foreground hover:bg-accent" : "cursor-not-allowed border-border bg-muted/50 text-muted-foreground/70"}`}
+                title={
+                  selectedChannel
+                    ? isPlayerMounted
+                      ? `${selectedChannel.name} is playing`
+                      : `Play ${selectedChannel.name}`
+                    : "Select a channel first"
+                }
+              >
+                <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
               </button>
             </div>
           </div>
