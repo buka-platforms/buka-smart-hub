@@ -45,6 +45,7 @@ import {
   fetchYoutubeLiveTvFilterOptions,
   groupTvChannelsByCategory,
 } from "@/lib/youtube-live-tv-api";
+import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Tv } from "lucide-react";
 import {
@@ -248,20 +249,15 @@ export default function WidgetDraggableYouTubeLiveTV() {
   }, [isDragging]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.YT && window.YT.Player) {
+    let cancelled = false;
+
+    void loadYouTubeIframeApi().then(() => {
+      if (cancelled) return;
       queueMicrotask(() => setIsPlayerReady(true));
-      return;
-    }
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    tag.async = true;
-    const firstScriptTag = document.getElementsByTagName("script")[0];
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-    (
-      window as unknown as { onYouTubeIframeAPIReady: () => void }
-    ).onYouTubeIframeAPIReady = () => {
-      queueMicrotask(() => setIsPlayerReady(true));
+    });
+
+    return () => {
+      cancelled = true;
     };
   }, []);
 

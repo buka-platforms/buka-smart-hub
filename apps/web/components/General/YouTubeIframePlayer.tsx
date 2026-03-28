@@ -1,8 +1,7 @@
 "use client";
 
+import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import { useEffect, useRef } from "react";
-
-let ytApiPromise: Promise<void> | null = null;
 
 type YTPlayer = {
   destroy(): void;
@@ -38,26 +37,6 @@ type YouTubeWindow = Window & {
   onYouTubeIframeAPIReady?: () => void;
 };
 
-function loadYouTubeAPI() {
-  if (typeof window === "undefined") return Promise.resolve();
-  const w = window as YouTubeWindow;
-  if (w.YT?.Player) return Promise.resolve();
-  if (ytApiPromise) return ytApiPromise;
-
-  ytApiPromise = new Promise<void>((resolve) => {
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    tag.async = true;
-    document.body.appendChild(tag);
-
-    (window as YouTubeWindow).onYouTubeIframeAPIReady = () => {
-      resolve();
-    };
-  });
-
-  return ytApiPromise;
-}
-
 type Props = {
   videoId: string;
   title?: string;
@@ -77,7 +56,7 @@ export default function YouTubeIframePlayer({
   useEffect(() => {
     let cancelled = false;
 
-    loadYouTubeAPI().then(() => {
+    loadYouTubeIframeApi().then(() => {
       if (cancelled || !containerRef.current) return;
 
       // Clean up any previous instance
