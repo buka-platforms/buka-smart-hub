@@ -47,7 +47,7 @@ import {
 } from "@/lib/youtube-live-tv-api";
 import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import { useAtom } from "jotai";
-import { Heart, MoreHorizontal, Play, Tv } from "lucide-react";
+import { Heart, MoreHorizontal, Pause, Play, Tv } from "lucide-react";
 import {
   useCallback,
   useDeferredValue,
@@ -420,10 +420,28 @@ export default function WidgetDraggableYouTubeLiveTV() {
     },
     [isPlaying],
   );
-  const startPlayback = useCallback(() => {
-    shouldAutoPlayRef.current = true;
-    setIsPlayerMounted(true);
-  }, []);
+  const togglePlayback = useCallback(() => {
+    if (!selectedChannel) return;
+
+    if (!isPlayerMounted) {
+      shouldAutoPlayRef.current = true;
+      setIsPlayerMounted(true);
+      return;
+    }
+
+    const player = playerInstanceRef.current;
+    if (!player) return;
+
+    try {
+      if (isPlaying) {
+        player.pauseVideo();
+        setIsPlaying(false);
+      } else {
+        player.playVideo();
+        setIsPlaying(true);
+      }
+    } catch {}
+  }, [isPlayerMounted, isPlaying, selectedChannel]);
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
     setFavorites((prev) => {
@@ -669,18 +687,22 @@ export default function WidgetDraggableYouTubeLiveTV() {
               </button>
               <button
                 type="button"
-                onClick={startPlayback}
-                disabled={!selectedChannel || isPlayerMounted}
-                className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${selectedChannel && !isPlayerMounted ? "cursor-pointer border-border bg-muted text-foreground hover:bg-accent" : "cursor-not-allowed border-border bg-muted/50 text-muted-foreground/70"}`}
+                onClick={togglePlayback}
+                disabled={!selectedChannel}
+                className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${selectedChannel ? "cursor-pointer border-border bg-muted text-foreground hover:bg-accent" : "cursor-not-allowed border-border bg-muted/50 text-muted-foreground/70"}`}
                 title={
                   selectedChannel
-                    ? isPlayerMounted
-                      ? `${selectedChannel.name} is playing`
+                    ? isPlayerMounted && isPlaying
+                      ? `Pause ${selectedChannel.name}`
                       : `Play ${selectedChannel.name}`
                     : "Select a channel first"
                 }
               >
-                <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+                {isPlayerMounted && isPlaying ? (
+                  <Pause className="h-3.5 w-3.5 fill-current" />
+                ) : (
+                  <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+                )}
               </button>
             </div>
           </div>
