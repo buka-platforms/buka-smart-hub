@@ -47,7 +47,7 @@ import {
 } from "@/lib/youtube-live-tv-api";
 import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import { useAtom } from "jotai";
-import { Heart, MoreHorizontal, Tv } from "lucide-react";
+import { Heart, MoreHorizontal, Play, Tv } from "lucide-react";
 import {
   useCallback,
   useDeferredValue,
@@ -104,6 +104,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
   const [channelSearchInput, setChannelSearchInput] = useState("");
   const deferredChannelSearchInput = useDeferredValue(channelSearchInput);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isPlayerMounted, setIsPlayerMounted] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isInitializingChannel, setIsInitializingChannel] = useState(true);
@@ -267,7 +268,8 @@ export default function WidgetDraggableYouTubeLiveTV() {
   }, [volume]);
 
   useEffect(() => {
-    if (!isPlayerReady || !selectedChannel || !playerRef.current) return;
+    if (!isPlayerMounted || !isPlayerReady || !selectedChannel || !playerRef.current)
+      return;
     if (playerInstanceRef.current) {
       try {
         playerInstanceRef.current.destroy();
@@ -332,7 +334,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
         playerInstanceRef.current = null;
       }
     };
-  }, [isPlayerReady, selectedChannel]);
+  }, [isPlayerMounted, isPlayerReady, selectedChannel]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -409,6 +411,7 @@ export default function WidgetDraggableYouTubeLiveTV() {
     (channel: TVChannel) => {
       shouldAutoPlayRef.current = isPlaying;
       setIsPlaying(false);
+      setIsPlayerMounted(isPlaying);
       setSelectedChannelSlug(channel.slug);
       setChannelPickerOpen(false);
       try {
@@ -417,6 +420,10 @@ export default function WidgetDraggableYouTubeLiveTV() {
     },
     [isPlaying],
   );
+  const startPlayback = useCallback(() => {
+    shouldAutoPlayRef.current = true;
+    setIsPlayerMounted(true);
+  }, []);
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
     setFavorites((prev) => {
@@ -452,6 +459,12 @@ export default function WidgetDraggableYouTubeLiveTV() {
     ? favorites.includes(selectedChannel.slug)
     : false;
   const isVisible = isPositionLoaded && visibility[WIDGET_ID] !== false;
+  const selectedChannelThumbnail = selectedChannel
+    ? `https://i.ytimg.com/vi/${selectedChannel.source_id}/maxresdefault.jpg`
+    : null;
+  const selectedChannelThumbnailFallback = selectedChannel
+    ? `https://i.ytimg.com/vi/${selectedChannel.source_id}/hqdefault.jpg`
+    : null;
 
   return (
     <>
@@ -583,6 +596,41 @@ export default function WidgetDraggableYouTubeLiveTV() {
               ref={playerRef}
               className="relative aspect-video overflow-hidden bg-black"
             >
+              {selectedChannel && !isPlayerMounted && (
+                <button
+                  type="button"
+                  onClick={startPlayback}
+                  className="absolute inset-0 z-10 cursor-pointer bg-black text-left transition-opacity hover:opacity-95"
+                  title={`Play ${selectedChannel.name}`}
+                >
+                  {selectedChannelThumbnail && (
+                    <img
+                      src={selectedChannelThumbnail}
+                      alt={selectedChannel.name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      draggable={false}
+                      onError={(event) => {
+                        const image = event.currentTarget;
+                        if (
+                          selectedChannelThumbnailFallback &&
+                          image.src !== selectedChannelThumbnailFallback
+                        ) {
+                          image.src = selectedChannelThumbnailFallback;
+                          return;
+                        }
+                        image.onerror = null;
+                      }}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-black/20" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-lg">
+                      <Play className="ml-1 h-8 w-8 fill-current" />
+                    </span>
+                  </div>
+                </button>
+              )}
               {selectedChannelError && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                   <div className="flex max-w-56 flex-col items-center gap-2 text-muted-foreground">
