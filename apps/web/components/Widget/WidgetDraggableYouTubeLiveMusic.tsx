@@ -552,7 +552,7 @@ export default function WidgetDraggableYouTubeLiveMusic() {
                 </span>
                 <span className="truncate text-[10px] text-muted-foreground">
                   {selectedChannel
-                    ? `${selectedChannel.country} • ${selectedChannel.category}`
+                    ? selectedChannel.country
                     : selectedChannelError
                       ? "Unable to load live channels"
                       : isInitializingChannel || isLoadingSelectedChannel
