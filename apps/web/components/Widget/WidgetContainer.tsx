@@ -42,6 +42,11 @@ const WidgetDraggableYouTubeLiveTV = dynamic(
   { ssr: false },
 );
 
+const WidgetDraggableYouTubeLiveMusic = dynamic(
+  () => import("@/components/Widget/WidgetDraggableYouTubeLiveMusic"),
+  { ssr: false },
+);
+
 const WidgetDraggableMusicPreview = dynamic(
   () => import("@/components/Widget/WidgetDraggableMusicPreview"),
   { ssr: false },
@@ -222,6 +227,12 @@ export default function WidgetContainer() {
               return (
                 <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
                   <WidgetDraggableYouTubeLiveTV />
+                </WidgetWrapper>
+              );
+            case "youtubelivemusic":
+              return (
+                <WidgetWrapper key={id} widgetId={id} visible={visibility[id]}>
+                  <WidgetDraggableYouTubeLiveMusic />
                 </WidgetWrapper>
               );
             case "pomodoro":

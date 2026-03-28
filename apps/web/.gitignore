@@ -40,3 +40,4 @@ next-env.d.ts
 
 certificates
 tmp_remote_backend/
+.tmp_remote_backend/

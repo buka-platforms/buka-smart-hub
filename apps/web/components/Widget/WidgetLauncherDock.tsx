@@ -97,6 +97,12 @@ const WIDGETS: {
     description: "Watch live TV channels",
   },
   {
+    id: "youtubelivemusic",
+    label: "Live Music",
+    icon: <Music className="h-5 w-5" />,
+    description: "Watch live music channels",
+  },
+  {
     id: "iptv",
     label: "IPTV",
     icon: <Tv className="h-5 w-5" />,
@@ -163,6 +169,7 @@ export default function WidgetLauncherDock() {
       quran: true,
       iptv: true,
       youtubelivetv: true,
+      youtubelivemusic: true,
       pomodoro: true,
       onlineradioboxnowplaying: true,
       bookmarks: true,
@@ -190,6 +197,7 @@ export default function WidgetLauncherDock() {
       quran: false,
       iptv: false,
       youtubelivetv: false,
+      youtubelivemusic: false,
       pomodoro: false,
       onlineradioboxnowplaying: false,
       bookmarks: false,

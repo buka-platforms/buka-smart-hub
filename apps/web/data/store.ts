@@ -89,6 +89,7 @@ export type WidgetId =
   | "musicpreview"
   | "iptv"
   | "youtubelivetv"
+  | "youtubelivemusic"
   | "quran"
   | "pomodoro"
   | "onlineradioboxnowplaying"
@@ -105,6 +106,7 @@ export const widgetVisibilityAtom = atom<Record<WidgetId, boolean>>({
   quran: true,
   iptv: true,
   youtubelivetv: true,
+  youtubelivemusic: true,
   pomodoro: true,
   onlineradioboxnowplaying: true,
   bookmarks: true,
