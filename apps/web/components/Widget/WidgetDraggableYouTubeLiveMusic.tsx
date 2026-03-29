@@ -21,13 +21,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { widgetVisibilityAtom } from "@/data/store";
 import type { TVChannel } from "@/data/type";
 import {
@@ -42,7 +35,6 @@ import {
 import {
   fetchYoutubeLiveMusicChannel,
   fetchYoutubeLiveMusicCollection,
-  fetchYoutubeLiveMusicFilterOptions,
   groupYoutubeLiveMusicChannelsByCategory,
 } from "@/lib/youtube-live-music-api";
 import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
@@ -63,8 +55,6 @@ import {
   widgetCommandItemClass,
   widgetCommandListClass,
   widgetCommandSearchInputClass,
-  widgetCommandSelectContentClass,
-  widgetCommandSelectTriggerClass,
   widgetLogoPlateClass,
 } from "./widgetCommandDialogStyles";
 
@@ -100,7 +90,6 @@ export default function WidgetDraggableYouTubeLiveMusic() {
   const [volume, setVolume] = useState(100);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [channelPickerOpen, setChannelPickerOpen] = useState(false);
-  const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [channelSearchInput, setChannelSearchInput] = useState("");
   const deferredChannelSearchInput = useDeferredValue(channelSearchInput);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -126,12 +115,6 @@ export default function WidgetDraggableYouTubeLiveMusic() {
     ([, slug]) => fetchYoutubeLiveMusicChannel({ slug }),
     { revalidateOnFocus: false, revalidateOnReconnect: false },
   );
-  const { data: youtubeFilterOptions, error: youtubeFilterOptionsError } =
-    useSWR(
-      channelPickerOpen ? "youtube-live-music-filter-options" : null,
-      fetchYoutubeLiveMusicFilterOptions,
-      { revalidateOnFocus: false, revalidateOnReconnect: false },
-    );
   const { data: favoriteChannels = [] } = useSWR<
     TVChannel[],
     Error,
@@ -158,7 +141,6 @@ export default function WidgetDraggableYouTubeLiveMusic() {
     () => Object.keys(groupedChannels).sort(),
     [groupedChannels],
   );
-  const countries = youtubeFilterOptions?.countries ?? [];
 
   useEffect(() => {
     if (didHydrateSavedStateRef.current) return;
@@ -374,7 +356,6 @@ export default function WidgetDraggableYouTubeLiveMusic() {
           page,
           limit: CHANNEL_PAGE_SIZE,
           q: deferredChannelSearchInput.trim() || undefined,
-          country: countryFilter ?? undefined,
         });
         if (dialogRequestIdRef.current !== requestId) return;
         setDialogPage(page);
@@ -393,7 +374,7 @@ export default function WidgetDraggableYouTubeLiveMusic() {
         if (dialogRequestIdRef.current === requestId) setIsDialogLoading(false);
       }
     },
-    [countryFilter, deferredChannelSearchInput],
+    [deferredChannelSearchInput],
   );
   const loadMoreDialogChannels = useCallback(async () => {
     if (isDialogLoading || !hasMoreDialogChannels) return;
@@ -468,7 +449,7 @@ export default function WidgetDraggableYouTubeLiveMusic() {
       cancelAnimationFrame(raf1);
       cancelAnimationFrame(raf2);
     };
-  }, [channelPickerOpen, selectedChannel?.slug, countryFilter, favorites]);
+  }, [channelPickerOpen, selectedChannel?.slug, favorites]);
 
   const isFavorite = selectedChannel
     ? favorites.includes(selectedChannel.slug)
@@ -745,36 +726,6 @@ export default function WidgetDraggableYouTubeLiveMusic() {
                 placeholder="Search channels..."
                 className={widgetCommandSearchInputClass}
               />
-              <Select
-                value={countryFilter ?? "all"}
-                onValueChange={(value) =>
-                  setCountryFilter(value === "all" ? null : value)
-                }
-              >
-                <SelectTrigger
-                  aria-label="Filter by country"
-                  className={widgetCommandSelectTriggerClass}
-                >
-                  <SelectValue placeholder="All countries" />
-                </SelectTrigger>
-                <SelectContent className={widgetCommandSelectContentClass}>
-                  <SelectItem
-                    value="all"
-                    className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
-                  >
-                    All countries
-                  </SelectItem>
-                  {countries.map((country) => (
-                    <SelectItem
-                      key={country}
-                      value={country}
-                      className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
-                    >
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <CommandList
               ref={channelListRef}
@@ -792,11 +743,6 @@ export default function WidgetDraggableYouTubeLiveMusic() {
               {dialogError ? (
                 <div className="px-3 py-3 text-xs text-destructive">
                   {dialogError}
-                </div>
-              ) : null}
-              {youtubeFilterOptionsError ? (
-                <div className="px-3 py-3 text-xs text-destructive">
-                  Unable to load country filters.
                 </div>
               ) : null}
               {favoriteChannels.length > 0 && (
