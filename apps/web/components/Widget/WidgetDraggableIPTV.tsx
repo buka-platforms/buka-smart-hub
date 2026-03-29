@@ -51,7 +51,7 @@ import {
 } from "@/lib/widget-positions";
 import Hls from "hls.js";
 import { useAtom } from "jotai";
-import { Heart, MoreHorizontal, Tv } from "lucide-react";
+import { Heart, MoreHorizontal, Pause, Play, Tv } from "lucide-react";
 // Link import removed (unused)
 import {
   useCallback,
@@ -732,6 +732,58 @@ export default function WidgetDraggableIPTV() {
     } catch {}
   }, []);
 
+  const togglePlayback = useCallback(() => {
+    if (!selectedChannel) return;
+
+    const jwPlayer = jwInstanceRef.current;
+    const video = videoRef.current;
+
+    if (isPlaying) {
+      playIntentRef.current = false;
+      shouldAutoPlayRef.current = false;
+      setIsLoading(false);
+
+      try {
+        if (jwPlayer?.pause) {
+          jwPlayer.pause();
+          return;
+        }
+      } catch {}
+
+      try {
+        video?.pause();
+      } catch {}
+      return;
+    }
+
+    playIntentRef.current = true;
+    shouldAutoPlayRef.current = true;
+    setIsLoading(true);
+
+    try {
+      if (jwPlayer?.play) {
+        jwPlayer.play();
+        shouldAutoPlayRef.current = false;
+        return;
+      }
+    } catch {}
+
+    if (!video) {
+      return;
+    }
+
+    void video.play().then(
+      () => {
+        shouldAutoPlayRef.current = false;
+      },
+      () => {
+        playIntentRef.current = false;
+        shouldAutoPlayRef.current = false;
+        setIsLoading(false);
+      },
+    );
+  }, [isPlaying, selectedChannel]);
+
   const toggleFavorite = useCallback(() => {
     if (!selectedChannel) return;
     setFavorites((prev) => {
@@ -961,7 +1013,7 @@ export default function WidgetDraggableIPTV() {
             </div>
 
             {/* Player Controls */}
-            <div className="flex items-center gap-2 border-t border-border px-3 py-2">
+            <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
               <button
                 onClick={toggleFavorite}
                 className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors ${isFavorite ? "border-pink-400/60 bg-pink-500/30 text-pink-400" : "border-border bg-muted text-foreground hover:bg-accent"}`}
@@ -974,8 +1026,25 @@ export default function WidgetDraggableIPTV() {
                   fill={isFavorite ? "currentColor" : "none"}
                 />
               </button>
-
-              {/* Details button removed */}
+              <button
+                type="button"
+                onClick={togglePlayback}
+                disabled={!selectedChannel}
+                className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${selectedChannel ? "cursor-pointer border-border bg-muted text-foreground hover:bg-accent" : "cursor-not-allowed border-border bg-muted/50 text-muted-foreground/70"}`}
+                title={
+                  selectedChannel
+                    ? isPlaying
+                      ? `Pause ${selectedChannel.name}`
+                      : `Play ${selectedChannel.name}`
+                    : "Select a channel first"
+                }
+              >
+                {isPlaying ? (
+                  <Pause className="h-3.5 w-3.5 fill-current" />
+                ) : (
+                  <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+                )}
+              </button>
             </div>
           </div>
         </div>
