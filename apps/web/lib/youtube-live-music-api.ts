@@ -214,7 +214,9 @@ export const fetchYoutubeLiveMusicFilterOptions =
     };
   };
 
-export const groupYoutubeLiveMusicChannelsByCategory = (channels: TVChannel[]) => {
+export const groupYoutubeLiveMusicChannelsByCategory = (
+  channels: TVChannel[],
+) => {
   const grouped = channels.reduce(
     (accumulator, channel) => {
       const category = channel.category || "Other";

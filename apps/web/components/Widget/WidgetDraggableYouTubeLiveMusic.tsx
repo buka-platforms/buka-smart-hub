@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { widgetVisibilityAtom } from "@/data/store";
 import type { TVChannel } from "@/data/type";
+import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import {
   observeWidget,
   setWidgetMeasuredHeight,
@@ -37,7 +38,6 @@ import {
   fetchYoutubeLiveMusicCollection,
   groupYoutubeLiveMusicChannelsByCategory,
 } from "@/lib/youtube-live-music-api";
-import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Music, Pause, Play } from "lucide-react";
 import {
@@ -247,7 +247,12 @@ export default function WidgetDraggableYouTubeLiveMusic() {
   }, [volume]);
 
   useEffect(() => {
-    if (!isPlayerMounted || !isPlayerReady || !selectedChannel || !playerRef.current)
+    if (
+      !isPlayerMounted ||
+      !isPlayerReady ||
+      !selectedChannel ||
+      !playerRef.current
+    )
       return;
     if (playerInstanceRef.current) {
       try {
@@ -644,9 +649,7 @@ export default function WidgetDraggableYouTubeLiveMusic() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <Music className="h-10 w-10" />
-                      <span className="text-xs">
-                        Select a channel to watch
-                      </span>
+                      <span className="text-xs">Select a channel to watch</span>
                     </div>
                   </div>
                 )}
@@ -694,8 +697,8 @@ export default function WidgetDraggableYouTubeLiveMusic() {
           <DialogHeader>
             <DialogTitle>About YouTube Live Music Widget</DialogTitle>
             <DialogDescription className="mt-2 text-left">
-              Watch live YouTube music channels with favorites and quick
-              channel switching. Browse channels by category or country.
+              Watch live YouTube music channels with favorites and quick channel
+              switching. Browse channels by category or country.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-between border-t pt-4">

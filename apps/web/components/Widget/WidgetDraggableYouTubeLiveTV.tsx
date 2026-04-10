@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { widgetVisibilityAtom } from "@/data/store";
 import type { TVChannel } from "@/data/type";
+import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import {
   observeWidget,
   setWidgetMeasuredHeight,
@@ -45,7 +46,6 @@ import {
   fetchYoutubeLiveTvFilterOptions,
   groupTvChannelsByCategory,
 } from "@/lib/youtube-live-tv-api";
-import { loadYouTubeIframeApi } from "@/lib/load-youtube-iframe-api";
 import { useAtom } from "jotai";
 import { Heart, MoreHorizontal, Pause, Play, Tv } from "lucide-react";
 import {
@@ -268,7 +268,12 @@ export default function WidgetDraggableYouTubeLiveTV() {
   }, [volume]);
 
   useEffect(() => {
-    if (!isPlayerMounted || !isPlayerReady || !selectedChannel || !playerRef.current)
+    if (
+      !isPlayerMounted ||
+      !isPlayerReady ||
+      !selectedChannel ||
+      !playerRef.current
+    )
       return;
     if (playerInstanceRef.current) {
       try {
