@@ -170,7 +170,16 @@ export default function WidgetUserAvatar() {
             <li>
               <hr className="my-1 border-b-0 border-border" />
             </li>
-            <li className="cursor-auto px-3 pt-2 pb-2.5">
+            <li>
+              <LogoutButton className="flex w-full cursor-pointer items-center gap-x-2 px-3 py-2 text-left hover:bg-accent">
+                <LogOut size={16} className="text-muted-foreground" />
+                Logout
+              </LogoutButton>
+            </li>
+            <li>
+              <hr className="my-1 border-b-0 border-border" />
+            </li>
+            <li className="cursor-auto rounded-br-md rounded-bl-md px-3 pt-2 pb-2.5">
               <div className="flex items-center justify-between gap-3 text-sm">
                 <span className="font-semibold">
                   {process.env.NEXT_PUBLIC_APP_TITLE}
@@ -179,12 +188,6 @@ export default function WidgetUserAvatar() {
                   v{pkg.version}
                 </span>
               </div>
-            </li>
-            <li className="rounded-br-md rounded-bl-md">
-              <LogoutButton className="flex w-full cursor-pointer items-center gap-x-2 px-3 py-2 text-left hover:bg-accent">
-                <LogOut size={16} className="text-muted-foreground" />
-                Logout
-              </LogoutButton>
             </li>
           </ul>
         ) : (
