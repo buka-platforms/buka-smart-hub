@@ -183,7 +183,7 @@ export default function WidgetUserAvatar() {
             <li>
               <hr className="my-1 border-b-0 border-border" />
             </li>
-            <li>
+            <li className="pb-1">
               <LogoutButton className="flex w-full cursor-pointer items-center gap-x-2 px-3 py-2 text-left hover:bg-accent">
                 <LogOut size={16} className="text-muted-foreground" />
                 Logout
