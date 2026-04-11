@@ -368,7 +368,7 @@ export default function WidgetDraggableWeather() {
                 type="button"
                 onClick={() => updateUnit("metric")}
                 aria-pressed={unit === "metric"}
-                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all ${
                   unit === "metric"
                     ? "bg-background text-foreground shadow-sm hover:bg-background"
                     : "text-muted-foreground"
@@ -383,7 +383,7 @@ export default function WidgetDraggableWeather() {
                 type="button"
                 onClick={() => updateUnit("imperial")}
                 aria-pressed={unit === "imperial"}
-                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all ${
                   unit === "imperial"
                     ? "bg-background text-foreground shadow-sm hover:bg-background"
                     : "text-muted-foreground"
