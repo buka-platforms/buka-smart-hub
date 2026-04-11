@@ -867,6 +867,10 @@ const DialogStationResults = memo(function DialogStationResults({
   currentStationSlug?: string;
   onSelectStation: (station: RadioStation) => Promise<void>;
 }) {
+  if (stationResults.length === 0) {
+    return null;
+  }
+
   return (
     <CommandGroup
       heading={
