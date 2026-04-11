@@ -328,7 +328,7 @@ export default function WidgetDraggableBiorhythm() {
                 value={birthDate}
                 max={targetDate}
                 onChange={(e) => setBirthDate(e.target.value)}
-                className="h-8 border-input bg-background text-foreground"
+                className="h-8 w-fit self-start border-input bg-background text-foreground tabular-nums"
               />
             </div>
             <div className="grid gap-2">
@@ -340,7 +340,7 @@ export default function WidgetDraggableBiorhythm() {
                 value={targetDate}
                 min={birthDate || undefined}
                 onChange={(e) => setTargetDate(e.target.value)}
-                className="h-8 border-input bg-background text-foreground"
+                className="h-8 w-fit self-start border-input bg-background text-foreground tabular-nums"
               />
             </div>
 
