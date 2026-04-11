@@ -23,10 +23,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug;
-  const selectedTv = await fetchYoutubeLiveTvChannel(
-    { slug },
-    { next: { revalidate: 300 } },
-  );
+  const selectedTv = await fetchYoutubeLiveTvChannel({ slug });
 
   // If the selectedTv is not found, return not found
   if (!selectedTv) {
@@ -80,8 +77,8 @@ export default async function TvDetailPage({
   const slug = (await params).slug;
 
   const [selectedTv, allChannels] = await Promise.all([
-    fetchYoutubeLiveTvChannel({ slug }, { next: { revalidate: 300 } }),
-    fetchYoutubeLiveTvChannels({}, { next: { revalidate: 300 } }),
+    fetchYoutubeLiveTvChannel({ slug }),
+    fetchYoutubeLiveTvChannels(),
   ]);
 
   if (!selectedTv) {

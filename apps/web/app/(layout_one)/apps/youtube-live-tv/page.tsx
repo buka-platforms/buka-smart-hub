@@ -43,10 +43,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TvPage() {
-  const channels = await fetchYoutubeLiveTvChannels(
-    {},
-    { next: { revalidate: 300 } },
-  );
+  const channels = await fetchYoutubeLiveTvChannels();
   const sortedCategorizedTvs = groupTvChannelsByCategory(channels);
 
   /* eslint-disable @next/next/no-img-element */

@@ -129,7 +129,7 @@ export const fetchYoutubeLiveTvCollection = async (
   init?: YoutubeLiveTvFetchInit,
 ): Promise<YoutubeLiveTvCollectionPage> => {
   const response = await fetch(buildYoutubeLiveTvCollectionUrl(query), {
-    cache: "force-cache",
+    cache: init?.cache ?? "no-store",
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -164,7 +164,7 @@ export const fetchYoutubeLiveTvChannel = async (
   init?: YoutubeLiveTvFetchInit,
 ): Promise<TVChannel | null> => {
   const response = await fetch(buildYoutubeLiveTvDetailUrl(query), {
-    cache: "force-cache",
+    cache: init?.cache ?? "no-store",
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -189,7 +189,7 @@ export const fetchYoutubeLiveTvChannel = async (
 export const fetchYoutubeLiveTvFilterOptions =
   async (): Promise<YoutubeLiveTvFilterOptions> => {
     const response = await fetch(buildYoutubeLiveTvFiltersUrl(), {
-      cache: "force-cache",
+      cache: "no-store",
       headers: {
         "Content-Type": "application/json",
       },
