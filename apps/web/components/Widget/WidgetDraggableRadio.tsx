@@ -740,28 +740,6 @@ export default function WidgetDraggableRadioPlayer() {
                   ? "Searching stations..."
                   : "No stations found."}
               </CommandEmpty>
-              {radioStationState.radioStation ? (
-                <CommandGroup
-                  heading={
-                    <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
-                      Current
-                    </span>
-                  }
-                >
-                  <CommandItem
-                    value={`${radioStationState.radioStation.name} ${radioStationState.radioStation.slug} ${radioStationState.radioStation.city ?? ""} ${radioStationState.radioStation.country?.name_alias ?? ""}`}
-                    onSelect={() => {
-                      void handleStationSelect(radioStationState.radioStation!);
-                    }}
-                    className={`${widgetCommandItemClass} ${widgetCommandItemActiveClass}`}
-                  >
-                    <DialogStationRow
-                      station={radioStationState.radioStation}
-                      badge="Current"
-                    />
-                  </CommandItem>
-                </CommandGroup>
-              ) : null}
               <CommandGroup
                 heading={
                   <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
@@ -785,7 +763,6 @@ export default function WidgetDraggableRadioPlayer() {
                     >
                       <DialogStationRow
                         station={station}
-                        badge={isCurrentStation ? "Current" : undefined}
                       />
                     </CommandItem>
                   );
@@ -821,6 +798,22 @@ export default function WidgetDraggableRadioPlayer() {
                 </div>
               ) : null}
             </CommandList>
+            {radioStationState.radioStation ? (
+              <div className="border-t border-border bg-popover/95 p-2 backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleStationSelect(radioStationState.radioStation!);
+                  }}
+                  className={`flex w-full cursor-pointer rounded-md ${widgetCommandItemActiveClass} px-2 py-1.5 text-left transition-colors hover:bg-foreground/15`}
+                >
+                  <DialogStationRow
+                    station={radioStationState.radioStation}
+                    badge="Current"
+                  />
+                </button>
+              </div>
+            ) : null}
           </Command>
         </DialogContent>
       </Dialog>
