@@ -364,7 +364,7 @@ export default function WidgetDraggableBiorhythm() {
                       type="button"
                       onClick={() => setDisplayMode("bar")}
                       aria-pressed={displayMode === "bar"}
-                      className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                      className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all ${
                         displayMode === "bar"
                           ? "bg-background text-foreground shadow-sm hover:bg-background"
                           : "text-muted-foreground"
@@ -378,7 +378,7 @@ export default function WidgetDraggableBiorhythm() {
                       type="button"
                       onClick={() => setDisplayMode("sine")}
                       aria-pressed={displayMode === "sine"}
-                      className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                      className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all ${
                         displayMode === "sine"
                           ? "bg-background text-foreground shadow-sm hover:bg-background"
                           : "text-muted-foreground"
