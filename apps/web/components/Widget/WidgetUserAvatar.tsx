@@ -143,6 +143,19 @@ export default function WidgetUserAvatar() {
             <li>
               <hr className="my-1 border-b-0 border-border" />
             </li>
+            <li className="mt-1.5 cursor-auto px-3 pt-2 pb-2.5">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="font-semibold">
+                  {process.env.NEXT_PUBLIC_APP_TITLE}
+                </span>
+                <span className="rounded-sm bg-muted p-1 px-2 text-xs text-muted-foreground">
+                  v{pkg.version}
+                </span>
+              </div>
+            </li>
+            <li>
+              <hr className="my-1 border-b-0 border-border" />
+            </li>
             <li className="px-3 py-2 hover:bg-accent">
               <Link href="/apps" className="flex items-center gap-x-2">
                 <Grip size={16} className="text-muted-foreground" />
@@ -176,10 +189,10 @@ export default function WidgetUserAvatar() {
                 Logout
               </LogoutButton>
             </li>
-            <li>
-              <hr className="my-1 border-b-0 border-border" />
-            </li>
-            <li className="cursor-auto rounded-br-md rounded-bl-md px-3 pt-2 pb-2.5">
+          </ul>
+        ) : (
+          <ul className="no-bullet no-padding">
+            <li className="mt-1.5 cursor-auto rounded-tl-md rounded-tr-md px-3 pt-2 pb-2.5">
               <div className="flex items-center justify-between gap-3 text-sm">
                 <span className="font-semibold">
                   {process.env.NEXT_PUBLIC_APP_TITLE}
@@ -189,27 +202,14 @@ export default function WidgetUserAvatar() {
                 </span>
               </div>
             </li>
-          </ul>
-        ) : (
-          <ul className="no-bullet no-padding">
-            <li className="cursor-auto rounded-tl-md rounded-tr-md px-3 py-2">
-              <div>
-                <div className="font-medium">
-                  Welcome to {process.env.NEXT_PUBLIC_APP_TITLE}.
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Login and be part of us.
-                </div>
-              </div>
+            <li>
+              <hr className="my-1 border-b-0 border-border" />
             </li>
             <li className="px-3 py-2 hover:bg-accent">
               <Link href="/login" className="flex items-center gap-x-2">
                 <LogIn size={16} className="text-muted-foreground" />
                 Login
               </Link>
-            </li>
-            <li>
-              <hr className="my-1 border-b-0 border-border" />
             </li>
             <li className="px-3 py-2 hover:bg-accent">
               <Link href="/apps" className="flex items-center gap-x-2">
@@ -234,19 +234,6 @@ export default function WidgetUserAvatar() {
                 <MailQuestion size={16} className="text-muted-foreground" />
                 Contact us
               </Link>
-            </li>
-            <li>
-              <hr className="my-1 border-b-0 border-border" />
-            </li>
-            <li className="cursor-auto rounded-br-md rounded-bl-md px-3 pt-2 pb-2.5">
-              <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="font-semibold">
-                  {process.env.NEXT_PUBLIC_APP_TITLE}
-                </span>
-                <span className="rounded-sm bg-muted p-1 px-2 text-xs text-muted-foreground">
-                  v{pkg.version}
-                </span>
-              </div>
             </li>
           </ul>
         )}
