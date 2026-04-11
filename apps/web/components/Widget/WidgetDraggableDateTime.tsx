@@ -356,7 +356,7 @@ export default function WidgetDraggableDateTime() {
                 type="button"
                 onClick={() => updateTimeFormat("12h")}
                 aria-pressed={timeFormat === "12h"}
-                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all ${
                   timeFormat === "12h"
                     ? "bg-background text-foreground shadow-sm hover:bg-background"
                     : "text-muted-foreground"
@@ -371,7 +371,7 @@ export default function WidgetDraggableDateTime() {
                 type="button"
                 onClick={() => updateTimeFormat("24h")}
                 aria-pressed={timeFormat === "24h"}
-                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all hover:bg-background/80 ${
+                className={`h-5 min-w-9 cursor-pointer rounded-full px-2 text-[9px] font-semibold tracking-[0.12em] uppercase shadow-none transition-all ${
                   timeFormat === "24h"
                     ? "bg-background text-foreground shadow-sm hover:bg-background"
                     : "text-muted-foreground"
