@@ -740,6 +740,28 @@ export default function WidgetDraggableRadioPlayer() {
                   ? "Searching stations..."
                   : "No stations found."}
               </CommandEmpty>
+              {radioStationState.radioStation ? (
+                <CommandGroup
+                  heading={
+                    <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      Current
+                    </span>
+                  }
+                >
+                  <CommandItem
+                    value={`${radioStationState.radioStation.name} ${radioStationState.radioStation.slug} ${radioStationState.radioStation.city ?? ""} ${radioStationState.radioStation.country?.name_alias ?? ""}`}
+                    onSelect={() => {
+                      void handleStationSelect(radioStationState.radioStation!);
+                    }}
+                    className={`${widgetCommandItemClass} ${widgetCommandItemActiveClass}`}
+                  >
+                    <DialogStationRow
+                      station={radioStationState.radioStation}
+                      badge="Current"
+                    />
+                  </CommandItem>
+                </CommandGroup>
+              ) : null}
               <CommandGroup
                 heading={
                   <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
@@ -761,35 +783,10 @@ export default function WidgetDraggableRadioPlayer() {
                         isCurrentStation ? widgetCommandItemActiveClass : ""
                       }`}
                     >
-                      <div className="flex w-full items-start gap-3">
-                        <div
-                          className={`flex size-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
-                        >
-                          <img
-                            src={station.logo || transparent1x1Pixel}
-                            alt={station.name}
-                            className="h-full w-full object-contain"
-                            draggable={false}
-                          />
-                        </div>
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-[13px] font-medium text-foreground">
-                            {station.name}
-                          </span>
-                          <span
-                            className="truncate text-[11px] text-muted-foreground"
-                            title={station.country?.name_alias}
-                          >
-                            {station.country?.name_alias}
-                            {station.city ? ` · ${station.city}` : ""}
-                          </span>
-                        </div>
-                        {isCurrentStation ? (
-                          <span className="ml-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-foreground">
-                            Current
-                          </span>
-                        ) : null}
-                      </div>
+                      <DialogStationRow
+                        station={station}
+                        badge={isCurrentStation ? "Current" : undefined}
+                      />
                     </CommandItem>
                   );
                 })}
@@ -828,5 +825,45 @@ export default function WidgetDraggableRadioPlayer() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function DialogStationRow({
+  station,
+  badge,
+}: {
+  station: RadioStation;
+  badge?: string;
+}) {
+  return (
+    <div className="flex w-full items-center gap-3">
+      <div
+        className={`flex size-8 shrink-0 items-center justify-center ${widgetLogoPlateClass} p-1`}
+      >
+        <img
+          src={station.logo || transparent1x1Pixel}
+          alt={station.name}
+          className="h-full w-full object-contain"
+          draggable={false}
+        />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-[13px] font-medium text-foreground">
+          {station.name}
+        </span>
+        <span
+          className="truncate text-[11px] text-muted-foreground"
+          title={station.country?.name_alias}
+        >
+          {station.country?.name_alias}
+          {station.city ? ` · ${station.city}` : ""}
+        </span>
+      </div>
+      {badge ? (
+        <span className="ml-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-foreground">
+          {badge}
+        </span>
+      ) : null}
+    </div>
   );
 }
